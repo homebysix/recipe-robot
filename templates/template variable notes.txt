@@ -1,0 +1,19 @@
+Jotting these down in the hopes of keeping track of which ones I've started using.
+
+%PROD% - The name of the app.
+%AUTHOR_IDENTIFIER% - The preferred identifier prefix of the recipe author.
+%PKG_IDENTIFIER% - The bundle identifier of the app.
+%DESCRIPTION% - The description that will appear in Managed Software Center or in Casper Self Service.
+%PARENT_RECIPE% - The parent recipe of the recipe being generated.
+
+%SPARKLE_URL% - The Sparkle feed URL (NSFeedURL in Info.plist).
+
+For .download recipes that use GitHub as the source:
+%GH_OWNER% - The owner's username on GitHub (e.g. sheagcraig).
+%GH_REPO% - The repo name on GitHub (e.g. jssimporter).
+
+We'll need a bunch more for JSS recipes, including:
+%CATEGORY% - JSS category.
+(Can use existing JSSRecipeCreator for this.)
+
+Probably some for SCCM, Absolute, and DS too.
