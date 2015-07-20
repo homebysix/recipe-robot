@@ -7,6 +7,7 @@ Jotting these down in the hopes of keeping track of which ones I've started usin
 %PARENT_RECIPE% - The parent recipe of the recipe being generated.
 
 %SPARKLE_URL% - The Sparkle feed URL (NSFeedURL in Info.plist).
+%EXT% - The file extension of the download provided by the app's developer.
 
 For .download recipes that use GitHub as the source:
 %GH_OWNER% - The owner's username on GitHub (e.g. sheagcraig).

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Description</key>
-    <string>Downloads the latest version of %PROD% and imports it into Munki.</string>
+    <string>Downloads the latest version of %PROD% and imports into Munki.</string>
     <key>Identifier</key>
     <string>%AUTHOR_IDENTIFIER%.munki.%PROD%</string>
     <key>ParentRecipe</key>
@@ -54,7 +54,7 @@
             <dict>
                 <key>dmg_root</key>
                 <string>%RECIPE_CACHE_DIR%/%NAME%</string>
-                <key>dmg_path</key>
+                <key>pathname</key>
                 <string>%RECIPE_CACHE_DIR%/%NAME%.dmg</string>
             </dict>
         </dict>
@@ -63,15 +63,15 @@
             <string>MunkiPkginfoMerger</string>
         </dict>
         <dict>
+            <key>Processor</key>
+            <string>MunkiImporter</string>
             <key>Arguments</key>
             <dict>
                 <key>pkg_path</key>
-                <string>%dmg_path%</string>
+                <string>%pathname%</string>
                 <key>repo_subdirectory</key>
                 <string>%MUNKI_REPO_SUBDIR%</string>
             </dict>
-            <key>Processor</key>
-            <string>MunkiImporter</string>
         </dict>
     </array>
 </dict>

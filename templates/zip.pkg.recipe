@@ -15,6 +15,7 @@
         <key>NAME</key>
         <string>%PROD%</string>
     </dict>
+    <key>Process</key>
     <array>
         <dict>
             <key>Processor</key>
