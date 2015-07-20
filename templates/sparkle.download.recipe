@@ -32,7 +32,7 @@
             <key>Arguments</key>
             <dict>
                 <key>filename</key>
-                <string>%NAME%.dmg</string>
+                <string>%NAME%.%EXT%</string>
             </dict>
         </dict>
         <dict>
