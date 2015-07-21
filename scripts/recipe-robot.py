@@ -17,48 +17,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__version__ = '0.0.1'
 
-__debug_mode__ = True  # enables additional output
+'''
+recipe-robot.py
 
-import sys
-import shlex
-import plistlib
+Easily and automatically create AutoPkg recipes.
+
+usage: recipe-robot.py [-h] [-v] input_path
+
+positional arguments:
+    input_path            Path to a recipe or app you'd like to use as the basis
+                          for creating AutoPkg recipes.
+
+optional arguments:
+    -h, --help            show this help message and exit
+    -v, --verbose         generate additional output about the process
+'''
+
+
 from subprocess import Popen, PIPE
+import argparse
+import os.path
+import plistlib
+import shlex
+import sys
 
-'''
-SCRIPT LOGIC
 
-if input is valid .app
-    search for existing recipes
-    if NSURLFeed exists in Info.plist
-        if NSURLFeed is a valid Sparkle feed
-            add .download to the list of available recipes
-        if bundle identifier exists on a GitHub project
-            add .download (with GitHubReleasesProvider) to the list of available recipes
-        if bundle identifier exists on a SourceForge project
-            add .download (with SourceForgeReleasesProvider) to the list of available recipes
-
-if input is valid recipe
-    search for existing recipes
-    if recipe is .download
-        if result of recipe is .zip or .tar or .tgz etc
-            add .pkg (with Unarchiver processor) to the list of available recipes
-        if result of recipe is .dmg
-            add .pkg (with AppDmgVersioner process) to the list of available recipes
-        if result of recipe is .pkg
-            add .jss to the list of available recipes
-    if recipe is .pkg
-        add .jss to the list of available recipes
-    else
-        "sorry, we don't understand this recipe yet. but we're learning fast." and quit
-    else
-        "sorry, that's not valid input. try dragging on an app or a recipe." and quit
-
-present user with list of recipe options, minus the existing autopkg search results
-after user selects, then generate recipes
-
-'''
+# Global variables.
+__version__ = '0.0.1'
+__debug_mode__ = True  # enables additional output
 
 
 def get_exitcode_stdout_stderr(cmd):
@@ -70,6 +57,17 @@ def get_exitcode_stdout_stderr(cmd):
     exitcode = proc.returncode
     #
     return exitcode, out, err
+
+
+def generate_recipe(app_name, recipe_type):
+    '''Generates a recipe.'''
+    print "Generating %s.%s.recipe..." % app_name, recipe_type
+
+    # TODO: I'm guessing Shea is going to come in here and dump a load of
+    # classes for plists and recipes. Until then, I'm using find/replace like
+    # a n00b.
+
+    pass
 
 
 def main():
@@ -88,10 +86,10 @@ def main():
 
     print welcome_text
 
-    # Get the total number of args passed to the script
+    # Get the total number of args passed to the script.
     input_args_count = len(sys.argv[1:])
 
-    # Get the arguments list
+    # Get the arguments list.
     input_args = sys.argv[1:]
 
     # Set the default recipe identifier prefix.
@@ -109,6 +107,15 @@ def main():
         "ds": "Imports into your DeployStudio Packages folder."
     }
 
+    # Build the list of download formats we know about.
+    supported_download_formats = (
+        "dmg",
+        "zip",
+        "tar.gz",
+        "gzip",
+        "pkg"
+    )
+
     # Debug mode enables additional output.
     if __debug_mode__:
         print "\n"
@@ -123,8 +130,8 @@ def main():
             # Example: ['Firefox.download.recipe']
             existing_recipes = []
 
-            # Build the dict of buildable recipes and their corresponding templates.
-            # Example: {'Firefox.jss.recipe': 'pkg.jss.recipe'}
+            # Build the dict of buildable recipes and their corresponding
+            # templates. Example: {'Firefox.jss.recipe': 'pkg.jss.recipe'}
             buildable_recipes = {}
 
             print "\nProcessing %s..." % input_arg
@@ -136,7 +143,8 @@ def main():
 
                 # Figure out the name of the app.
                 try:
-                    info_plist = plistlib.readPlist(input_arg + "/Contents/Info.plist")
+                    info_plist = plistlib.readPlist(
+                        input_arg + "/Contents/Info.plist")
                     app_name = info_plist["CFBundleName"]
                 except KeyError, e:
                     try:
@@ -151,8 +159,8 @@ def main():
                 if exitcode == 0:
                     for line in out.split("\n"):
                         if ".recipe" in line:
-                            # Add the first "word" of each line of search results.
-                            # Example: Firefox.pkg.recipe
+                            # Add the first "word" of each line of search
+                            # results. Example: Firefox.pkg.recipe
                             existing_recipes.append(line.split(None, 1)[0])
                 else:
                     print err
@@ -165,11 +173,32 @@ def main():
                         print "We found a Sparkle feed: %s" % info_plist["SUFeedURL"]
                         buildable_recipes[
                             app_name + ".download.recipe"] = "sparkle.download.recipe"
+
+                        # TODO: There was no existing download recipe, but
+                        # thanks to the Sparkle feed, we now know we can build
+                        # one. However, we don't know what format the resulting
+                        # download will be. We need to find that out before we
+                        # can create recipes that use the download as a parent.
+
                     except KeyError, e:
                         print "No Sparkle feed."
 
-                # TODO: Determine whether the source download is a zip or dmg,
-                # use appropriate template.
+                        # TODO: Search GitHub for the app, to see if we can use
+                        # the GitHubReleasesProvider processor to create a
+                        # download recipe.
+
+                        # TODO: Search SourceForge for the app, to see if we
+                        # can use the SourceForgeReleasesProvider processor to
+                        # create a download recipe.
+
+                else:
+
+                    # TODO: We know that there's an existing download recipe
+                    # available, but we don't know what format the resulting
+                    # download is. We need to find that out before we can
+                    # create recipes that use the download as a parent.
+                    pass
+
                 for recipe_format in avail_recipe_formats:
                     if app_name + "." + recipe_format + ".recipe" not in existing_recipes:
                         buildable_recipes[
@@ -184,18 +213,44 @@ def main():
 
             elif input_arg[-16:] == ".download.recipe":
                 print "%s is a download recipe." % input_arg
-                # Parse the recipe to determine whether it downloads a pkg or
-                # zip.
 
-                # The following lines should probably be a definition.
-                cmd = "autopkg info %s" % input_arg
+                # Read the recipe as a plist.
+                input_recipe = plistlib.readPlist(input_arg)
+
+                # Get the app's name from the recipe.
+                app_name = input_recipe["Input"]["NAME"]
+
+                # Get the download file format.
+                # TODO: Parse the recipe properly. Don't use grep.
+                parsed_download_format = ""
+                for download_format in supported_download_formats:
+                    cmd = "grep '." + download_format + "</string>' '" + input_arg + "'"
+                    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+                    if exitcode == 0:
+                        print "Looks like this recipe downloads a %s." % download_format
+                        parsed_download_format = download_format
+                        break
+
+                # Search for existing recipes for this app.
+                cmd = "autopkg search -p %s" % app_name
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 if exitcode == 0:
-                    print out
+                    for line in out.split("\n"):
+                        if ".recipe" in line:
+                            # Add the first "word" of each line of search
+                            # results. Example: Firefox.pkg.recipe
+                            existing_recipes.append(line.split(None, 1)[0])
                 else:
                     print err
+                    raise
 
-                # Do things.
+                for recipe_format in avail_recipe_formats:
+                    if app_name + "." + recipe_format + ".recipe" not in existing_recipes:
+                        buildable_recipes[
+                            # TODO: Determine proper template to use based on download_format.
+                            app_name + "." + recipe_format + ".recipe"] = "template TBD"
+
+                # Offer to build pkg, munki, jss, etc.
 
                 print "\nExisting recipes: %s" % existing_recipes
                 print "\nAvailable recipe formats: %s" % avail_recipe_formats
@@ -216,7 +271,11 @@ def main():
                 else:
                     print err
 
-                # Do things.
+                # If this munki recipe both downloads and imports the app, we
+                # should offer to build a discrete download recipe with only
+                # the appropriate sections of the munki recipe.
+
+                # Offer to build pkg, jss, etc.
 
                 print "\nExisting recipes: %s" % existing_recipes
                 print "\nAvailable recipe formats: %s" % avail_recipe_formats
@@ -235,7 +294,10 @@ def main():
                 else:
                     print err
 
-                # Do things.
+                # Check to see whether the recipe has a download recipe as its
+                # parent. If not, offer to build a discrete download recipe.
+
+                # Offer to build munki, jss, etc.
 
                 print "\nExisting recipes: %s" % existing_recipes
                 print "\nAvailable recipe formats: %s" % avail_recipe_formats
@@ -254,12 +316,17 @@ def main():
                 else:
                     print err
 
-                # Do things.
+                # Check to see whether the recipe has a download and/or pkg
+                # recipe as its parent. If not, offer to build a discrete
+                # download and/or pkg recipe.
+
+                # Offer to build other recipes as able.
 
                 print "\nExisting recipes: %s" % existing_recipes
                 print "\nAvailable recipe formats: %s" % avail_recipe_formats
                 print "\nBuildable recipes: %s" % buildable_recipes
 
+            print "Finished processing %s" % app_name
 
 if __name__ == '__main__':
     main()
