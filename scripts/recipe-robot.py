@@ -18,7 +18,8 @@
 # limitations under the License.
 
 __version__ = '0.0.1'
-__debug_mode__ = True
+
+__debug_mode__ = True  # enables additional output
 
 import sys
 import shlex
@@ -27,10 +28,9 @@ from subprocess import Popen, PIPE
 
 '''
 SCRIPT LOGIC
-Also see: https://www.afp548.com/2015/04/06/autopkg-download-recipe-decision-making-process/
 
-if input is valid .app (validate_input)
-    search for existing recipes (autopkg_search)
+if input is valid .app
+    search for existing recipes
     if NSURLFeed exists in Info.plist
         if NSURLFeed is a valid Sparkle feed
             add .download to the list of available recipes
@@ -39,8 +39,8 @@ if input is valid .app (validate_input)
         if bundle identifier exists on a SourceForge project
             add .download (with SourceForgeReleasesProvider) to the list of available recipes
 
-if input is valid recipe (validate_input)
-    search for existing recipes (autopkg_search)
+if input is valid recipe
+    search for existing recipes
     if recipe is .download
         if result of recipe is .zip or .tar or .tgz etc
             add .pkg (with Unarchiver processor) to the list of available recipes
@@ -73,16 +73,20 @@ def get_exitcode_stdout_stderr(cmd):
 
 
 def main():
-    print "Welcome to Recipe Robot."
-    print ""
-    print "     -------------------------------"
-    print "    | I'm just pseudo-code for now. |"
-    print "     ------------------------------- "
-    print "            \   _\/_"
-    print "             \  (oo)"
-    print "               d-||-b"
-    print "                 ||"
-    print "               _/  \_"
+    '''This is where the magic happens.'''
+
+    welcome_text = '''Welcome to Recipe Robot.
+
+     -------------------------------
+    | I'm just pseudo-code for now. |
+     -------------------------------
+            \   _\/_
+             \  (oo)
+               d-||-b
+                 ||
+               _/  \_'''
+
+    print welcome_text
 
     # Get the total number of args passed to the script
     input_args_count = len(sys.argv[1:])
@@ -105,6 +109,7 @@ def main():
         "ds": "Imports into your DeployStudio Packages folder."
     }
 
+    # Debug mode enables additional output.
     if __debug_mode__:
         print "\n"
         print "Debug mode is on!"
@@ -113,40 +118,69 @@ def main():
 
     if input_args_count > 0:
         for input_arg in input_args:
+
+            # Build the list of existing recipes.
+            # Example: ['Firefox.download.recipe']
+            existing_recipes = []
+
+            # Build the dict of buildable recipes and their corresponding templates.
+            # Example: {'Firefox.jss.recipe': 'pkg.jss.recipe'}
+            buildable_recipes = {}
+
             print "\nProcessing %s..." % input_arg
 
-            if input_arg[-4:] == ".app":
+# ----------------------------------- APPS ----------------------------------- #
+
+            if input_arg[-4:] == ".app" or input_arg[-5:] == ".app/":
                 print "%s is an app." % input_arg
 
                 # Figure out the name of the app.
                 try:
-                    info_plist = plistlib.readPlist(
-                        input_arg + "/Contents/Info.plist")
+                    info_plist = plistlib.readPlist(input_arg + "/Contents/Info.plist")
                     app_name = info_plist["CFBundleName"]
                 except KeyError, e:
                     try:
                         app_name = info_plist["CFBundleExecutable"]
                     except KeyError, e:
-                        print "Can't figure out what this app is called."
+                        print "Sorry, I can't figure out what this app is called."
                         raise
 
-                # Search for existing AutoPkg recipes for this app.
-                # The following lines should probably be a definition.
+                # Search for existing recipes for this app.
                 cmd = "autopkg search -p %s" % app_name
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 if exitcode == 0:
-                    print out
-                    # Instead of printing the above, create an array of recipe
-                    # names.
+                    for line in out.split("\n"):
+                        if ".recipe" in line:
+                            # Add the first "word" of each line of search results.
+                            # Example: Firefox.pkg.recipe
+                            existing_recipes.append(line.split(None, 1)[0])
                 else:
                     print err
-                    # Can we proceed from here? Is this error recoverable?
+                    raise
 
-                # Check for a Sparkle feed in the Info.plist.
-                try:
-                    print "We found a Sparkle feed: %s" % info_plist["SUFeedURL"]
-                except KeyError, e:
-                    print "No Sparkle feed."
+                # Check for a Sparkle feed, but only if a download recipe
+                # doesn't exist.
+                if app_name + ".download.recipe" not in existing_recipes:
+                    try:
+                        print "We found a Sparkle feed: %s" % info_plist["SUFeedURL"]
+                        buildable_recipes[
+                            app_name + ".download.recipe"] = "sparkle.download.recipe"
+                    except KeyError, e:
+                        print "No Sparkle feed."
+
+                # TODO: Determine whether the source download is a zip or dmg,
+                # use appropriate template.
+                for recipe_format in avail_recipe_formats:
+                    if app_name + "." + recipe_format + ".recipe" not in existing_recipes:
+                        buildable_recipes[
+                            # TODO: Determine proper template to use.
+                            app_name + "." + recipe_format + ".recipe"] = "template TBD"
+
+                print "\nExisting recipes: %s" % existing_recipes
+                print "\nAvailable recipe formats: %s" % avail_recipe_formats
+                print "\nBuildable recipes: %s" % buildable_recipes
+
+# ----------------------------- DOWNLOAD RECIPES ----------------------------- #
 
             elif input_arg[-16:] == ".download.recipe":
                 print "%s is a download recipe." % input_arg
@@ -161,6 +195,14 @@ def main():
                 else:
                     print err
 
+                # Do things.
+
+                print "\nExisting recipes: %s" % existing_recipes
+                print "\nAvailable recipe formats: %s" % avail_recipe_formats
+                print "\nBuildable recipes: %s" % buildable_recipes
+
+# ------------------------------ MUNKI RECIPES ------------------------------- #
+
             elif input_arg[-13:] == ".munki.recipe":
                 print "%s is a munki recipe." % input_arg
                 # Determine whether there's already a download Parent recipe.
@@ -174,6 +216,14 @@ def main():
                 else:
                     print err
 
+                # Do things.
+
+                print "\nExisting recipes: %s" % existing_recipes
+                print "\nAvailable recipe formats: %s" % avail_recipe_formats
+                print "\nBuildable recipes: %s" % buildable_recipes
+
+# ------------------------------- PKG RECIPES -------------------------------- #
+
             elif input_arg[-11:] == ".pkg.recipe":
                 print "%s is a pkg recipe." % input_arg
 
@@ -185,6 +235,14 @@ def main():
                 else:
                     print err
 
+                # Do things.
+
+                print "\nExisting recipes: %s" % existing_recipes
+                print "\nAvailable recipe formats: %s" % avail_recipe_formats
+                print "\nBuildable recipes: %s" % buildable_recipes
+
+# ------------------------------- JSS RECIPES -------------------------------- #
+
             elif input_arg[-11:] == ".jss.recipe":
                 print "%s is a jss recipe." % input_arg
 
@@ -195,6 +253,12 @@ def main():
                     print out
                 else:
                     print err
+
+                # Do things.
+
+                print "\nExisting recipes: %s" % existing_recipes
+                print "\nAvailable recipe formats: %s" % avail_recipe_formats
+                print "\nBuildable recipes: %s" % buildable_recipes
 
 
 if __name__ == '__main__':
