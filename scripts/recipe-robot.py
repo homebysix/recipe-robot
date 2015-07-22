@@ -72,6 +72,11 @@ class bcolors:
 #     print bcolors.UNDERLINE + "UNDERLINE" + bcolors.ENDC
 
 
+class InputType(object):
+    """Python pseudo-enum for describing types of input."""
+    (app, download_recipe) = range(2)
+
+
 def get_exitcode_stdout_stderr(cmd):
     '''Execute the external command and get its exitcode, stdout and stderr.'''
     args = shlex.split(cmd)
@@ -159,6 +164,19 @@ def build_argument_parser():
                         help="Generate additional output about the process.")
 
     return parser
+
+
+def get_input_type(input_path):
+    """Determine the type of recipe generation needed based on path.
+
+    Args:
+        input_path: String path to an app, download recipe, etc.
+
+    Returns:
+        Int pseudo-enum value of InputType.
+    """
+    if input_path[-4:] == ".app" or input_path[-5:] == ".app/":
+        return InputType.app
 
 
 def main():
@@ -252,6 +270,15 @@ def main():
         plistlib.writePlist(prefs, __pref_file__)
 
     print "\nProcessing %s ..." % input_path
+
+    # Orchestrate helper functions to handle input_path's "type".
+    input_type = get_input_type(input_path)
+    if input_type is InputType.app:
+        # Handle app input...
+        pass
+    elif input_type is InputType.download-recipe:
+        # Handle download recipe input...
+        pass
 
 
 # ----------------------------------- APPS ----------------------------------- #
