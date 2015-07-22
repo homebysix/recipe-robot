@@ -75,7 +75,11 @@ class bcolors:
 
 class InputType(object):
     """Python pseudo-enum for describing types of input."""
-    (app, download_recipe) = range(2)
+    (app,
+     download_recipe,
+     munki_recipe,
+     pkg_recipe,
+     jss_recipe) = range(5)
 
 
 def get_exitcode_stdout_stderr(cmd):
@@ -178,8 +182,16 @@ def get_input_type(input_path):
     Returns:
         Int pseudo-enum value of InputType.
     """
-    if input_path.rstrip("/".endswith(".app"):
+    if input_path.rstrip("/").endswith(".app"):
         return InputType.app
+    elif input_path.endswith(".download.recipe"):
+        return InputType.download_recipe
+    elif input_path.endswith(".pkg.recipe"):
+        return InputType.pkg_recipe
+    elif input_path.endswith(".munki.recipe"):
+        return InputType.munki_recipe
+    elif input_path.endswith(".jss.recipe"):
+        return InputType.jss_recipe
 
 
 def main():
@@ -240,7 +252,7 @@ def main():
         print "    DEBUG MODE:  ON"
         print "    INPUT PATH:  %s " % input_path + bcolors.ENDC
 
-# ---------------------------------- CONFIG ---------------------------------- #
+    # ---------------------------------- CONFIG ------------------------------#
 
     # If the preferences file already exists, read it. Otherwise, create it.
     if os.path.isfile(__pref_file__):
