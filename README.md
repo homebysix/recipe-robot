@@ -6,7 +6,7 @@ __Table of contents__
 
 - [Overview](#overview)
 - [Project Status](#project-status)
-- [Contributing](#contributing)
+- [Contributing Code](#contributing-code)
 
 <!-- /MarkdownTOC -->
 
@@ -40,9 +40,10 @@ This two-pronged approach will allow AutoPkg novices to easily create recipes th
     - [ ] Creates a basic download recipe from Sparkle feed
     - [ ] Creates advanced download recipes ([see this article](https://www.afp548.com/2015/04/06/autopkg-download-recipe-decision-making-process/))
     - [ ] Creates a basic munki recipe from a download recipe
+    - [ ] Creates a basic munki recipe from a pkg recipe
     - [ ] Creates a basic pkg recipe from a download recipe
     - [ ] Creates a basic jss recipe from a pkg recipe
-    - [ ] Recipe format configuration options
+    - [ ] Recipe format configuration options (identifier and recipe types)
 - [ ] __Mac app__
     - [ ] Preferences window UI
     - [ ] File input UI (basic file picker)
@@ -55,7 +56,7 @@ This two-pronged approach will allow AutoPkg novices to easily create recipes th
     - [ ] Polish, bug fixes
     - [ ] Package, release, promote
 
-## Contributing
+## Contributing Code
 
 I can't do this all myself, so I welcome contributions! Get in touch with me on [Twitter](https://twitter.com/homebysix), or just submit a PR if there's something you really want to tackle.
 
