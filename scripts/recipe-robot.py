@@ -271,6 +271,14 @@ def main():
 
     print "\nProcessing %s ..." % input_path
 
+    # Build the list of existing recipes.
+    # Example: ['Firefox.download.recipe']
+    existing_recipes = []
+
+    # Build the dict of buildable recipes and their corresponding
+    # templates. Example: {'Firefox.jss.recipe': 'pkg.jss.recipe'}
+    buildable_recipes = {}
+
     # Orchestrate helper functions to handle input_path's "type".
     input_type = get_input_type(input_path)
     if input_type is InputType.app:
@@ -299,6 +307,18 @@ def main():
                 print bcolors.ERROR
                 print "[ERROR] Sorry, I can't figure out what this app is called." + bcolors.ENDC
                 sys.exit(1)
+
+        # Search for existing recipes for this app.
+        cmd = "autopkg search -p %s" % app_name
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            for line in out.split("\n"):
+                if ".recipe" in line:
+                    # Add the first "word" of each line of search
+                    # results. Example: Firefox.pkg.recipe
+                    existing_recipes.append(line.split(None, 1)[0])
+        else:
+            print err
             sys.exit(exitcode)
 
         # Check for a Sparkle feed, but only if a download recipe
