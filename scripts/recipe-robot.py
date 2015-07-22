@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Recipe Robot
-# Copyright 2015 Elliot Jordan
+# Copyright 2015 Elliot Jordan, Shea G. Craig
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,9 +34,10 @@ optional arguments:
     -v, --verbose         Generate additional output about the process.
 '''
 
+
+import argparse
 from pprint import pprint
 from subprocess import Popen, PIPE
-import argparse
 import os.path
 import plistlib
 import shlex
@@ -147,6 +148,19 @@ def generate_recipe(app_name, recipe_type):
     pass
 
 
+def build_argument_parser():
+    """Builds and returns the argument parser for Recipe Robot."""
+    parser = argparse.ArgumentParser(description="Easily and automatically "
+                                     "create AutoPkg recipes.")
+    parser.add_argument("input_path", help="Path to a recipe or app you'd "
+                        "like to use as the basis for creating AutoPkg "
+                        "recipes.")
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help="Generate additional output about the process.")
+
+    return parser
+
+
 def main():
     '''This is where the magic happens.'''
 
@@ -163,18 +177,21 @@ def main():
 
     print welcome_text
 
-    # Get the input path.
-    # TODO: Prompt for an input path if one is not specified.
-    try:
-        input_path = str(sys.argv[1]).strip()
-    except IndexError:
-        print bcolors.ERROR + "[ERROR] No input path specified. Please try again with a valid input path." + bcolors.ENDC
-        sys.exit(1)
+    argparser = build_argument_parser()
+    args = argparser.parse_args()
+
+    # Temporary argument handling
+    input_path = args.input_path
 
     # TODO: Verify that the input path actually exists.
     if not os.path.exists(input_path):
         print bcolors.ERROR + "[ERROR] Input path does not exist. Please try again with a valid input path." + bcolors.ENDC
         sys.exit(1)
+
+    # Set the default recipe identifier prefix.
+    # I imagine this needs to be a defaulted value.
+    # TODO(Shea): Implement preferences.
+    default_identifier_prefix = "com.github.homebysix"
 
     # Build the recipe format offerings.
     avail_recipe_formats = {
@@ -236,13 +253,6 @@ def main():
 
     print "\nProcessing %s ..." % input_path
 
-    # Build the list of existing recipes.
-    # Example: ['Firefox.download.recipe']
-    existing_recipes = []
-
-    # Build the dict of buildable recipes and their corresponding
-    # templates. Example: {'Firefox.jss.recipe': 'pkg.jss.recipe'}
-    buildable_recipes = {}
 
 # ----------------------------------- APPS ----------------------------------- #
 
@@ -262,18 +272,6 @@ def main():
                 print bcolors.ERROR
                 print "[ERROR] Sorry, I can't figure out what this app is called." + bcolors.ENDC
                 sys.exit(1)
-
-        # Search for existing recipes for this app.
-        cmd = "autopkg search -p %s" % app_name
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        if exitcode == 0:
-            for line in out.split("\n"):
-                if ".recipe" in line:
-                    # Add the first "word" of each line of search
-                    # results. Example: Firefox.pkg.recipe
-                    existing_recipes.append(line.split(None, 1)[0])
-        else:
-            print err
             sys.exit(exitcode)
 
         # Check for a Sparkle feed, but only if a download recipe
