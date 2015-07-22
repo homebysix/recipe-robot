@@ -43,6 +43,7 @@ import plistlib
 import shlex
 import sys
 
+
 # Global variables.
 __version__ = '0.0.1'
 __debug_mode__ = True  # set to True for additional output
@@ -162,6 +163,8 @@ def build_argument_parser():
                         "recipes.")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="Generate additional output about the process.")
+    parser.add_argument("--plist", action="store_true",
+                        help="Output all results as plists.")
 
     return parser
 
