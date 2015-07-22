@@ -178,7 +178,7 @@ def get_input_type(input_path):
     Returns:
         Int pseudo-enum value of InputType.
     """
-    if input_path[-4:] == ".app" or input_path[-5:] == ".app/":
+    if input_path.rstrip("/".endswith(".app"):
         return InputType.app
 
 
