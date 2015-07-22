@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner"/>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <view key="contentView" id="EiT-Mj-1SZ">
+                <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="BqH-hh-p92">
+                        <rect key="frame" x="17" y="17" width="446" height="236"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" imageFrameStyle="grayBezel" id="Wg8-WP-D7n"/>
+                    </imageView>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="S3H-Mx-Ua1">
+                        <rect key="frame" x="198" y="152" width="85" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="81" id="UZo-4c-dAN"/>
+                        </constraints>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="Wgv-HT-hXs">
+                            <font key="font" metaFont="systemBold" size="17"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ycs-Cp-n2L">
+                        <rect key="frame" x="120" y="98" width="240" height="46"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="236" id="DTd-d1-JiN"/>
+                            <constraint firstAttribute="height" constant="46" id="KuF-qg-q7X"/>
+                        </constraints>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="You can drag an app or an existing AutoPkg recipe into this area." id="PX6-KZ-HcZ">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="BqH-hh-p92" secondAttribute="trailing" constant="20" id="Msp-Ch-QMW"/>
+                    <constraint firstItem="S3H-Mx-Ua1" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="97" id="OHP-yu-v72"/>
+                    <constraint firstAttribute="centerX" secondItem="ycs-Cp-n2L" secondAttribute="centerX" id="Qgv-5Y-XW4"/>
+                    <constraint firstItem="ycs-Cp-n2L" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="126" id="Sti-wU-YwQ"/>
+                    <constraint firstAttribute="bottom" secondItem="BqH-hh-p92" secondAttribute="bottom" constant="20" id="dCg-jK-2nK"/>
+                    <constraint firstItem="BqH-hh-p92" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="f3e-4D-FqA"/>
+                    <constraint firstItem="BqH-hh-p92" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="fP5-1m-ZYh"/>
+                    <constraint firstAttribute="centerX" secondItem="S3H-Mx-Ua1" secondAttribute="centerX" constant="-0.5" id="sId-1D-cDx"/>
+                </constraints>
+            </view>
+        </window>
+        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="jqH-yG-Lez">
+            <rect key="frame" x="0.0" y="0.0" width="63" height="34"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <textFieldCell key="cell" controlSize="mini" sendsActionOnEndEditing="YES" title="Multiline Label" id="43h-XD-ajy">
+                <font key="font" metaFont="system"/>
+                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+            </textFieldCell>
+        </textField>
+    </objects>
+</document>

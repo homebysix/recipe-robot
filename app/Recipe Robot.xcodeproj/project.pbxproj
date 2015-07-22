@@ -1,0 +1,433 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
+		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
+		8B42AC891B5C5BEC0058A814 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC871B5C5BEC0058A814 /* MainMenu.xib */; };
+		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
+		8B42AC9F1B5C5C1C0058A814 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC9E1B5C5C1C0058A814 /* Preferences.xib */; };
+		8B42ACA11B5C5C540058A814 /* MainWindow00.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42ACA01B5C5C540058A814 /* MainWindow00.xib */; };
+		8B42ACA31B5C5C5D0058A814 /* MainWindow01.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42ACA21B5C5C5D0058A814 /* MainWindow01.xib */; };
+		8B42ACA51B5C5C690058A814 /* MainWindow02.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42ACA41B5C5C690058A814 /* MainWindow02.xib */; };
+		8B42ACA71B5C5C740058A814 /* MainWindow03.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42ACA61B5C5C740058A814 /* MainWindow03.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8B42AC8F1B5C5BEC0058A814 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B42AC761B5C5BEC0058A814 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8B42AC7D1B5C5BEC0058A814;
+			remoteInfo = "Recipe Robot";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		8B42AC7E1B5C5BEC0058A814 /* Recipe Robot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Recipe Robot.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B42AC821B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		8B42AC851B5C5BEC0058A814 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		8B42AC881B5C5BEC0058A814 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		8B42AC8E1B5C5BEC0058A814 /* Recipe RobotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Recipe RobotTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B42AC931B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe_RobotTests.swift; sourceTree = "<group>"; };
+		8B42AC9E1B5C5C1C0058A814 /* Preferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
+		8B42ACA01B5C5C540058A814 /* MainWindow00.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow00.xib; sourceTree = "<group>"; };
+		8B42ACA21B5C5C5D0058A814 /* MainWindow01.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow01.xib; sourceTree = "<group>"; };
+		8B42ACA41B5C5C690058A814 /* MainWindow02.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow02.xib; sourceTree = "<group>"; };
+		8B42ACA61B5C5C740058A814 /* MainWindow03.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow03.xib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8B42AC7B1B5C5BEC0058A814 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B42AC8B1B5C5BEC0058A814 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8B42AC751B5C5BEC0058A814 = {
+			isa = PBXGroup;
+			children = (
+				8B42AC801B5C5BEC0058A814 /* Recipe Robot */,
+				8B42AC911B5C5BEC0058A814 /* Recipe RobotTests */,
+				8B42AC7F1B5C5BEC0058A814 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8B42AC7F1B5C5BEC0058A814 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8B42AC7E1B5C5BEC0058A814 /* Recipe Robot.app */,
+				8B42AC8E1B5C5BEC0058A814 /* Recipe RobotTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8B42AC801B5C5BEC0058A814 /* Recipe Robot */ = {
+			isa = PBXGroup;
+			children = (
+				8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */,
+				8B42AC851B5C5BEC0058A814 /* Images.xcassets */,
+				8B42AC871B5C5BEC0058A814 /* MainMenu.xib */,
+				8B42AC811B5C5BEC0058A814 /* Supporting Files */,
+				8B42AC9E1B5C5C1C0058A814 /* Preferences.xib */,
+				8B42ACA01B5C5C540058A814 /* MainWindow00.xib */,
+				8B42ACA21B5C5C5D0058A814 /* MainWindow01.xib */,
+				8B42ACA41B5C5C690058A814 /* MainWindow02.xib */,
+				8B42ACA61B5C5C740058A814 /* MainWindow03.xib */,
+			);
+			path = "Recipe Robot";
+			sourceTree = "<group>";
+		};
+		8B42AC811B5C5BEC0058A814 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				8B42AC821B5C5BEC0058A814 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		8B42AC911B5C5BEC0058A814 /* Recipe RobotTests */ = {
+			isa = PBXGroup;
+			children = (
+				8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */,
+				8B42AC921B5C5BEC0058A814 /* Supporting Files */,
+			);
+			path = "Recipe RobotTests";
+			sourceTree = "<group>";
+		};
+		8B42AC921B5C5BEC0058A814 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				8B42AC931B5C5BEC0058A814 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8B42AC7D1B5C5BEC0058A814 /* Recipe Robot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B42AC981B5C5BEC0058A814 /* Build configuration list for PBXNativeTarget "Recipe Robot" */;
+			buildPhases = (
+				8B42AC7A1B5C5BEC0058A814 /* Sources */,
+				8B42AC7B1B5C5BEC0058A814 /* Frameworks */,
+				8B42AC7C1B5C5BEC0058A814 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Recipe Robot";
+			productName = "Recipe Robot";
+			productReference = 8B42AC7E1B5C5BEC0058A814 /* Recipe Robot.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8B42AC8D1B5C5BEC0058A814 /* Recipe RobotTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B42AC9B1B5C5BEC0058A814 /* Build configuration list for PBXNativeTarget "Recipe RobotTests" */;
+			buildPhases = (
+				8B42AC8A1B5C5BEC0058A814 /* Sources */,
+				8B42AC8B1B5C5BEC0058A814 /* Frameworks */,
+				8B42AC8C1B5C5BEC0058A814 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8B42AC901B5C5BEC0058A814 /* PBXTargetDependency */,
+			);
+			name = "Recipe RobotTests";
+			productName = "Recipe RobotTests";
+			productReference = 8B42AC8E1B5C5BEC0058A814 /* Recipe RobotTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8B42AC761B5C5BEC0058A814 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = "Linde Group";
+				TargetAttributes = {
+					8B42AC7D1B5C5BEC0058A814 = {
+						CreatedOnToolsVersion = 6.3.2;
+					};
+					8B42AC8D1B5C5BEC0058A814 = {
+						CreatedOnToolsVersion = 6.3.2;
+						TestTargetID = 8B42AC7D1B5C5BEC0058A814;
+					};
+				};
+			};
+			buildConfigurationList = 8B42AC791B5C5BEC0058A814 /* Build configuration list for PBXProject "Recipe Robot" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8B42AC751B5C5BEC0058A814;
+			productRefGroup = 8B42AC7F1B5C5BEC0058A814 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8B42AC7D1B5C5BEC0058A814 /* Recipe Robot */,
+				8B42AC8D1B5C5BEC0058A814 /* Recipe RobotTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8B42AC7C1B5C5BEC0058A814 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B42ACA51B5C5C690058A814 /* MainWindow02.xib in Resources */,
+				8B42ACA31B5C5C5D0058A814 /* MainWindow01.xib in Resources */,
+				8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */,
+				8B42AC9F1B5C5C1C0058A814 /* Preferences.xib in Resources */,
+				8B42ACA11B5C5C540058A814 /* MainWindow00.xib in Resources */,
+				8B42AC891B5C5BEC0058A814 /* MainMenu.xib in Resources */,
+				8B42ACA71B5C5C740058A814 /* MainWindow03.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B42AC8C1B5C5BEC0058A814 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8B42AC7A1B5C5BEC0058A814 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B42AC8A1B5C5BEC0058A814 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8B42AC901B5C5BEC0058A814 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8B42AC7D1B5C5BEC0058A814 /* Recipe Robot */;
+			targetProxy = 8B42AC8F1B5C5BEC0058A814 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		8B42AC871B5C5BEC0058A814 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8B42AC881B5C5BEC0058A814 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		8B42AC961B5C5BEC0058A814 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		8B42AC971B5C5BEC0058A814 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8B42AC991B5C5BEC0058A814 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Recipe Robot/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8B42AC9A1B5C5BEC0058A814 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Recipe Robot/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		8B42AC9C1B5C5BEC0058A814 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Recipe RobotTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Recipe Robot.app/Contents/MacOS/Recipe Robot";
+			};
+			name = Debug;
+		};
+		8B42AC9D1B5C5BEC0058A814 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Recipe RobotTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Recipe Robot.app/Contents/MacOS/Recipe Robot";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8B42AC791B5C5BEC0058A814 /* Build configuration list for PBXProject "Recipe Robot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B42AC961B5C5BEC0058A814 /* Debug */,
+				8B42AC971B5C5BEC0058A814 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B42AC981B5C5BEC0058A814 /* Build configuration list for PBXNativeTarget "Recipe Robot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B42AC991B5C5BEC0058A814 /* Debug */,
+				8B42AC9A1B5C5BEC0058A814 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B42AC9B1B5C5BEC0058A814 /* Build configuration list for PBXNativeTarget "Recipe RobotTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B42AC9C1B5C5BEC0058A814 /* Debug */,
+				8B42AC9D1B5C5BEC0058A814 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8B42AC761B5C5BEC0058A814 /* Project object */;
+}
