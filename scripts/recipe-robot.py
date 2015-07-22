@@ -18,7 +18,7 @@
 # limitations under the License.
 
 
-'''
+"""
 recipe-robot.py
 
 Easily and automatically create AutoPkg recipes.
@@ -32,7 +32,7 @@ positional arguments:
 optional arguments:
     -h, --help            Show this help message and exit.
     -v, --verbose         Generate additional output about the process.
-'''
+"""
 
 
 import argparse
@@ -79,7 +79,7 @@ class InputType(object):
 
 
 def get_exitcode_stdout_stderr(cmd):
-    '''Execute the external command and get its exitcode, stdout and stderr.'''
+    """Execute the external command and get its exitcode, stdout and stderr."""
     args = shlex.split(cmd)
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
@@ -89,7 +89,7 @@ def get_exitcode_stdout_stderr(cmd):
 
 
 def generate_recipe(app_name, recipe_type):
-    '''Generates a recipe.'''
+    """Generates a recipe."""
     print "Generating %s.%s.recipe..." % app_name, recipe_type
 
     # TODO: I'm guessing Shea is going to come in here and dump a load of
@@ -183,9 +183,9 @@ def get_input_type(input_path):
 
 
 def main():
-    '''This is where the magic happens.'''
+    """This is where the magic happens."""
 
-    welcome_text = '''
+    welcome_text = """
      -----------------------------------
     |  Welcome to Recipe Robot v%s.  |
      -----------------------------------
@@ -194,7 +194,7 @@ def main():
                   d-||-b
                     ||
                   _/  \_
-    ''' % __version__
+    """ % __version__
 
     print welcome_text
 
