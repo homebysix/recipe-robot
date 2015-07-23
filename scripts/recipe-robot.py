@@ -142,7 +142,7 @@ def get_exitcode_stdout_stderr(cmd):
 
 def generate_recipe(app_name, recipe_type):
     """Generate a basic AutoPkg recipe of the desired format."""
-    print "Generating %s.%s.recipe..." % app_name, recipe_type
+    print "Generating {}.{}.recipe...".format(app_name, recipe_type)
 
     # TODO: I'm guessing Shea is going to come in here and dump a load of
     # classes for plists and recipes. Until then, I'm using find/replace like
@@ -344,7 +344,7 @@ def handle_app_input(input_path):
         pass
 
     for recipe_format in __avail_recipe_formats__:
-        this_recipe = "%s.%s.recipe" % app_name, recipe_format
+        this_recipe = "{}.{}.recipe".format(app_name, recipe_format)
         if this_recipe not in __existing_recipes__:
             __buildable_recipes__[
                 # TODO: Determine proper template to use.
