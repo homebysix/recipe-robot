@@ -103,22 +103,9 @@ class bcolors:
     WARNING = '\033[93m'
 
 
-# if __debug_mode__:
-#     print "\n    COLOR OPTIONS: \n"
-#     print bcolors.HEADER + "HEADER" + bcolors.ENDC
-#     print bcolors.OKBLUE + "OKBLUE" + bcolors.ENDC
-#     print bcolors.OKGREEN + "OKGREEN" + bcolors.ENDC
-#     print bcolors.WARNING + "WARNING" + bcolors.ENDC
-#     print (bcolors.ERROR + "ERROR" + bcolors.ENDC + bcolors.ENDC + "ENDC" +
-#            bcolors.ENDC)
-#     print bcolors.BOLD + "BOLD" + bcolors.ENDC
-#     print bcolors.UNDERLINE + "UNDERLINE" + bcolors.ENDC
-
-
 class InputType(object):
 
     """Python pseudo-enum for describing types of input."""
-
     (app,
      download_recipe,
      munki_recipe,
@@ -142,7 +129,7 @@ def get_exitcode_stdout_stderr(cmd):
 
 def generate_recipe(app_name, recipe_type):
     """Generate a basic AutoPkg recipe of the desired format."""
-    print "Generating {}.{}.recipe...".format(app_name, recipe_type)
+    print "Generating %s.%s.recipe..." % (app_name, recipe_type)
 
     # TODO: I'm guessing Shea is going to come in here and dump a load of
     # classes for plists and recipes. Until then, I'm using find/replace like
@@ -269,25 +256,21 @@ def get_input_type(input_path):
 
 # ----------------------------------- APPS ---------------------------------- #
 def handle_app_input(input_path):
-
     """Process an app, gathering information that may be needed in order to
     create a recipe."""
 
     if __debug_mode__:
-        print bcolors.DEBUG + "\n    INPUT TYPE:  app\n" + bcolors.ENDC
+        print "\n%s    INPUT TYPE:  app%s\n" % (bcolors.DEBUG, bcolors.ENDC)
 
     # Figure out the name of the app.
     try:
-        info_plist = plistlib.readPlist(
-            input_path + "/Contents/Info.plist")
+        info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
         app_name = info_plist["CFBundleName"]
-    except KeyError, e:
+    except KeyError:
         try:
             app_name = info_plist["CFBundleExecutable"]
-        except KeyError, e:
-            print bcolors.ERROR
-            print ("[ERROR] Sorry, I can't figure out what this app is called."
-                   + bcolors.ENDC)
+        except KeyError:
+            print "%s[ERROR] Sorry, I can't figure out what this app is called.%s" % (bcolors.ERROR, bcolors.ENDC)
             sys.exit(1)
 
     # Search for existing recipes for this app.
@@ -305,13 +288,13 @@ def handle_app_input(input_path):
 
     # Check for a Sparkle feed, but only if a download recipe
     # doesn't exist.
-    if app_name + ".download.recipe" not in __existing_recipes__:
+    if app_name + "%s.download.recipe" not in __existing_recipes__:
         try:
             print "We found a Sparkle feed: %s" % info_plist["SUFeedURL"]
             __buildable_recipes__[
                 app_name + ".download.recipe"] = "download-from-sparkle.recipe"
 
-        except KeyError, e:
+        except KeyError:
             try:
                 print ("We found a Sparkle feed: %s" %
                        info_plist["SUOriginalFeedURL"])
@@ -331,9 +314,8 @@ def handle_app_input(input_path):
         # SourceForgeReleasesProvider processor to create a download
         # recipe.
 
-            except KeyError, e:
-                print bcolors.WARNING
-                print "[WARNING] No Sparkle feed." + bcolors.ENDC
+            except KeyError:
+                print "%s[WARNING] No Sparkle feed.%s" % (bcolors.WARNING, bcolors.ENDC)
 
     else:
 
@@ -344,7 +326,7 @@ def handle_app_input(input_path):
         pass
 
     for recipe_format in __avail_recipe_formats__:
-        this_recipe = "{}.{}.recipe".format(app_name, recipe_format)
+        this_recipe = "%s.%s.recipe" % (app_name, recipe_format)
         if this_recipe not in __existing_recipes__:
             __buildable_recipes__[
                 # TODO: Determine proper template to use.
@@ -362,11 +344,12 @@ def handle_app_input(input_path):
                        bcolors.ENDC)
 
 # ----------------------------- DOWNLOAD RECIPES ---------------------------- #
+
+
 def handle_download_recipe_input(input_path):
     """Process a download recipe, gathering information useful for building other types of recipes."""
     if __debug_mode__:
-        print (bcolors.DEBUG + "\n    INPUT TYPE:  download recipe\n" +
-               bcolors.ENDC)
+        print "%s\n    INPUT TYPE:  download recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -378,8 +361,7 @@ def handle_download_recipe_input(input_path):
     # TODO: Parse the recipe properly. Don't use grep.
     parsed_download_format = ""
     for download_format in __supported_download_formats__:
-        cmd = "grep '." + download_format + \
-            "</string>' '" + input_path + "'"
+        cmd = "grep '.%s</string>' '%s'" % (download_format, input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             print "Looks like this recipe downloads a %s." % download_format
@@ -422,8 +404,7 @@ def handle_munki_recipe_input(input_path):
     types of recipes."""
 
     if __debug_mode__:
-        print (bcolors.DEBUG + "\n    INPUT TYPE:  munki recipe\n" +
-               bcolors.ENDC)
+        print "%s\n    INPUT TYPE:  munki recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
 
     # Determine whether there's already a download Parent recipe.
     # If not, add it to the list of offered recipe formats.
@@ -471,7 +452,7 @@ def handle_pkg_recipe_input(input_path):
     types of recipes."""
 
     if __debug_mode__:
-        print bcolors.DEBUG + "\n    INPUT TYPE:  pkg recipe\n" + bcolors.ENDC
+        print "%s\n    INPUT TYPE:  pkg recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -511,7 +492,7 @@ def handle_jss_recipe_input(input_path):
     types of recipes."""
 
     if __debug_mode__:
-        print bcolors.DEBUG + "\n    INPUT TYPE:  jss recipe\n" + bcolors.ENDC
+        print "%s\n    INPUT TYPE:  jss recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -569,8 +550,7 @@ def main():
 
     # TODO: Verify that the input path actually exists.
     if not os.path.exists(input_path):
-        print (bcolors.ERROR + "[ERROR] Input path does not exist. Please try "
-               "again with a valid input path." + bcolors.ENDC)
+        print "%s[ERROR] Input path does not exist. Please try again with a valid input path.%s" % (bcolors.ERROR, bcolors.ENDC)
         sys.exit(1)
 
     # Set the default recipe identifier prefix.
@@ -579,9 +559,8 @@ def main():
     default_identifier_prefix = "com.github.homebysix"
 
     if __debug_mode__:
-        print bcolors.DEBUG + "\n"
-        print "    DEBUG MODE:  ON"
-        print "    INPUT PATH:  %s " % input_path + bcolors.ENDC
+        print "%s\n    DEBUG MODE:  ON" % bcolors.DEBUG
+        print "    INPUT PATH:  %s%s" % (input_path, bcolors.ENDC)
 
     # ---------------------------------- CONFIG ------------------------------#
 
@@ -635,7 +614,7 @@ def main():
         sys.exit(1)
 
     if __debug_mode__:
-        print bcolors.DEBUG + "\n    EXISTING RECIPES:\n"
+        print "%s\n    EXISTING RECIPES:\n" % bcolors.DEBUG
         pprint(__existing_recipes__)
         print "\n    AVAILABLE RECIPE TYPES:\n"
         pprint(__avail_recipe_formats__)
