@@ -340,7 +340,7 @@ def handle_app_input(input_path):
         except KeyError:
             if __debug_mode__:
                 print bcolors.DEBUG
-                print ("[warning] can't detect minimum system version." +
+                print ("[WARNING] can't detect minimum system version." +
                        bcolors.ENDC)
 
 # ----------------------------- DOWNLOAD RECIPES ---------------------------- #
