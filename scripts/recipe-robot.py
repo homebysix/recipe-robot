@@ -246,12 +246,20 @@ def get_input_type(input_path):
         return InputType.app
     elif input_path.endswith(".download.recipe"):
         return InputType.download_recipe
-    elif input_path.endswith(".pkg.recipe"):
-        return InputType.pkg_recipe
     elif input_path.endswith(".munki.recipe"):
         return InputType.munki_recipe
+    elif input_path.endswith(".pkg.recipe"):
+        return InputType.pkg_recipe
+    elif input_path.endswith(".install.recipe"):
+        return InputType.install_recipe
     elif input_path.endswith(".jss.recipe"):
         return InputType.jss_recipe
+    elif input_path.endswith(".absolute.recipe"):
+        return InputType.absolute_recipe
+    elif input_path.endswith(".sccm.recipe"):
+        return InputType.sccm_recipe
+    elif input_path.endswith(".ds.recipe"):
+        return InputType.ds_recipe
 
 
 # ----------------------------------- APPS ---------------------------------- #
@@ -485,6 +493,47 @@ def handle_pkg_recipe_input(input_path):
     # Offer to build munki, jss, etc.
 
 
+# ------------------------------- INSTALL RECIPES ------------------------------- #
+
+def handle_install_recipe_input(input_path):
+    """Process an install recipe, gathering information useful for building other
+    types of recipes."""
+
+    if __debug_mode__:
+        print "%s\n    INPUT TYPE:  install recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
+
+    # Read the recipe as a plist.
+    input_recipe = plistlib.readPlist(input_path)
+
+    # Get the app's name from the recipe.
+    app_name = input_recipe["Input"]["NAME"]
+
+    # Search for existing recipes for this app.
+    cmd = "autopkg search -p %s" % app_name
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        for line in out.split("\n"):
+            if ".recipe" in line:
+                # Add the first "word" of each line of search
+                # results. Example: Firefox.pkg.recipe
+                __existing_recipes__.append(line.split(None, 1)[0])
+    else:
+        print err
+        sys.exit(exitcode)
+
+    for recipe_format in __avail_recipe_formats__:
+        if app_name + "." + recipe_format + ".recipe" not in __existing_recipes__:
+            __buildable_recipes__[
+                # TODO: Determine proper template to use.
+                app_name + "." + recipe_format + ".recipe"] = "template TBD"
+
+    # Check to see whether the recipe has a download and/or pkg
+    # recipe as its parent. If not, offer to build a discrete
+    # download and/or pkg recipe.
+
+    # Offer to build other recipes as able.
+
+
 # ------------------------------- JSS RECIPES ------------------------------- #
 
 def handle_jss_recipe_input(input_path):
@@ -493,6 +542,129 @@ def handle_jss_recipe_input(input_path):
 
     if __debug_mode__:
         print "%s\n    INPUT TYPE:  jss recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
+
+    # Read the recipe as a plist.
+    input_recipe = plistlib.readPlist(input_path)
+
+    # Get the app's name from the recipe.
+    app_name = input_recipe["Input"]["NAME"]
+
+    # Search for existing recipes for this app.
+    cmd = "autopkg search -p %s" % app_name
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        for line in out.split("\n"):
+            if ".recipe" in line:
+                # Add the first "word" of each line of search
+                # results. Example: Firefox.pkg.recipe
+                __existing_recipes__.append(line.split(None, 1)[0])
+    else:
+        print err
+        sys.exit(exitcode)
+
+    for recipe_format in __avail_recipe_formats__:
+        if app_name + "." + recipe_format + ".recipe" not in __existing_recipes__:
+            __buildable_recipes__[
+                # TODO: Determine proper template to use.
+                app_name + "." + recipe_format + ".recipe"] = "template TBD"
+
+    # Check to see whether the recipe has a download and/or pkg
+    # recipe as its parent. If not, offer to build a discrete
+    # download and/or pkg recipe.
+
+    # Offer to build other recipes as able.
+
+
+# ------------------------------- ABSOLUTE RECIPES ------------------------------- #
+
+def handle_absolute_recipe_input(input_path):
+    """Process an absolute recipe, gathering information useful for building other
+    types of recipes."""
+
+    if __debug_mode__:
+        print "%s\n    INPUT TYPE:  absolute recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
+
+    # Read the recipe as a plist.
+    input_recipe = plistlib.readPlist(input_path)
+
+    # Get the app's name from the recipe.
+    app_name = input_recipe["Input"]["NAME"]
+
+    # Search for existing recipes for this app.
+    cmd = "autopkg search -p %s" % app_name
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        for line in out.split("\n"):
+            if ".recipe" in line:
+                # Add the first "word" of each line of search
+                # results. Example: Firefox.pkg.recipe
+                __existing_recipes__.append(line.split(None, 1)[0])
+    else:
+        print err
+        sys.exit(exitcode)
+
+    for recipe_format in __avail_recipe_formats__:
+        if app_name + "." + recipe_format + ".recipe" not in __existing_recipes__:
+            __buildable_recipes__[
+                # TODO: Determine proper template to use.
+                app_name + "." + recipe_format + ".recipe"] = "template TBD"
+
+    # Check to see whether the recipe has a download and/or pkg
+    # recipe as its parent. If not, offer to build a discrete
+    # download and/or pkg recipe.
+
+    # Offer to build other recipes as able.
+
+
+# ------------------------------- SCCM RECIPES ------------------------------- #
+
+def handle_sccm_recipe_input(input_path):
+    """Process a sccm recipe, gathering information useful for building other
+    types of recipes."""
+
+    if __debug_mode__:
+        print "%s\n    INPUT TYPE:  sccm recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
+
+    # Read the recipe as a plist.
+    input_recipe = plistlib.readPlist(input_path)
+
+    # Get the app's name from the recipe.
+    app_name = input_recipe["Input"]["NAME"]
+
+    # Search for existing recipes for this app.
+    cmd = "autopkg search -p %s" % app_name
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        for line in out.split("\n"):
+            if ".recipe" in line:
+                # Add the first "word" of each line of search
+                # results. Example: Firefox.pkg.recipe
+                __existing_recipes__.append(line.split(None, 1)[0])
+    else:
+        print err
+        sys.exit(exitcode)
+
+    for recipe_format in __avail_recipe_formats__:
+        if app_name + "." + recipe_format + ".recipe" not in __existing_recipes__:
+            __buildable_recipes__[
+                # TODO: Determine proper template to use.
+                app_name + "." + recipe_format + ".recipe"] = "template TBD"
+
+    # Check to see whether the recipe has a download and/or pkg
+    # recipe as its parent. If not, offer to build a discrete
+    # download and/or pkg recipe.
+
+    # Offer to build other recipes as able.
+
+
+# ------------------------------- DEPLOYSTUDIO RECIPES ------------------------------- #
+
+def handle_ds_recipe_input(input_path):
+    """Process a ds recipe, gathering information useful for building other
+    types of recipes."""
+
+    if __debug_mode__:
+        print "%s\n    INPUT TYPE:  ds recipe%s\n" % (bcolors.DEBUG, bcolors.ENDC)
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
