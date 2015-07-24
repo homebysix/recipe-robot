@@ -30,7 +30,7 @@
             <key>Arguments</key>
             <dict>
                 <key>filename</key>
-                <string>%NAME%.%EXT%</string>
+                <string>%NAME%-%VERSION%.%EXT%</string>
             </dict>
         </dict>
         <dict>
