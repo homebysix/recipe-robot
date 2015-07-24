@@ -40,12 +40,12 @@ optional arguments:
 """
 
 
-from pprint import pprint
-from subprocess import Popen, PIPE
 import argparse
 import os.path
 import plistlib
+from pprint import pprint
 import shlex
+from subprocess import Popen, PIPE
 import sys
 
 
@@ -56,6 +56,7 @@ __pref_file__ = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
 # Build the recipe format offerings.
+# TODO(Elliot): This should probably not be a global variable.
 __avail_recipe_types__ = {
     "download": "Downloads an app in whatever format the developer "
                 "provides.",
@@ -72,23 +73,28 @@ __avail_recipe_types__ = {
 # Build the list of download formats we know about. TODO: It would be great
 # if we didn't need this list, but I suspect we do need it in order to tell
 # the recipes which Processors to use.
+# TODO(Elliot): This should probably not be a global variable.
 __supported_download_formats__ = ("dmg", "zip", "tar.gz", "gzip", "pkg")
 
 # Build the list of existing recipes.
 # Example: ['Firefox.download.recipe']
+# TODO(Elliot): This should probably not be a global variable.
 __existing_recipes__ = []
 
 # Build the dict of buildable recipes and their corresponding
 # templates. Example: {'Firefox.jss.recipe': 'pkg.jss.recipe'}
+# TODO(Elliot): This should probably not be a global variable.
 __buildable_recipes__ = {}
 
 # The name of the app for which a recipe is being built.
+# TODO(Elliot): This should probably not be a global variable.
 __app_name__ = ""
 
 
 class bcolors:
 
     """Specify colors that are used in Terminal output."""
+
     BOLD = '\033[1m'
     DEBUG = '\033[95m'
     ENDC = '\033[0m'
@@ -102,6 +108,7 @@ class bcolors:
 class InputType(object):
 
     """Python pseudo-enum for describing types of input."""
+
     (app,
      download_recipe,
      munki_recipe,
@@ -116,7 +123,7 @@ class InputType(object):
 def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr."""
     args = shlex.split(cmd)
-    # TODO: I've been told Popen is not a good practice. Better idea?
+    # TODO(Elliot): I've been told Popen is not a good practice. Better idea?
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
@@ -134,7 +141,7 @@ def build_argument_parser():
         "-v", "--verbose",
         action="store_true",
         help="Generate additional output about the process.")
-    # TODO: Add --plist argument to header info up top.
+    # TODO(Elliot): Add --plist argument to header info up top.
     parser.add_argument(
         "--plist",
         action="store_true",
@@ -201,7 +208,7 @@ def create_buildable_recipe_list(__app_name__):
     for recipe_format in __avail_recipe_types__:
         if "%s.%s.recipe" % (__app_name__, recipe_format) not in __existing_recipes__:
             __buildable_recipes__[
-                # TODO: Determine proper template to use.
+                # TODO(Elliot): Determine proper template to use.
                 __app_name__ + "." + recipe_format + ".recipe"
             ] = "template TBD"
 
@@ -244,16 +251,16 @@ def handle_app_input(input_path):
                     "download-from-sparkle.recipe"
                 )
 
-        # TODO: There was no existing download recipe, but if we have a
+        # TODO(Elliot): There was no existing download recipe, but if we have a
         # Sparkle feed, we now know we can build one. However, we don't
         # know what format the resulting download will be. We need to find
         # that out before we can create recipes that use the download as a
         # parent.
 
-        # TODO: Search GitHub for the app, to see if we can use the
+        # TODO(Elliot): Search GitHub for the app, to see if we can use the
         # GitHubReleasesProvider processor to create a download recipe.
 
-        # TODO: Search SourceForge for the app, to see if we can use the
+        # TODO(Elliot): Search SourceForge for the app, to see if we can use the
         # SourceForgeReleasesProvider processor to create a download
         # recipe.
 
@@ -263,7 +270,7 @@ def handle_app_input(input_path):
 
     else:
 
-        # TODO: We know that there's an existing download recipe
+        # TODO(Elliot): We know that there's an existing download recipe
         # available, but we don't know what format the resulting
         # download is. We need to find that out before we can
         # create recipes that use the download as a parent.
@@ -274,7 +281,7 @@ def handle_app_input(input_path):
     create_buildable_recipe_list(__app_name__)
 
     # If munki recipe is buildable, the minimum OS version prove useful.
-    # TODO: Find a way to pass variables like this to the generator.
+    # TODO(Elliot): Find a way to pass variables like this to the generator.
     if __app_name__ + ".munki.recipe" in __buildable_recipes__:
         try:
             min_sys_vers = info_plist["LSMinimumSystemVersion"]
@@ -286,7 +293,9 @@ def handle_app_input(input_path):
 
 
 def handle_download_recipe_input(input_path):
-    """Process a download recipe, gathering information useful for building other types of recipes."""
+    """Process a download recipe, gathering information useful for building
+    other types of recipes.
+    """
     if __debug_mode__:
         print "%s\n    INPUT TYPE:  download recipe%s\n" % (bcolors.DEBUG,
                                                             bcolors.ENDC)
@@ -298,7 +307,7 @@ def handle_download_recipe_input(input_path):
     __app_name__ = input_recipe["Input"]["NAME"]
 
     # Get the download file format.
-    # TODO: Parse the recipe properly. Don't use grep.
+    # TODO(Elliot): Parse the recipe properly. Don't use grep.
     parsed_download_format = ""
     for download_format in __supported_download_formats__:
         cmd = "grep '.%s</string>' '%s'" % (download_format, input_path)
@@ -313,7 +322,7 @@ def handle_download_recipe_input(input_path):
 
     # Attempting to simultaneously determine which recipe types are
     # available to build and which templates we should use for each.
-    # TODO: Make it better. Integrate with existing
+    # TODO(Elliot): Make it better. Integrate with existing
     # create_buildable_recipe_list function.
     for recipe_format in __avail_recipe_types__:
         if __app_name__ + "." + recipe_format + ".recipe" not in __existing_recipes__:
@@ -358,7 +367,7 @@ def handle_munki_recipe_input(input_path):
 
     # Offer to build pkg, jss, etc.
 
-    # TODO: Think about whether we want to dig into OS requirements,
+    # TODO(Elliot): Think about whether we want to dig into OS requirements,
     # blocking applications, etc when building munki recipes. I vote
     # yes, but it's probably not going to be easy.
 
@@ -391,8 +400,8 @@ def handle_pkg_recipe_input(input_path):
 
 
 def handle_install_recipe_input(input_path):
-    """Process an install recipe, gathering information useful for building other
-    types of recipes."""
+    """Process an install recipe, gathering information useful for building
+    other types of recipes."""
 
     if __debug_mode__:
         print "%s\n    INPUT TYPE:  install recipe%s\n" % (bcolors.DEBUG,
@@ -447,8 +456,9 @@ def handle_jss_recipe_input(input_path):
 
 
 def handle_absolute_recipe_input(input_path):
-    """Process an absolute recipe, gathering information useful for building other
-    types of recipes."""
+    """Process an absolute recipe, gathering information useful for building
+    other types of recipes.
+    """
 
     if __debug_mode__:
         print "%s\n    INPUT TYPE:  absolute recipe%s\n" % (bcolors.DEBUG,
@@ -534,7 +544,7 @@ def generate_recipe(plist_path, plist_object):
     """Generate a basic AutoPkg recipe of the desired format."""
     print "Generating AutoPkgr.download.recipe (why? because we can!)..."
 
-    # TODO: I'm guessing Shea is going to come in here and dump a load of
+    # TODO(Elliot): I'm guessing Shea is going to come in here and dump a load of
     # classes for plists and recipes. Until then, I'm using find/replace like
     # a n00b.
 
@@ -569,9 +579,11 @@ def generate_recipe(plist_path, plist_object):
     plistlib.writePlist(plist_object, recipe_file)
     print "    " + plist_path
 
+# TODO(Elliot): Make main() shorter. Just a flowchart for the logic.
+
 
 def main():
-    """This is where the magic happens."""
+    """Make the magic happen."""
 
     welcome_text = """
      -----------------------------------
@@ -592,7 +604,7 @@ def main():
     # Temporary argument handling
     input_path = args.input_path
 
-    # TODO: Verify that the input path actually exists.
+    # TODO(Elliot): Verify that the input path actually exists.
     if not os.path.exists(input_path):
         print "%s[ERROR] Input path does not exist. Please try again with a valid input path.%s" % (
             bcolors.ERROR, bcolors.ENDC
@@ -618,13 +630,15 @@ def main():
         preferred_identifier_prefix = raw_input(
             "Please enter your preferred recipe identifier prefix: ")
 
-        # TODO: Find a way to toggle the recipe types off/on as needed.
+        # TODO(Elliot): Find a way to toggle the recipe types off/on as needed.
 
         i = 0
         for this_type, this_description in __avail_recipe_types__.iteritems():
-            if True:  # TODO: if recipe is included in the preferred types
+            # TODO(Elliot): if recipe is included in the preferred types
+            if True:
                 print "  [•] %s. %s - %s" % (i, this_type, this_description)
-            else:  # TODO: if recipe is not included in the preferred types
+            # TODO(Elliot): if recipe is not included in the preferred types
+            else:
                 print "  [ ] %s. %s - %s" % (i, this_type, this_description)
             i += 1
 
@@ -632,7 +646,8 @@ def main():
             "Please choose your default recipe types: ")
 
         prefs = dict(
-            # TODO: Use the actual preferred_recipe_types value from above.
+            # TODO(Elliot): Use the actual preferred_recipe_types value from
+            # above.
             PreferredRecipeIdentifierPrefix=preferred_identifier_prefix,
             PreferredRecipeTypes=[
                 "download", "munki", "pkg", "install", "jss", "absolute",
