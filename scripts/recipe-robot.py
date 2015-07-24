@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015 Elliot Jordan, Shea G. Craig
@@ -55,7 +56,7 @@ __pref_file__ = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
 # Build the recipe format offerings.
-__avail_recipe_formats__ = {
+__avail_recipe_types__ = {
     "download": "Downloads an app in whatever format the developer "
                 "provides.",
     "munki": "Imports into your Munki repository.",
@@ -128,8 +129,7 @@ def build_argument_parser():
         description="Easily and automatically create AutoPkg recipes.")
     parser.add_argument(
         "input_path",
-        help="Path to a recipe or app to use as the basis for creating ",
-             "AutoPkg recipes.")
+        help="Path to a recipe or app to use as the basis for creating AutoPkg recipes.")
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
@@ -198,7 +198,7 @@ def create_existing_recipe_list(__app_name__):
 def create_buildable_recipe_list(__app_name__):
     """Add any recipe types that don't already exist to the buildable list."""
 
-    for recipe_format in __avail_recipe_formats__:
+    for recipe_format in __avail_recipe_types__:
         if "%s.%s.recipe" % (__app_name__, recipe_format) not in __existing_recipes__:
             __buildable_recipes__[
                 # TODO: Determine proper template to use.
@@ -315,7 +315,7 @@ def handle_download_recipe_input(input_path):
     # available to build and which templates we should use for each.
     # TODO: Make it better. Integrate with existing
     # create_buildable_recipe_list function.
-    for recipe_format in __avail_recipe_formats__:
+    for recipe_format in __avail_recipe_types__:
         if __app_name__ + "." + recipe_format + ".recipe" not in __existing_recipes__:
             this_recipe_type = "%s.%s.recipe" % __app_name__, recipe_format
             if recipe_format in ("pkg", "install", "munki"):
@@ -532,7 +532,7 @@ def handle_ds_recipe_input(input_path):
 
 def generate_recipe(plist_path, plist_object):
     """Generate a basic AutoPkg recipe of the desired format."""
-    print "Generating AutoPkgr.download.recipe..."
+    print "Generating AutoPkgr.download.recipe (why? because we can!)..."
 
     # TODO: I'm guessing Shea is going to come in here and dump a load of
     # classes for plists and recipes. Until then, I'm using find/replace like
@@ -602,7 +602,7 @@ def main():
     # Set the default recipe identifier prefix.
     # I imagine this needs to be a defaulted value.
     # TODO(Shea): Implement preferences.
-    default_identifier_prefix = "com.github.homebysix"
+    preferred_identifier_prefix = "com.github.homebysix"
 
     if __debug_mode__:
         print "%s\n    DEBUG MODE:  ON" % bcolors.DEBUG
@@ -611,20 +611,30 @@ def main():
     # If the preferences file already exists, read it. Otherwise, create it.
     if os.path.isfile(__pref_file__):
         pref_plist = plistlib.readPlist(__pref_file__)
-        default_identifier_prefix = pref_plist["DefaultRecipeIdentifierPrefix"]
-        default_recipe_types = pref_plist["DefaultRecipeTypes"]
+        preferred_identifier_prefix = pref_plist[
+            "PreferredRecipeIdentifierPrefix"]
+        preferred_recipe_types = pref_plist["PreferredRecipeTypes"]
     else:
-        default_identifier_prefix = raw_input(
+        preferred_identifier_prefix = raw_input(
             "Please enter your preferred recipe identifier prefix: ")
 
         # TODO: Find a way to toggle the recipe types off/on as needed.
-        default_recipe_types = raw_input(
+
+        i = 0
+        for this_type, this_description in __avail_recipe_types__.iteritems():
+            if True:  # TODO: if recipe is included in the preferred types
+                print "  [•] %s. %s - %s" % (i, this_type, this_description)
+            else:  # TODO: if recipe is not included in the preferred types
+                print "  [ ] %s. %s - %s" % (i, this_type, this_description)
+            i += 1
+
+        preferred_recipe_types = raw_input(
             "Please choose your default recipe types: ")
 
         prefs = dict(
-            # TODO: Use the actual default_recipe_types value from above.
-            DefaultRecipeIdentifierPrefix=default_identifier_prefix,
-            DefaultRecipeTypes=[
+            # TODO: Use the actual preferred_recipe_types value from above.
+            PreferredRecipeIdentifierPrefix=preferred_identifier_prefix,
+            PreferredRecipeTypes=[
                 "download", "munki", "pkg", "install", "jss", "absolute",
                 "sccm", "ds"
             ],
@@ -654,7 +664,7 @@ def main():
         print "%s\n    EXISTING RECIPES:\n" % bcolors.DEBUG
         pprint(__existing_recipes__)
         print "\n    AVAILABLE RECIPE TYPES:\n"
-        pprint(__avail_recipe_formats__)
+        pprint(__avail_recipe_types__)
         print "\n    BUILDABLE RECIPES:\n"
         pprint(__buildable_recipes__)
         print bcolors.ENDC
