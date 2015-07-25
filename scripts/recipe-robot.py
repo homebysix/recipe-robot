@@ -181,7 +181,8 @@ def set_prefs():
             except Exception:
                 print("There was a problem reading from the prefs "
                       "file. Building new preferences.")
-                preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(pref_plist)
+                preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(
+                    pref_plist)
 
             # Read the preferred recipe types.
             try:
@@ -190,20 +191,24 @@ def set_prefs():
                 if len(preferred_recipe_types) != len(avail_recipe_types):
                     print("The list of preferred recipe types is "
                           "incomplete. Building new preferences.")
-                    preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(pref_plist)
+                    preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(
+                        pref_plist)
             except Exception:
                 print("There was a problem reading from the prefs "
                       "file. Building new preferences.")
-                preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(pref_plist)
+                preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(
+                    pref_plist)
 
         except Exception:
             print("There was a problem opening the prefs file. "
                   "Building new preferences.")
-            preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(dict())
+            preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(
+                dict())
 
     else:
         print "No prefs file found. Building new preferences..."
-        preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(dict())
+        preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(
+            dict())
 
     # TODO(Elliot): Return a prefs dict instead of whatever this is.
     return preferred_identifier_prefix, preferred_recipe_types
@@ -737,8 +742,8 @@ def main():
     elif input_type is InputType.jss_recipe:
         handle_jss_recipe_input(input_path)
     else:
-        print "I haven't been trained on how to handle this input path:"
-        print "    %s" % input_path
+        print("%s[ERROR] I haven't been trained on how to handle this input "
+              "path:\n    %s%s" % (bcolors.ERROR, input_path, bcolors.ENDC))
         sys.exit(1)
 
     # Prompt the user with the available recipes types and let them choose.
