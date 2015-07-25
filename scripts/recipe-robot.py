@@ -159,6 +159,45 @@ def build_argument_parser():
     return parser
 
 
+def set_prefs():
+    """Create prefs file if it doesn't exist, or read from it if it does."""
+
+    if os.path.isfile(__pref_file__):
+        pref_plist = plistlib.readPlist(__pref_file__)
+        preferred_identifier_prefix = pref_plist[
+            "PreferredRecipeIdentifierPrefix"]
+        preferred_recipe_types = pref_plist["PreferredRecipeTypes"]
+    else:
+        preferred_identifier_prefix = raw_input(
+            "Please enter your preferred recipe identifier prefix: ")
+
+        # TODO(Elliot): Find a way to toggle the recipe types off/on as needed.
+
+        i = 0
+        for this_type, this_description in __avail_recipe_types__.iteritems():
+            # TODO(Elliot): if recipe is included in the preferred types
+            if True:
+                print "  [•] %s. %s - %s" % (i, this_type, this_description)
+            # TODO(Elliot): if recipe is not included in the preferred types
+            else:
+                print "  [ ] %s. %s - %s" % (i, this_type, this_description)
+            i += 1
+
+        preferred_recipe_types = raw_input(
+            "Please choose your default recipe types: ")
+
+        prefs = dict(
+            # TODO(Elliot): Use the actual preferred_recipe_types value from
+            # above.
+            PreferredRecipeIdentifierPrefix=preferred_identifier_prefix,
+            PreferredRecipeTypes=[
+                "download", "munki", "pkg", "install", "jss", "absolute",
+                "sccm", "ds"
+            ],
+            LastRecipeRobotVersion=__version__)
+        plistlib.writePlist(prefs, __pref_file__)
+
+
 def get_input_type(input_path):
     """Determine the type of recipe generation needed based on path.
 
@@ -547,7 +586,7 @@ def handle_ds_recipe_input(input_path):
 
 def generate_recipe(plist_path, plist_object):
     """Generate a basic AutoPkg recipe of the desired format."""
-    
+
     print "Generating AutoPkgr.download.recipe (why? because we can!)..."
 
     # TODO(Elliot): I'm guessing Shea is going to come in here and dump a load of
@@ -626,41 +665,7 @@ def main():
         print "%s\n    DEBUG MODE:  ON" % bcolors.DEBUG
         print "    INPUT PATH:  %s%s" % (input_path, bcolors.ENDC)
 
-    # If the preferences file already exists, read it. Otherwise, create it.
-    if os.path.isfile(__pref_file__):
-        pref_plist = plistlib.readPlist(__pref_file__)
-        preferred_identifier_prefix = pref_plist[
-            "PreferredRecipeIdentifierPrefix"]
-        preferred_recipe_types = pref_plist["PreferredRecipeTypes"]
-    else:
-        preferred_identifier_prefix = raw_input(
-            "Please enter your preferred recipe identifier prefix: ")
-
-        # TODO(Elliot): Find a way to toggle the recipe types off/on as needed.
-
-        i = 0
-        for this_type, this_description in __avail_recipe_types__.iteritems():
-            # TODO(Elliot): if recipe is included in the preferred types
-            if True:
-                print "  [•] %s. %s - %s" % (i, this_type, this_description)
-            # TODO(Elliot): if recipe is not included in the preferred types
-            else:
-                print "  [ ] %s. %s - %s" % (i, this_type, this_description)
-            i += 1
-
-        preferred_recipe_types = raw_input(
-            "Please choose your default recipe types: ")
-
-        prefs = dict(
-            # TODO(Elliot): Use the actual preferred_recipe_types value from
-            # above.
-            PreferredRecipeIdentifierPrefix=preferred_identifier_prefix,
-            PreferredRecipeTypes=[
-                "download", "munki", "pkg", "install", "jss", "absolute",
-                "sccm", "ds"
-            ],
-            LastRecipeRobotVersion=__version__)
-        plistlib.writePlist(prefs, __pref_file__)
+    set_prefs()
 
     print "\nProcessing %s ..." % input_path
 
