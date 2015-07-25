@@ -122,6 +122,7 @@ class InputType(object):
 
 def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr."""
+
     args = shlex.split(cmd)
     # TODO(Elliot): I've been told Popen is not a good practice. Better idea?
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
@@ -132,6 +133,7 @@ def get_exitcode_stdout_stderr(cmd):
 
 def build_argument_parser():
     """Build and return the argument parser for Recipe Robot."""
+
     parser = argparse.ArgumentParser(
         description="Easily and automatically create AutoPkg recipes.")
     parser.add_argument(
@@ -166,6 +168,7 @@ def get_input_type(input_path):
     Returns:
         Int pseudo-enum value of InputType.
     """
+
     if input_path.rstrip("/").endswith(".app"):
         return InputType.app
     elif input_path.endswith(".download.recipe"):
@@ -189,6 +192,7 @@ def get_input_type(input_path):
 def create_existing_recipe_list(__app_name__):
     """Use autopkg search results to build existing recipe list."""
 
+    # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
     cmd = "autopkg search -p %s" % __app_name__
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
@@ -296,6 +300,7 @@ def handle_download_recipe_input(input_path):
     """Process a download recipe, gathering information useful for building
     other types of recipes.
     """
+
     if __debug_mode__:
         print "%s\n    INPUT TYPE:  download recipe%s\n" % (bcolors.DEBUG,
                                                             bcolors.ENDC)
@@ -542,6 +547,7 @@ def handle_ds_recipe_input(input_path):
 
 def generate_recipe(plist_path, plist_object):
     """Generate a basic AutoPkg recipe of the desired format."""
+    
     print "Generating AutoPkgr.download.recipe (why? because we can!)..."
 
     # TODO(Elliot): I'm guessing Shea is going to come in here and dump a load of
