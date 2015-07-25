@@ -415,10 +415,6 @@ def handle_download_recipe_input(input_path):
     other types of recipes.
     """
 
-    if debug_mode:
-        print "%s\n    INPUT TYPE:  download recipe%s\n" % (bcolors.DEBUG,
-                                                            bcolors.ENDC)
-
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
@@ -460,10 +456,6 @@ def handle_munki_recipe_input(input_path):
     """Process a munki recipe, gathering information useful for building other
     types of recipes."""
 
-    if debug_mode:
-        print "%s\n    INPUT TYPE:  munki recipe%s\n" % (bcolors.DEBUG,
-                                                         bcolors.ENDC)
-
     # Determine whether there's already a download Parent recipe.
     # If not, add it to the list of offered recipe formats.
 
@@ -495,10 +487,6 @@ def handle_pkg_recipe_input(input_path):
     """Process a pkg recipe, gathering information useful for building other
     types of recipes."""
 
-    if debug_mode:
-        print "%s\n    INPUT TYPE:  pkg recipe%s\n" % (bcolors.DEBUG,
-                                                       bcolors.ENDC)
-
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
@@ -521,10 +509,6 @@ def handle_pkg_recipe_input(input_path):
 def handle_install_recipe_input(input_path):
     """Process an install recipe, gathering information useful for building
     other types of recipes."""
-
-    if debug_mode:
-        print "%s\n    INPUT TYPE:  install recipe%s\n" % (bcolors.DEBUG,
-                                                           bcolors.ENDC)
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -549,10 +533,6 @@ def handle_install_recipe_input(input_path):
 def handle_jss_recipe_input(input_path):
     """Process a jss recipe, gathering information useful for building other
     types of recipes."""
-
-    if debug_mode:
-        print "%s\n    INPUT TYPE:  jss recipe%s\n" % (bcolors.DEBUG,
-                                                       bcolors.ENDC)
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -579,10 +559,6 @@ def handle_absolute_recipe_input(input_path):
     other types of recipes.
     """
 
-    if debug_mode:
-        print "%s\n    INPUT TYPE:  absolute recipe%s\n" % (bcolors.DEBUG,
-                                                            bcolors.ENDC)
-
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
@@ -607,10 +583,6 @@ def handle_sccm_recipe_input(input_path):
     """Process a sccm recipe, gathering information useful for building other
     types of recipes."""
 
-    if debug_mode:
-        print "%s\n    INPUT TYPE:  sccm recipe%s\n" % (bcolors.DEBUG,
-                                                        bcolors.ENDC)
-
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
@@ -634,10 +606,6 @@ def handle_sccm_recipe_input(input_path):
 def handle_ds_recipe_input(input_path):
     """Process a ds recipe, gathering information useful for building other
     types of recipes."""
-
-    if debug_mode:
-        print "%s\n    INPUT TYPE:  ds recipe%s\n" % (bcolors.DEBUG,
-                                                      bcolors.ENDC)
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -752,10 +720,6 @@ def main():
         )
         sys.exit(1)
 
-    if debug_mode:
-        print "%s\n    DEBUG MODE:  ON" % bcolors.DEBUG
-        print "    INPUT PATH:  %s%s" % (input_path, bcolors.ENDC)
-
     preferred_identifier_prefix, preferred_recipe_types = set_prefs()
 
     print "\nProcessing %s ..." % input_path
@@ -776,15 +740,6 @@ def main():
         print "I haven't been trained on how to handle this input path:"
         print "    %s" % input_path
         sys.exit(1)
-
-    if debug_mode:
-        print "%s\n    EXISTING RECIPES:\n" % bcolors.DEBUG
-        pprint(existing_recipes)
-        print "\n    AVAILABLE RECIPE TYPES:\n"
-        pprint(avail_recipe_types)
-        print "\n    BUILDABLE RECIPES:\n"
-        pprint(buildable_recipes)
-        print bcolors.ENDC
 
     # Prompt the user with the available recipes types and let them choose.
     print "\nHere are the recipe types available to build:"
