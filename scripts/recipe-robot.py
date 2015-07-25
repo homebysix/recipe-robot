@@ -50,45 +50,48 @@ import sys
 
 
 # Global variables.
-__version__ = '0.0.1'
-__debug_mode__ = True  # set to True for additional output
-__pref_file__ = os.path.expanduser(
+version = '0.0.1'
+debug_mode = True  # set to True for additional output
+prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
 # Build the recipe format offerings.
 # TODO(Elliot): This should probably not be a global variable.
-__avail_recipe_types__ = {
-    "download": "Downloads an app in whatever format the developer "
-                "provides.",
-    "munki": "Imports into your Munki repository.",
-    "pkg": "Creates a standard pkg installer file.",
-    "install": "Installs the app on the computer running AutoPkg.",
-    "jss": "Imports into your Casper JSS and creates necessary groups, "
-           "policies, etc.",
-    "absolute": "Imports into your Absolute Manage server.",
-    "sccm": "Imports into your SCCM server.",
-    "ds": "Imports into your DeployStudio Packages folder."
-}
+avail_recipe_types = (
+    ("download", "Downloads an app in whatever format the developer "
+                 "provides."),
+    ("munki", "Imports into your Munki repository."),
+    ("pkg", "Creates a standard pkg installer file."),
+    ("install", "Installs the app on the computer running AutoPkg."),
+    ("jss", "Imports into your Casper JSS and creates necessary groups, "
+            "policies, etc."),
+    ("absolute", "Imports into your Absolute Manage server."),
+    ("sccm", "Imports into your SCCM server."),
+    ("ds", "Imports into your DeployStudio Packages folder.")
+)
 
 # Build the list of download formats we know about. TODO: It would be great
 # if we didn't need this list, but I suspect we do need it in order to tell
 # the recipes which Processors to use.
 # TODO(Elliot): This should probably not be a global variable.
-__supported_download_formats__ = ("dmg", "zip", "tar.gz", "gzip", "pkg")
+supported_download_formats = ("dmg", "zip", "tar.gz", "gzip", "pkg")
 
 # Build the list of existing recipes.
 # Example: ['Firefox.download.recipe']
 # TODO(Elliot): This should probably not be a global variable.
-__existing_recipes__ = []
+existing_recipes = []
 
 # Build the dict of buildable recipes and their corresponding
 # templates. Example: {'Firefox.jss.recipe': 'pkg.jss.recipe'}
 # TODO(Elliot): This should probably not be a global variable.
-__buildable_recipes__ = {}
+buildable_recipes = {}
 
 # The name of the app for which a recipe is being built.
 # TODO(Elliot): This should probably not be a global variable.
-__app_name__ = ""
+app_name = ""
+
+# TODO(Elliot): Get rid of this global.
+preferred_recipe_types = {}
 
 
 class bcolors:
@@ -122,6 +125,7 @@ class InputType(object):
 
 def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr."""
+
     args = shlex.split(cmd)
     # TODO(Elliot): I've been told Popen is not a good practice. Better idea?
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
@@ -132,6 +136,7 @@ def get_exitcode_stdout_stderr(cmd):
 
 def build_argument_parser():
     """Build and return the argument parser for Recipe Robot."""
+
     parser = argparse.ArgumentParser(
         description="Easily and automatically create AutoPkg recipes.")
     parser.add_argument(
@@ -157,6 +162,119 @@ def build_argument_parser():
     return parser
 
 
+def set_prefs():
+    """Create prefs file if it doesn't exist, or read from it if it
+    does.
+    """
+
+    # If prefs file exists, try to read from it.
+    if os.path.isfile(prefs_file):
+
+        # Open the file.
+        try:
+            pref_plist = plistlib.readPlist(prefs_file)
+
+            # Read the preferred identifier prefix.
+            try:
+                preferred_identifier_prefix = pref_plist[
+                    "PreferredRecipeIdentifierPrefix"]
+            except Exception:
+                print("There was a problem reading from the prefs "
+                      "file. Building new preferences.")
+                preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(pref_plist)
+
+            # Read the preferred recipe types.
+            try:
+                preferred_recipe_types = pref_plist[
+                    "PreferredRecipeTypes"]
+                if len(preferred_recipe_types) != len(avail_recipe_types):
+                    print("The list of preferred recipe types is "
+                          "incomplete. Building new preferences.")
+                    preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(pref_plist)
+            except Exception:
+                print("There was a problem reading from the prefs "
+                      "file. Building new preferences.")
+                preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(pref_plist)
+
+        except Exception:
+            print("There was a problem opening the prefs file. "
+                  "Building new preferences.")
+            preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(dict())
+
+    else:
+        print "No prefs file found. Building new preferences..."
+        preferred_identifier_prefix, preferred_recipe_types = show_prefs_menu(dict())
+
+    # TODO(Elliot): Return a prefs dict instead of whatever this is.
+    return preferred_identifier_prefix, preferred_recipe_types
+
+
+def show_prefs_menu(pref_plist):
+    """Prompt user for preferences, then save them back to the
+    plist.
+    """
+
+    # TODO(Elliot): Make this something users can come back to and modify,
+    # rather than just a first-run thing.
+
+    # Prompt for and save recipe identifier prefix.
+    preferred_identifier_prefix = "com.github.homebysix"
+    print "\nRecipe identifier prefix"
+    print "[description of what that means]\n"
+    choice = raw_input(
+        "Please type your preferred recipe identifier prefix [%s]: " % preferred_identifier_prefix)
+    pref_plist[
+        "PreferredRecipeIdentifierPrefix"] = choice
+
+    # Start with all available recipe types on.
+    preferred_recipe_types = {}
+    i = 0
+    for i in range(0, len(avail_recipe_types)):
+        preferred_recipe_types[avail_recipe_types[i][0]] = True
+        i += 1
+    print "\nPreferred recipe types"
+    print "[description of what that means]\n"
+
+    # Prompt to set recipe types on/off as desired.
+    while True:
+        i = 0
+        for i in range(0, len(avail_recipe_types)):
+            if preferred_recipe_types[avail_recipe_types[i][0]] is False:
+                indicator = " "
+            else:
+                indicator = "*"
+            print "  [%s] %s. %s - %s" % (indicator, i, avail_recipe_types[i][0], avail_recipe_types[i][1])
+            i += 1
+        choice = raw_input(
+            "\nType a number to toggle the corresponding recipe "
+            "type between ON [*] and OFF [ ]. When you're satisfied "
+            "with your choices, type an S to save and proceed: ")
+        if choice.upper() == "S":
+            break
+        else:
+            try:
+                if preferred_recipe_types[avail_recipe_types[int(choice)][0]] is False:
+                    preferred_recipe_types[
+                        avail_recipe_types[int(choice)][0]] = True
+                else:
+                    preferred_recipe_types[
+                        avail_recipe_types[int(choice)][0]] = False
+            except Exception:
+                print "%sInvalid choice. Please try again.%s\n" % (bcolors.ERROR, bcolors.ENDC)
+
+    # TODO(Elliot): Make this interactive while retaining scrollback.
+    # Maybe with curses module?
+
+    # Write preferences.
+    prefs = dict(
+        PreferredRecipeIdentifierPrefix=preferred_identifier_prefix,
+        PreferredRecipeTypes=preferred_recipe_types,
+        LastRecipeRobotVersion=version)
+    plistlib.writePlist(prefs, prefs_file)
+
+    return preferred_identifier_prefix, preferred_recipe_types
+
+
 def get_input_type(input_path):
     """Determine the type of recipe generation needed based on path.
 
@@ -166,6 +284,7 @@ def get_input_type(input_path):
     Returns:
         Int pseudo-enum value of InputType.
     """
+
     if input_path.rstrip("/").endswith(".app"):
         return InputType.app
     elif input_path.endswith(".download.recipe"):
@@ -186,46 +305,46 @@ def get_input_type(input_path):
         return InputType.ds_recipe
 
 
-def create_existing_recipe_list(__app_name__):
+def create_existing_recipe_list(app_name):
     """Use autopkg search results to build existing recipe list."""
 
-    cmd = "autopkg search -p %s" % __app_name__
+    # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
+    # TODO(Elliot): Do search again without spaces in app names.
+    cmd = "autopkg search -p %s" % app_name
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
         for line in out.split("\n"):
             if ".recipe" in line:
                 # Add the first "word" of each line of search results. Example:
                 # Firefox.pkg.recipe
-                __existing_recipes__.append(line.split(None, 1)[0])
+                existing_recipes.append(line.split(None, 1)[0])
     else:
         print err
         sys.exit(exitcode)
 
 
-def create_buildable_recipe_list(__app_name__):
+def create_buildable_recipe_list(app_name, preferred_recipe_types):
     """Add any recipe types that don't already exist to the buildable list."""
 
-    for recipe_format in __avail_recipe_types__:
-        if "%s.%s.recipe" % (__app_name__, recipe_format) not in __existing_recipes__:
-            __buildable_recipes__[
-                # TODO(Elliot): Determine proper template to use.
-                __app_name__ + "." + recipe_format + ".recipe"
-            ] = "template TBD"
+    for recipe_format, is_included in preferred_recipe_types.iteritems():
+        if is_included is True:
+            if "%s.%s.recipe" % (app_name, recipe_format) not in existing_recipes:
+                buildable_recipes[
+                    # TODO(Elliot): Determine proper template to use.
+                    app_name + "." + recipe_format + ".recipe"
+                ] = "template TBD"
 
 
 def handle_app_input(input_path):
     """Process an app, gathering required information to create a recipe."""
 
-    if __debug_mode__:
-        print "\n%s    INPUT TYPE:  app%s\n" % (bcolors.DEBUG, bcolors.ENDC)
-
     # Figure out the name of the app.
     try:
         info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
-        __app_name__ = info_plist["CFBundleName"]
+        app_name = info_plist["CFBundleName"]
     except KeyError:
         try:
-            __app_name__ = info_plist["CFBundleExecutable"]
+            app_name = info_plist["CFBundleExecutable"]
         except KeyError:
             print "%s[ERROR] Sorry, I can't figure out what this app is called.%s" % (
                 bcolors.ERROR, bcolors.ENDC
@@ -233,21 +352,21 @@ def handle_app_input(input_path):
             sys.exit(1)
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # Check for a Sparkle feed, but only if a download recipe doesn't exist.
-    if __app_name__ + "%s.download.recipe" not in __existing_recipes__:
+    if app_name + "%s.download.recipe" not in existing_recipes:
         try:
             print "We found a Sparkle feed: %s" % info_plist["SUFeedURL"]
-            __buildable_recipes__[
-                __app_name__ + ".download.recipe"
+            buildable_recipes[
+                app_name + ".download.recipe"
             ] = "download-from-sparkle.recipe"
 
         except KeyError:
             try:
                 print("We found a Sparkle feed: %s" %
                       info_plist["SUOriginalFeedURL"])
-                __buildable_recipes__[__app_name__ + ".download.recipe"] = (
+                buildable_recipes[app_name + ".download.recipe"] = (
                     "download-from-sparkle.recipe"
                 )
 
@@ -278,25 +397,25 @@ def handle_app_input(input_path):
 
     # If an available recipe type doesn't already exist, add to the buildable
     # recipes list.
-    create_buildable_recipe_list(__app_name__)
+    create_buildable_recipe_list(app_name, preferred_recipe_types)
 
     # If munki recipe is buildable, the minimum OS version prove useful.
     # TODO(Elliot): Find a way to pass variables like this to the generator.
-    if __app_name__ + ".munki.recipe" in __buildable_recipes__:
+    if app_name + ".munki.recipe" in buildable_recipes:
         try:
             min_sys_vers = info_plist["LSMinimumSystemVersion"]
         except KeyError:
-            if __debug_mode__:
-                print bcolors.DEBUG
-                print("[WARNING] can't detect minimum system version." +
-                      bcolors.ENDC)
+            if debug_mode:
+                print("%s[WARNING] can't detect minimum system version "
+                      "requirement.%s" % (bcolors.DEBUG, bcolors.ENDC))
 
 
 def handle_download_recipe_input(input_path):
     """Process a download recipe, gathering information useful for building
     other types of recipes.
     """
-    if __debug_mode__:
+
+    if debug_mode:
         print "%s\n    INPUT TYPE:  download recipe%s\n" % (bcolors.DEBUG,
                                                             bcolors.ENDC)
 
@@ -304,12 +423,12 @@ def handle_download_recipe_input(input_path):
     input_recipe = plistlib.readPlist(input_path)
 
     # Get the app's name from the recipe.
-    __app_name__ = input_recipe["Input"]["NAME"]
+    app_name = input_recipe["Input"]["NAME"]
 
     # Get the download file format.
     # TODO(Elliot): Parse the recipe properly. Don't use grep.
     parsed_download_format = ""
-    for download_format in __supported_download_formats__:
+    for download_format in supported_download_formats:
         cmd = "grep '.%s</string>' '%s'" % (download_format, input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
@@ -318,21 +437,21 @@ def handle_download_recipe_input(input_path):
             break
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # Attempting to simultaneously determine which recipe types are
     # available to build and which templates we should use for each.
     # TODO(Elliot): Make it better. Integrate with existing
     # create_buildable_recipe_list function.
-    for recipe_format in __avail_recipe_types__:
-        if __app_name__ + "." + recipe_format + ".recipe" not in __existing_recipes__:
-            this_recipe_type = "%s.%s.recipe" % __app_name__, recipe_format
+    for recipe_format in avail_recipe_types:
+        if app_name + "." + recipe_format + ".recipe" not in existing_recipes:
+            this_recipe_type = "%s.%s.recipe" % app_name, recipe_format
             if recipe_format in ("pkg", "install", "munki"):
                 this_recipe_template = "%s-from-download_%s" % recipe_format, download_format
-                __buildable_recipes__[this_recipe_type] = this_recipe_template
+                buildable_recipes[this_recipe_type] = this_recipe_template
             else:
                 this_recipe_template = "%s-from-pkg" % recipe_format
-                __buildable_recipes__[this_recipe_type] = this_recipe_template
+                buildable_recipes[this_recipe_type] = this_recipe_template
 
     # Offer to build pkg, munki, jss, etc.
 
@@ -341,7 +460,7 @@ def handle_munki_recipe_input(input_path):
     """Process a munki recipe, gathering information useful for building other
     types of recipes."""
 
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    INPUT TYPE:  munki recipe%s\n" % (bcolors.DEBUG,
                                                          bcolors.ENDC)
 
@@ -352,14 +471,14 @@ def handle_munki_recipe_input(input_path):
     input_recipe = plistlib.readPlist(input_path)
 
     # Get the app's name from the recipe.
-    __app_name__ = input_recipe["Input"]["NAME"]
+    app_name = input_recipe["Input"]["NAME"]
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # If an available recipe type doesn't already exist, add to the buildable
     # recipes list.
-    create_buildable_recipe_list(__app_name__)
+    create_buildable_recipe_list(app_name, create_buildable_recipe_list)
 
     # If this munki recipe both downloads and imports the app, we
     # should offer to build a discrete download recipe with only
@@ -376,7 +495,7 @@ def handle_pkg_recipe_input(input_path):
     """Process a pkg recipe, gathering information useful for building other
     types of recipes."""
 
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    INPUT TYPE:  pkg recipe%s\n" % (bcolors.DEBUG,
                                                        bcolors.ENDC)
 
@@ -384,14 +503,14 @@ def handle_pkg_recipe_input(input_path):
     input_recipe = plistlib.readPlist(input_path)
 
     # Get the app's name from the recipe.
-    __app_name__ = input_recipe["Input"]["NAME"]
+    app_name = input_recipe["Input"]["NAME"]
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # If an available recipe type doesn't already exist, add to the buildable
     # recipes list.
-    create_buildable_recipe_list(__app_name__)
+    create_buildable_recipe_list(app_name, create_buildable_recipe_list)
 
     # Check to see whether the recipe has a download recipe as its parent. If
     # not, offer to build a discrete download recipe.
@@ -403,7 +522,7 @@ def handle_install_recipe_input(input_path):
     """Process an install recipe, gathering information useful for building
     other types of recipes."""
 
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    INPUT TYPE:  install recipe%s\n" % (bcolors.DEBUG,
                                                            bcolors.ENDC)
 
@@ -411,14 +530,14 @@ def handle_install_recipe_input(input_path):
     input_recipe = plistlib.readPlist(input_path)
 
     # Get the app's name from the recipe.
-    __app_name__ = input_recipe["Input"]["NAME"]
+    app_name = input_recipe["Input"]["NAME"]
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # If an available recipe type doesn't already exist, add to the buildable
     # recipes list.
-    create_buildable_recipe_list(__app_name__)
+    create_buildable_recipe_list(app_name, create_buildable_recipe_list)
 
     # Check to see whether the recipe has a download and/or pkg
     # recipe as its parent. If not, offer to build a discrete
@@ -431,7 +550,7 @@ def handle_jss_recipe_input(input_path):
     """Process a jss recipe, gathering information useful for building other
     types of recipes."""
 
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    INPUT TYPE:  jss recipe%s\n" % (bcolors.DEBUG,
                                                        bcolors.ENDC)
 
@@ -439,14 +558,14 @@ def handle_jss_recipe_input(input_path):
     input_recipe = plistlib.readPlist(input_path)
 
     # Get the app's name from the recipe.
-    __app_name__ = input_recipe["Input"]["NAME"]
+    app_name = input_recipe["Input"]["NAME"]
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # If an available recipe type doesn't already exist, add to the buildable
     # recipes list.
-    create_buildable_recipe_list(__app_name__)
+    create_buildable_recipe_list(app_name, create_buildable_recipe_list)
 
     # Check to see whether the recipe has a download and/or pkg
     # recipe as its parent. If not, offer to build a discrete
@@ -460,7 +579,7 @@ def handle_absolute_recipe_input(input_path):
     other types of recipes.
     """
 
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    INPUT TYPE:  absolute recipe%s\n" % (bcolors.DEBUG,
                                                             bcolors.ENDC)
 
@@ -468,14 +587,14 @@ def handle_absolute_recipe_input(input_path):
     input_recipe = plistlib.readPlist(input_path)
 
     # Get the app's name from the recipe.
-    __app_name__ = input_recipe["Input"]["NAME"]
+    app_name = input_recipe["Input"]["NAME"]
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # If an available recipe type doesn't already exist, add to the buildable
     # recipes list.
-    create_buildable_recipe_list(__app_name__)
+    create_buildable_recipe_list(app_name, create_buildable_recipe_list)
 
     # Check to see whether the recipe has a download and/or pkg
     # recipe as its parent. If not, offer to build a discrete
@@ -488,7 +607,7 @@ def handle_sccm_recipe_input(input_path):
     """Process a sccm recipe, gathering information useful for building other
     types of recipes."""
 
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    INPUT TYPE:  sccm recipe%s\n" % (bcolors.DEBUG,
                                                         bcolors.ENDC)
 
@@ -496,14 +615,14 @@ def handle_sccm_recipe_input(input_path):
     input_recipe = plistlib.readPlist(input_path)
 
     # Get the app's name from the recipe.
-    __app_name__ = input_recipe["Input"]["NAME"]
+    app_name = input_recipe["Input"]["NAME"]
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # If an available recipe type doesn't already exist, add to the buildable
     # recipes list.
-    create_buildable_recipe_list(__app_name__)
+    create_buildable_recipe_list(app_name, create_buildable_recipe_list)
 
     # Check to see whether the recipe has a download and/or pkg
     # recipe as its parent. If not, offer to build a discrete
@@ -516,7 +635,7 @@ def handle_ds_recipe_input(input_path):
     """Process a ds recipe, gathering information useful for building other
     types of recipes."""
 
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    INPUT TYPE:  ds recipe%s\n" % (bcolors.DEBUG,
                                                       bcolors.ENDC)
 
@@ -524,14 +643,14 @@ def handle_ds_recipe_input(input_path):
     input_recipe = plistlib.readPlist(input_path)
 
     # Get the app's name from the recipe.
-    __app_name__ = input_recipe["Input"]["NAME"]
+    app_name = input_recipe["Input"]["NAME"]
 
     # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(__app_name__)
+    create_existing_recipe_list(app_name)
 
     # If an available recipe type doesn't already exist, add to the buildable
     # recipes list.
-    create_buildable_recipe_list(__app_name__)
+    create_buildable_recipe_list(app_name, create_buildable_recipe_list)
 
     # Check to see whether the recipe has a download and/or pkg
     # recipe as its parent. If not, offer to build a discrete
@@ -542,6 +661,7 @@ def handle_ds_recipe_input(input_path):
 
 def generate_recipe(plist_path, plist_object):
     """Generate a basic AutoPkg recipe of the desired format."""
+
     print "Generating AutoPkgr.download.recipe (why? because we can!)..."
 
     # TODO(Elliot): I'm guessing Shea is going to come in here and dump a load of
@@ -582,6 +702,27 @@ def generate_recipe(plist_path, plist_object):
 # TODO(Elliot): Make main() shorter. Just a flowchart for the logic.
 
 
+def print_debug_info():
+    """Prints current debug information."""
+
+    print bcolors.DEBUG
+    print "    PREFERRED RECIPE IDENTIFIER PREFIX: \n"
+    print preferred_identifier_prefix
+    print "    PREFERRED RECIPE TYPES\n"
+    pprint(preferred_recipe_types)
+    print "    AVAILABLE RECIPE TYPES\n"
+    pprint(avail_recipe_types)
+    print "    SUPPORTED DOWNLOAD FORMATS\n"
+    pprint(supported_download_formats)
+    print "    CURRENT APP NAME\n"
+    pprint(app_name)
+    print "    EXISTING RECIPES\n"
+    pprint(existing_recipes)
+    print "    BUILDABLE RECIPES\n"
+    pprint(buildable_recipes)
+    print bcolors.ENDC
+
+
 def main():
     """Make the magic happen."""
 
@@ -594,7 +735,7 @@ def main():
                   d-||-b
                     ||
                   _/  \_
-    """ % __version__
+    """ % version
 
     print welcome_text
 
@@ -611,50 +752,11 @@ def main():
         )
         sys.exit(1)
 
-    # Set the default recipe identifier prefix.
-    # I imagine this needs to be a defaulted value.
-    # TODO(Shea): Implement preferences.
-    preferred_identifier_prefix = "com.github.homebysix"
-
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    DEBUG MODE:  ON" % bcolors.DEBUG
         print "    INPUT PATH:  %s%s" % (input_path, bcolors.ENDC)
 
-    # If the preferences file already exists, read it. Otherwise, create it.
-    if os.path.isfile(__pref_file__):
-        pref_plist = plistlib.readPlist(__pref_file__)
-        preferred_identifier_prefix = pref_plist[
-            "PreferredRecipeIdentifierPrefix"]
-        preferred_recipe_types = pref_plist["PreferredRecipeTypes"]
-    else:
-        preferred_identifier_prefix = raw_input(
-            "Please enter your preferred recipe identifier prefix: ")
-
-        # TODO(Elliot): Find a way to toggle the recipe types off/on as needed.
-
-        i = 0
-        for this_type, this_description in __avail_recipe_types__.iteritems():
-            # TODO(Elliot): if recipe is included in the preferred types
-            if True:
-                print "  [•] %s. %s - %s" % (i, this_type, this_description)
-            # TODO(Elliot): if recipe is not included in the preferred types
-            else:
-                print "  [ ] %s. %s - %s" % (i, this_type, this_description)
-            i += 1
-
-        preferred_recipe_types = raw_input(
-            "Please choose your default recipe types: ")
-
-        prefs = dict(
-            # TODO(Elliot): Use the actual preferred_recipe_types value from
-            # above.
-            PreferredRecipeIdentifierPrefix=preferred_identifier_prefix,
-            PreferredRecipeTypes=[
-                "download", "munki", "pkg", "install", "jss", "absolute",
-                "sccm", "ds"
-            ],
-            LastRecipeRobotVersion=__version__)
-        plistlib.writePlist(prefs, __pref_file__)
+    preferred_identifier_prefix, preferred_recipe_types = set_prefs()
 
     print "\nProcessing %s ..." % input_path
 
@@ -675,18 +777,18 @@ def main():
         print "    %s" % input_path
         sys.exit(1)
 
-    if __debug_mode__:
+    if debug_mode:
         print "%s\n    EXISTING RECIPES:\n" % bcolors.DEBUG
-        pprint(__existing_recipes__)
+        pprint(existing_recipes)
         print "\n    AVAILABLE RECIPE TYPES:\n"
-        pprint(__avail_recipe_types__)
+        pprint(avail_recipe_types)
         print "\n    BUILDABLE RECIPES:\n"
-        pprint(__buildable_recipes__)
+        pprint(buildable_recipes)
         print bcolors.ENDC
 
     # Prompt the user with the available recipes types and let them choose.
     print "\nHere are the recipe types available to build:"
-    for key, value in __buildable_recipes__.iteritems():
+    for key, value in buildable_recipes.iteritems():
         print "    %s" % key
 
     # Generate selected recipes.
