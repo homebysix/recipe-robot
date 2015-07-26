@@ -390,11 +390,12 @@ def handle_app_input(input_path, recipes):
         else:
             sys.exit(1)
 
-    print "Determining app's name from CFBundleName..."
-    try:
-        app_name = info_plist["CFBundleName"]
-    except KeyError:
-        print "    This app doesn't have a CFBundleName. That's OK, we'll keep trying."
+    if app_name == "":  # Will always be true at this point.
+        print "Determining app's name from CFBundleName..."
+        try:
+            app_name = info_plist["CFBundleName"]
+        except KeyError:
+            print "    This app doesn't have a CFBundleName. That's OK, we'll keep trying."
 
     if app_name == "":
         print "Determining app's name from CFBundleExecutable..."
@@ -445,10 +446,13 @@ def handle_app_input(input_path, recipes):
     except Exception:
         print "    No LSMinimumSystemVersion found."
 
+    # TODO(Elliot): Collect other information as required to build recipes.
+
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
         if recipes[i]["buildable"] is True:
+
             if recipes[i]["name"] == "download":
                 if sparkle_feed != "":
                     # Example: Cyberduck.download
@@ -468,9 +472,28 @@ def handle_app_input(input_path, recipes):
                 else:
                     # TODO(Elliot): Is this even necessary?
                     print "[ERROR] We don't have enough information to create a %s recipe for %s." % (recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
+
             if recipes[i]["name"] == "munki":
                 recipes[i]["keys"]["Input"]["pkginfo"][
                     "minimum_os_version"] = min_sys_vers
+
+            if recipes[i]["name"] == "pkg":
+                pass
+
+            if recipes[i]["name"] == "install":
+                pass
+
+            if recipes[i]["name"] == "jss":
+                pass
+
+            if recipes[i]["name"] == "absolute":
+                pass
+
+            if recipes[i]["name"] == "sccm":
+                pass
+
+            if recipes[i]["name"] == "ds":
+                pass
 
 
 def handle_download_recipe_input(input_path, recipes):
@@ -506,8 +529,13 @@ def handle_download_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
-        if recipes[i]["name"] == "pkg":
-            if recipes[i]["buildable"] is True:
+        if recipes[i]["buildable"] is True:
+
+            if recipes[i]["name"] == "munki":
+                recipes[i]["keys"]["Input"]["pkginfo"][
+                    "minimum_os_version"] = min_sys_vers
+
+            if recipes[i]["name"] == "pkg":
                 if parsed_download_format == "dmg":
                     recipes[i]["Process"].append({
                         "Processor": "AppDmgVersioner",
@@ -528,6 +556,21 @@ def handle_download_recipe_input(input_path, recipes):
                     # TODO(Elliot): Construct keys for remaining supported
                     # download formats.
                     pass
+
+            if recipes[i]["name"] == "install":
+                pass
+
+            if recipes[i]["name"] == "jss":
+                pass
+
+            if recipes[i]["name"] == "absolute":
+                pass
+
+            if recipes[i]["name"] == "sccm":
+                pass
+
+            if recipes[i]["name"] == "ds":
+                pass
 
 
 def handle_munki_recipe_input(input_path, recipes):
@@ -561,6 +604,32 @@ def handle_munki_recipe_input(input_path, recipes):
     # blocking applications, etc when building munki recipes. I vote
     # yes, but it's probably not going to be easy.
 
+    # Send the information we discovered to the recipe keys.
+    for i in range(0, len(recipes)):
+        recipes[i]["keys"]["Input"]["NAME"] = app_name
+        if recipes[i]["buildable"] is True:
+
+            if recipes[i]["name"] == "download":
+                pass
+
+            if recipes[i]["name"] == "pkg":
+                pass
+
+            if recipes[i]["name"] == "install":
+                pass
+
+            if recipes[i]["name"] == "jss":
+                pass
+
+            if recipes[i]["name"] == "absolute":
+                pass
+
+            if recipes[i]["name"] == "sccm":
+                pass
+
+            if recipes[i]["name"] == "ds":
+                pass
+
 
 def handle_pkg_recipe_input(input_path, recipes):
     """Process a pkg recipe, gathering information useful for building other
@@ -583,7 +652,31 @@ def handle_pkg_recipe_input(input_path, recipes):
     # Check to see whether the recipe has a download recipe as its parent. If
     # not, offer to build a discrete download recipe.
 
-    # Offer to build munki, jss, etc.
+    # Send the information we discovered to the recipe keys.
+    for i in range(0, len(recipes)):
+        recipes[i]["keys"]["Input"]["NAME"] = app_name
+        if recipes[i]["buildable"] is True:
+
+            if recipes[i]["name"] == "download":
+                pass
+
+            if recipes[i]["name"] == "munki":
+                pass
+
+            if recipes[i]["name"] == "install":
+                pass
+
+            if recipes[i]["name"] == "jss":
+                pass
+
+            if recipes[i]["name"] == "absolute":
+                pass
+
+            if recipes[i]["name"] == "sccm":
+                pass
+
+            if recipes[i]["name"] == "ds":
+                pass
 
 
 def handle_install_recipe_input(input_path, recipes):
@@ -608,7 +701,31 @@ def handle_install_recipe_input(input_path, recipes):
     # recipe as its parent. If not, offer to build a discrete
     # download and/or pkg recipe.
 
-    # Offer to build other recipes as able.
+    # Send the information we discovered to the recipe keys.
+    for i in range(0, len(recipes)):
+        recipes[i]["keys"]["Input"]["NAME"] = app_name
+        if recipes[i]["buildable"] is True:
+
+            if recipes[i]["name"] == "download":
+                pass
+
+            if recipes[i]["name"] == "munki":
+                pass
+
+            if recipes[i]["name"] == "pkg":
+                pass
+
+            if recipes[i]["name"] == "jss":
+                pass
+
+            if recipes[i]["name"] == "absolute":
+                pass
+
+            if recipes[i]["name"] == "sccm":
+                pass
+
+            if recipes[i]["name"] == "ds":
+                pass
 
 
 def handle_jss_recipe_input(input_path, recipes):
@@ -633,7 +750,31 @@ def handle_jss_recipe_input(input_path, recipes):
     # recipe as its parent. If not, offer to build a discrete
     # download and/or pkg recipe.
 
-    # Offer to build other recipes as able.
+    # Send the information we discovered to the recipe keys.
+    for i in range(0, len(recipes)):
+        recipes[i]["keys"]["Input"]["NAME"] = app_name
+        if recipes[i]["buildable"] is True:
+
+            if recipes[i]["name"] == "download":
+                pass
+
+            if recipes[i]["name"] == "munki":
+                pass
+
+            if recipes[i]["name"] == "pkg":
+                pass
+
+            if recipes[i]["name"] == "install":
+                pass
+
+            if recipes[i]["name"] == "absolute":
+                pass
+
+            if recipes[i]["name"] == "sccm":
+                pass
+
+            if recipes[i]["name"] == "ds":
+                pass
 
 
 def handle_absolute_recipe_input(input_path, recipes):
@@ -659,7 +800,31 @@ def handle_absolute_recipe_input(input_path, recipes):
     # recipe as its parent. If not, offer to build a discrete
     # download and/or pkg recipe.
 
-    # Offer to build other recipes as able.
+    # Send the information we discovered to the recipe keys.
+    for i in range(0, len(recipes)):
+        recipes[i]["keys"]["Input"]["NAME"] = app_name
+        if recipes[i]["buildable"] is True:
+
+            if recipes[i]["name"] == "download":
+                pass
+
+            if recipes[i]["name"] == "munki":
+                pass
+
+            if recipes[i]["name"] == "pkg":
+                pass
+
+            if recipes[i]["name"] == "install":
+                pass
+
+            if recipes[i]["name"] == "jss":
+                pass
+
+            if recipes[i]["name"] == "sccm":
+                pass
+
+            if recipes[i]["name"] == "ds":
+                pass
 
 
 def handle_sccm_recipe_input(input_path, recipes):
@@ -684,7 +849,31 @@ def handle_sccm_recipe_input(input_path, recipes):
     # recipe as its parent. If not, offer to build a discrete
     # download and/or pkg recipe.
 
-    # Offer to build other recipes as able.
+    # Send the information we discovered to the recipe keys.
+    for i in range(0, len(recipes)):
+        recipes[i]["keys"]["Input"]["NAME"] = app_name
+        if recipes[i]["buildable"] is True:
+
+            if recipes[i]["name"] == "download":
+                pass
+
+            if recipes[i]["name"] == "munki":
+                pass
+
+            if recipes[i]["name"] == "pkg":
+                pass
+
+            if recipes[i]["name"] == "install":
+                pass
+
+            if recipes[i]["name"] == "jss":
+                pass
+
+            if recipes[i]["name"] == "absolute":
+                pass
+
+            if recipes[i]["name"] == "ds":
+                pass
 
 
 def handle_ds_recipe_input(input_path, recipes):
@@ -709,7 +898,31 @@ def handle_ds_recipe_input(input_path, recipes):
     # recipe as its parent. If not, offer to build a discrete
     # download and/or pkg recipe.
 
-    # Offer to build other recipes as able.
+    # Send the information we discovered to the recipe keys.
+    for i in range(0, len(recipes)):
+        recipes[i]["keys"]["Input"]["NAME"] = app_name
+        if recipes[i]["buildable"] is True:
+
+            if recipes[i]["name"] == "download":
+                pass
+
+            if recipes[i]["name"] == "munki":
+                pass
+
+            if recipes[i]["name"] == "pkg":
+                pass
+
+            if recipes[i]["name"] == "install":
+                pass
+
+            if recipes[i]["name"] == "jss":
+                pass
+
+            if recipes[i]["name"] == "absolute":
+                pass
+
+            if recipes[i]["name"] == "sccm":
+                pass
 
 
 def search_sourceforge_and_github(app_name):
