@@ -448,12 +448,29 @@ def handle_app_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
-        if recipes[i]["name"] == "download":
-            if recipes[i]["buildable"] is True:
-                recipes[i]["keys"]["Input"]["SPARKLE_FEED_URL"] = sparkle_feed
-        if recipes[i]["name"] == "munki":
-            if recipes[i]["buildable"] is True:
-                recipes[i]["keys"]["Input"]["pkginfo"]["minimum_os_version"] = min_sys_vers
+        if recipes[i]["buildable"] is True:
+            if recipes[i]["name"] == "download":
+                if sparkle_feed != "":
+                    # Example: Cyberduck.download
+                    recipes[i]["keys"]["Input"][
+                        "SPARKLE_FEED_URL"] = sparkle_feed
+                    recipes[i]["keys"]["Process"].append({
+                            "Processor": "SparkleUpdateInfoProvider",
+                            "Arguments": {
+                                "appcast_url": "%SPARKLE_FEED_URL%"
+                            },
+                        }, {
+                            "Processor": "URLDownloader"
+                        }, {
+                            "Processor": "EndOfCheckPhase"
+                        }
+                    )
+                else:
+                    # TODO(Elliot): Is this even necessary?
+                    print "[ERROR] We don't have enough information to create a %s recipe for %s." % (recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
+            if recipes[i]["name"] == "munki":
+                recipes[i]["keys"]["Input"]["pkginfo"][
+                    "minimum_os_version"] = min_sys_vers
 
 
 def handle_download_recipe_input(input_path, recipes):
@@ -495,7 +512,8 @@ def handle_download_recipe_input(input_path, recipes):
                     recipes[i]["Process"].append({
                         "Processor": "AppDmgVersioner",
                         "Arguments": {"dmg_path": "%pathname%"}}
-                        # TODO(Elliot): Include the rest of the necessary keys for creating a pkg from a dmg download.
+                        # TODO(Elliot): Include the rest of the necessary keys
+                        # for creating a pkg from a dmg download.
                     )
                 elif parsed_download_format == "zip":
                     recipes[i]["Process"].append({
@@ -503,10 +521,12 @@ def handle_download_recipe_input(input_path, recipes):
                         "Arguments": {"archive_path": "%pathname%",
                                       "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                                       "purge_destination": True}}
-                        # TODO(Elliot): Include the rest of the necessary keys for creating a pkg from a dmg download.
+                        # TODO(Elliot): Include the rest of the necessary keys
+                        # for creating a pkg from a dmg download.
                     )
                 else:
-                    # TODO(Elliot): Construct keys for remaining supported download formats.
+                    # TODO(Elliot): Construct keys for remaining supported
+                    # download formats.
                     pass
 
 
@@ -739,20 +759,25 @@ def generate_selected_recipes(prefs, recipes):
     """Generate the selected types of recipes."""
 
     print "\nGenerating selected recipes..."
+    # TODO(Elliot): Say "no recipes selected" if appropriate.
+
     for i in range(0, len(recipes)):
         if (recipes[i]["preferred"] is True and recipes[i]["buildable"] is True and recipes[i]["selected"] is True):
 
             # Set the identifier of the recipe.
-            recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"], recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
+            recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (
+                prefs["RecipeIdentifierPrefix"], recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
 
             # Set type-specific keys.
             if recipes[i]["name"] == "download":
 
-                recipes[i]["keys"]["Description"] = "Downloads the latest version of %s." % recipes[i]["keys"]["Input"]["NAME"]
+                recipes[i]["keys"]["Description"] = "Downloads the latest version of %s." % recipes[
+                    i]["keys"]["Input"]["NAME"]
 
             elif recipes[i]["name"] == "munki":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipes[i]["keys"]["Input"]["NAME"]
+                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipes[
+                    i]["keys"]["Input"]["NAME"]
                 # We'll use this later when creating icons for Munki and JSS recipes.
                 # cmd = 'sips -s format png \
                 # "/Applications/iTunes.app/Contents/Resources/iTunes.icns" \
@@ -761,15 +786,18 @@ def generate_selected_recipes(prefs, recipes):
 
             elif recipes[i]["name"] == "pkg":
 
-                recipes[i]["keys"]["Description"] = "Downloads the latest version of %s and creates an installer package." % recipes[i]["keys"]["Input"]["NAME"]
+                recipes[i]["keys"]["Description"] = "Downloads the latest version of %s and creates an installer package." % recipes[
+                    i]["keys"]["Input"]["NAME"]
 
             elif recipes[i]["name"] == "install":
 
-                recipes[i]["keys"]["Description"] = "Installs the latest version of %s." % recipes[i]["keys"]["Input"]["NAME"]
+                recipes[i]["keys"]["Description"] = "Installs the latest version of %s." % recipes[
+                    i]["keys"]["Input"]["NAME"]
 
             elif recipes[i]["name"] == "jss":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipes[i]["keys"]["Input"]["NAME"]
+                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipes[
+                    i]["keys"]["Input"]["NAME"]
                 # We'll use this later when creating icons for Munki and JSS recipes.
                 # cmd = 'sips -s format png \
                 # "/Applications/iTunes.app/Contents/Resources/iTunes.icns" \
@@ -778,20 +806,24 @@ def generate_selected_recipes(prefs, recipes):
 
             elif recipes[i]["name"] == "absolute":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Absolute Manage." % recipes[i]["keys"]["Input"]["NAME"]
+                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Absolute Manage." % recipes[
+                    i]["keys"]["Input"]["NAME"]
 
             elif recipes[i]["name"] == "sccm":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into SCCM." % recipes[i]["keys"]["Input"]["NAME"]
+                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into SCCM." % recipes[
+                    i]["keys"]["Input"]["NAME"]
 
             elif recipes[i]["name"] == "ds":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into DeployStudio." % recipes[i]["keys"]["Input"]["NAME"]
+                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into DeployStudio." % recipes[
+                    i]["keys"]["Input"]["NAME"]
             else:
                 print "I don't know how to generate a recipe of type %s." % recipes[i]["name"]
 
             # Write the recipe to disk.
-            filename = "%s.%s.recipe" % (recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
+            filename = "%s.%s.recipe" % (
+                recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
             write_recipe_file(filename, prefs, recipes[i]["keys"])
             print "    %s%s" % (prefs["RecipeCreateLocation"], filename)
 
