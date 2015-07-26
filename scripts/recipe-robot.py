@@ -51,7 +51,7 @@ import sys
 
 # Global variables.
 version = '0.0.1'
-debug_mode = True  # set to True for additional output
+debug_mode = False  # set to True for additional output
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 prefs = {}
@@ -375,17 +375,10 @@ def handle_app_input(input_path):
                 # will be. We need to find that out before we can create
                 # recipes that use the download as a parent.
 
-                # TODO(Elliot): Search GitHub for the app, to see if we can use
-                # the GitHubReleasesProvider processor to create a download
-                # recipe.
-
-                # TODO(Elliot): Search SourceForge for the app, to see if we
-                # can use the SourceForgeReleasesProvider processor to create a
-                # download recipe.
-
             except KeyError:
                 print "%s[WARNING] No Sparkle feed.%s" % (bcolors.WARNING,
                                                           bcolors.ENDC)
+                search_sourceforge_and_github(app_name)
 
     else:
 
@@ -625,6 +618,19 @@ def handle_ds_recipe_input(input_path):
     # download and/or pkg recipe.
 
     # Offer to build other recipes as able.
+
+
+def search_sourceforge_and_github(app_name):
+    """For apps that do not have a Sparkle feed, try to locate their project
+    information on either SourceForge or GitHub so that the corresponding
+    URL provider processors can be used to generate a recipe.
+    """
+
+    # TODO(Shea): Search on SourceForge for the project.
+    #     If found, pass the project ID back to the recipe generator.
+    #     To get ID: https://gist.github.com/homebysix/9640c6a6eecff82d3b16
+    # TODO(Shea): Search on GitHub for the project.
+    #     If found, pass the username and repo back to the recipe generator.
 
 
 def generate_recipe(plist_path, plist_object):
