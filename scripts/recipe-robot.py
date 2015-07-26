@@ -59,13 +59,7 @@ prefs_file = os.path.expanduser(
 # Build the list of download formats we know about.
 # TODO: It would be great if we didn't need this list, but I suspect we do need
 # it in order to tell the recipes which Processors to use.
-# TODO(Elliot): This should probably not be a global variable.
 supported_download_formats = ("dmg", "zip", "tar.gz", "gzip", "pkg")
-
-# The name of the app for which a recipe is being built.
-# TODO(Elliot): This should probably not be a global variable.
-app_name = ""
-
 
 # TODO(Elliot): Send bcolors.ENDC upon exception or keyboard interrupt.
 # Otherwise people's terminal windows might get stuck in purple mode!
@@ -199,6 +193,7 @@ def init_recipes():
         recipes[i]["preferred"] = True
         recipes[i]["existing"] = False
         recipes[i]["buildable"] = False
+        recipes[i]["selected"] = True
         recipes[i]["keys"] = {
             "Identifier": "",
             "MinimumVersion": "0.5.0",
@@ -209,7 +204,7 @@ def init_recipes():
     return recipes
 
 
-def init_prefs(recipes):
+def init_prefs(prefs, recipes):
     """Read from preferences plist, if it exists."""
 
     prefs = {}
@@ -220,6 +215,13 @@ def init_prefs(recipes):
         # Open the file.
         try:
             prefs = plistlib.readPlist(prefs_file)
+            for i in range(0, len(recipes)):
+                # Load preferred recipe types.
+                if recipes[i]["name"] in prefs["RecipeTypes"]:
+                    recipes[i]["preferred"] = True
+                else:
+                    recipes[i]["preferred"] = False
+
         except Exception:
             print("There was a problem opening the prefs file. "
                   "Building new preferences.")
@@ -243,6 +245,9 @@ def build_prefs(prefs, recipes):
 
     # TODO(Elliot): Make this something users can come back to and modify,
     # rather than just a first-run thing.
+
+    # Start recipe count at zero.
+    prefs["RecipeCreateCount"] = 0
 
     # Prompt for and save recipe identifier prefix.
     prefs["RecipeIdentifierPrefix"] = "com.github.homebysix"
@@ -290,6 +295,7 @@ def build_prefs(prefs, recipes):
             except Exception:
                 print "%s%s is not a valid option. Please try again.%s\n" % (bcolors.ERROR, choice, bcolors.ENDC)
 
+    # Set "preferred" status of each recipe type according to preferences.
     for i in range(0, len(recipes)):
         if recipes[i]["preferred"] is True:
             prefs["RecipeTypes"].append(recipes[i]["name"])
@@ -300,7 +306,6 @@ def build_prefs(prefs, recipes):
 def increment_recipe_count(prefs):
     """Add 1 to the cumulative count of recipes created by Recipe Robot."""
 
-    prefs = plistlib.readPlist(prefs_file)
     prefs["RecipeCreateCount"] += 1
     plistlib.writePlist(prefs, prefs_file)
 
@@ -700,16 +705,45 @@ def search_sourceforge_and_github(app_name):
     #     If found, pass the username and repo back to the recipe generator.
 
 
+def select_recipes_to_generate(recipes):
+    """Display menu that allows user to select which recipes to create."""
+
+    print "\nPlease select which recipes you'd like to create:\n"
+
+    # TODO(Elliot): Make this interactive while retaining scrollback.
+    # Maybe with curses module?
+    while True:
+        for i in range(0, len(recipes)):
+            indicator = " "
+            if (recipes[i]["preferred"] is True and recipes[i]["buildable"] is True):
+                if recipes[i]["selected"] is True:
+                    indicator = "*"
+                print "  [%s] %s. %s - %s" % (indicator, i, recipes[i]["name"], recipes[i]["description"])
+        choice = raw_input(
+            "\nType a number to toggle the corresponding recipe "
+            "type between ON [*] and OFF [ ]. When you're satisfied "
+            "with your choices, type an \"S\" to save and proceed: ")
+        if choice.upper() == "S":
+            break
+        else:
+            try:
+                if recipes[int(choice)]["selected"] is False:
+                    recipes[int(choice)]["selected"] = True
+                else:
+                    recipes[int(choice)]["selected"] = False
+            except Exception:
+                print "%s%s is not a valid option. Please try again.%s\n" % (bcolors.ERROR, choice, bcolors.ENDC)
+
+
 def generate_selected_recipes(prefs, recipes):
     """Generate the selected types of recipes."""
 
+    print "\nGenerating selected recipes..."
     for i in range(0, len(recipes)):
-        if recipes[i]["buildable"] is True:  # TODO(Elliot): Change to "selectable" when that feature is built.
-
-            print "Building %s.%s.recipe..." % (recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
+        if (recipes[i]["preferred"] is True and recipes[i]["buildable"] is True and recipes[i]["selected"] is True):
 
             # Set the identifier of the recipe.
-            recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"], recipes[i]["name"], app_name)
+            recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"], recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
 
             # Set type-specific keys.
             if recipes[i]["name"] == "download":
@@ -756,18 +790,35 @@ def generate_selected_recipes(prefs, recipes):
             else:
                 print "I don't know how to generate a recipe of type %s." % recipes[i]["name"]
 
-        # Write the recipe to disk.
-        write_recipe_file(prefs, recipes[i]["keys"])
+            # Write the recipe to disk.
+            filename = "%s.%s.recipe" % (recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
+            write_recipe_file(filename, prefs, recipes[i]["keys"])
+            print "    %s%s" % (prefs["RecipeCreateLocation"], filename)
 
 
-def write_recipe_file(prefs, keys):
+def write_recipe_file(filename, prefs, keys):
     """Write a generated recipe to disk."""
 
-    plist_path = prefs["RecipeCreateLocation"]
-    recipe_file = os.path.expanduser(plist_path)
-    plistlib.writePlist(keys, recipe_file)
-    print "Wrote to: " + plist_path
+    dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
+    if not os.path.exists(dest_dir):
+        try:
+            os.makedirs(dest_dir)
+        except Exception:
+            print "[ERROR] Unable to create directory at %s." % dest_dir
+            if debug_mode:
+                raise
+            else:
+                sys.exit(1)
+
+    # TODO(Elliot): Warning if a file already exists here.
+    dest_path = "%s/%s" % (dest_dir, filename)
+    plistlib.writePlist(keys, dest_path)
     increment_recipe_count(prefs)
+
+
+def congratulate(prefs):
+    """Display a friendly congratulatory message upon creating recipes."""
+
     congrats_msg = (
         "That's awesome!",
         "Amazing.",
@@ -778,7 +829,7 @@ def write_recipe_file(prefs, keys):
         "You rock star, you.",
         "Fantastic."
     )
-    print "You've now created %s recipes with Recipe Robot. %s" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
+    print "\nYou've now created %s recipes with Recipe Robot. %s\n" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
 
 
 def print_debug_info(prefs, recipes):
@@ -816,8 +867,12 @@ def main():
         )
         sys.exit(1)
 
+    # Create the master recipe information list.
     recipes = init_recipes()
-    prefs = init_prefs(recipes)
+
+    # Read or create the user preferences.
+    prefs = {}
+    prefs = init_prefs(prefs, recipes)
 
     input_type = get_input_type(input_path)
     print "\nProcessing %s ..." % input_path
@@ -849,12 +904,13 @@ def main():
     print_debug_info(prefs, recipes)
 
     # Prompt the user with the available recipes types and let them choose.
-    print "\nHere are the recipe types available to build:"
-    for i in range(0, len(recipes)):
-        print "    %s" % recipes[i]["name"]
+    select_recipes_to_generate(recipes)
 
-    # Generate selected recipes.
-    # generate_recipe("", dict())
+    # Create recipes for the recipe types that were selected above.
+    generate_selected_recipes(prefs, recipes)
+
+    # Pat on the back!
+    congratulate(prefs)
 
 
 if __name__ == '__main__':
