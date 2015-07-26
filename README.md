@@ -24,7 +24,7 @@ This two-pronged approach will allow AutoPkg novices to easily create recipes th
 
 - [ ] __Python script__
     - [x] Detects app input
-    - [ ] Validates app
+    - [x] Validates app
     - [x] Detects Sparkle feed from Info.plist
     - [ ] Determines GitHub releases feed
     - [ ] Determines SourceForge releases feed
@@ -32,10 +32,10 @@ This two-pronged approach will allow AutoPkg novices to easily create recipes th
     - [x] Detects recipe input
     - [ ] Validates usable recipe
     - [x] Detects type of recipe
-    - [ ] Detects format of download
-    - [ ] Detects app name from recipe
+    - [x] Detects format of download
+    - [x] Detects app name from recipe
     - [x] Checks for existing AutoPkg recipes
-    - [ ] Presents a list of available destination formats
+    - [x] Presents a list of available destination formats
     - [ ] References and modifies template recipe files
     - [ ] Creates a basic download recipe from Sparkle feed
     - [ ] Creates advanced download recipes ([see this article](https://www.afp548.com/2015/04/06/autopkg-download-recipe-decision-making-process/))
