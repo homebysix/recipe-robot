@@ -52,7 +52,7 @@ import sys
 
 # Global variables.
 version = '0.0.1'
-debug_mode = False  # set to True for additional output
+debug_mode = True  # set to True for additional output
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 prefs = {}
@@ -159,6 +159,23 @@ def build_argument_parser():
         action="store",
         help="The type(s) of recipe you'd like to generate.")
     return parser
+
+
+def print_welcome_text():
+    """Print the text that people see when they first start Recipe Robot."""
+
+    welcome_text = """
+     -----------------------------------
+    |  Welcome to Recipe Robot v%s.  |
+     -----------------------------------
+               \   _[]_
+                \  [oo]
+                  d-||-b
+                    ||
+                  _/  \_
+    """ % version
+
+    print welcome_text
 
 
 def init_prefs():
@@ -312,6 +329,7 @@ def create_existing_recipe_list(app_name):
 def create_buildable_recipe_list(app_name):
     """Add any recipe types that don't already exist to the buildable list."""
 
+    pprint(prefs) # why is this still {}?
     for recipe_format, is_included in prefs["RecipeTypes"].iteritems():
         if is_included is True:
             if "%s.%s.recipe" % (app_name, recipe_format) not in existing_recipes:
@@ -328,17 +346,16 @@ def handle_app_input(input_path):
     try:
         info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
         app_name = info_plist["CFBundleName"]
+        create_existing_recipe_list(app_name)
     except KeyError:
         try:
             app_name = info_plist["CFBundleExecutable"]
+            create_existing_recipe_list(app_name)
         except KeyError:
             print "%s[ERROR] Sorry, I can't figure out what this app is called.%s" % (
                 bcolors.ERROR, bcolors.ENDC
             )
             sys.exit(1)
-
-    # Use the autopkg search results to build a list of existing recipes.
-    create_existing_recipe_list(app_name)
 
     # Check for a Sparkle feed, but only if a download recipe doesn't exist.
     if app_name + "%s.download.recipe" not in existing_recipes:
@@ -876,18 +893,7 @@ def print_debug_info():
 def main():
     """Make the magic happen."""
 
-    welcome_text = """
-     -----------------------------------
-    |  Welcome to Recipe Robot v%s.  |
-     -----------------------------------
-               \   _[]_
-                \  [oo]
-                  d-||-b
-                    ||
-                  _/  \_
-    """ % version
-
-    print welcome_text
+    print_welcome_text()
 
     argparser = build_argument_parser()
     args = argparser.parse_args()
