@@ -71,9 +71,9 @@ avail_recipe_types = (
     ("ds", "Imports into your DeployStudio Packages folder.")
 )
 
-# Build the list of download formats we know about. TODO: It would be great
-# if we didn't need this list, but I suspect we do need it in order to tell
-# the recipes which Processors to use.
+# Build the list of download formats we know about.
+# TODO: It would be great if we didn't need this list, but I suspect we do need
+# it in order to tell the recipes which Processors to use.
 # TODO(Elliot): This should probably not be a global variable.
 supported_download_formats = ("dmg", "zip", "tar.gz", "gzip", "pkg")
 
@@ -307,6 +307,7 @@ def create_existing_recipe_list(app_name):
 
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
     # TODO(Elliot): Do search again without spaces in app names.
+    # TODO(Elliot): Match results for apps with "!" in names. (e.g. Paparazzi!)
     cmd = "autopkg search -p %s" % app_name
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
@@ -666,8 +667,6 @@ def generate_recipe(plist_path, plist_object):
     plistlib.writePlist(plist_object, recipe_file)
     print "    " + plist_path
 
-# TODO(Elliot): Make main() shorter. Just a flowchart for the logic.
-
 
 def print_debug_info():
     """Prints current debug information."""
@@ -690,6 +689,7 @@ def print_debug_info():
     print bcolors.ENDC
 
 
+# TODO(Elliot): Make main() shorter. Just a flowchart for the logic.
 def main():
     """Make the magic happen."""
 
@@ -734,8 +734,16 @@ def main():
         handle_munki_recipe_input(input_path)
     elif input_type is InputType.pkg_recipe:
         handle_pkg_recipe_input(input_path)
+    elif input_type is InputType.install_recipe:
+        handle_install_recipe_input(input_path)
     elif input_type is InputType.jss_recipe:
         handle_jss_recipe_input(input_path)
+    elif input_type is InputType.absolute_recipe:
+        handle_absolute_recipe_input(input_path)
+    elif input_type is InputType.sccm_recipe:
+        handle_sccm_recipe_input(input_path)
+    elif input_type is InputType.ds_recipe:
+        handle_ds_recipe_input(input_path)
     else:
         print("%s[ERROR] I haven't been trained on how to handle this input "
               "path:\n    %s%s" % (bcolors.ERROR, input_path, bcolors.ENDC))
@@ -749,7 +757,7 @@ def main():
         print "    %s" % key
 
     # Generate selected recipes.
-    # generate_recipe("", dict())
+    generate_recipe("", dict())
 
 
 if __name__ == '__main__':
