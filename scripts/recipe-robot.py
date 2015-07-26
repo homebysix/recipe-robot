@@ -373,6 +373,13 @@ def create_buildable_recipe_list(app_name, recipes):
                 recipes[i]["buildable"] = True
 
 
+# TODO(Shea): Let's have a think about how we're handling input in the
+# functions below. In addition to external input (the arguments passed
+# when the script is run) we may want to handle internal input too (from
+# one recipe type to another). I feel like a recursive function might be
+# the way to do this, but it's going to be a complex one. But I think
+# recusion will cut down on duplicate logic.
+
 def handle_app_input(input_path, recipes):
     """Process an app, gathering required information to create a recipe."""
 
@@ -459,15 +466,15 @@ def handle_app_input(input_path, recipes):
                     recipes[i]["keys"]["Input"][
                         "SPARKLE_FEED_URL"] = sparkle_feed
                     recipes[i]["keys"]["Process"].append({
-                            "Processor": "SparkleUpdateInfoProvider",
-                            "Arguments": {
-                                "appcast_url": "%SPARKLE_FEED_URL%"
-                            },
-                        }, {
-                            "Processor": "URLDownloader"
-                        }, {
-                            "Processor": "EndOfCheckPhase"
-                        }
+                        "Processor": "SparkleUpdateInfoProvider",
+                        "Arguments": {
+                            "appcast_url": "%SPARKLE_FEED_URL%"
+                        },
+                    }, {
+                        "Processor": "URLDownloader"
+                    }, {
+                        "Processor": "EndOfCheckPhase"
+                    }
                     )
                 else:
                     # TODO(Elliot): Is this even necessary?
