@@ -199,6 +199,7 @@ def init_recipes():
         recipes[i]["preferred"] = True
         recipes[i]["existing"] = False
         recipes[i]["buildable"] = False
+        recipes[i]["selected"] = True
         recipes[i]["keys"] = {
             "Identifier": "",
             "MinimumVersion": "0.5.0",
@@ -700,11 +701,41 @@ def search_sourceforge_and_github(app_name):
     #     If found, pass the username and repo back to the recipe generator.
 
 
+def select_recipes_to_generate(recipes):
+    """Display menu that allows user to select which recipes to create."""
+
+    print "\nPlease select which recipes you'd like to create:\n"
+
+    # TODO(Elliot): Make this interactive while retaining scrollback.
+    # Maybe with curses module?
+    while True:
+        for i in range(0, len(recipes)):
+            indicator = " "
+            if (recipes[i]["preferred"] is True and recipes[i]["buildable"] is True):
+                if recipes[i]["selected"] is True:
+                    indicator = "*"
+                print "  [%s] %s. %s - %s" % (indicator, i, recipes[i]["name"], recipes[i]["description"])
+        choice = raw_input(
+            "\nType a number to toggle the corresponding recipe "
+            "type between ON [*] and OFF [ ]. When you're satisfied "
+            "with your choices, type an \"S\" to save and proceed: ")
+        if choice.upper() == "S":
+            break
+        else:
+            try:
+                if recipes[int(choice)]["selected"] is False:
+                    recipes[int(choice)]["selected"] = True
+                else:
+                    recipes[int(choice)]["selected"] = False
+            except Exception:
+                print "%s%s is not a valid option. Please try again.%s\n" % (bcolors.ERROR, choice, bcolors.ENDC)
+
+
 def generate_selected_recipes(prefs, recipes):
     """Generate the selected types of recipes."""
 
     for i in range(0, len(recipes)):
-        if recipes[i]["buildable"] is True:  # TODO(Elliot): Change to "selectable" when that feature is built.
+        if recipes[i]["selected"] is True:
 
             print "Building %s.%s.recipe..." % (recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
 
@@ -849,12 +880,10 @@ def main():
     print_debug_info(prefs, recipes)
 
     # Prompt the user with the available recipes types and let them choose.
-    print "\nHere are the recipe types available to build:"
-    for i in range(0, len(recipes)):
-        print "    %s" % recipes[i]["name"]
+    select_recipes_to_generate(recipes)
 
-    # Generate selected recipes.
-    # generate_recipe("", dict())
+    # Create recipes for the recipe types that were selected above.
+    generate_selected_recipes(prefs, recipes)
 
 
 if __name__ == '__main__':
