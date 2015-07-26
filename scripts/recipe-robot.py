@@ -252,6 +252,9 @@ def build_prefs(prefs, recipes):
     # TODO(Elliot): Make this something users can come back to and modify,
     # rather than just a first-run thing.
 
+    # Start recipe count at zero.
+    prefs["RecipeCreateCount"] = 0
+
     # Prompt for and save recipe identifier prefix.
     prefs["RecipeIdentifierPrefix"] = "com.github.homebysix"
     print "\nRecipe identifier prefix"
@@ -309,7 +312,6 @@ def build_prefs(prefs, recipes):
 def increment_recipe_count(prefs):
     """Add 1 to the cumulative count of recipes created by Recipe Robot."""
 
-    prefs = plistlib.readPlist(prefs_file)
     prefs["RecipeCreateCount"] += 1
     plistlib.writePlist(prefs, prefs_file)
 
@@ -745,7 +747,7 @@ def generate_selected_recipes(prefs, recipes):
     for i in range(0, len(recipes)):
         if recipes[i]["selected"] is True:
 
-            print "Building %s.%s.recipe..." % (recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
+            print "\nBuilding %s.%s.recipe..." % (recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
 
             # Set the identifier of the recipe.
             recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"], recipes[i]["name"], app_name)
@@ -805,7 +807,7 @@ def write_recipe_file(prefs, keys):
     plist_path = prefs["RecipeCreateLocation"]
     recipe_file = os.path.expanduser(plist_path)
     plistlib.writePlist(keys, recipe_file)
-    print "Wrote to: " + plist_path
+    print "    Wrote to: " + plist_path
     increment_recipe_count(prefs)
 
 
@@ -822,7 +824,7 @@ def congratulate(prefs):
         "You rock star, you.",
         "Fantastic."
     )
-    print "You've now created %s recipes with Recipe Robot. %s" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
+    print "\nYou've now created %s recipes with Recipe Robot. %s\n" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
 
 
 def print_debug_info(prefs, recipes):
