@@ -524,31 +524,73 @@ def handle_download_recipe_input(input_path, recipes):
 
     # Get the download file format.
     # TODO(Elliot): Parse the recipe properly. Don't use grep.
+    print "Determining download format..."
     parsed_download_format = ""
     for download_format in supported_download_formats:
         cmd = "grep '.%s</string>' '%s'" % (download_format, input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            print "Looks like this recipe downloads a %s." % download_format
+            print "    Download format: %s." % download_format
             parsed_download_format = download_format
             break
 
     # Send the information we discovered to the recipe keys.
+    # This information is type-specific. Universal keys like Identifier are set when the recipe is generated.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
+        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
         if recipes[i]["buildable"] is True:
 
             if recipes[i]["name"] == "munki":
-                recipes[i]["keys"]["Input"]["pkginfo"][
-                    "minimum_os_version"] = min_sys_vers
+                pass
 
             if recipes[i]["name"] == "pkg":
                 if parsed_download_format == "dmg":
-                    recipes[i]["Process"].append({
-                        "Processor": "AppDmgVersioner",
-                        "Arguments": {"dmg_path": "%pathname%"}}
-                        # TODO(Elliot): Include the rest of the necessary keys
-                        # for creating a pkg from a dmg download.
+                    # Example: GoogleChrome.pkg
+                    recipes[i]["Process"].append(
+                        {
+                            "Processor": "AppDmgVersioner",
+                            "Arguments":
+                            {
+                                "dmg_path": "%pathname%"
+                            }
+                        }, {
+                            "Processor": "PkgRootCreator",
+                            "Arguments":
+                            {
+                                "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+                                "pkgdirs":
+                                {
+                                    "Applications": "0775"
+                                }
+                            }
+                        }, {
+                            "Processor": "Copier",
+                            "Arguments":
+                            {
+                                "source_path": "%pathname%/%app_name%",
+                                "destination_path": "%pkgroot%/Applications/%app_name%"
+                            }
+                        }, {
+                            "Processor": "PkgCreator",
+                            "Arguments":
+                            {
+                                "pkg_request":
+                                {
+                                    "pkgname": "%NAME%-%version%",
+                                    "version": "%version%",
+                                    "id": "%bundleid%",
+                                    "options": "purge_ds_store",
+                                    "chown": (
+                                        {
+                                            "path": "Applications",
+                                            "user": "root",
+                                            "group": "admin"
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     )
                 elif parsed_download_format == "zip":
                     recipes[i]["Process"].append({
@@ -614,6 +656,7 @@ def handle_munki_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
+        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
         if recipes[i]["buildable"] is True:
 
             if recipes[i]["name"] == "download":
@@ -662,6 +705,7 @@ def handle_pkg_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
+        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
         if recipes[i]["buildable"] is True:
 
             if recipes[i]["name"] == "download":
@@ -711,6 +755,7 @@ def handle_install_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
+        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
         if recipes[i]["buildable"] is True:
 
             if recipes[i]["name"] == "download":
@@ -760,6 +805,7 @@ def handle_jss_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
+        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
         if recipes[i]["buildable"] is True:
 
             if recipes[i]["name"] == "download":
@@ -810,6 +856,7 @@ def handle_absolute_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
+        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
         if recipes[i]["buildable"] is True:
 
             if recipes[i]["name"] == "download":
@@ -859,6 +906,7 @@ def handle_sccm_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
+        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
         if recipes[i]["buildable"] is True:
 
             if recipes[i]["name"] == "download":
@@ -908,6 +956,7 @@ def handle_ds_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     for i in range(0, len(recipes)):
         recipes[i]["keys"]["Input"]["NAME"] = app_name
+        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
         if recipes[i]["buildable"] is True:
 
             if recipes[i]["name"] == "download":
