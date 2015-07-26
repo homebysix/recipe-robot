@@ -744,10 +744,9 @@ def select_recipes_to_generate(recipes):
 def generate_selected_recipes(prefs, recipes):
     """Generate the selected types of recipes."""
 
+    print "\nGenerating selected recipes..."
     for i in range(0, len(recipes)):
-        if recipes[i]["selected"] is True:
-
-            print "\nBuilding %s.%s.recipe..." % (recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
+        if (recipes[i]["preferred"] is True and recipes[i]["buildable"] is True and recipes[i]["selected"] is True):
 
             # Set the identifier of the recipe.
             recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"], recipes[i]["name"], app_name)
@@ -797,17 +796,29 @@ def generate_selected_recipes(prefs, recipes):
             else:
                 print "I don't know how to generate a recipe of type %s." % recipes[i]["name"]
 
-        # Write the recipe to disk.
-        write_recipe_file(prefs, recipes[i]["keys"])
+            # Write the recipe to disk.
+            filename = "%s.%s.recipe" % (recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
+            write_recipe_file(filename, prefs, recipes[i]["keys"])
+            print "    %s%s" % (prefs["RecipeCreateLocation"], filename)
 
 
-def write_recipe_file(prefs, keys):
+def write_recipe_file(filename, prefs, keys):
     """Write a generated recipe to disk."""
 
-    plist_path = prefs["RecipeCreateLocation"]
-    recipe_file = os.path.expanduser(plist_path)
-    plistlib.writePlist(keys, recipe_file)
-    print "    Wrote to: " + plist_path
+    dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
+    if not os.path.exists(dest_dir):
+        try:
+            os.makedirs(dest_dir)
+        except Exception:
+            print "[ERROR] Unable to create directory at %s." % dest_dir
+            if debug_mode:
+                raise
+            else:
+                sys.exit(1)
+
+    # TODO(Elliot): Warning if a file already exists here.
+    dest_path = "%s/%s" % (dest_dir, filename)
+    plistlib.writePlist(keys, dest_path)
     increment_recipe_count(prefs)
 
 
