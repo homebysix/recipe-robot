@@ -178,6 +178,59 @@ def print_welcome_text():
     print welcome_text
 
 
+def init_recipes():
+    """Store information related to each supported AutoPkg recipe type."""
+
+    recipes = {
+        "download": {
+            "description":
+            "Downloads an app in whatever format the developer provides."
+        },
+        "munki": {
+            "description":
+            "Imports into your Munki repository."
+        },
+        "pkg": {
+            "description":
+            "Creates a standard pkg installer file."
+        },
+        "install": {
+            "description":
+            "Installs the app on the computer running AutoPkg."
+        },
+        "jss": {
+            "description":
+            "Imports into your Casper JSS and creates necessary groups, policies, etc."
+        },
+        "absolute": {
+            "description":
+            "Imports into your Absolute Manage server."
+        },
+        "sccm": {
+            "description":
+            "Imports into your SCCM server."
+        },
+        "ds": {
+            "description":
+            "Imports into your DeployStudio Packages folder."
+        }
+    }
+
+    for k, v in recipes.iteritems():
+        recipes[k]["preferred"] = True
+        recipes[k]["existing"] = False
+        recipes[k]["buildable"] = False
+        recipes[k]["keys"] = {
+            "Identifier": "",
+            "MinimumVersion": "0.5.0",
+            "Input": dict(),
+            "Process": dict()
+        }
+
+    print "Recipes initialized:"
+    pprint(recipes)
+
+
 def init_prefs():
     """Read from preferences plist, if it exists."""
 
@@ -822,7 +875,6 @@ def generate_sccm_recipe(keys):
     plist_object = dict(
         Identifier="%s.sccm.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
         Description="Imports the latest version of %s into SCCM." % app_name,
-        MinimumVersion="0.5.0",
         Input=dict(
             NAME=keys["app_name"]),
         Process=[
@@ -915,6 +967,8 @@ def main():
         sys.exit(1)
 
     prefs = init_prefs()
+
+    init_recipes()
 
     input_type = get_input_type(input_path)
     print "\nProcessing %s ..." % input_path
