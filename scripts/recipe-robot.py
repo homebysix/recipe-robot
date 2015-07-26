@@ -329,7 +329,7 @@ def create_existing_recipe_list(app_name):
 def create_buildable_recipe_list(app_name):
     """Add any recipe types that don't already exist to the buildable list."""
 
-    pprint(prefs) # why is this still {}?
+    pprint(prefs)  # why is this still {}?
     for recipe_format, is_included in prefs["RecipeTypes"].iteritems():
         if is_included is True:
             if "%s.%s.recipe" % (app_name, recipe_format) not in existing_recipes:
@@ -644,13 +644,21 @@ def generate_download_recipe(keys):
     # TODO(Elliot): Some of these keys, like MinimumVersion, should be stored
     # centrally rather than referenced in every generate_X_recipe function.
 
+    plist_object = dict(
+        Identifier="%s.download.%s" % (
+            prefs["RecipeIdentifierPrefix"], keys["app_name"]
+        ),
+        MinimumVersion="0.5.0",
+        Input=dict(
+            NAME=keys["app_name"]
+        )
+    )
+
     if "sparkle_url" in keys:
-        plist_object = dict(
-            Identifier="%s.download.%s" % (prefs["RecipeIdentifierPrefix"], keys["app_name"]),
-            Description="Downloads the latest version of %s." % keys["app_name"],
-            MinimumVersion="0.5.0",
+        plist_object.update(
+            Description="Downloads the latest version of %s." % keys[
+                "app_name"],
             Input=dict(
-                NAME=keys["app_name"],
                 SPARKLE_FEED_URL=keys["sparkle_url"]),
             Process=[
                 dict(
@@ -668,11 +676,9 @@ def generate_download_recipe(keys):
 
     elif "github_repo" in keys:
         plist_object = dict(
-            Identifier="%s.download.%s" % (prefs["RecipeIdentifierPrefix"], keys["app_name"]),
-            Description="Downloads the latest release of %s from GitHub." % keys["app_name"],
-            MinimumVersion="0.5.0",
-            Input=dict(
-                NAME=keys["app_name"]),
+            Description="Downloads the latest release of %s from GitHub." % keys[
+                "app_name"],
+            Input=dict(),
             Process=[
                 dict(
                     Processor="",
@@ -687,11 +693,9 @@ def generate_download_recipe(keys):
 
     elif "sourceforge_group_id" in keys:
         plist_object = dict(
-            Identifier="%s.download.%s" % (prefs["RecipeIdentifierPrefix"], keys["app_name"]),
-            Description="Downloads the latest release of %s from SourceForge." % keys["app_name"],
-            MinimumVersion="0.5.0",
-            Input=dict(
-                NAME=keys["app_name"]),
+            Description="Downloads the latest release of %s from SourceForge." % keys[
+                "app_name"],
+            Input=dict(),
             Process=[
                 dict(
                     Processor="",
@@ -706,7 +710,6 @@ def generate_download_recipe(keys):
 
     else:
         print "%s[ERROR] Unable to create download recipe.%s" % (bcolors.ERROR, bcolors.ENDC)
-
 
 
 def generate_munki_recipe(keys):
@@ -755,7 +758,8 @@ def generate_install_recipe(keys):
     """Generate a install recipe."""
 
     plist_object = dict(
-        Identifier="%s.install.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Identifier="%s.install.%s" % (
+            prefs["RecipeIdentifierPrefix"], app_name),
         Description="Installs the latest version of %s." % app_name,
         MinimumVersion="0.5.0",
         Input=dict(
@@ -797,7 +801,8 @@ def generate_absolute_recipe(keys):
     """Generate a absolute recipe."""
 
     plist_object = dict(
-        Identifier="%s.absolute.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Identifier="%s.absolute.%s" % (
+            prefs["RecipeIdentifierPrefix"], app_name),
         Description="Imports the latest version of %s into Absolute Manage." % app_name,
         MinimumVersion="0.5.0",
         Input=dict(
