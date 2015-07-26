@@ -210,7 +210,7 @@ def init_recipes():
     return recipes
 
 
-def init_prefs(recipes):
+def init_prefs(prefs, recipes):
     """Read from preferences plist, if it exists."""
 
     prefs = {}
@@ -221,6 +221,13 @@ def init_prefs(recipes):
         # Open the file.
         try:
             prefs = plistlib.readPlist(prefs_file)
+            for i in range(0, len(recipes)):
+                # Load preferred recipe types.
+                if recipes[i]["name"] in prefs["RecipeTypes"]:
+                    recipes[i]["preferred"] = True
+                else:
+                    recipes[i]["preferred"] = False
+
         except Exception:
             print("There was a problem opening the prefs file. "
                   "Building new preferences.")
@@ -291,6 +298,7 @@ def build_prefs(prefs, recipes):
             except Exception:
                 print "%s%s is not a valid option. Please try again.%s\n" % (bcolors.ERROR, choice, bcolors.ENDC)
 
+    # Set "preferred" status of each recipe type according to preferences.
     for i in range(0, len(recipes)):
         if recipes[i]["preferred"] is True:
             prefs["RecipeTypes"].append(recipes[i]["name"])
@@ -847,8 +855,12 @@ def main():
         )
         sys.exit(1)
 
+    # Create the master recipe information list.
     recipes = init_recipes()
-    prefs = init_prefs(recipes)
+
+    # Read or create the user preferences.
+    prefs = {}
+    prefs = init_prefs(prefs, recipes)
 
     input_type = get_input_type(input_path)
     print "\nProcessing %s ..." % input_path
