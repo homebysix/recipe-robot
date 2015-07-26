@@ -44,6 +44,7 @@ import argparse
 import os.path
 import plistlib
 from pprint import pprint
+import random
 import shlex
 from subprocess import Popen, PIPE
 import sys
@@ -160,83 +161,60 @@ def build_argument_parser():
     return parser
 
 
-def set_prefs():
-    """Create prefs file if it doesn't exist, or read from it if it
-    does.
-    """
+def init_prefs():
+    """Read from preferences plist, if it exists."""
 
     # If prefs file exists, try to read from it.
     if os.path.isfile(prefs_file):
 
         # Open the file.
         try:
-            pref_plist = plistlib.readPlist(prefs_file)
-
-            # TODO(Elliot): Make this into a loop (for each pref, try to read.)
-
-            # Read the preferred identifier prefix.
-            try:
-                prefs["PreferredRecipeIdentifierPrefix"] = pref_plist[
-                    "PreferredRecipeIdentifierPrefix"]
-            except Exception:
-                print("There was a problem reading from the prefs "
-                      "file. Building new preferences.")
-                show_prefs_menu(pref_plist)
-
-            # Read the preferred recipe types.
-            try:
-                prefs["PreferredRecipeTypes"] = pref_plist[
-                    "PreferredRecipeTypes"]
-                if len(prefs["PreferredRecipeTypes"]) != len(avail_recipe_types):
-                    print("The list of preferred recipe types is "
-                          "incomplete. Building new preferences.")
-                    show_prefs_menu(pref_plist)
-            except Exception:
-                print("There was a problem reading from the prefs "
-                      "file. Building new preferences.")
-                show_prefs_menu(pref_plist)
-
+            prefs = plistlib.readPlist(prefs_file)
         except Exception:
             print("There was a problem opening the prefs file. "
                   "Building new preferences.")
-            show_prefs_menu(dict())
+            prefs = build_prefs(prefs)
 
     else:
         print "No prefs file found. Building new preferences..."
-        show_prefs_menu(dict())
+        prefs = build_prefs(prefs)
 
     # Record last version number.
     prefs["LastRecipeRobotVersion"] = version
 
-    # TODO(Elliot): Build mechanism for incrementing this count upon creation.
-    prefs["RecipeCreateCount"] = 0
-
     # Write preferences to plist.
     plistlib.writePlist(prefs, prefs_file)
 
+    return prefs
 
-def show_prefs_menu(pref_plist):
-    """Prompt user for preferences, then save them back to the
-    plist.
-    """
+
+def build_prefs(prefs):
+    """Prompt user for preferences, then save them back to the plist."""
 
     # TODO(Elliot): Make this something users can come back to and modify,
     # rather than just a first-run thing.
 
     # Prompt for and save recipe identifier prefix.
-    prefs["PreferredRecipeIdentifierPrefix"] = "com.github.homebysix"
+    prefs["RecipeIdentifierPrefix"] = "com.github.homebysix"
     print "\nRecipe identifier prefix"
     print "[description of what that means]\n"
     choice = raw_input(
-        "Please type your preferred recipe identifier prefix [%s]: " % prefs["PreferredRecipeIdentifierPrefix"])
-    pref_plist[
-        "PreferredRecipeIdentifierPrefix"] = choice
+        "Please type your preferred recipe identifier prefix [%s]: " % prefs["RecipeIdentifierPrefix"])
+    prefs["RecipeIdentifierPrefix"] = choice
+
+    # Prompt for recipe creation location.
+    prefs["RecipeCreateLocation"] = "~/Library/AutoPkg/RecipeOverrides"
+    print "\nLocation to save new recipes"
+    print "[description of what that means]\n"
+    choice = raw_input(
+        "Please type your new recipe location [%s]: " % prefs["RecipeCreateLocation"])
+    prefs["RecipeCreateLocation"] = choice
 
     # Start with all available recipe types on.
-    prefs["PreferredRecipeTypes"] = {}
+    prefs["RecipeTypes"] = {}
     i = 0
     for i in range(0, len(avail_recipe_types)):
-        prefs["PreferredRecipeTypes"][avail_recipe_types[i][0]] = True
+        prefs["RecipeTypes"][avail_recipe_types[i][0]] = True
         i += 1
     print "\nPreferred recipe types"
     print "[description of what that means]\n"
@@ -245,7 +223,7 @@ def show_prefs_menu(pref_plist):
     while True:
         i = 0
         for i in range(0, len(avail_recipe_types)):
-            if prefs["PreferredRecipeTypes"][avail_recipe_types[i][0]] is False:
+            if prefs["RecipeTypes"][avail_recipe_types[i][0]] is False:
                 indicator = " "
             else:
                 indicator = "*"
@@ -259,17 +237,27 @@ def show_prefs_menu(pref_plist):
             break
         else:
             try:
-                if prefs["PreferredRecipeTypes"][avail_recipe_types[int(choice)][0]] is False:
-                    prefs["PreferredRecipeTypes"][
+                if prefs["RecipeTypes"][avail_recipe_types[int(choice)][0]] is False:
+                    prefs["RecipeTypes"][
                         avail_recipe_types[int(choice)][0]] = True
                 else:
-                    prefs["PreferredRecipeTypes"][
+                    prefs["RecipeTypes"][
                         avail_recipe_types[int(choice)][0]] = False
             except Exception:
                 print "%sInvalid choice. Please try again.%s\n" % (bcolors.ERROR, bcolors.ENDC)
 
     # TODO(Elliot): Make this interactive while retaining scrollback.
     # Maybe with curses module?
+
+    return prefs
+
+
+def increment_recipe_count(prefs):
+    """Add 1 to the cumulative count of recipes created by Recipe Robot."""
+
+    prefs = plistlib.readPlist(prefs_file)
+    prefs["RecipeCreateCount"] += 1
+    plistlib.writePlist(prefs, prefs_file)
 
 
 def get_input_type(input_path):
@@ -324,7 +312,7 @@ def create_existing_recipe_list(app_name):
 def create_buildable_recipe_list(app_name):
     """Add any recipe types that don't already exist to the buildable list."""
 
-    for recipe_format, is_included in prefs["PreferredRecipeTypes"].iteritems():
+    for recipe_format, is_included in prefs["RecipeTypes"].iteritems():
         if is_included is True:
             if "%s.%s.recipe" % (app_name, recipe_format) not in existing_recipes:
                 buildable_recipes[
@@ -633,14 +621,139 @@ def search_sourceforge_and_github(app_name):
     #     If found, pass the username and repo back to the recipe generator.
 
 
-def generate_recipe(plist_path, plist_object):
-    """Generate a basic AutoPkg recipe of the desired format."""
+def generate_download_recipe(keys):
+    """Generate a download recipe."""
 
-    print "Generating AutoPkgr.download.recipe (why? because we can!)..."
+    # TODO(Elliot): Some of these keys, like MinimumVersion, should be stored
+    # centrally rather than referenced in every generate_X_recipe function.
 
-    # TODO(Elliot): I'm guessing Shea is going to come in here and dump a load of
-    # classes for plists and recipes. Until then, I'm using find/replace like
-    # a n00b.
+    if "sparkle_url" in keys:
+        plist_object = dict(
+            Identifier="%s.download.%s" % (prefs["RecipeIdentifierPrefix"], keys["app_name"]),
+            Description="Downloads the latest version of %s." % keys["app_name"],
+            MinimumVersion="0.5.0",
+            Input=dict(
+                NAME=keys["app_name"],
+                SPARKLE_FEED_URL=keys["sparkle_url"]),
+            Process=[
+                dict(
+                    Processor="SparkleUpdateInfoProvider",
+                    Arguments=dict(
+                        appcast_url="%SPARKLE_FEED_URL%")),
+                dict(
+                    Processor="URLDownloader",
+                    Arguments=dict(
+                        filename=">%NAME%.dmg")),
+                dict(
+                    Processor="EndOfCheckPhase"),
+            ])
+        write_recipe_file(plist_object)
+
+    elif "github_repo" in keys:
+        plist_object = dict(
+            Identifier="%s.download.%s" % (prefs["RecipeIdentifierPrefix"], keys["app_name"]),
+            Description="Downloads the latest release of %s from GitHub." % keys["app_name"],
+            MinimumVersion="0.5.0",
+            Input=dict(
+                NAME=keys["app_name"]),
+            Process=[
+                dict(
+                    Processor="",
+                    Arguments=dict(
+                        key="value")),
+                dict(
+                    Processor="",
+                    Arguments=dict(
+                        key="value")),
+            ])
+        write_recipe_file(plist_object)
+
+    elif "sourceforge_group_id" in keys:
+        plist_object = dict(
+            Identifier="%s.download.%s" % (prefs["RecipeIdentifierPrefix"], keys["app_name"]),
+            Description="Downloads the latest release of %s from SourceForge." % keys["app_name"],
+            MinimumVersion="0.5.0",
+            Input=dict(
+                NAME=keys["app_name"]),
+            Process=[
+                dict(
+                    Processor="",
+                    Arguments=dict(
+                        key="value")),
+                dict(
+                    Processor="",
+                    Arguments=dict(
+                        key="value")),
+            ])
+        write_recipe_file(plist_object)
+
+    else:
+        print "%s[ERROR] Unable to create download recipe.%s" % (bcolors.ERROR, bcolors.ENDC)
+
+
+
+def generate_munki_recipe(keys):
+    """Generate a munki recipe."""
+
+    # We'll use this later when creating icons for Munki and JSS recipes.
+    # cmd = 'sips -s format png \
+    # "/Applications/iTunes.app/Contents/Resources/iTunes.icns" \
+    # --out "/Users/elliot/Desktop/iTunes.png" \
+# --resampleHeightWidthMax 128'
+
+    plist_object = dict(
+        Identifier="%s.munki.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Description="Imports the latest version of %s into Munki." % app_name,
+        MinimumVersion="0.5.0",
+        Input=dict(
+            NAME=keys["app_name"]),
+        Process=[
+            dict(
+                Processor="SomeProcessor",
+                Arguments=dict(
+                    key="value"))
+        ])
+    write_recipe_file(plist_object)
+
+
+def generate_pkg_recipe(keys):
+    """Generate a pkg recipe."""
+
+    plist_object = dict(
+        Identifier="%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Description="Downloads the latest version of %s and creates a package." % app_name,
+        MinimumVersion="0.5.0",
+        Input=dict(
+            NAME=keys["app_name"]),
+        Process=[
+            dict(
+                Processor="SomeProcessor",
+                Arguments=dict(
+                    key="value"))
+        ])
+    write_recipe_file(plist_object)
+
+
+def generate_install_recipe(keys):
+    """Generate a install recipe."""
+
+    plist_object = dict(
+        Identifier="%s.install.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Description="Installs the latest version of %s." % app_name,
+        MinimumVersion="0.5.0",
+        Input=dict(
+            NAME=keys["app_name"]),
+        Process=[
+            dict(
+                Processor="SomeProcessor",
+                Arguments=dict(
+                    key="value"))
+        ])
+    write_recipe_file(plist_object)
+
+
+def generate_jss_recipe(keys):
+    """Generate a jss recipe."""
 
     # We'll use this later when creating icons for Munki and JSS recipes.
     # cmd = 'sips -s format png \
@@ -648,40 +761,104 @@ def generate_recipe(plist_path, plist_object):
     # --out "/Users/elliot/Desktop/iTunes.png" \
     # --resampleHeightWidthMax 128'
 
-    # The below is just an example recipe to prove that plistlib works.
-    plist_path = "~/Desktop/AutoPkgr.download.recipe"
     plist_object = dict(
-        Identifier="com.elliotjordan.download.AutoPkgr",
-        Description="Downloads the latest version of AutoPkgr.",
+        Identifier="%s.jss.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Description="Imports the latest version of %s into your JSS." % app_name,
         MinimumVersion="0.5.0",
         Input=dict(
-            NAME="AutoPkgr",
-            SPARKLE_FEED_URL="https://raw.githubusercontent.com/lindegroup/autopkgr/appcast/appcast.xml"),
+            NAME=keys["app_name"]),
         Process=[
             dict(
-                Processor="SparkleUpdateInfoProvider",
+                Processor="SomeProcessor",
                 Arguments=dict(
-                    appcast_url="%SPARKLE_FEED_URL%")),
-            dict(
-                Processor="URLDownloader",
-                Arguments=dict(
-                    filename=">%NAME%.dmg")),
-            dict(
-                Processor="EndOfCheckPhase"),
+                    key="value"))
         ])
+    write_recipe_file(plist_object)
+
+
+def generate_absolute_recipe(keys):
+    """Generate a absolute recipe."""
+
+    plist_object = dict(
+        Identifier="%s.absolute.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Description="Imports the latest version of %s into Absolute Manage." % app_name,
+        MinimumVersion="0.5.0",
+        Input=dict(
+            NAME=keys["app_name"]),
+        Process=[
+            dict(
+                Processor="SomeProcessor",
+                Arguments=dict(
+                    key="value"))
+        ])
+    write_recipe_file(plist_object)
+
+
+def generate_sccm_recipe(keys):
+    """Generate a sccm recipe."""
+
+    plist_object = dict(
+        Identifier="%s.sccm.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Description="Imports the latest version of %s into SCCM." % app_name,
+        MinimumVersion="0.5.0",
+        Input=dict(
+            NAME=keys["app_name"]),
+        Process=[
+            dict(
+                Processor="SomeProcessor",
+                Arguments=dict(
+                    key="value"))
+        ])
+    write_recipe_file(plist_object)
+
+
+def generate_ds_recipe(keys):
+    """Generate a ds recipe."""
+
+    plist_object = dict(
+        Identifier="%s.ds.%s" % (prefs["RecipeIdentifierPrefix"], app_name),
+        Description="Imports the latest version of %s into DeployStudio." % app_name,
+        MinimumVersion="0.5.0",
+        Input=dict(
+            NAME=keys["app_name"]),
+        Process=[
+            dict(
+                Processor="SomeProcessor",
+                Arguments=dict(
+                    key="value"))
+        ])
+    write_recipe_file(plist_object)
+
+
+def write_recipe_file(plist_object):
+    """Write a generated recipe to disk."""
+
+    plist_path = prefs["RecipeCreateLocation"]
     recipe_file = os.path.expanduser(plist_path)
     plistlib.writePlist(plist_object, recipe_file)
-    print "    " + plist_path
+    print "Wrote to: " + plist_path
+    increment_recipe_count(prefs)
+    congrats_msg = (
+        "That's awesome!",
+        "Amazing.",
+        "Well done!",
+        "Good on ya!",
+        "Thanks!",
+        "Pretty cool, right?",
+        "You rock star, you.",
+        "Fantastic."
+    )
+    print "You've now created %s recipes with Recipe Robot. %s" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
 
 
 def print_debug_info():
-    """Prints current debug information."""
+    """Print current debug information."""
 
     print bcolors.DEBUG
-    print "\n    PREFERRED RECIPE IDENTIFIER PREFIX: \n"
-    print prefs["PreferredRecipeIdentifierPrefix"]
+    print "\n    RECIPE IDENTIFIER PREFIX: \n"
+    print prefs["RecipeIdentifierPrefix"]
     print "\n    PREFERRED RECIPE TYPES\n"
-    pprint(prefs["PreferredRecipeTypes"])
+    pprint(prefs["RecipeTypes"])
     print "\n    AVAILABLE RECIPE TYPES\n"
     pprint(avail_recipe_types)
     print "\n    SUPPORTED DOWNLOAD FORMATS\n"
@@ -726,7 +903,7 @@ def main():
         )
         sys.exit(1)
 
-    set_prefs()
+    prefs = init_prefs()
 
     input_type = get_input_type(input_path)
     print "\nProcessing %s ..." % input_path
@@ -763,7 +940,7 @@ def main():
         print "    %s" % key
 
     # Generate selected recipes.
-    generate_recipe("", dict())
+    # generate_recipe("", dict())
 
 
 if __name__ == '__main__':
