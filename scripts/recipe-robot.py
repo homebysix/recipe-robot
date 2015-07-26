@@ -59,13 +59,7 @@ prefs_file = os.path.expanduser(
 # Build the list of download formats we know about.
 # TODO: It would be great if we didn't need this list, but I suspect we do need
 # it in order to tell the recipes which Processors to use.
-# TODO(Elliot): This should probably not be a global variable.
 supported_download_formats = ("dmg", "zip", "tar.gz", "gzip", "pkg")
-
-# The name of the app for which a recipe is being built.
-# TODO(Elliot): This should probably not be a global variable.
-app_name = ""
-
 
 # TODO(Elliot): Send bcolors.ENDC upon exception or keyboard interrupt.
 # Otherwise people's terminal windows might get stuck in purple mode!
@@ -749,7 +743,7 @@ def generate_selected_recipes(prefs, recipes):
         if (recipes[i]["preferred"] is True and recipes[i]["buildable"] is True and recipes[i]["selected"] is True):
 
             # Set the identifier of the recipe.
-            recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"], recipes[i]["name"], app_name)
+            recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"], recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
 
             # Set type-specific keys.
             if recipes[i]["name"] == "download":
