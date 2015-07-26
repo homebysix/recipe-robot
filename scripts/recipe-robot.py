@@ -807,6 +807,11 @@ def write_recipe_file(prefs, keys):
     plistlib.writePlist(keys, recipe_file)
     print "Wrote to: " + plist_path
     increment_recipe_count(prefs)
+
+
+def congratulate(prefs):
+    """Display a friendly congratulatory message upon creating recipes."""
+
     congrats_msg = (
         "That's awesome!",
         "Amazing.",
@@ -896,6 +901,9 @@ def main():
 
     # Create recipes for the recipe types that were selected above.
     generate_selected_recipes(prefs, recipes)
+
+    # Pat on the back!
+    congratulate(prefs)
 
 
 if __name__ == '__main__':
