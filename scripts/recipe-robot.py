@@ -22,24 +22,26 @@ recipe-robot.py
 
 Easily and automatically create AutoPkg recipes.
 
-usage: recipe-robot.py input_path [-h] [-o output_path]
-                                  [-t recipe_type] [-v] [--ignore-existing]
+usage: recipe-robot.py [-h] [-v] [-o OUTPUT] [-t RECIPE_TYPE]
+                       [--ignore-existing]
+                       input_path
+
+Easily and automatically create AutoPkg recipes.
 
 positional arguments:
-    input_path            Path to a recipe or app you'd like to use as the
-                          basis for creating AutoPkg recipes.
+  input_path            Path to a recipe or app to use as the basis for
+                        creating AutoPkg recipes.
 
 optional arguments:
-    -h, --help            Show this help message and exit.
-    -o, --output          Specify the folder in which to create output recipes.
-                          This folder is ~/Library/Caches/Recipe Robot by
-                          default.
-    -t, --recipe-type     Specify the type(s) of recipe to create.
-                          (e.g. download, pkg, munki, jss)
-    -v, --verbose         Generate additional output about the process.
-                          Verbose mode is off by default.
-    --ignore-existing     Offers to create all recipes, even if a recipe of the
-                          same type already exists on GitHub.
+  -h, --help            show this help message and exit
+  -v, --verbose         Generate additional output about the process.
+  -o OUTPUT, --output OUTPUT
+                        Path to a folder you'd like to save your generated
+                        recipes in.
+  -t RECIPE_TYPE, --recipe-type RECIPE_TYPE
+                        The type(s) of recipe you'd like to generate.
+  --ignore-existing     Offer to generate recipes even if one already exists
+                        on GitHub.
 """
 
 
