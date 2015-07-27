@@ -1110,9 +1110,9 @@ def generate_selected_recipes(prefs, recipes):
                 recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipes[
                     i]["keys"]["Input"]["NAME"]
 
-                # if recipes[i]["icon_path"] != "":
-                #     png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
-                #     extract_app_icon(recipes[i]["icon_path"], png_path)
+                if recipes[i]["icon_path"] != "":
+                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
+                    extract_app_icon(recipes[i]["icon_path"], png_path)
 
             elif recipes[i]["name"] == "pkg":
 
@@ -1129,9 +1129,9 @@ def generate_selected_recipes(prefs, recipes):
                 recipes[i]["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipes[
                     i]["keys"]["Input"]["NAME"]
 
-                # if recipes[i]["icon_path"] != "":
-                #     png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
-                #     extract_app_icon(recipes[i]["icon_path"], png_path)
+                if recipes[i]["icon_path"] != "":
+                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
+                    extract_app_icon(recipes[i]["icon_path"], png_path)
 
             elif recipes[i]["name"] == "absolute":
 
@@ -1175,8 +1175,8 @@ def create_dest_dirs(path):
 def extract_app_icon(icon_path, png_path):
     """Convert the app's icns file to 128x128 png at the specified path."""
 
-    # TODO(Elliot): User path expansion is not working right here.
-    create_dest_dirs(os.path.dirname(os.path.expanduser(png_path)))
+    png_path = os.path.expanduser(png_path)
+    create_dest_dirs(os.path.dirname(png_path))
 
     # TODO(Elliot): Warning if a file already exists here.
 
@@ -1195,11 +1195,11 @@ def extract_app_icon(icon_path, png_path):
 def write_recipe_file(filename, prefs, keys):
     """Write a generated recipe to disk."""
 
-    create_dest_dirs(prefs["RecipeCreateLocation"])
+    dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
+    create_dest_dirs(dest_dir)
 
     # TODO(Elliot): Warning if a file already exists here.
 
-    dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
     dest_path = "%s/%s" % (dest_dir, filename)
     plistlib.writePlist(keys, dest_path)
     increment_recipe_count(prefs)
