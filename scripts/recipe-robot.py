@@ -138,7 +138,6 @@ def build_argument_parser():
         "--config",
         action="store_true",
         help="Adjust Recipe Robot preferences prior to generating recipes.")
-    parser.print_help()
     return parser
 
 
@@ -1074,6 +1073,7 @@ def select_recipes_to_generate(recipes):
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ]. When you're satisfied "
             "with your choices, type an \"S\" to save and proceed: ")
+        print ""
         if choice.upper() == "S":
             break
         else:
