@@ -22,7 +22,8 @@ recipe-robot.py
 
 Easily and automatically create AutoPkg recipes.
 
-usage: recipe-robot.py [-h] [-v] input_path [-o output_path] [-t recipe_type]
+usage: recipe-robot.py input_path [-h] [-o output_path]
+                                  [-t recipe_type] [-v] [--ignore-existing]
 
 positional arguments:
     input_path            Path to a recipe or app you'd like to use as the
