@@ -20,10 +20,8 @@
 """
 recipe-robot.py
 
-Easily and automatically create AutoPkg recipes.
-
 usage: recipe-robot.py [-h] [-v] [-o OUTPUT] [-t RECIPE_TYPE]
-                       [--ignore-existing]
+                       [--ignore-existing] [--config]
                        input_path
 
 Easily and automatically create AutoPkg recipes.
@@ -42,6 +40,8 @@ optional arguments:
                         The type(s) of recipe you'd like to generate.
   --ignore-existing     Offer to generate recipes even if one already exists
                         on GitHub.
+  --config              Adjust Recipe Robot preferences prior to generating
+                        recipes.
 """
 
 
@@ -134,6 +134,11 @@ def build_argument_parser():
         "--ignore-existing",
         action="store_true",
         help="Offer to generate recipes even if one already exists on GitHub.")
+    parser.add_argument(
+        "--config",
+        action="store_true",
+        help="Adjust Recipe Robot preferences prior to generating recipes.")
+    parser.print_help()
     return parser
 
 
@@ -1105,9 +1110,9 @@ def generate_selected_recipes(prefs, recipes):
                 recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipes[
                     i]["keys"]["Input"]["NAME"]
 
-                if recipes[i]["icon_path"] != "":
-                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
-                    extract_app_icon(recipes[i]["icon_path"], png_path)
+                # if recipes[i]["icon_path"] != "":
+                #     png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
+                #     extract_app_icon(recipes[i]["icon_path"], png_path)
 
             elif recipes[i]["name"] == "pkg":
 
@@ -1124,9 +1129,9 @@ def generate_selected_recipes(prefs, recipes):
                 recipes[i]["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipes[
                     i]["keys"]["Input"]["NAME"]
 
-                if recipes[i]["icon_path"] != "":
-                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
-                    extract_app_icon(recipes[i]["icon_path"], png_path)
+                # if recipes[i]["icon_path"] != "":
+                #     png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
+                #     extract_app_icon(recipes[i]["icon_path"], png_path)
 
             elif recipes[i]["name"] == "absolute":
 
