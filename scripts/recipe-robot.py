@@ -20,10 +20,8 @@
 """
 recipe-robot.py
 
-Easily and automatically create AutoPkg recipes.
-
 usage: recipe-robot.py [-h] [-v] [-o OUTPUT] [-t RECIPE_TYPE]
-                       [--ignore-existing]
+                       [--ignore-existing] [--config]
                        input_path
 
 Easily and automatically create AutoPkg recipes.
@@ -42,6 +40,8 @@ optional arguments:
                         The type(s) of recipe you'd like to generate.
   --ignore-existing     Offer to generate recipes even if one already exists
                         on GitHub.
+  --config              Adjust Recipe Robot preferences prior to generating
+                        recipes.
 """
 
 
@@ -134,6 +134,11 @@ def build_argument_parser():
         "--ignore-existing",
         action="store_true",
         help="Offer to generate recipes even if one already exists on GitHub.")
+    parser.add_argument(
+        "--config",
+        action="store_true",
+        help="Adjust Recipe Robot preferences prior to generating recipes.")
+    parser.print_help()
     return parser
 
 
@@ -198,6 +203,7 @@ def init_recipes():
         recipes[i]["existing"] = False
         recipes[i]["buildable"] = False
         recipes[i]["selected"] = True
+        recipes[i]["icon_path"] = ""
         recipes[i]["keys"] = {
             "Identifier": "",
             "MinimumVersion": "0.5.0",
@@ -392,6 +398,7 @@ def handle_app_input(input_path, recipes):
     app_name = ""
     sparkle_feed = ""
     min_sys_vers = ""
+    icon_path = ""
 
     print "Validating app..."
     try:
@@ -435,7 +442,7 @@ def handle_app_input(input_path, recipes):
         sparkle_feed = info_plist["SUFeedURL"]
         # TODO(Elliot): Find out what format the Sparkle feed downloads in.
     except Exception:
-        print "    No SUFeedURL found."
+        print "    No SUFeedURL found in this app's Info.plist."
 
     if sparkle_feed == "":
         print "Checking for a Sparkle feed in SUOriginalFeedURL..."
@@ -443,7 +450,7 @@ def handle_app_input(input_path, recipes):
             sparkle_feed = info_plist["SUOriginalFeedURL"]
             # TODO(Elliot): Find out what format the Sparkle feed downloads in.
         except Exception:
-            print "    No SUOriginalFeedURL found."
+            print "    No SUOriginalFeedURL found in this app's Info.plist."
 
     if sparkle_feed == "":
         print "    No Sparkle feed."
@@ -459,6 +466,13 @@ def handle_app_input(input_path, recipes):
         print "    Minimum OS version: %s" % min_sys_vers
     except Exception:
         print "    No LSMinimumSystemVersion found."
+
+    print "Looking for app icon..."
+    try:
+        icon_path = "%s/Contents/Resources/%s" % (input_path, info_plist["CFBundleIconFile"])
+        print "    Icon found: %s" % icon_path
+    except Exception:
+        print "    No CFBundleIconFile found in this app's Info.plist."
 
     # TODO(Elliot): Collect other information as required to build recipes.
 
@@ -484,13 +498,11 @@ def handle_app_input(input_path, recipes):
                     recipes[i]["keys"]["Process"].append({
                         "Processor": "EndOfCheckPhase"
                     })
-                else:
-                    # TODO(Elliot): Is this even necessary?
-                    print "[ERROR] We don't have enough information to create a %s recipe for %s." % (recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
 
             if recipes[i]["name"] == "munki":
                 recipes[i]["keys"]["Input"]["pkginfo"] = {}
                 recipes[i]["keys"]["Input"]["pkginfo"]["minimum_os_version"] = min_sys_vers
+                recipes[i]["icon_path"] = icon_path
 
             if recipes[i]["name"] == "pkg":
                 pass
@@ -499,15 +511,19 @@ def handle_app_input(input_path, recipes):
                 pass
 
             if recipes[i]["name"] == "jss":
+                recipes[i]["icon_path"] = icon_path
                 pass
 
             if recipes[i]["name"] == "absolute":
+                # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
             if recipes[i]["name"] == "sccm":
+                # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
             if recipes[i]["name"] == "ds":
+                # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
 
@@ -1094,14 +1110,9 @@ def generate_selected_recipes(prefs, recipes):
                 recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipes[
                     i]["keys"]["Input"]["NAME"]
 
-                # We'll use this later when creating icons for Munki and JSS
-                # recipes. Should we do this here or in the "handle_x"
-                # functions?
-
-                # cmd = 'sips -s format png \
-                # "/Applications/iTunes.app/Contents/Resources/iTunes.icns" \
-                # --out "/Users/elliot/Desktop/iTunes.png" \
-                # --resampleHeightWidthMax 128'
+                if recipes[i]["icon_path"] != "":
+                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
+                    extract_app_icon(recipes[i]["icon_path"], png_path)
 
             elif recipes[i]["name"] == "pkg":
 
@@ -1118,14 +1129,9 @@ def generate_selected_recipes(prefs, recipes):
                 recipes[i]["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipes[
                     i]["keys"]["Input"]["NAME"]
 
-                # We'll use this later when creating icons for Munki and JSS
-                # recipes. Should we do this here or in the "handle_x"
-                # functions?
-
-                # cmd = 'sips -s format png \
-                # "/Applications/iTunes.app/Contents/Resources/iTunes.icns" \
-                # --out "/Users/elliot/Desktop/iTunes.png" \
-                # --resampleHeightWidthMax 128'
+                if recipes[i]["icon_path"] != "":
+                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
+                    extract_app_icon(recipes[i]["icon_path"], png_path)
 
             elif recipes[i]["name"] == "absolute":
 
@@ -1151,10 +1157,10 @@ def generate_selected_recipes(prefs, recipes):
             print "    %s/%s" % (prefs["RecipeCreateLocation"], filename)
 
 
-def write_recipe_file(filename, prefs, keys):
-    """Write a generated recipe to disk."""
+def create_dest_dirs(path):
+    """Creates the path to the recipe export location, if it doesn't exist."""
 
-    dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
+    dest_dir = os.path.expanduser(path)
     if not os.path.exists(dest_dir):
         try:
             os.makedirs(dest_dir)
@@ -1165,7 +1171,35 @@ def write_recipe_file(filename, prefs, keys):
             else:
                 sys.exit(1)
 
+
+def extract_app_icon(icon_path, png_path):
+    """Convert the app's icns file to 128x128 png at the specified path."""
+
+    png_path = os.path.expanduser(png_path)
+    create_dest_dirs(os.path.dirname(png_path))
+
     # TODO(Elliot): Warning if a file already exists here.
+
+    if debug_mode is True:
+        print "Icon extraction command:"
+        print "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 128" % (icon_path, png_path)
+
+    cmd = "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 128" % (icon_path, png_path)
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        print "    %s" % png_path
+    else:
+        print err
+
+
+def write_recipe_file(filename, prefs, keys):
+    """Write a generated recipe to disk."""
+
+    dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
+    create_dest_dirs(dest_dir)
+
+    # TODO(Elliot): Warning if a file already exists here.
+
     dest_path = "%s/%s" % (dest_dir, filename)
     plistlib.writePlist(keys, dest_path)
     increment_recipe_count(prefs)
