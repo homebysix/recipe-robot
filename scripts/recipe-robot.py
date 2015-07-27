@@ -99,6 +99,39 @@ class InputType(object):
      ds_recipe) = range(9)
 
 
+# TODO(Shea): Add classes for:
+#    - AutoPkgRecipe
+#        - DownloadRecipe
+#            - MunkiRecipe
+#            - DSRecipe
+#        - PkgRecipe
+#            - JSSRecipe
+#            - AbsoluteRecipe
+#            - SCCMRecipe
+#        - InstallRecipe
+
+# TODO(Elliot): Once classes are added, rework these functions to use classes
+# instead of existing hard-wired logic:
+#    - init_recipes
+#    - init_prefs
+#    - build_prefs
+#    - get_input_type
+#    - create_existing_recipe_list
+#    - create_buildable_recipe_list
+#    - handle_app_input
+#    - handle_download_recipe_input
+#    - handle_munki_recipe_input
+#    - handle_pkg_recipe_input
+#    - handle_install_recipe_input
+#    - handle_jss_recipe_input
+#    - handle_absolute_recipe_input
+#    - handle_sccm_recipe_input
+#    - handle_ds_recipe_input
+#    - search_sourceforge_and_github
+#    - select_recipes_to_generate
+#    - generate_selected_recipes
+#    - write_recipe_file
+
 def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr."""
 
