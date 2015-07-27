@@ -36,8 +36,7 @@ This two-pronged approach will allow AutoPkg novices to easily create recipes th
     - [x] Detects app name from recipe
     - [x] Checks for existing AutoPkg recipes
     - [x] Presents a list of available destination formats
-    - [ ] References and modifies template recipe files
-    - [ ] Creates a basic download recipe from Sparkle feed
+    - [x] Creates a basic download recipe from Sparkle feed
     - [ ] Creates advanced download recipes ([see this article](https://www.afp548.com/2015/04/06/autopkg-download-recipe-decision-making-process/))
     - [ ] Creates a basic munki recipe from a download recipe
     - [ ] Creates a basic munki recipe from a pkg recipe

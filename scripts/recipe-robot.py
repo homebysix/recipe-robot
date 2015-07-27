@@ -452,6 +452,7 @@ def handle_app_input(input_path, recipes):
     print "Checking for minimum OS version requirements..."
     try:
         min_sys_vers = info_plist["LSMinimumSystemVersion"]
+        print "    Minimum OS version: %s" % min_sys_vers
     except Exception:
         print "    No LSMinimumSystemVersion found."
 
@@ -484,8 +485,8 @@ def handle_app_input(input_path, recipes):
                     print "[ERROR] We don't have enough information to create a %s recipe for %s." % (recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
 
             if recipes[i]["name"] == "munki":
-                recipes[i]["keys"]["Input"]["pkginfo"][
-                    "minimum_os_version"] = min_sys_vers
+                recipes[i]["keys"]["Input"]["pkginfo"] = {}
+                recipes[i]["keys"]["Input"]["pkginfo"]["minimum_os_version"] = min_sys_vers
 
             if recipes[i]["name"] == "pkg":
                 pass
@@ -1143,7 +1144,7 @@ def generate_selected_recipes(prefs, recipes):
             filename = "%s.%s.recipe" % (
                 recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
             write_recipe_file(filename, prefs, recipes[i]["keys"])
-            print "    %s%s" % (prefs["RecipeCreateLocation"], filename)
+            print "    %s/%s" % (prefs["RecipeCreateLocation"], filename)
 
 
 def write_recipe_file(filename, prefs, keys):
