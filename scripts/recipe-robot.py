@@ -30,13 +30,15 @@ positional arguments:
 
 optional arguments:
     -h, --help            Show this help message and exit.
-    -v, --verbose         Generate additional output about the process.
-                          Verbose mode is off by default.
     -o, --output          Specify the folder in which to create output recipes.
                           This folder is ~/Library/Caches/Recipe Robot by
                           default.
     -t, --recipe-type     Specify the type(s) of recipe to create.
                           (e.g. download, pkg, munki, jss)
+    -v, --verbose         Generate additional output about the process.
+                          Verbose mode is off by default.
+    --ignore-existing     Offers to create all recipes, even if a recipe of the
+                          same type already exists on GitHub.
 """
 
 
@@ -117,11 +119,6 @@ def build_argument_parser():
         "-v", "--verbose",
         action="store_true",
         help="Generate additional output about the process.")
-    # TODO(Elliot): Add --plist argument to header info up top.
-    parser.add_argument(
-        "--plist",
-        action="store_true",
-        help="Output all results as plists.")
     parser.add_argument(
         "-o", "--output",
         action="store",
@@ -130,6 +127,10 @@ def build_argument_parser():
         "-t", "--recipe-type",
         action="store",
         help="The type(s) of recipe you'd like to generate.")
+    parser.add_argument(
+        "--ignore-existing",
+        action="store_true",
+        help="Offer to generate recipes even if one already exists on GitHub.")
     return parser
 
 
