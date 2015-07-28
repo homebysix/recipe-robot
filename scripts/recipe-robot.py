@@ -230,13 +230,13 @@ def init_recipes():
     )
 
     # Set default values for all recipe types.
-    for i in range(0, len(recipes)):
-        recipes[i]["preferred"] = True
-        recipes[i]["existing"] = False
-        recipes[i]["buildable"] = False
-        recipes[i]["selected"] = True
-        recipes[i]["icon_path"] = ""
-        recipes[i]["keys"] = {
+    for recipe in recipes:
+        recipe["preferred"] = True
+        recipe["existing"] = False
+        recipe["buildable"] = False
+        recipe["selected"] = True
+        recipe["icon_path"] = ""
+        recipe["keys"] = {
             "Identifier": "",
             "MinimumVersion": "0.5.0",
             "Input": {},
@@ -258,12 +258,12 @@ def init_prefs(prefs, recipes):
         # Open the file.
         try:
             prefs = plistlib.readPlist(prefs_file)
-            for i in range(0, len(recipes)):
+            for recipe in recipes:
                 # Load preferred recipe types.
-                if recipes[i]["name"] in prefs["RecipeTypes"]:
-                    recipes[i]["preferred"] = True
+                if recipe["name"] in prefs["RecipeTypes"]:
+                    recipe["preferred"] = True
                 else:
-                    recipes[i]["preferred"] = False
+                    recipe["preferred"] = False
 
         except Exception:
             print("There was a problem opening the prefs file. "
@@ -339,9 +339,9 @@ def build_prefs(prefs, recipes):
                 print "%s%s is not a valid option. Please try again.%s\n" % (bcolors.ERROR, choice, bcolors.ENDC)
 
     # Set "preferred" status of each recipe type according to preferences.
-    for i in range(0, len(recipes)):
-        if recipes[i]["preferred"] is True:
-            prefs["RecipeTypes"].append(recipes[i]["name"])
+    for recipe in recipes:
+        if recipe["preferred"] is True:
+            prefs["RecipeTypes"].append(recipe["name"])
 
     return prefs
 
@@ -394,12 +394,12 @@ def create_existing_recipe_list(app_name, recipes):
     if exitcode == 0:
         # TODO(Elliot): There's probably a more efficient way to do this.
         # For each recipe type, see if it exists in the search results.
-        for i in range(0, len(recipes)):
-            search_term = "%s.%s.recipe" % (app_name, recipes[i]["name"])
+        for recipe in recipes:
+            search_term = "%s.%s.recipe" % (app_name, recipe["name"])
             for line in out.split("\n"):
                 if search_term in line:
                     # Set to False by default. If found, set to True.
-                    recipes[i]["existing"] = True
+                    recipe["existing"] = True
     else:
         print err
         sys.exit(exitcode)
@@ -410,11 +410,11 @@ def create_buildable_recipe_list(app_name, recipes):
     list.
     """
 
-    for i in range(0, len(recipes)):
+    for recipe in recipes:
         # if recipes[i]["existing"] is False:
         if True:  # DEBUG
-            if recipes[i]["preferred"] is True:
-                recipes[i]["buildable"] = True
+            if recipe["preferred"] is True:
+                recipe["buildable"] = True
 
 
 # TODO(Shea): Let's have a think about how we're handling input in the
@@ -427,6 +427,8 @@ def create_buildable_recipe_list(app_name, recipes):
 def handle_app_input(input_path, recipes):
     """Process an app, gathering required information to create a recipe."""
 
+    # Create variables for every piece of information we might need to create
+    # any sort of AutoPkg recipe. Then populate those variables with the info.
     app_name = ""
     sparkle_feed = ""
     min_sys_vers = ""
@@ -509,52 +511,52 @@ def handle_app_input(input_path, recipes):
     # TODO(Elliot): Collect other information as required to build recipes.
 
     # Send the information we discovered to the recipe keys.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
                 if sparkle_feed != "":
                     # Example: Cyberduck.download
-                    recipes[i]["keys"]["Input"][
+                    recipe["keys"]["Input"][
                         "SPARKLE_FEED_URL"] = sparkle_feed
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "SparkleUpdateInfoProvider",
                         "Arguments": {
                             "appcast_url": "%SPARKLE_FEED_URL%"
                         }
                     })
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "URLDownloader"
                     })
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "EndOfCheckPhase"
                     })
 
-            if recipes[i]["name"] == "munki":
-                recipes[i]["keys"]["Input"]["pkginfo"] = {}
-                recipes[i]["keys"]["Input"]["pkginfo"]["minimum_os_version"] = min_sys_vers
-                recipes[i]["icon_path"] = icon_path
+            if recipe["name"] == "munki":
+                recipe["keys"]["Input"]["pkginfo"] = {}
+                recipe["keys"]["Input"]["pkginfo"]["minimum_os_version"] = min_sys_vers
+                recipe["icon_path"] = icon_path
 
-            if recipes[i]["name"] == "pkg":
+            if recipe["name"] == "pkg":
                 pass
 
-            if recipes[i]["name"] == "install":
+            if recipe["name"] == "install":
                 pass
 
-            if recipes[i]["name"] == "jss":
-                recipes[i]["icon_path"] = icon_path
+            if recipe["name"] == "jss":
+                recipe["icon_path"] = icon_path
                 pass
 
-            if recipes[i]["name"] == "absolute":
+            if recipe["name"] == "absolute":
                 # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
-            if recipes[i]["name"] == "sccm":
+            if recipe["name"] == "sccm":
                 # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
-            if recipes[i]["name"] == "ds":
+            if recipe["name"] == "ds":
                 # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
@@ -593,24 +595,24 @@ def handle_download_recipe_input(input_path, recipes):
     # Send the information we discovered to the recipe keys.
     # This information is type-specific. Universal keys like Identifier are
     # set when the recipe is generated.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        recipe["keys"]["ParentRecipe"] = input_recipe["Identifier"]
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "munki":
+            if recipe["name"] == "munki":
                 pass
 
-            if recipes[i]["name"] == "pkg":
+            if recipe["name"] == "pkg":
                 if parsed_download_format == "dmg":
                     # Example: GoogleChrome.pkg
-                    recipes[i]["Process"].append({
+                    recipe["Process"].append({
                         "Processor": "AppDmgVersioner",
                         "Arguments": {
                             "dmg_path": "%pathname%"
                         }
                     })
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "PkgRootCreator",
                         "Arguments": {
                             "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
@@ -619,14 +621,14 @@ def handle_download_recipe_input(input_path, recipes):
                             }
                         }
                     })
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "Copier",
                         "Arguments": {
                             "source_path": "%pathname%/%app_name%",
                             "destination_path": "%pkgroot%/Applications/%app_name%"
                         }
                     })
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "PkgCreator",
                         "Arguments": {
                             "pkg_request": {
@@ -646,7 +648,7 @@ def handle_download_recipe_input(input_path, recipes):
                     })
                 elif parsed_download_format in ("zip", "tar.gz", "gzip"):
                     # Example: TheUnarchiver.pkg
-                    recipes[i]["Process"].append({
+                    recipe["Process"].append({
                         "Processor": "PkgRootCreator",
                         "Arguments": {
                             "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
@@ -655,7 +657,7 @@ def handle_download_recipe_input(input_path, recipes):
                             }
                         }
                     })
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "Unarchiver",
                         "Arguments": {
                             "archive_path": "%pathname%",
@@ -663,14 +665,14 @@ def handle_download_recipe_input(input_path, recipes):
                             "purge_destination": True
                         }
                     })
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "Versioner",
                         "Arguments": {
                             "input_plist_path": "%pkgroot%/Applications/The Unarchiver.app/Contents/Info.plist",
                             "plist_version_key": "CFBundleShortVersionString"
                         }
                     })
-                    recipes[i]["keys"]["Process"].append({
+                    recipe["keys"]["Process"].append({
                         "Processor": "PkgCreator",
                         "Arguments": {
                             "pkg_request": {
@@ -700,25 +702,26 @@ def handle_download_recipe_input(input_path, recipes):
                     # download formats.
                     pass
 
-            if recipes[i]["name"] == "install":
+            if recipe["name"] == "install":
                 pass
 
-            if recipes[i]["name"] == "jss":
+            if recipe["name"] == "jss":
                 pass
 
-            if recipes[i]["name"] == "absolute":
+            if recipe["name"] == "absolute":
                 pass
 
-            if recipes[i]["name"] == "sccm":
+            if recipe["name"] == "sccm":
                 pass
 
-            if recipes[i]["name"] == "ds":
+            if recipe["name"] == "ds":
                 pass
 
 
 def handle_munki_recipe_input(input_path, recipes):
     """Process a munki recipe, gathering information useful for building other
-    types of recipes."""
+    types of recipes.
+    """
 
     # Determine whether there's already a download Parent recipe.
     # If not, add it to the list of offered recipe formats.
@@ -748,36 +751,37 @@ def handle_munki_recipe_input(input_path, recipes):
     # yes, but it's probably not going to be easy.
 
     # Send the information we discovered to the recipe keys.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        recipe["keys"]["ParentRecipe"] = input_recipe["Identifier"]
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
                 pass
 
-            if recipes[i]["name"] == "pkg":
+            if recipe["name"] == "pkg":
                 pass
 
-            if recipes[i]["name"] == "install":
+            if recipe["name"] == "install":
                 pass
 
-            if recipes[i]["name"] == "jss":
+            if recipe["name"] == "jss":
                 pass
 
-            if recipes[i]["name"] == "absolute":
+            if recipe["name"] == "absolute":
                 pass
 
-            if recipes[i]["name"] == "sccm":
+            if recipe["name"] == "sccm":
                 pass
 
-            if recipes[i]["name"] == "ds":
+            if recipe["name"] == "ds":
                 pass
 
 
 def handle_pkg_recipe_input(input_path, recipes):
     """Process a pkg recipe, gathering information useful for building other
-    types of recipes."""
+    types of recipes.
+    """
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -797,36 +801,37 @@ def handle_pkg_recipe_input(input_path, recipes):
     # not, offer to build a discrete download recipe.
 
     # Send the information we discovered to the recipe keys.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        recipe["keys"]["ParentRecipe"] = input_recipe["Identifier"]
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
                 pass
 
-            if recipes[i]["name"] == "munki":
+            if recipe["name"] == "munki":
                 pass
 
-            if recipes[i]["name"] == "install":
+            if recipe["name"] == "install":
                 pass
 
-            if recipes[i]["name"] == "jss":
+            if recipe["name"] == "jss":
                 pass
 
-            if recipes[i]["name"] == "absolute":
+            if recipe["name"] == "absolute":
                 pass
 
-            if recipes[i]["name"] == "sccm":
+            if recipe["name"] == "sccm":
                 pass
 
-            if recipes[i]["name"] == "ds":
+            if recipe["name"] == "ds":
                 pass
 
 
 def handle_install_recipe_input(input_path, recipes):
     """Process an install recipe, gathering information useful for building
-    other types of recipes."""
+    other types of recipes.
+    """
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -847,36 +852,37 @@ def handle_install_recipe_input(input_path, recipes):
     # download and/or pkg recipe.
 
     # Send the information we discovered to the recipe keys.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        recipe["keys"]["ParentRecipe"] = input_recipe["Identifier"]
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
                 pass
 
-            if recipes[i]["name"] == "munki":
+            if recipe["name"] == "munki":
                 pass
 
-            if recipes[i]["name"] == "pkg":
+            if recipe["name"] == "pkg":
                 pass
 
-            if recipes[i]["name"] == "jss":
+            if recipe["name"] == "jss":
                 pass
 
-            if recipes[i]["name"] == "absolute":
+            if recipe["name"] == "absolute":
                 pass
 
-            if recipes[i]["name"] == "sccm":
+            if recipe["name"] == "sccm":
                 pass
 
-            if recipes[i]["name"] == "ds":
+            if recipe["name"] == "ds":
                 pass
 
 
 def handle_jss_recipe_input(input_path, recipes):
     """Process a jss recipe, gathering information useful for building other
-    types of recipes."""
+    types of recipes.
+    """
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -897,30 +903,30 @@ def handle_jss_recipe_input(input_path, recipes):
     # download and/or pkg recipe.
 
     # Send the information we discovered to the recipe keys.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        recipe["keys"]["ParentRecipe"] = input_recipe["Identifier"]
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
                 pass
 
-            if recipes[i]["name"] == "munki":
+            if recipe["name"] == "munki":
                 pass
 
-            if recipes[i]["name"] == "pkg":
+            if recipe["name"] == "pkg":
                 pass
 
-            if recipes[i]["name"] == "install":
+            if recipe["name"] == "install":
                 pass
 
-            if recipes[i]["name"] == "absolute":
+            if recipe["name"] == "absolute":
                 pass
 
-            if recipes[i]["name"] == "sccm":
+            if recipe["name"] == "sccm":
                 pass
 
-            if recipes[i]["name"] == "ds":
+            if recipe["name"] == "ds":
                 pass
 
 
@@ -948,36 +954,37 @@ def handle_absolute_recipe_input(input_path, recipes):
     # download and/or pkg recipe.
 
     # Send the information we discovered to the recipe keys.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        recipe["keys"]["ParentRecipe"] = input_recipe["Identifier"]
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
                 pass
 
-            if recipes[i]["name"] == "munki":
+            if recipe["name"] == "munki":
                 pass
 
-            if recipes[i]["name"] == "pkg":
+            if recipe["name"] == "pkg":
                 pass
 
-            if recipes[i]["name"] == "install":
+            if recipe["name"] == "install":
                 pass
 
-            if recipes[i]["name"] == "jss":
+            if recipe["name"] == "jss":
                 pass
 
-            if recipes[i]["name"] == "sccm":
+            if recipe["name"] == "sccm":
                 pass
 
-            if recipes[i]["name"] == "ds":
+            if recipe["name"] == "ds":
                 pass
 
 
 def handle_sccm_recipe_input(input_path, recipes):
     """Process a sccm recipe, gathering information useful for building other
-    types of recipes."""
+    types of recipes.
+    """
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -998,36 +1005,37 @@ def handle_sccm_recipe_input(input_path, recipes):
     # download and/or pkg recipe.
 
     # Send the information we discovered to the recipe keys.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        recipe["keys"]["ParentRecipe"] = input_recipe["Identifier"]
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
                 pass
 
-            if recipes[i]["name"] == "munki":
+            if recipe["name"] == "munki":
                 pass
 
-            if recipes[i]["name"] == "pkg":
+            if recipe["name"] == "pkg":
                 pass
 
-            if recipes[i]["name"] == "install":
+            if recipe["name"] == "install":
                 pass
 
-            if recipes[i]["name"] == "jss":
+            if recipe["name"] == "jss":
                 pass
 
-            if recipes[i]["name"] == "absolute":
+            if recipe["name"] == "absolute":
                 pass
 
-            if recipes[i]["name"] == "ds":
+            if recipe["name"] == "ds":
                 pass
 
 
 def handle_ds_recipe_input(input_path, recipes):
     """Process a ds recipe, gathering information useful for building other
-    types of recipes."""
+    types of recipes.
+    """
 
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
@@ -1048,30 +1056,30 @@ def handle_ds_recipe_input(input_path, recipes):
     # download and/or pkg recipe.
 
     # Send the information we discovered to the recipe keys.
-    for i in range(0, len(recipes)):
-        recipes[i]["keys"]["Input"]["NAME"] = app_name
-        recipes[i]["keys"]["ParentRecipe"] = input_recipe["Identifier"]
-        if recipes[i]["buildable"] is True:
+    for recipe in recipes:
+        recipe["keys"]["Input"]["NAME"] = app_name
+        recipe["keys"]["ParentRecipe"] = input_recipe["Identifier"]
+        if recipe["buildable"] is True:
 
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
                 pass
 
-            if recipes[i]["name"] == "munki":
+            if recipe["name"] == "munki":
                 pass
 
-            if recipes[i]["name"] == "pkg":
+            if recipe["name"] == "pkg":
                 pass
 
-            if recipes[i]["name"] == "install":
+            if recipe["name"] == "install":
                 pass
 
-            if recipes[i]["name"] == "jss":
+            if recipe["name"] == "jss":
                 pass
 
-            if recipes[i]["name"] == "absolute":
+            if recipe["name"] == "absolute":
                 pass
 
-            if recipes[i]["name"] == "sccm":
+            if recipe["name"] == "sccm":
                 pass
 
 
@@ -1125,68 +1133,60 @@ def generate_selected_recipes(prefs, recipes):
     print "\nGenerating selected recipes..."
     # TODO(Elliot): Say "no recipes selected" if appropriate.
 
-    for i in range(0, len(recipes)):
-        if (recipes[i]["preferred"] is True and recipes[i]["buildable"] is True and recipes[i]["selected"] is True):
+    for recipe in recipes:
+        if (recipe["preferred"] is True and recipe["buildable"] is True and recipe["selected"] is True):
 
             # Set the identifier of the recipe.
-            recipes[i]["keys"]["Identifier"] = "%s.%s.%s" % (
-                prefs["RecipeIdentifierPrefix"], recipes[i]["name"], recipes[i]["keys"]["Input"]["NAME"])
+            recipe["keys"]["Identifier"] = "%s.%s.%s" % (
+                prefs["RecipeIdentifierPrefix"], recipe["name"], recipe["keys"]["Input"]["NAME"])
 
             # Set type-specific keys.
-            if recipes[i]["name"] == "download":
+            if recipe["name"] == "download":
 
-                recipes[i]["keys"]["Description"] = "Downloads the latest version of %s." % recipes[
-                    i]["keys"]["Input"]["NAME"]
+                recipe["keys"]["Description"] = "Downloads the latest version of %s." % recipe["keys"]["Input"]["NAME"]
 
-            elif recipes[i]["name"] == "munki":
+            elif recipe["name"] == "munki":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipes[
-                    i]["keys"]["Input"]["NAME"]
+                recipe["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipe["keys"]["Input"]["NAME"]
 
-                if recipes[i]["icon_path"] != "":
-                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
-                    extract_app_icon(recipes[i]["icon_path"], png_path)
+                if recipe["icon_path"] != "":
+                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipe["keys"]["Input"]["NAME"])
+                    extract_app_icon(recipe["icon_path"], png_path)
 
-            elif recipes[i]["name"] == "pkg":
+            elif recipe["name"] == "pkg":
 
-                recipes[i]["keys"]["Description"] = "Downloads the latest version of %s and creates an installer package." % recipes[
-                    i]["keys"]["Input"]["NAME"]
+                recipe["keys"]["Description"] = "Downloads the latest version of %s and creates an installer package." % recipe["keys"]["Input"]["NAME"]
 
-            elif recipes[i]["name"] == "install":
+            elif recipe["name"] == "install":
 
-                recipes[i]["keys"]["Description"] = "Installs the latest version of %s." % recipes[
-                    i]["keys"]["Input"]["NAME"]
+                recipe["keys"]["Description"] = "Installs the latest version of %s." % recipe["keys"]["Input"]["NAME"]
 
-            elif recipes[i]["name"] == "jss":
+            elif recipe["name"] == "jss":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipes[
-                    i]["keys"]["Input"]["NAME"]
+                recipe["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipe["keys"]["Input"]["NAME"]
 
-                if recipes[i]["icon_path"] != "":
-                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipes[i]["keys"]["Input"]["NAME"])
-                    extract_app_icon(recipes[i]["icon_path"], png_path)
+                if recipe["icon_path"] != "":
+                    png_path = "%s/%s.png" % (prefs["RecipeCreateLocation"], recipe["keys"]["Input"]["NAME"])
+                    extract_app_icon(recipe["icon_path"], png_path)
 
-            elif recipes[i]["name"] == "absolute":
+            elif recipe["name"] == "absolute":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into Absolute Manage." % recipes[
-                    i]["keys"]["Input"]["NAME"]
+                recipe["keys"]["Description"] = "Imports the latest version of %s into Absolute Manage." % recipe["keys"]["Input"]["NAME"]
 
-            elif recipes[i]["name"] == "sccm":
+            elif recipe["name"] == "sccm":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into SCCM." % recipes[
-                    i]["keys"]["Input"]["NAME"]
+                recipe["keys"]["Description"] = "Imports the latest version of %s into SCCM." % recipe["keys"]["Input"]["NAME"]
 
-            elif recipes[i]["name"] == "ds":
+            elif recipe["name"] == "ds":
 
-                recipes[i]["keys"]["Description"] = "Imports the latest version of %s into DeployStudio." % recipes[
-                    i]["keys"]["Input"]["NAME"]
+                recipe["keys"]["Description"] = "Imports the latest version of %s into DeployStudio." % recipe["keys"]["Input"]["NAME"]
             else:
-                print "I don't know how to generate a recipe of type %s." % recipes[i]["name"]
+                print "I don't know how to generate a recipe of type %s." % recipe["name"]
 
             # Write the recipe to disk.
             filename = "%s.%s.recipe" % (
-                recipes[i]["keys"]["Input"]["NAME"], recipes[i]["name"])
-            write_recipe_file(filename, prefs, recipes[i]["keys"])
+                recipe["keys"]["Input"]["NAME"], recipe["name"])
+            write_recipe_file(filename, prefs, recipe["keys"])
             print "    %s/%s" % (prefs["RecipeCreateLocation"], filename)
 
 
