@@ -317,12 +317,14 @@ def build_prefs(prefs, recipes):
     # TODO(Elliot): Make this interactive while retaining scrollback.
     # Maybe with curses module?
     while True:
-        for i in range(0, len(recipes)):
-            if recipes[i]["preferred"] is False:
+        i = 0
+        for recipe in recipes:
+            if recipe["preferred"] is False:
                 indicator = " "
             else:
                 indicator = "*"
-            print "  [%s] %s. %s - %s" % (indicator, i, recipes[i]["name"], recipes[i]["description"])
+            print "  [%s] %s. %s - %s" % (indicator, i, recipe["name"], recipe["description"])
+            i += 1
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ]. When you're satisfied "
@@ -1104,12 +1106,14 @@ def select_recipes_to_generate(recipes):
     # TODO(Elliot): Make this interactive while retaining scrollback.
     # Maybe with curses module?
     while True:
-        for i in range(0, len(recipes)):
+        i = 0
+        for recipe in recipes:
             indicator = " "
-            if (recipes[i]["preferred"] is True and recipes[i]["buildable"] is True):
-                if recipes[i]["selected"] is True:
+            if (recipe["preferred"] is True and recipe["buildable"] is True):
+                if recipe["selected"] is True:
                     indicator = "*"
-                print "  [%s] %s. %s - %s" % (indicator, i, recipes[i]["name"], recipes[i]["description"])
+                print "  [%s] %s. %s - %s" % (indicator, i, recipe["name"], recipe["description"])
+            i += 1
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ]. When you're satisfied "
