@@ -103,7 +103,7 @@ class InputType(object):
 # https://github.com/homebysix/recipe-robot/blob/master/DEVNOTES.md
 
 
-class Recipe():
+class Recipe(object):
 
     """A generic AutoPkg recipe class."""
 
@@ -120,7 +120,7 @@ class Recipe():
         self["Input"][key] = value
 
 
-class DownloadRecipe():
+class DownloadRecipe(Recipe):
 
     """A download recipe class. Extends Recipe."""
 
@@ -131,7 +131,7 @@ class DownloadRecipe():
         })
 
 
-class MunkiRecipe():
+class MunkiRecipe(Recipe):
 
     """A munki recipe class. Extends Recipe."""
 
@@ -160,7 +160,7 @@ class MunkiRecipe():
         })
 
 
-class PkgRecipe():
+class PkgRecipe(Recipe):
 
     """A pkg recipe class. Extends Recipe."""
 
@@ -200,7 +200,7 @@ class PkgRecipe():
         })
 
 
-class InstallRecipe():
+class InstallRecipe(Recipe):
 
     """An install recipe class. Extends Recipe."""
 
@@ -209,7 +209,7 @@ class InstallRecipe():
         self["ParentRecipe"] = ""
 
 
-class JSSRecipe():
+class JSSRecipe(Recipe):
 
     """A jss recipe class. Extends Recipe."""
 
@@ -243,7 +243,7 @@ class JSSRecipe():
         })
 
 
-class AbsoluteRecipe():
+class AbsoluteRecipe(Recipe):
 
     """An absolute recipe class. Extends Recipe."""
 
@@ -262,7 +262,7 @@ class AbsoluteRecipe():
         })
 
 
-class SCCMRecipe():
+class SCCMRecipe(Recipe):
 
     """An sccm recipe class. Extends Recipe."""
 
@@ -279,7 +279,7 @@ class SCCMRecipe():
         })
 
 
-class DSRecipe():
+class DSRecipe(Recipe):
 
     """A ds recipe class. Extends Recipe."""
 
