@@ -110,3 +110,8 @@ __sccm__
     - ParentRecipe (string, probably pkg recipe)
     - Process -> com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator processor
 
+## Recipe creation functions
+
+Here's a map of the planned creation (blue) and extraction (orange) functions.
+
+![creation-extraction](images/creation-extraction.png)
