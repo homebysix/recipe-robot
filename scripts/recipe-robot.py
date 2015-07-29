@@ -99,16 +99,182 @@ class InputType(object):
      ds_recipe) = range(9)
 
 
-# TODO(Shea): Add classes for:
-#    - AutoPkgRecipe
-#        - DownloadRecipe
-#            - MunkiRecipe
-#            - DSRecipe
-#        - PkgRecipe
-#            - JSSRecipe
-#            - AbsoluteRecipe
-#            - SCCMRecipe
-#        - InstallRecipe
+# Use this as a reference to build out the classes below:
+# https://github.com/homebysix/recipe-robot/blob/master/DEVNOTES.md
+
+
+class Recipe():
+
+    """A generic AutoPkg recipe class."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["Identifier"] = ""
+        self["Input"] = {}
+        self["Input"]["NAME"] = ""
+        self["Process"] = []
+        self["MinimumVersion"] = "0.5.0"
+
+    def add_input(self, key, value=""):
+        """Add or set a recipe input variable."""
+        self["Input"][key] = value
+
+
+class DownloadRecipe():
+
+    """A download recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["Process"].append({
+            "Processor": "URLDownloader"
+        })
+
+
+class MunkiRecipe():
+
+    """A munki recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Input"]["MUNKI_REPO_SUBDIR"] = ""
+        self["Input"]["pkginfo"] = {
+            "catalogs": [],
+            "description": [],
+            "display_name": [],
+            "name": [],
+            "unattended_install": True
+        }
+        self["Process"].append({
+            "Processor": "MunkiPkginfoMerger",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+        self["Process"].append({
+            "Processor": "MunkiImporter",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+
+
+class PkgRecipe():
+
+    """A pkg recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Input"]["PKG_ID"] = ""
+        self["Process"].append({
+            "Processor": "PkgRootCreator",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+        self["Process"].append({
+            "Processor": "Versioner",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+        self["Process"].append({
+            "Processor": "PkgCreator",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+
+
+class InstallRecipe():
+
+    """An install recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+
+
+class JSSRecipe():
+
+    """A jss recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Input"]["prod_name"] = ""
+        self["Input"]["category"] = ""
+        self["Input"]["policy_category"] = ""
+        self["Input"]["policy_template"] = ""
+        self["Input"]["self_service_icon"] = ""
+        self["Input"]["self_service_description"] = ""
+        self["Input"]["groups"] = []
+        self["Input"]["GROUP_NAME"] = ""
+        self["Input"]["GROUP_TEMPLATE"] = ""
+        self["Process"].append({
+            "Processor": "JSSImporter",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+
+
+class AbsoluteRecipe():
+
+    """An absolute recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Process"].append({
+            "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+
+
+class SCCMRecipe():
+
+    """An sccm recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Process"].append({
+            "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+
+
+class DSRecipe():
+
+    """A ds recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Input"]["DS_PKGS_PATH"] = ""
+        self["Input"]["DS_NAME"] = ""
+        self["Process"].append({
+            "Processor": "StopProcessingIf",
+            "Arguments": {
+                "predicate": "new_package_request == FALSE"
+            }
+        })
+        self["Process"].append({
+            "Processor": "Copier",
+            "Arguments": {
+                "source_path": "%pkg_path%",
+                "destination_path": "%DS_PKGS_PATH%/%DS_NAME%.pkg",
+                "overwrite": True
+            }
+        })
+
 
 # TODO(Elliot): Once classes are added, rework these functions to use classes
 # instead of existing hard-wired logic:
