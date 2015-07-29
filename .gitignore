@@ -4,6 +4,7 @@ development
 # Markdown preview
 README.html
 CHANGELOG.html
+DEVNOTES.html
 
 # Xcode
 build/
