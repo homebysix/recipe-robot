@@ -344,14 +344,14 @@ def print_welcome_text():
     """Print the text that people see when they first start Recipe Robot."""
 
     welcome_text = """%s%s
-     -----------------------------------
-    |  Welcome to Recipe Robot v%s.  |
-     -----------------------------------
-               \   _[]_
-                \  [oo]
-                  d-||-b
-                    ||
-                  _/  \_
+                      -----------------------------------
+                     |  Welcome to Recipe Robot v%s.  |
+                      -----------------------------------
+                                \   _[]_
+                                 \  [oo]
+                                   d-||-b
+                                     ||
+                                   _/  \_
     """ % (bcolors.DEBUG, bcolors.ENDC, version)
 
     print welcome_text
