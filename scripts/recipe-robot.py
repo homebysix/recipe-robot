@@ -171,19 +171,31 @@ class PkgRecipe():
         self["Process"].append({
             "Processor": "PkgRootCreator",
             "Arguments": {
-                # TODO(Elliot): Add necessary arguments for this processor.
+                "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+                "pkgdirs": {}
             }
         })
         self["Process"].append({
             "Processor": "Versioner",
             "Arguments": {
-                # TODO(Elliot): Add necessary arguments for this processor.
+                "input_plist_path": "",
+                "plist_version_key": ""
             }
         })
         self["Process"].append({
             "Processor": "PkgCreator",
             "Arguments": {
-                # TODO(Elliot): Add necessary arguments for this processor.
+                "pkg_request": {
+                    "pkgname": "%NAME%-%version%",
+                    "version": "%version%",
+                    "id": "",
+                    "options": "purge_ds_store",
+                    "chown": [{
+                        "path": "Applications",
+                        "user": "root",
+                        "group": "admin"
+                    }]
+                }
             }
         })
 
@@ -216,7 +228,17 @@ class JSSRecipe():
         self["Process"].append({
             "Processor": "JSSImporter",
             "Arguments": {
-                # TODO(Elliot): Add necessary arguments for this processor.
+                "prod_name": "%NAME%",
+                "category": "%CATEGORY%",
+                "policy_category": "%POLICY_CATEGORY%",
+                "policy_template": "%POLICY_TEMPLATE%",
+                "self_service_icon": "%SELF_SERVICE_ICON%",
+                "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
+                "groups": [{
+                    "name": "%GROUP_NAME%",
+                    "smart": True,
+                    "template_path": "%GROUP_TEMPLATE%"
+                }]
             }
         })
 
@@ -230,8 +252,12 @@ class AbsoluteRecipe():
         self["ParentRecipe"] = ""
         self["Process"].append({
             "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
+            "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
             "Arguments": {
-                # TODO(Elliot): Add necessary arguments for this processor.
+                "dest_payload_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
+                "sdpackages_ampkgprops_path": "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
+                "source_payload_path": "%pkg_path%",
+                "import_abman_to_servercenter": True
             }
         })
 
@@ -245,8 +271,10 @@ class SCCMRecipe():
         self["ParentRecipe"] = ""
         self["Process"].append({
             "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
+            "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
             "Arguments": {
-                # TODO(Elliot): Add necessary arguments for this processor.
+                "source_file": "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg",
+                "destination_directory": "%RECIPE_CACHE_DIR%"
             }
         })
 
@@ -387,7 +415,7 @@ def init_recipes():
         },
         {  # index 6
             "name": "sccm",
-            "description": "Imports into your SCCM server."
+            "description": "Creates a cmmac package for deploying via Microsoft SCCM."
         },
         {  # index 7
             "name": "ds",
@@ -1362,7 +1390,7 @@ def generate_selected_recipes(prefs, recipes):
 
             elif recipe["name"] == "sccm":
 
-                recipe["keys"]["Description"] = "Imports the latest version of %s into SCCM." % recipe[
+                recipe["keys"]["Description"] = "Downloads the latest version of %s and creates a cmmac package for deploying via Microsoft SCCM." % recipe[
                     "keys"]["Input"]["NAME"]
 
             elif recipe["name"] == "ds":
