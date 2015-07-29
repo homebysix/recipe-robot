@@ -110,6 +110,15 @@ __sccm__
     - ParentRecipe (string, probably pkg recipe)
     - Process -> com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator processor
 
+__ds__
+
+- Required:
+    - ParentRecipe (string, probably download or pkg recipe)
+    - Input -> DS_PKGS_PATH (string)
+    - Input -> DS_NAME (string)
+    - Process -> StopProcessingIf processor
+    - Process -> Copier processor
+
 ## Recipe creation functions
 
 Here's a map of the planned creation (blue) and extraction (orange) functions.
