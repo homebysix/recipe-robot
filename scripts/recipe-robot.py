@@ -632,11 +632,8 @@ def handle_app_input(input_path, recipes, args):
 
     # Create variables for every piece of information we might need to create
     # any sort of AutoPkg recipe. Then populate those variables with the info.
-    app_name = ""
-    sparkle_feed = ""
-    min_sys_vers = ""
-    icon_path = ""
 
+    app_name = ""
     print "Validating app..."
     try:
         info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
@@ -646,25 +643,21 @@ def handle_app_input(input_path, recipes, args):
             raise
         else:
             sys.exit(1)
-
     if app_name == "":  # Will always be true at this point.
         print "Determining app's name from CFBundleName..."
         try:
             app_name = info_plist["CFBundleName"]
         except KeyError:
             print "    This app doesn't have a CFBundleName. That's OK, we'll keep trying."
-
     if app_name == "":
         print "Determining app's name from CFBundleExecutable..."
         try:
             app_name = info_plist["CFBundleExecutable"]
         except KeyError:
             print "    This app doesn't have a CFBundleExecutable. The plot thickens."
-
     if app_name == "":
         print "Determining app's name from input path..."
         app_name = os.path.basename(input_path)[:-4]
-
     print "    App name is: %s" % app_name
 
     # Search for existing recipes that match the app's name.
@@ -674,13 +667,13 @@ def handle_app_input(input_path, recipes, args):
     # The buildable list will be used to determine what is offered to the user.
     create_buildable_recipe_list(app_name, recipes, args)
 
+    sparkle_feed = ""
     print "Checking for a Sparkle feed in SUFeeduRL..."
     try:
         sparkle_feed = info_plist["SUFeedURL"]
         # TODO(Elliot): Find out what format the Sparkle feed downloads in.
     except Exception:
         print "    No SUFeedURL found in this app's Info.plist."
-
     if sparkle_feed == "":
         print "Checking for a Sparkle feed in SUOriginalFeedURL..."
         try:
@@ -688,15 +681,16 @@ def handle_app_input(input_path, recipes, args):
             # TODO(Elliot): Find out what format the Sparkle feed downloads in.
         except Exception:
             print "    No SUOriginalFeedURL found in this app's Info.plist."
-
     if sparkle_feed == "":
         print "    No Sparkle feed."
     else:
         print "    Sparkle feed is: %s" % sparkle_feed
+    if sparkle_feed == "":
+        # TODO(Elliot): search_sourceforge_and_github(app_name)
+        # TODO(Elliot): Find out what format the GH/SF feed downloads in.
+        pass
 
-    # TODO(Elliot): search_sourceforge_and_github(app_name)
-    # TODO(Elliot): Find out what format the GH/SF feed downloads in.
-
+    min_sys_vers = ""
     print "Checking for minimum OS version requirements..."
     try:
         min_sys_vers = info_plist["LSMinimumSystemVersion"]
@@ -704,6 +698,7 @@ def handle_app_input(input_path, recipes, args):
     except Exception:
         print "    No LSMinimumSystemVersion found."
 
+    icon_path = ""
     print "Looking for app icon..."
     try:
         icon_path = "%s/Contents/Resources/%s" % (
@@ -712,7 +707,22 @@ def handle_app_input(input_path, recipes, args):
     except Exception:
         print "    No CFBundleIconFile found in this app's Info.plist."
 
+    bundle_id = ""
+    print "Getting bundle identifier..."
+    try:
+        bundle_id = "%s/Contents/Resources/%s" % (
+            input_path, info_plist["CFBundleIdentifier"])
+        print "    Bundle ID: %s" % bundle_id
+    except Exception:
+        print "    No CFBundleIdentifier found in this app's Info.plist."
+
     # TODO(Elliot): Collect other information as required to build recipes.
+    #    - Use bundle identifier to locate other helper apps on disk?
+    #    - Scrape app description from MacUpdate or similar site?
+    #    - App category... maybe prompt for that if JSS recipe is selected.
+    #    - Does the CFBundleShortVersionString provide a usable version number,
+    #      or do we need to use CFBundleVersionString instead? (Will be
+    #      relevant when producing JSS recipes that might require ext attrib.)
 
     # Send the information we discovered to the recipe keys.
     for recipe in recipes:
@@ -744,7 +754,8 @@ def handle_app_input(input_path, recipes, args):
                 recipe["icon_path"] = icon_path
 
             if recipe["name"] == "pkg":
-                pass
+                if bundle_id != "":
+                    recipe["Input"]["PKG_ID"] = bundle_id
 
             if recipe["name"] == "install":
                 pass
