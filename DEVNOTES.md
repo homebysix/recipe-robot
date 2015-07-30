@@ -2,6 +2,14 @@
 
 Some scattered notes to assist in the design and development of Recipe Robot.
 
+<!-- MarkdownTOC autolink=true depth=4 bracket=round -->
+
+- [Facts necessary to produce recipe types](#facts-necessary-to-produce-recipe-types)
+- [Recipe creation functions](#recipe-creation-functions)
+- [App interface](#app-interface)
+
+<!-- /MarkdownTOC -->
+
 ## Facts necessary to produce recipe types
 
 These are the pieces of information we'll need to collect from app and recipe input in order to create the corresponding recipe types.
