@@ -715,7 +715,7 @@ def handle_app_input(input_path, recipes, args):
         print "    No CFBundleIdentifier found in this app's Info.plist."
 
     # TODO(Elliot): Collect other information as required to build recipes.
-    #    - Use bundle identifier to locate other helper apps on disk?
+    #    - Use bundle identifier to locate related helper apps on disk?
     #    - Scrape app description from MacUpdate or similar site?
     #    - App category... maybe prompt for that if JSS recipe is selected.
     #    - Does the CFBundleShortVersionString provide a usable version number,
@@ -753,34 +753,63 @@ def handle_app_input(input_path, recipes, args):
 
             if recipe["name"] == "pkg":
                 if bundle_id != "":
-                    recipe["Input"]["PKG_ID"] = bundle_id
-
-                # TODO(Elliot): if parent recipe produces a zip
-                # recipe["keys"]["Process"].append({
-                #     "Processor": "PkgRootCreator"
-                # })
-                # recipe["keys"]["Process"].append({
-                #     "Processor": "Unarchiver"
-                # })
-                # recipe["keys"]["Process"].append({
-                #     "Processor": "Versioner"
-                # })
-                # recipe["keys"]["Process"].append({
-                #     "Processor": "PkgCreator"
-                # })
-
-                # TODO(Elliot): if parent recipe produces a dmg
+                    recipe["keys"]["Input"]["PKG_ID"] = bundle_id
                 recipe["keys"]["Process"].append({
-                    "Processor": "AppDmgVersioner"
+                    "Processor": "PkgRootCreator",
+                    "Arguments": {
+                        "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+                        "pkgdirs": {
+                            "Applications": "0775"
+                        }
+                    }
                 })
+                if False:  # replace this with zip or dmg
+                    # TODO(Elliot): if parent recipe produces a zip
+                    recipe["keys"]["Process"].append({
+                        "Processor": "Unarchiver",
+                        "Arguments": {
+                            "archive_path": "%pathname%",
+                            "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications"
+                        }
+                    })
+                    recipe["keys"]["Process"].append({
+                        "Processor": "Versioner",
+                        "Arguments": {
+                            "input_plist_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app/Contents/Info.plist",
+                            "plist_version_key": "CFBundleShortVersionString"
+                        }
+                    })
+                else:
+                    # TODO(Elliot): if parent recipe produces a dmg
+                    recipe["keys"]["Process"].append({
+                        "Processor": "AppDmgVersioner",
+                        "Arguments": {
+                            "dmg_path": "%pathname%"
+                        }
+                    })
+                    recipe["keys"]["Process"].append({
+                        "Processor": "Copier",
+                        "Arguments": {
+                            "source_path": "%pathname%/%NAME%.app",
+                            "destination_path": "%pkgroot%/Applications/%NAME%.app"
+                        }
+                    })
+                # end if
                 recipe["keys"]["Process"].append({
-                    "Processor": "PkgRootCreator"
-                })
-                recipe["keys"]["Process"].append({
-                    "Processor": "Copier"
-                })
-                recipe["keys"]["Process"].append({
-                    "Processor": "PkgCreator"
+                    "Processor": "PkgCreator",
+                    "Arguments": {
+                        "pkg_request": {
+                            "pkgname": "%NAME%-%version%",
+                            "version": "%version%",
+                            "id": bundle_id,
+                            "options": "purge_ds_store",
+                            "chown": [{
+                                "path": "Applications",
+                                "user": "root",
+                                "group": "admin"
+                            }]
+                        }
+                    }
                 })
 
             if recipe["name"] == "install":
@@ -1404,7 +1433,7 @@ def generate_selected_recipes(prefs, recipes):
 
                 recipe["keys"]["Description"] = "Downloads the latest version of %s and creates an installer package." % recipe[
                     "keys"]["Input"]["NAME"]
-                recipe["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
                     "keys"]["Input"]["NAME"])
 
             elif recipe["name"] == "install":
