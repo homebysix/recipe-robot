@@ -1480,7 +1480,10 @@ def congratulate(prefs):
         "You rock star, you.",
         "Fantastic."
     )
-    print "\nYou've now created %s recipes with Recipe Robot. %s\n" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
+    if prefs["RecipeCreateCount"] == 1:
+        print "\nYou've now created your first recipe with Recipe Robot. Congratulations!\n"
+    elif prefs["RecipeCreateCount"] > 1:
+        print "\nYou've now created %s recipes with Recipe Robot. %s\n" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
 
 
 def print_debug_info(prefs, recipes):
