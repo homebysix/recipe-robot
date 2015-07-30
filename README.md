@@ -42,7 +42,14 @@ This two-pronged approach will allow AutoPkg novices to easily create recipes th
     - [ ] Creates a basic munki recipe from a pkg recipe
     - [ ] Creates a basic pkg recipe from a download recipe
     - [ ] Creates a basic jss recipe from a pkg recipe
-    - [ ] Recipe format configuration options (identifier and recipe types)
+    - [x] Recipe format configuration options (identifier and recipe types)
+    - [ ] Argument parsing
+        - [ ] `--config`
+        - [x] `--help`
+        - [x] `--include-existing`
+        - [ ] `--output`
+        - [ ] `--recipe-type`
+        - [ ] `--verbose`
 - [ ] __Mac app__
     - [ ] Preferences window UI
     - [ ] File input UI (basic file picker)
