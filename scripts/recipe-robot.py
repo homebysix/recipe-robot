@@ -99,16 +99,210 @@ class InputType(object):
      ds_recipe) = range(9)
 
 
-# TODO(Shea): Add classes for:
-#    - AutoPkgRecipe
-#        - DownloadRecipe
-#            - MunkiRecipe
-#            - DSRecipe
-#        - PkgRecipe
-#            - JSSRecipe
-#            - AbsoluteRecipe
-#            - SCCMRecipe
-#        - InstallRecipe
+# Use this as a reference to build out the classes below:
+# https://github.com/homebysix/recipe-robot/blob/master/DEVNOTES.md
+
+
+class Recipe(object):
+
+    """A generic AutoPkg recipe class."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["Identifier"] = ""
+        self["Input"] = {}
+        self["Input"]["NAME"] = ""
+        self["Process"] = []
+        self["MinimumVersion"] = "0.5.0"
+
+    def add_input(self, key, value=""):
+        """Add or set a recipe input variable."""
+        self["Input"][key] = value
+
+
+class DownloadRecipe(Recipe):
+
+    """A download recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["Process"].append({
+            "Processor": "URLDownloader"
+        })
+
+
+class MunkiRecipe(Recipe):
+
+    """A munki recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Input"]["MUNKI_REPO_SUBDIR"] = ""
+        self["Input"]["pkginfo"] = {
+            "catalogs": [],
+            "description": [],
+            "display_name": [],
+            "name": [],
+            "unattended_install": True
+        }
+        self["Process"].append({
+            "Processor": "MunkiPkginfoMerger",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+        self["Process"].append({
+            "Processor": "MunkiImporter",
+            "Arguments": {
+                # TODO(Elliot): Add necessary arguments for this processor.
+            }
+        })
+
+
+class PkgRecipe(Recipe):
+
+    """A pkg recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Input"]["PKG_ID"] = ""
+        self["Process"].append({
+            "Processor": "PkgRootCreator",
+            "Arguments": {
+                "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+                "pkgdirs": {}
+            }
+        })
+        self["Process"].append({
+            "Processor": "Versioner",
+            "Arguments": {
+                "input_plist_path": "",
+                "plist_version_key": ""
+            }
+        })
+        self["Process"].append({
+            "Processor": "PkgCreator",
+            "Arguments": {
+                "pkg_request": {
+                    "pkgname": "%NAME%-%version%",
+                    "version": "%version%",
+                    "id": "",
+                    "options": "purge_ds_store",
+                    "chown": [{
+                        "path": "Applications",
+                        "user": "root",
+                        "group": "admin"
+                    }]
+                }
+            }
+        })
+
+
+class InstallRecipe(Recipe):
+
+    """An install recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+
+
+class JSSRecipe(Recipe):
+
+    """A jss recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Input"]["prod_name"] = ""
+        self["Input"]["category"] = ""
+        self["Input"]["policy_category"] = ""
+        self["Input"]["policy_template"] = ""
+        self["Input"]["self_service_icon"] = ""
+        self["Input"]["self_service_description"] = ""
+        self["Input"]["groups"] = []
+        self["Input"]["GROUP_NAME"] = ""
+        self["Input"]["GROUP_TEMPLATE"] = ""
+        self["Process"].append({
+            "Processor": "JSSImporter",
+            "Arguments": {
+                "prod_name": "%NAME%",
+                "category": "%CATEGORY%",
+                "policy_category": "%POLICY_CATEGORY%",
+                "policy_template": "%POLICY_TEMPLATE%",
+                "self_service_icon": "%SELF_SERVICE_ICON%",
+                "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
+                "groups": [{
+                    "name": "%GROUP_NAME%",
+                    "smart": True,
+                    "template_path": "%GROUP_TEMPLATE%"
+                }]
+            }
+        })
+
+
+class AbsoluteRecipe(Recipe):
+
+    """An absolute recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Process"].append({
+            "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
+            "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
+            "Arguments": {
+                "dest_payload_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
+                "sdpackages_ampkgprops_path": "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
+                "source_payload_path": "%pkg_path%",
+                "import_abman_to_servercenter": True
+            }
+        })
+
+
+class SCCMRecipe(Recipe):
+
+    """An sccm recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Process"].append({
+            "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
+            "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
+            "Arguments": {
+                "source_file": "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg",
+                "destination_directory": "%RECIPE_CACHE_DIR%"
+            }
+        })
+
+
+class DSRecipe(Recipe):
+
+    """A ds recipe class. Extends Recipe."""
+
+    def create(self):
+        """Create a new recipe with required keys set to defaults."""
+        self["ParentRecipe"] = ""
+        self["Input"]["DS_PKGS_PATH"] = ""
+        self["Input"]["DS_NAME"] = ""
+        self["Process"].append({
+            "Processor": "StopProcessingIf",
+            "Arguments": {
+                "predicate": "new_package_request == FALSE"
+            }
+        })
+        self["Process"].append({
+            "Processor": "Copier",
+            "Arguments": {
+                "source_path": "%pkg_path%",
+                "destination_path": "%DS_PKGS_PATH%/%DS_NAME%.pkg",
+                "overwrite": True
+            }
+        })
+
 
 # TODO(Elliot): Once classes are added, rework these functions to use classes
 # instead of existing hard-wired logic:
@@ -178,14 +372,14 @@ def print_welcome_text():
     """Print the text that people see when they first start Recipe Robot."""
 
     welcome_text = """%s%s
-     -----------------------------------
-    |  Welcome to Recipe Robot v%s.  |
-     -----------------------------------
-               \   _[]_
-                \  [oo]
-                  d-||-b
-                    ||
-                  _/  \_
+                      -----------------------------------
+                     |  Welcome to Recipe Robot v%s.  |
+                      -----------------------------------
+                                \   _[]_
+                                 \  [oo]
+                                   d-||-b
+                                     ||
+                                   _/  \_
     """ % (bcolors.DEBUG, bcolors.ENDC, version)
 
     print welcome_text
@@ -221,7 +415,7 @@ def init_recipes():
         },
         {  # index 6
             "name": "sccm",
-            "description": "Imports into your SCCM server."
+            "description": "Creates a cmmac package for deploying via Microsoft SCCM."
         },
         {  # index 7
             "name": "ds",
@@ -438,11 +632,8 @@ def handle_app_input(input_path, recipes, args):
 
     # Create variables for every piece of information we might need to create
     # any sort of AutoPkg recipe. Then populate those variables with the info.
-    app_name = ""
-    sparkle_feed = ""
-    min_sys_vers = ""
-    icon_path = ""
 
+    app_name = ""
     print "Validating app..."
     try:
         info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
@@ -452,25 +643,21 @@ def handle_app_input(input_path, recipes, args):
             raise
         else:
             sys.exit(1)
-
     if app_name == "":  # Will always be true at this point.
         print "Determining app's name from CFBundleName..."
         try:
             app_name = info_plist["CFBundleName"]
         except KeyError:
             print "    This app doesn't have a CFBundleName. That's OK, we'll keep trying."
-
     if app_name == "":
         print "Determining app's name from CFBundleExecutable..."
         try:
             app_name = info_plist["CFBundleExecutable"]
         except KeyError:
             print "    This app doesn't have a CFBundleExecutable. The plot thickens."
-
     if app_name == "":
         print "Determining app's name from input path..."
         app_name = os.path.basename(input_path)[:-4]
-
     print "    App name is: %s" % app_name
 
     # Search for existing recipes that match the app's name.
@@ -480,13 +667,13 @@ def handle_app_input(input_path, recipes, args):
     # The buildable list will be used to determine what is offered to the user.
     create_buildable_recipe_list(app_name, recipes, args)
 
+    sparkle_feed = ""
     print "Checking for a Sparkle feed in SUFeeduRL..."
     try:
         sparkle_feed = info_plist["SUFeedURL"]
         # TODO(Elliot): Find out what format the Sparkle feed downloads in.
     except Exception:
         print "    No SUFeedURL found in this app's Info.plist."
-
     if sparkle_feed == "":
         print "Checking for a Sparkle feed in SUOriginalFeedURL..."
         try:
@@ -494,15 +681,16 @@ def handle_app_input(input_path, recipes, args):
             # TODO(Elliot): Find out what format the Sparkle feed downloads in.
         except Exception:
             print "    No SUOriginalFeedURL found in this app's Info.plist."
-
     if sparkle_feed == "":
         print "    No Sparkle feed."
     else:
         print "    Sparkle feed is: %s" % sparkle_feed
+    if sparkle_feed == "":
+        # TODO(Elliot): search_sourceforge_and_github(app_name)
+        # TODO(Elliot): Find out what format the GH/SF feed downloads in.
+        pass
 
-    # TODO(Elliot): search_sourceforge_and_github(app_name)
-    # TODO(Elliot): Find out what format the GH/SF feed downloads in.
-
+    min_sys_vers = ""
     print "Checking for minimum OS version requirements..."
     try:
         min_sys_vers = info_plist["LSMinimumSystemVersion"]
@@ -510,6 +698,7 @@ def handle_app_input(input_path, recipes, args):
     except Exception:
         print "    No LSMinimumSystemVersion found."
 
+    icon_path = ""
     print "Looking for app icon..."
     try:
         icon_path = "%s/Contents/Resources/%s" % (
@@ -518,7 +707,22 @@ def handle_app_input(input_path, recipes, args):
     except Exception:
         print "    No CFBundleIconFile found in this app's Info.plist."
 
+    bundle_id = ""
+    print "Getting bundle identifier..."
+    try:
+        bundle_id = "%s/Contents/Resources/%s" % (
+            input_path, info_plist["CFBundleIdentifier"])
+        print "    Bundle ID: %s" % bundle_id
+    except Exception:
+        print "    No CFBundleIdentifier found in this app's Info.plist."
+
     # TODO(Elliot): Collect other information as required to build recipes.
+    #    - Use bundle identifier to locate other helper apps on disk?
+    #    - Scrape app description from MacUpdate or similar site?
+    #    - App category... maybe prompt for that if JSS recipe is selected.
+    #    - Does the CFBundleShortVersionString provide a usable version number,
+    #      or do we need to use CFBundleVersionString instead? (Will be
+    #      relevant when producing JSS recipes that might require ext attrib.)
 
     # Send the information we discovered to the recipe keys.
     for recipe in recipes:
@@ -550,7 +754,8 @@ def handle_app_input(input_path, recipes, args):
                 recipe["icon_path"] = icon_path
 
             if recipe["name"] == "pkg":
-                pass
+                if bundle_id != "":
+                    recipe["Input"]["PKG_ID"] = bundle_id
 
             if recipe["name"] == "install":
                 pass
@@ -1196,7 +1401,7 @@ def generate_selected_recipes(prefs, recipes):
 
             elif recipe["name"] == "sccm":
 
-                recipe["keys"]["Description"] = "Imports the latest version of %s into SCCM." % recipe[
+                recipe["keys"]["Description"] = "Downloads the latest version of %s and creates a cmmac package for deploying via Microsoft SCCM." % recipe[
                     "keys"]["Input"]["NAME"]
 
             elif recipe["name"] == "ds":
