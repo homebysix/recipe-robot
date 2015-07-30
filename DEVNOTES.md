@@ -124,3 +124,49 @@ __ds__
 Here's a map of the planned creation (blue) and extraction (orange) functions.
 
 ![creation-extraction](images/creation-extraction.png)
+
+## App interface
+
+Here's what we're thinking about for the app interface, for now:
+
+1. Upon first launch, the user is prompted for two pieces of information:
+
+    - preferred identifier
+    - preferred formats
+
+    The user can get back to this screen at any time by choosing Preferences from the Recipe Robot menu.
+
+    ![app00.png](images/app00.png)
+
+    &nbsp;
+
+2. Upon saving the preferences (and upon each subsequent launch), main window appears, prompting the user to drag in a recipe or app.
+
+    ![app01.png](images/app01.png)
+
+    &nbsp;
+
+3. Upon dragging an app on, Recipe Robot starts processing facts about the app:
+
+    1. Are there any existing AutoPkg recipes for this app?
+    2. Does the app have a Sparkle feed? Is it valid?
+    3. Is the app hosted on GitHub or SourceForge?
+
+    ![app02.png](images/app02.png)
+
+    &nbsp;
+
+4. After processing, Recipe Robot asks which recipes you'd like to create.
+
+    Options for recipes that already exist based on autopkg search results will be dimmed.
+
+    ![app03.png](images/app03.png)
+
+    &nbsp;
+
+5. Recipes are created by calling the Python scripts, and the resulting files are placed into a cache folder, which can be accessed by double-clicking.
+
+    The proper recipe identifier and ParentRecipe chain are automatically added.
+
+    ![app04.png](images/app04.png)
+
