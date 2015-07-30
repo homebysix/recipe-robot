@@ -611,10 +611,9 @@ def create_buildable_recipe_list(app_name, recipes, args):
     """
 
     for recipe in recipes:
-        if args.include_existing is True:
-            if recipe["existing"] is False:
-                if recipe["preferred"] is True:
-                    recipe["buildable"] = True
+        if args.include_existing is False:
+            if recipe["preferred"] is True and recipe["existing"] is False:
+                recipe["buildable"] = True
         else:
             if recipe["preferred"] is True:
                 recipe["buildable"] = True
