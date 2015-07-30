@@ -756,6 +756,34 @@ def handle_app_input(input_path, recipes, args):
                 if bundle_id != "":
                     recipe["Input"]["PKG_ID"] = bundle_id
 
+                # TODO(Elliot): if parent recipe produces a zip
+                # recipe["keys"]["Process"].append({
+                #     "Processor": "PkgRootCreator"
+                # })
+                # recipe["keys"]["Process"].append({
+                #     "Processor": "Unarchiver"
+                # })
+                # recipe["keys"]["Process"].append({
+                #     "Processor": "Versioner"
+                # })
+                # recipe["keys"]["Process"].append({
+                #     "Processor": "PkgCreator"
+                # })
+
+                # TODO(Elliot): if parent recipe produces a dmg
+                recipe["keys"]["Process"].append({
+                    "Processor": "AppDmgVersioner"
+                })
+                recipe["keys"]["Process"].append({
+                    "Processor": "PkgRootCreator"
+                })
+                recipe["keys"]["Process"].append({
+                    "Processor": "Copier"
+                })
+                recipe["keys"]["Process"].append({
+                    "Processor": "PkgCreator"
+                })
+
             if recipe["name"] == "install":
                 pass
 
