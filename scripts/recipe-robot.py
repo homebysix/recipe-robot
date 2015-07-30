@@ -57,7 +57,7 @@ import sys
 
 # Global variables.
 version = '0.0.1'
-debug_mode = False  # set to True for additional output
+debug_mode = True  # set to True for additional output
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
@@ -1515,10 +1515,13 @@ def congratulate(prefs):
         print "\nYou've now created %s recipes with Recipe Robot. %s\n" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
 
 
-def print_debug_info(prefs, recipes):
+def print_debug_info(prefs, recipes, args):
     """Print current debug information."""
 
     print bcolors.DEBUG
+    print "\n%sDEBUG INFO%s" % ("-"*34, "-"*35)
+    print "\n    ARGUMENT LIST: \n"
+    print args
     print "\n    RECIPE IDENTIFIER PREFIX: \n"
     print prefs["RecipeIdentifierPrefix"]
     print "\n    PREFERRED RECIPE TYPES\n"
@@ -1585,7 +1588,7 @@ def main():
         sys.exit(1)
 
     if debug_mode is True:
-        print_debug_info(prefs, recipes)
+        print_debug_info(prefs, recipes, args)
 
     # Prompt the user with the available recipes types and let them choose.
     select_recipes_to_generate(recipes)
