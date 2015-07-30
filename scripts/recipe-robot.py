@@ -1560,7 +1560,7 @@ def print_debug_info(prefs, recipes, args):
     """Print current debug information."""
 
     print bcolors.DEBUG
-    print "\n%sDEBUG INFO%s" % ("-"*34, "-"*35)
+    print "\n%sDEBUG INFO%s" % ("-" * 34, "-" * 35)
     print "\n    ARGUMENT LIST: \n"
     print args
     print "\n    RECIPE IDENTIFIER PREFIX: \n"
