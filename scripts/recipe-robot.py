@@ -710,8 +710,7 @@ def handle_app_input(input_path, recipes, args):
     bundle_id = ""
     print "Getting bundle identifier..."
     try:
-        bundle_id = "%s/Contents/Resources/%s" % (
-            input_path, info_plist["CFBundleIdentifier"])
+        bundle_id = info_plist["CFBundleIdentifier"]
         print "    Bundle ID: %s" % bundle_id
     except Exception:
         print "    No CFBundleIdentifier found in this app's Info.plist."
