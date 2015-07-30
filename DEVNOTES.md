@@ -89,7 +89,7 @@ __jss__
     - Input -> self_service_description (string), can be same as Munki recipe description
     - Input -> groups (array)
     - Input -> GROUP_NAME (string)
-    - Input -> GROUP_TEMPLATE (string), usually "SmartGroupTempalte.xml"
+    - Input -> GROUP_TEMPLATE (string), usually "SmartGroupTemplate.xml"
     - Process -> JSSImporter processor
     - The jss-recipes repo must be added (for use of xml templates)
     - Icon png copied to same folder as recipe
