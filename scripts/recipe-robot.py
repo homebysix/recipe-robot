@@ -546,6 +546,18 @@ def build_prefs(prefs, recipes):
     return prefs
 
 
+def get_sparkle_download_format(sparkle_url):
+    """Parse a Sparkle feed URL and return the type of download it produces."""
+
+    # TODO(Elliot): There's got to be a better way than curl.
+    cmd = "curl -s %s | awk -F 'url=\"|\"' '/enclosure url/{print $2}' | head -1" % sparkle_url
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        for format in supported_download_formats:
+            if out.endswith(format):
+                return format
+
+
 def increment_recipe_count(prefs):
     """Add 1 to the cumulative count of recipes created by Recipe Robot."""
 
@@ -667,6 +679,7 @@ def handle_app_input(input_path, recipes, args):
     create_buildable_recipe_list(app_name, recipes, args)
 
     sparkle_feed = ""
+    download_format = ""
     print "Checking for a Sparkle feed in SUFeeduRL..."
     try:
         sparkle_feed = info_plist["SUFeedURL"]
@@ -677,7 +690,7 @@ def handle_app_input(input_path, recipes, args):
         print "Checking for a Sparkle feed in SUOriginalFeedURL..."
         try:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
-            # TODO(Elliot): Find out what format the Sparkle feed downloads in.
+            download_format = get_sparkle_download_format(sparkle_feed)
         except Exception:
             print "    No SUOriginalFeedURL found in this app's Info.plist."
     if sparkle_feed == "":
@@ -763,8 +776,8 @@ def handle_app_input(input_path, recipes, args):
                         }
                     }
                 })
-                if False:  # replace this with zip or dmg
-                    # TODO(Elliot): if parent recipe produces a zip
+                if download_format in ("zip", "tar.gz", "gzip"):
+                    # Example: AppZapper.pkg
                     recipe["keys"]["Process"].append({
                         "Processor": "Unarchiver",
                         "Arguments": {
@@ -779,8 +792,8 @@ def handle_app_input(input_path, recipes, args):
                             "plist_version_key": "CFBundleShortVersionString"
                         }
                     })
-                else:
-                    # TODO(Elliot): if parent recipe produces a dmg
+                elif download_format == "dmg":
+                    # Example: AutoPkgr.pkg
                     recipe["keys"]["Process"].append({
                         "Processor": "AppDmgVersioner",
                         "Arguments": {
@@ -801,7 +814,7 @@ def handle_app_input(input_path, recipes, args):
                         "pkg_request": {
                             "pkgname": "%NAME%-%version%",
                             "version": "%version%",
-                            "id": bundle_id,
+                            "id": "%PKG_ID%",
                             "options": "purge_ds_store",
                             "chown": [{
                                 "path": "Applications",
