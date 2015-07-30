@@ -1405,6 +1405,8 @@ def generate_selected_recipes(prefs, recipes):
 
                 recipe["keys"]["Description"] = "Downloads the latest version of %s and creates an installer package." % recipe[
                     "keys"]["Input"]["NAME"]
+                recipe["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
             elif recipe["name"] == "install":
 
