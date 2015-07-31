@@ -688,7 +688,8 @@ def handle_app_input(input_path, recipes, args):
     robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
-    create_existing_recipe_list(app_name, recipes)
+    if args.include_existing is not True:
+        create_existing_recipe_list(app_name, recipes)
 
     # If supported recipe type doesn't already exist, mark as buildable.
     # The buildable list will be used to determine what is offered to the user.
