@@ -1400,7 +1400,16 @@ def search_sourceforge_and_github(app_name):
 def select_recipes_to_generate(recipes):
     """Display menu that allows user to select which recipes to create."""
 
-    print "\nPlease select which recipes you'd like to create:\n"
+    buildable_count = 0
+    for recipe in recipes:
+        if recipe["buildable"] is True:
+            buildable_count += 1
+
+    if buildable_count < 1:
+        robo_print("error", "Sorry, there are no recipe types to generate.")
+        sys.exit(0)
+
+    robo_print("log", "\nPlease select which recipes you'd like to create:\n")
 
     # TODO(Elliot): Make this interactive while retaining scrollback.
     # Maybe with curses module?
