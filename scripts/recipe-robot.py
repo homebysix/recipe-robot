@@ -332,9 +332,9 @@ def robo_print(output_type, message):
     """
 
     if output_type == "error":
-        print bcolors.ERROR, "   [ERROR]", message, bcolors.ENDC
+        print >> sys.stderr, bcolors.ERROR, "   [ERROR]", message, bcolors.ENDC
     elif output_type == "warning":
-        print bcolors.WARNING, "   [WARNING]", message, bcolors.ENDC
+        print >> sys.stderr, bcolors.WARNING, "   [WARNING]", message, bcolors.ENDC
     elif output_type == "debug" and debug_mode is True:
         print bcolors.DEBUG, "   [DEBUG]", message, bcolors.ENDC
     else:
@@ -793,7 +793,22 @@ def handle_app_input(input_path, recipes, args):
                         }
                     }
                 })
-                if download_format in ("zip", "tar.gz", "gzip"):
+                if download_format == "dmg":
+                    # Example: AutoPkgr.pkg
+                    recipe["keys"]["Process"].append({
+                        "Processor": "AppDmgVersioner",
+                        "Arguments": {
+                            "dmg_path": "%pathname%"
+                        }
+                    })
+                    recipe["keys"]["Process"].append({
+                        "Processor": "Copier",
+                        "Arguments": {
+                            "source_path": "%pathname%/%NAME%.app",
+                            "destination_path": "%pkgroot%/Applications/%NAME%.app"
+                        }
+                    })
+                else:  # probably a zip or archive file
                     # Example: AppZapper.pkg
                     recipe["keys"]["Process"].append({
                         "Processor": "Unarchiver",
@@ -807,21 +822,6 @@ def handle_app_input(input_path, recipes, args):
                         "Arguments": {
                             "input_plist_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app/Contents/Info.plist",
                             "plist_version_key": "CFBundleShortVersionString"
-                        }
-                    })
-                elif download_format == "dmg":
-                    # Example: AutoPkgr.pkg
-                    recipe["keys"]["Process"].append({
-                        "Processor": "AppDmgVersioner",
-                        "Arguments": {
-                            "dmg_path": "%pathname%"
-                        }
-                    })
-                    recipe["keys"]["Process"].append({
-                        "Processor": "Copier",
-                        "Arguments": {
-                            "source_path": "%pathname%/%NAME%.app",
-                            "destination_path": "%pkgroot%/Applications/%NAME%.app"
                         }
                     })
                 # end if
