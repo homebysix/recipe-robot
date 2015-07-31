@@ -48,7 +48,7 @@ optional arguments:
 import argparse
 import os.path
 import plistlib
-from pprint import pprint
+import pprint
 import random
 import shlex
 from subprocess import Popen, PIPE
@@ -326,6 +326,21 @@ class DSRecipe(Recipe):
 #    - generate_selected_recipes
 #    - write_recipe_file
 
+def robo_print(output_type, message):
+    """Print the specified message in an appropriate color, and only print
+    debug output if debug_mode is True.
+    """
+
+    if output_type == "error":
+        print bcolors.ERROR, "   [ERROR]", message, bcolors.ENDC
+    elif output_type == "warning":
+        print bcolors.WARNING, "   [WARNING]", message, bcolors.ENDC
+    elif output_type == "debug" and debug_mode is True:
+        print bcolors.DEBUG, "   [DEBUG]", message, bcolors.ENDC
+    else:
+        print message
+
+
 def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr."""
 
@@ -382,7 +397,7 @@ def print_welcome_text():
                                    _/  \_
     """ % (bcolors.DEBUG, bcolors.ENDC, version)
 
-    print welcome_text
+    robo_print("log", welcome_text)
 
 
 def init_recipes():
@@ -461,7 +476,7 @@ def init_prefs(prefs, recipes, args):
                     recipe["preferred"] = False
 
             if args.include_existing is True:
-                print "[WARNING] Will offer to build recipes even if they already exist on GitHub. Please don't upload duplicate recipes."
+                robo_print("warning", "Will offer to build recipes even if they already exist on GitHub. Please don't upload duplicate recipes.")
 
         except Exception:
             print("There was a problem opening the prefs file. "
@@ -469,7 +484,7 @@ def init_prefs(prefs, recipes, args):
             prefs = build_prefs(prefs, recipes)
 
     else:
-        print "No prefs file found. Building new preferences..."
+        robo_print("warning", "No prefs file found. Building new preferences...")
         prefs = build_prefs(prefs, recipes)
 
     # Record last version number.
@@ -492,8 +507,8 @@ def build_prefs(prefs, recipes):
 
     # Prompt for and save recipe identifier prefix.
     prefs["RecipeIdentifierPrefix"] = "com.github.homebysix"
-    print "\nRecipe identifier prefix"
-    print "This is your default identifier, in reverse-domain notation.\n"
+    robo_print("log", "\nRecipe identifier prefix")
+    robo_print("log", "This is your default identifier, in reverse-domain notation.\n")
     choice = raw_input(
         "[%s]: " % prefs["RecipeIdentifierPrefix"])
     if choice != "":
@@ -501,8 +516,8 @@ def build_prefs(prefs, recipes):
 
     # Prompt for recipe creation location.
     prefs["RecipeCreateLocation"] = "~/Library/AutoPkg/RecipeOverrides"
-    print "\nLocation to save new recipes"
-    print "This is where on disk your newly created recipes will be saved.\n"
+    robo_print("log", "\nLocation to save new recipes")
+    robo_print("log", "This is where on disk your newly created recipes will be saved.\n")
     choice = raw_input(
         "[%s]: " % prefs["RecipeCreateLocation"])
     if choice != "":
@@ -510,8 +525,8 @@ def build_prefs(prefs, recipes):
 
     # Prompt to set recipe types on/off as desired.
     prefs["RecipeTypes"] = []
-    print "\nPreferred recipe types"
-    print "Choose which recipe types will be offered to you by default.\n"
+    robo_print("log", "\nPreferred recipe types")
+    robo_print("log", "Choose which recipe types will be offered to you by default.\n")
     # TODO(Elliot): Make this interactive while retaining scrollback.
     # Maybe with curses module?
     while True:
@@ -521,7 +536,7 @@ def build_prefs(prefs, recipes):
                 indicator = " "
             else:
                 indicator = "*"
-            print "  [%s] %s. %s - %s" % (indicator, i, recipe["name"], recipe["description"])
+            robo_print("log", "  [%s] %s. %s - %s" % (indicator, i, recipe["name"], recipe["description"]))
             i += 1
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
@@ -536,7 +551,7 @@ def build_prefs(prefs, recipes):
                 else:
                     recipes[int(choice)]["preferred"] = False
             except Exception:
-                print "%s%s is not a valid option. Please try again.%s\n" % (bcolors.ERROR, choice, bcolors.ENDC)
+                robo_print("warning", "%s is not a valid option. Please try again.\n" % choice)
 
     # Set "preferred" status of each recipe type according to preferences.
     for recipe in recipes:
@@ -598,6 +613,7 @@ def get_input_type(input_path):
 def create_existing_recipe_list(app_name, recipes):
     """Use autopkg search results to build existing recipe list."""
 
+    robo_print("log", "Searching for existing AutoPkg recipes for %s..." % app_name)
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
     # TODO(Elliot): Do search again without spaces in app names.
     # TODO(Elliot): Match results for apps with "!" in names. (e.g. Paparazzi!)
@@ -613,7 +629,7 @@ def create_existing_recipe_list(app_name, recipes):
                     # Set to False by default. If found, set to True.
                     recipe["existing"] = True
     else:
-        print err
+        robo_print("error", err)
         sys.exit(exitcode)
 
 
@@ -645,34 +661,35 @@ def handle_app_input(input_path, recipes, args):
     # any sort of AutoPkg recipe. Then populate those variables with the info.
 
     app_name = ""
-    print "Validating app..."
+    robo_print("log", "Validating app...")
     try:
         info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
     except Exception:
-        print "This doesn't look like a valid app to me."
+        robo_print("error", "This doesn't look like a valid app to me.")
         if debug_mode is True:
             raise
         else:
             sys.exit(1)
     if app_name == "":  # Will always be true at this point.
-        print "Determining app's name from CFBundleName..."
+        robo_print("log", "Determining app's name from CFBundleName...")
         try:
             app_name = info_plist["CFBundleName"]
         except KeyError:
-            print "    This app doesn't have a CFBundleName. That's OK, we'll keep trying."
+            robo_print("warning", "This app doesn't have a CFBundleName. That's OK, we'll keep trying.")
     if app_name == "":
-        print "Determining app's name from CFBundleExecutable..."
+        robo_print("log", "Determining app's name from CFBundleExecutable...")
         try:
             app_name = info_plist["CFBundleExecutable"]
         except KeyError:
-            print "    This app doesn't have a CFBundleExecutable. The plot thickens."
+            robo_print("warning", "This app doesn't have a CFBundleExecutable. The plot thickens.")
     if app_name == "":
-        print "Determining app's name from input path..."
+        robo_print("log", "Determining app's name from input path...")
         app_name = os.path.basename(input_path)[:-4]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
-    create_existing_recipe_list(app_name, recipes)
+    if args.include_existing is not True:
+        create_existing_recipe_list(app_name, recipes)
 
     # If supported recipe type doesn't already exist, mark as buildable.
     # The buildable list will be used to determine what is offered to the user.
@@ -680,52 +697,52 @@ def handle_app_input(input_path, recipes, args):
 
     sparkle_feed = ""
     download_format = ""
-    print "Checking for a Sparkle feed in SUFeeduRL..."
+    robo_print("log", "Checking for a Sparkle feed in SUFeeduRL...")
     try:
         sparkle_feed = info_plist["SUFeedURL"]
         # TODO(Elliot): Find out what format the Sparkle feed downloads in.
     except Exception:
-        print "    No SUFeedURL found in this app's Info.plist."
+        robo_print("warning", "No SUFeedURL found in this app's Info.plist.")
     if sparkle_feed == "":
-        print "Checking for a Sparkle feed in SUOriginalFeedURL..."
+        robo_print("log", "Checking for a Sparkle feed in SUOriginalFeedURL...")
         try:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
             download_format = get_sparkle_download_format(sparkle_feed)
         except Exception:
-            print "    No SUOriginalFeedURL found in this app's Info.plist."
+            robo_print("warning", "No SUOriginalFeedURL found in this app's Info.plist.")
     if sparkle_feed == "":
-        print "    No Sparkle feed."
+        robo_print("warning", "No Sparkle feed.")
     else:
-        print "    Sparkle feed is: %s" % sparkle_feed
+        robo_print("log", "    Sparkle feed is: %s" % sparkle_feed)
     if sparkle_feed == "":
         # TODO(Elliot): search_sourceforge_and_github(app_name)
         # TODO(Elliot): Find out what format the GH/SF feed downloads in.
         pass
 
     min_sys_vers = ""
-    print "Checking for minimum OS version requirements..."
+    robo_print("log", "Checking for minimum OS version requirements...")
     try:
         min_sys_vers = info_plist["LSMinimumSystemVersion"]
-        print "    Minimum OS version: %s" % min_sys_vers
+        robo_print("log", "    Minimum OS version: %s" % min_sys_vers)
     except Exception:
-        print "    No LSMinimumSystemVersion found."
+        robo_print("warning", "No LSMinimumSystemVersion found.")
 
     icon_path = ""
-    print "Looking for app icon..."
+    robo_print("log", "Looking for app icon...")
     try:
         icon_path = "%s/Contents/Resources/%s" % (
             input_path, info_plist["CFBundleIconFile"])
-        print "    Icon found: %s" % icon_path
+        robo_print("log", "    Icon found: %s" % icon_path)
     except Exception:
-        print "    No CFBundleIconFile found in this app's Info.plist."
+        robo_print("warning", "No CFBundleIconFile found in this app's Info.plist.")
 
     bundle_id = ""
-    print "Getting bundle identifier..."
+    robo_print("log", "Getting bundle identifier...")
     try:
         bundle_id = info_plist["CFBundleIdentifier"]
-        print "    Bundle ID: %s" % bundle_id
+        robo_print("log", "    Bundle ID: %s" % bundle_id)
     except Exception:
-        print "    No CFBundleIdentifier found in this app's Info.plist."
+        robo_print("warning", "No CFBundleIdentifier found in this app's Info.plist.")
 
     # TODO(Elliot): Collect other information as required to build recipes.
     #    - Use bundle identifier to locate related helper apps on disk?
@@ -853,9 +870,9 @@ def handle_download_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    print "Determining app's name from NAME input key..."
+    robo_print("log", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -866,13 +883,13 @@ def handle_download_recipe_input(input_path, recipes, args):
 
     # Get the download file format.
     # TODO(Elliot): Parse the recipe properly. Don't use grep.
-    print "Determining download format..."
+    robo_print("log", "Determining download format...")
     parsed_download_format = ""
     for download_format in supported_download_formats:
         cmd = "grep '.%s</string>' '%s'" % (download_format, input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            print "    Download format: %s." % download_format
+            robo_print("log", "    Download format: %s." % download_format)
             parsed_download_format = download_format
             break
 
@@ -1013,9 +1030,9 @@ def handle_munki_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    print "Determining app's name from NAME input key..."
+    robo_print("log", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1070,9 +1087,9 @@ def handle_pkg_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    print "Determining app's name from NAME input key..."
+    robo_print("log", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1120,9 +1137,9 @@ def handle_install_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    print "Determining app's name from NAME input key..."
+    robo_print("log", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1171,9 +1188,9 @@ def handle_jss_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    print "Determining app's name from NAME input key..."
+    robo_print("log", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1222,9 +1239,9 @@ def handle_absolute_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    print "Determining app's name from NAME input key..."
+    robo_print("log", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1273,9 +1290,9 @@ def handle_sccm_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    print "Determining app's name from NAME input key..."
+    robo_print("log", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1324,9 +1341,9 @@ def handle_ds_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    print "Determining app's name from NAME input key..."
+    robo_print("log", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    print "    App name is: %s" % app_name
+    robo_print("log", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1383,7 +1400,16 @@ def search_sourceforge_and_github(app_name):
 def select_recipes_to_generate(recipes):
     """Display menu that allows user to select which recipes to create."""
 
-    print "\nPlease select which recipes you'd like to create:\n"
+    buildable_count = 0
+    for recipe in recipes:
+        if recipe["buildable"] is True:
+            buildable_count += 1
+
+    if buildable_count < 1:
+        robo_print("error", "Sorry, there are no recipe types to generate.")
+        sys.exit(0)
+
+    robo_print("log", "\nPlease select which recipes you'd like to create:\n")
 
     # TODO(Elliot): Make this interactive while retaining scrollback.
     # Maybe with curses module?
@@ -1394,13 +1420,13 @@ def select_recipes_to_generate(recipes):
             if (recipe["preferred"] is True and recipe["buildable"] is True):
                 if recipe["selected"] is True:
                     indicator = "*"
-                print "  [%s] %s. %s - %s" % (indicator, i, recipe["name"], recipe["description"])
+                robo_print("log", "  [%s] %s. %s - %s" % (indicator, i, recipe["name"], recipe["description"]))
             i += 1
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ]. When you're satisfied "
             "with your choices, type an \"S\" to save and proceed: ")
-        print ""
+        robo_print("log", "")
         if choice.upper() == "S":
             break
         else:
@@ -1410,13 +1436,13 @@ def select_recipes_to_generate(recipes):
                 else:
                     recipes[int(choice)]["selected"] = False
             except Exception:
-                print "%s%s is not a valid option. Please try again.%s\n" % (bcolors.ERROR, choice, bcolors.ENDC)
+                robo_print("error", "%s is not a valid option. Please try again.\n" % choice)
 
 
 def generate_selected_recipes(prefs, recipes):
     """Generate the selected types of recipes."""
 
-    print "\nGenerating selected recipes..."
+    robo_print("log", "\nGenerating selected recipes...")
     # TODO(Elliot): Say "no recipes selected" if appropriate.
 
     for recipe in recipes:
@@ -1479,13 +1505,13 @@ def generate_selected_recipes(prefs, recipes):
                 recipe["keys"]["Description"] = "Imports the latest version of %s into DeployStudio." % recipe[
                     "keys"]["Input"]["NAME"]
             else:
-                print "I don't know how to generate a recipe of type %s." % recipe["name"]
+                robo_print("error", "I don't know how to generate a recipe of type %s." % recipe["name"])
 
             # Write the recipe to disk.
             filename = "%s.%s.recipe" % (
                 recipe["keys"]["Input"]["NAME"], recipe["name"])
             write_recipe_file(filename, prefs, recipe["keys"])
-            print "    %s/%s" % (prefs["RecipeCreateLocation"], filename)
+            robo_print("log", "    %s/%s" % (prefs["RecipeCreateLocation"], filename))
 
 
 def create_dest_dirs(path):
@@ -1496,7 +1522,7 @@ def create_dest_dirs(path):
         try:
             os.makedirs(dest_dir)
         except Exception:
-            print "[ERROR] Unable to create directory at %s." % dest_dir
+            robo_print("error", "Unable to create directory at %s." % dest_dir)
             if debug_mode:
                 raise
             else:
@@ -1511,17 +1537,16 @@ def extract_app_icon(icon_path, png_path):
 
     # TODO(Elliot): Warning if a file already exists here.
 
-    if debug_mode is True:
-        print "Icon extraction command:"
-        print "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 128" % (icon_path, png_path)
+    robo_print("debug", "Icon extraction command:")
+    robo_print("debug", "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 128" % (icon_path, png_path))
 
     cmd = "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 128" % (
         icon_path, png_path)
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-        print "    %s" % png_path
+        robo_print("log", "    %s" % png_path)
     else:
-        print err
+        robo_print("error", err)
 
 
 def write_recipe_file(filename, prefs, keys):
@@ -1551,27 +1576,9 @@ def congratulate(prefs):
         "Fantastic."
     )
     if prefs["RecipeCreateCount"] == 1:
-        print "\nYou've now created your first recipe with Recipe Robot. Congratulations!\n"
+        robo_print("log", "\nYou've now created your first recipe with Recipe Robot. Congratulations!\n")
     elif prefs["RecipeCreateCount"] > 1:
-        print "\nYou've now created %s recipes with Recipe Robot. %s\n" % (prefs["RecipeCreateCount"], random.choice(congrats_msg))
-
-
-def print_debug_info(prefs, recipes, args):
-    """Print current debug information."""
-
-    print bcolors.DEBUG
-    print "\n%sDEBUG INFO%s" % ("-" * 34, "-" * 35)
-    print "\n    ARGUMENT LIST: \n"
-    print args
-    print "\n    RECIPE IDENTIFIER PREFIX: \n"
-    print prefs["RecipeIdentifierPrefix"]
-    print "\n    PREFERRED RECIPE TYPES\n"
-    pprint(prefs["RecipeTypes"])
-    print "\n    SUPPORTED DOWNLOAD FORMATS\n"
-    pprint(supported_download_formats)
-    print "\n    CURRENT RECIPE INFORMATION\n"
-    pprint(recipes)
-    print bcolors.ENDC
+        robo_print("log", "\nYou've now created %s recipes with Recipe Robot. %s\n" % (prefs["RecipeCreateCount"], random.choice(congrats_msg)))
 
 
 # TODO(Elliot): Make main() shorter. Just a flowchart for the logic.
@@ -1589,9 +1596,7 @@ def main():
 
     # TODO(Elliot): Verify that the input path actually exists.
     if not os.path.exists(input_path):
-        print "%s[ERROR] Input path does not exist. Please try again with a valid input path.%s" % (
-            bcolors.ERROR, bcolors.ENDC
-        )
+        robo_print("error", "Input path does not exist. Please try again with a valid input path.")
         sys.exit(1)
 
     # Create the master recipe information list.
@@ -1602,7 +1607,7 @@ def main():
     prefs = init_prefs(prefs, recipes, args)
 
     input_type = get_input_type(input_path)
-    print "\nProcessing %s ..." % input_path
+    robo_print("log", "\nProcessing %s ..." % input_path)
 
     # Orchestrate helper functions to handle input_path's "type".
     if input_type is InputType.app:
@@ -1629,7 +1634,10 @@ def main():
         sys.exit(1)
 
     if debug_mode is True:
-        print_debug_info(prefs, recipes, args)
+        robo_print("debug", "ARGUMENT LIST:\n" + pprint.pformat(args) + "\n")
+        robo_print("debug", "SUPPORTED DOWNLOAD FORMATS:\n" + pprint.pformat(supported_download_formats) + "\n")
+        robo_print("debug", "PREFERENCES:\n" + pprint.pformat(prefs) + "\n")
+        robo_print("debug", "CURRENT RECIPE INFORMATION:\n" + pprint.pformat(recipes) + "\n")
 
     # Prompt the user with the available recipes types and let them choose.
     select_recipes_to_generate(recipes)
