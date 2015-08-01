@@ -696,6 +696,8 @@ def handle_app_input(input_path, recipes, args):
     create_buildable_recipe_list(app_name, recipes, args)
 
     sparkle_feed = ""
+    github_repo = ""
+    sourceforge_id = ""
     download_format = ""
     robo_print("log", "Checking for a Sparkle feed in SUFeeduRL...")
     try:
@@ -716,6 +718,10 @@ def handle_app_input(input_path, recipes, args):
         robo_print("log", "    Sparkle feed is: %s" % sparkle_feed)
     if sparkle_feed == "":
         # TODO(Elliot): search_sourceforge_and_github(app_name)
+        # if github release
+            # github_repo = ""
+        # if sourceforge release
+            # sourceforge_id = ""
         # TODO(Elliot): Find out what format the GH/SF feed downloads in.
         pass
 
@@ -768,12 +774,25 @@ def handle_app_input(input_path, recipes, args):
                             "appcast_url": "%SPARKLE_FEED_URL%"
                         }
                     })
+                elif github_repo != "":
+                    # Example: AutoCaperNBI.download
                     recipe["keys"]["Process"].append({
-                        "Processor": "URLDownloader"
+                        "Processor": "GitHubReleasesInfoProvider",
+                        "Arguments": {
+                            "github_repo": github_repo
+                        }
                     })
-                    recipe["keys"]["Process"].append({
-                        "Processor": "EndOfCheckPhase"
-                    })
+                elif sourceforge_id != "":
+                    # Example: GrandPerspective.download
+                    recipe["keys"]["Input"]["SOURCEFORGE_FILE_PATTERN"] = "%s-[0-9_\.]*\.%s" % (app_name, download_format),
+                    recipe["keys"]["Input"]["SOURCEFORGE_PROJECT_ID"] = sourceforge_id
+                # end if
+                recipe["keys"]["Process"].append({
+                    "Processor": "URLDownloader"
+                })
+                recipe["keys"]["Process"].append({
+                    "Processor": "EndOfCheckPhase"
+                })
 
             if recipe["name"] == "munki":
                 # Example: Transmit.munki
