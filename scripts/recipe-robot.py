@@ -776,10 +776,29 @@ def handle_app_input(input_path, recipes, args):
                     })
 
             if recipe["name"] == "munki":
-                recipe["keys"]["Input"]["pkginfo"] = {}
-                recipe["keys"]["Input"]["pkginfo"][
-                    "minimum_os_version"] = min_sys_vers
-                recipe["icon_path"] = icon_path
+                # Example: Transmit.munki
+                # TODO(Elliot): Review inline comments below and adjust.
+                recipe["keys"]["Input"]["MUNKI_REPO_SUBDIR"] = ""
+                recipe["keys"]["Input"]["pkginfo"] = {
+                    "catalogs": ["testing"],
+                    "description": "",  # Scrape MacUpdate?
+                    "display_name": app_name,
+                    "icon_name": "%s.png" % app_name,
+                    "minimum_os_version": min_sys_vers,
+                    "name": app_name,
+                    "unattended_install": True  # Always?
+                }
+                recipe["icon_path"] = icon_path  # Where does this go?
+                recipe["keys"]["Process"].append({
+                    "Processor": "MunkiPkginfoMerger",
+                })
+                recipe["keys"]["Process"].append({
+                    "Processor": "MunkiImporter",
+                    "Arguments": {
+                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%.%s" % download_format,
+                        "repo_subdirectory": "%MUNKI_REPO_SUBDIR%"
+                    }
+                })
 
             if recipe["name"] == "pkg":
                 if bundle_id != "":
