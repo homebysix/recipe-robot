@@ -654,7 +654,7 @@ def create_buildable_recipe_list(app_name, recipes, args):
 # the way to do this, but it's going to be a complex one. But I think
 # recusion will cut down on duplicate logic.
 
-def handle_app_input(input_path, recipes, args):
+def handle_app_input(input_path, recipes, args, prefs):
     """Process an app, gathering required information to create a recipe."""
 
     # Create variables for every piece of information we might need to create
@@ -763,7 +763,7 @@ def handle_app_input(input_path, recipes, args):
         recipe["keys"]["Input"]["NAME"] = app_name
         if recipe["buildable"] is True:
 
-            if recipe["name"] == "download":
+            if recipe["name"] == "download" and "download" in prefs["RecipeTypes"]:
                 if sparkle_feed != "":
                     # Example: Cyberduck.download
                     recipe["keys"]["Input"][
@@ -794,7 +794,7 @@ def handle_app_input(input_path, recipes, args):
                     "Processor": "EndOfCheckPhase"
                 })
 
-            if recipe["name"] == "munki":
+            if recipe["name"] == "munki" and "munki" in prefs["RecipeTypes"]:
                 # Example: Transmit.munki
                 # TODO(Elliot): Review inline comments below and adjust.
                 recipe["keys"]["Input"]["MUNKI_REPO_SUBDIR"] = ""
@@ -807,7 +807,8 @@ def handle_app_input(input_path, recipes, args):
                     "name": app_name,
                     "unattended_install": True  # Always?
                 }
-                recipe["icon_path"] = icon_path  # Where does this go?
+                # Save the icon path for use later with sips command.
+                recipe["icon_path"] = icon_path
                 recipe["keys"]["Process"].append({
                     "Processor": "MunkiPkginfoMerger",
                 })
@@ -819,7 +820,7 @@ def handle_app_input(input_path, recipes, args):
                     }
                 })
 
-            if recipe["name"] == "pkg":
+            if recipe["name"] == "pkg" and "pkg" in prefs["RecipeTypes"]:
                 if bundle_id != "":
                     recipe["keys"]["Input"]["PKG_ID"] = bundle_id
                 recipe["keys"]["Process"].append({
@@ -880,27 +881,27 @@ def handle_app_input(input_path, recipes, args):
                     }
                 })
 
-            if recipe["name"] == "install":
+            if recipe["name"] == "install" and "install" in prefs["RecipeTypes"]:
                 pass
 
-            if recipe["name"] == "jss":
+            if recipe["name"] == "jss" and "jss" in prefs["RecipeTypes"]:
                 recipe["icon_path"] = icon_path
                 pass
 
-            if recipe["name"] == "absolute":
+            if recipe["name"] == "absolute" and "absolute" in prefs["RecipeTypes"]:
                 # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
-            if recipe["name"] == "sccm":
+            if recipe["name"] == "sccm" and "sccm" in prefs["RecipeTypes"]:
                 # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
-            if recipe["name"] == "ds":
+            if recipe["name"] == "ds" and "ds" in prefs["RecipeTypes"]:
                 # TODO(Elliot): What info do we need for this recipe type?
                 pass
 
 
-def handle_download_recipe_input(input_path, recipes, args):
+def handle_download_recipe_input(input_path, recipes, args, prefs):
     """Process a download recipe, gathering information useful for building
     other types of recipes.
     """
@@ -1057,7 +1058,7 @@ def handle_download_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_munki_recipe_input(input_path, recipes, args):
+def handle_munki_recipe_input(input_path, recipes, args, prefs):
     """Process a munki recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1117,7 +1118,7 @@ def handle_munki_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_pkg_recipe_input(input_path, recipes, args):
+def handle_pkg_recipe_input(input_path, recipes, args, prefs):
     """Process a pkg recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1167,7 +1168,7 @@ def handle_pkg_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_install_recipe_input(input_path, recipes, args):
+def handle_install_recipe_input(input_path, recipes, args, prefs):
     """Process an install recipe, gathering information useful for building
     other types of recipes.
     """
@@ -1218,7 +1219,7 @@ def handle_install_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_jss_recipe_input(input_path, recipes, args):
+def handle_jss_recipe_input(input_path, recipes, args, prefs):
     """Process a jss recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1269,7 +1270,7 @@ def handle_jss_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_absolute_recipe_input(input_path, recipes, args):
+def handle_absolute_recipe_input(input_path, recipes, args, prefs):
     """Process an absolute recipe, gathering information useful for building
     other types of recipes.
     """
@@ -1320,7 +1321,7 @@ def handle_absolute_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_sccm_recipe_input(input_path, recipes, args):
+def handle_sccm_recipe_input(input_path, recipes, args, prefs):
     """Process a sccm recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1371,7 +1372,7 @@ def handle_sccm_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_ds_recipe_input(input_path, recipes, args):
+def handle_ds_recipe_input(input_path, recipes, args, prefs):
     """Process a ds recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1650,23 +1651,23 @@ def main():
 
     # Orchestrate helper functions to handle input_path's "type".
     if input_type is InputType.app:
-        handle_app_input(input_path, recipes, args)
+        handle_app_input(input_path, recipes, args, prefs)
     elif input_type is InputType.download_recipe:
-        handle_download_recipe_input(input_path, recipes, args)
+        handle_download_recipe_input(input_path, recipes, args, prefs)
     elif input_type is InputType.munki_recipe:
-        handle_munki_recipe_input(input_path, recipes, args)
+        handle_munki_recipe_input(input_path, recipes, args, prefs)
     elif input_type is InputType.pkg_recipe:
-        handle_pkg_recipe_input(input_path, recipes, args)
+        handle_pkg_recipe_input(input_path, recipes, args, prefs)
     elif input_type is InputType.install_recipe:
-        handle_install_recipe_input(input_path, recipes, args)
+        handle_install_recipe_input(input_path, recipes, args, prefs)
     elif input_type is InputType.jss_recipe:
-        handle_jss_recipe_input(input_path, recipes, args)
+        handle_jss_recipe_input(input_path, recipes, args, prefs)
     elif input_type is InputType.absolute_recipe:
-        handle_absolute_recipe_input(input_path, recipes, args)
+        handle_absolute_recipe_input(input_path, recipes, args, prefs)
     elif input_type is InputType.sccm_recipe:
-        handle_sccm_recipe_input(input_path, recipes, args)
+        handle_sccm_recipe_input(input_path, recipes, args, prefs)
     elif input_type is InputType.ds_recipe:
-        handle_ds_recipe_input(input_path, recipes, args)
+        handle_ds_recipe_input(input_path, recipes, args, prefs)
     else:
         print("%s[ERROR] I haven't been trained on how to handle this input "
               "path:\n    %s%s" % (bcolors.ERROR, input_path, bcolors.ENDC))
