@@ -1549,7 +1549,8 @@ def create_dest_dirs(path):
 
 
 def extract_app_icon(icon_path, png_path):
-    """Convert the app's icns file to 128x128 png at the specified path."""
+    """Convert the app's icns file to 300x300 png at the specified path. 300x300 is Munki's preferred size, and 128x128 is Casper's preferred size, as of 2015-08-01.
+    """
 
     png_path = os.path.expanduser(png_path)
     create_dest_dirs(os.path.dirname(png_path))
@@ -1557,9 +1558,9 @@ def extract_app_icon(icon_path, png_path):
     # TODO(Elliot): Warning if a file already exists here.
 
     robo_print("debug", "Icon extraction command:")
-    robo_print("debug", "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 128" % (icon_path, png_path))
+    robo_print("debug", "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 300" % (icon_path, png_path))
 
-    cmd = "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 128" % (
+    cmd = "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 300" % (
         icon_path, png_path)
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
