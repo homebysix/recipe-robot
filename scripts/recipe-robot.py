@@ -1628,22 +1628,19 @@ def extract_app_icon(icon_path, png_path):
     """Convert the app's icns file to 300x300 png at the specified path. 300x300 is Munki's preferred size, and 128x128 is Casper's preferred size, as of 2015-08-01.
     """
 
-    png_path = os.path.expanduser(png_path)
-    create_dest_dirs(os.path.dirname(png_path))
+    png_path_absolute = os.path.expanduser(png_path)
+    create_dest_dirs(os.path.dirname(png_path_absolute))
 
-    # TODO(Elliot): Warning if a file already exists here.
-
-    robo_print("debug", "Icon extraction command:")
-    robo_print("debug", "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 300" %
-               (icon_path, png_path))
-
-    cmd = "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 300" % (
-        icon_path, png_path)
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if exitcode == 0:
-        robo_print("log", "    %s" % png_path)
-    else:
-        robo_print("error", err)
+    if not os.path.exists(png_path_absolute):
+        cmd = "sips -s format png \"%s.icns\" --out \"%s\" --resampleHeightWidthMax 300" % (
+            icon_path, png_path_absolute)
+        robo_print("debug", "Icon extraction command:")
+        robo_print("debug", cmd)
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            robo_print("log", "    %s" % png_path)
+        else:
+            robo_print("error", err)
 
 
 def write_recipe_file(filename, prefs, keys):
