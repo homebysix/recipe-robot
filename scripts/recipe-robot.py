@@ -57,7 +57,8 @@ import sys
 
 # Global variables.
 version = '0.0.1'
-debug_mode = True  # set to True for additional output
+verbose_mode = False  # set to True for additional user-facing output
+debug_mode = False  # set to True to output everything all the time
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
@@ -329,6 +330,11 @@ def robo_print(output_type, message):
         print >> sys.stderr, bcolors.WARNING, "[WARNING]", message, bcolors.ENDC
     elif output_type == "debug" and debug_mode is True:
         print bcolors.DEBUG, "[DEBUG]", message, bcolors.ENDC
+    elif output_type == "verbose":
+        if verbose_mode is True or debug_mode is True:
+            print message
+        else:
+            pass
     else:
         print message
 
@@ -461,6 +467,7 @@ def init_prefs(prefs, recipes, args):
     """Read from preferences plist, if it exists."""
 
     prefs = {}
+    global verbose_mode
 
     # If prefs file exists, try to read from it.
     if os.path.isfile(prefs_file):
@@ -483,6 +490,10 @@ def init_prefs(prefs, recipes, args):
             if args.config is True:
                 robo_print("log", "Showing configuration options...")
                 prefs = build_prefs(prefs, recipes)
+
+            if args.verbose is True:
+                robo_print("verbose", "Verbose mode is on.")
+                verbose_mode = True
 
         except Exception:
             print("There was a problem opening the prefs file. "
@@ -716,7 +727,7 @@ def handle_app_input(input_path, recipes, args):
     # any sort of AutoPkg recipe. Then populate those variables with the info.
 
     app_name = ""
-    robo_print("log", "Validating app...")
+    robo_print("verbose", "Validating app...")
     try:
         info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
     except Exception:
@@ -726,23 +737,23 @@ def handle_app_input(input_path, recipes, args):
         else:
             sys.exit(1)
     if app_name == "":  # Will always be true at this point.
-        robo_print("log", "Determining app's name from CFBundleName...")
+        robo_print("verbose", "Determining app's name from CFBundleName...")
         try:
             app_name = info_plist["CFBundleName"]
         except KeyError:
             robo_print(
                 "warning", "This app doesn't have a CFBundleName. That's OK, we'll keep trying.")
     if app_name == "":
-        robo_print("log", "Determining app's name from CFBundleExecutable...")
+        robo_print("verbose", "Determining app's name from CFBundleExecutable...")
         try:
             app_name = info_plist["CFBundleExecutable"]
         except KeyError:
             robo_print(
                 "warning", "This app doesn't have a CFBundleExecutable. The plot thickens.")
     if app_name == "":
-        robo_print("log", "Determining app's name from input path...")
+        robo_print("verbose", "Determining app's name from input path...")
         app_name = os.path.basename(input_path)[:-4]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     if args.include_existing is not True:
@@ -756,7 +767,7 @@ def handle_app_input(input_path, recipes, args):
     github_repo = ""
     sourceforge_id = ""
     download_format = ""
-    robo_print("log", "Checking for a Sparkle feed in SUFeedURL...")
+    robo_print("verbose", "Checking for a Sparkle feed in SUFeedURL...")
     try:
         sparkle_feed = info_plist["SUFeedURL"]
         download_format = get_sparkle_download_format(sparkle_feed)
@@ -774,7 +785,7 @@ def handle_app_input(input_path, recipes, args):
     if sparkle_feed == "":
         robo_print("warning", "No Sparkle feed.")
     else:
-        robo_print("log", "    Sparkle feed is: %s" % sparkle_feed)
+        robo_print("verbose", "    Sparkle feed is: %s" % sparkle_feed)
     if sparkle_feed == "":
         # TODO(Elliot): search_sourceforge_and_github(app_name)
         # if github release
@@ -785,37 +796,37 @@ def handle_app_input(input_path, recipes, args):
         pass
 
     min_sys_vers = ""
-    robo_print("log", "Checking for minimum OS version requirements...")
+    robo_print("verbose", "Checking for minimum OS version requirements...")
     try:
         min_sys_vers = info_plist["LSMinimumSystemVersion"]
-        robo_print("log", "    Minimum OS version: %s" % min_sys_vers)
+        robo_print("verbose", "    Minimum OS version: %s" % min_sys_vers)
     except Exception:
         robo_print("warning", "No LSMinimumSystemVersion found.")
 
     icon_path = ""
-    robo_print("log", "Looking for app icon...")
+    robo_print("verbose", "Looking for app icon...")
     try:
         icon_path = "%s/Contents/Resources/%s" % (
             input_path, info_plist["CFBundleIconFile"])
-        robo_print("log", "    Icon found: %s" % icon_path)
+        robo_print("verbose", "    Icon found: %s" % icon_path)
     except Exception:
         robo_print(
             "warning", "No CFBundleIconFile found in this app's Info.plist.")
 
     bundle_id = ""
-    robo_print("log", "Getting bundle identifier...")
+    robo_print("verbose", "Getting bundle identifier...")
     try:
         bundle_id = info_plist["CFBundleIdentifier"]
-        robo_print("log", "    Bundle ID: %s" % bundle_id)
+        robo_print("verbose", "    Bundle ID: %s" % bundle_id)
     except Exception:
         robo_print(
             "warning", "No CFBundleIdentifier found in this app's Info.plist.")
 
     description = ""
-    robo_print("log", "Getting app description from MacUpdate...")
+    robo_print("verbose", "Getting app description from MacUpdate...")
     try:
         description = get_app_description(app_name)
-        robo_print("log", "    Description: %s" % description)
+        robo_print("verbose", "    Description: %s" % description)
     except Exception:
         pass
     if description == "":
@@ -983,9 +994,9 @@ def handle_download_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    robo_print("log", "Determining app's name from NAME input key...")
+    robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -996,13 +1007,13 @@ def handle_download_recipe_input(input_path, recipes, args):
 
     # Get the download file format.
     # TODO(Elliot): Parse the recipe properly. Don't use grep.
-    robo_print("log", "Determining download format...")
+    robo_print("verbose", "Determining download format...")
     parsed_download_format = ""
     for download_format in supported_download_formats:
         cmd = "grep '.%s</string>' '%s'" % (download_format, input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            robo_print("log", "    Download format: %s." % download_format)
+            robo_print("verbose", "    Download format: %s." % download_format)
             parsed_download_format = download_format
             break
 
@@ -1143,9 +1154,9 @@ def handle_munki_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    robo_print("log", "Determining app's name from NAME input key...")
+    robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1200,9 +1211,9 @@ def handle_pkg_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    robo_print("log", "Determining app's name from NAME input key...")
+    robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1250,9 +1261,9 @@ def handle_install_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    robo_print("log", "Determining app's name from NAME input key...")
+    robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1301,9 +1312,9 @@ def handle_jss_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    robo_print("log", "Determining app's name from NAME input key...")
+    robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1352,9 +1363,9 @@ def handle_absolute_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    robo_print("log", "Determining app's name from NAME input key...")
+    robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1403,9 +1414,9 @@ def handle_sccm_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    robo_print("log", "Determining app's name from NAME input key...")
+    robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1454,9 +1465,9 @@ def handle_ds_recipe_input(input_path, recipes, args):
     # Read the recipe as a plist.
     input_recipe = plistlib.readPlist(input_path)
 
-    robo_print("log", "Determining app's name from NAME input key...")
+    robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
-    robo_print("log", "    App name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
 
     # Search for existing recipes that match the app's name.
     create_existing_recipe_list(app_name, recipes)
@@ -1661,7 +1672,7 @@ def generate_selected_recipes(prefs, recipes):
             filename = "%s.%s.recipe" % (
                 recipe["keys"]["Input"]["NAME"], recipe["name"])
             write_recipe_file(filename, prefs, recipe["keys"])
-            robo_print("log", "    %s/%s" %
+            robo_print("verbose", "    %s/%s" %
                        (prefs["RecipeCreateLocation"], filename))
 
 
@@ -1698,7 +1709,7 @@ def extract_app_icon(icon_path, png_path):
         robo_print("debug", cmd)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            robo_print("log", "    %s" % png_path)
+            robo_print("verbose", "    %s" % png_path)
         else:
             robo_print("error", err)
 
