@@ -144,15 +144,13 @@ class MunkiRecipe(Recipe):
             "unattended_install": True
         }
         self["Process"].append({
-            "Processor": "MunkiPkginfoMerger",
-            "Arguments": {
-                # TODO(Elliot): Add necessary arguments for this processor.
-            }
+            "Processor": "MunkiPkginfoMerger"
         })
         self["Process"].append({
             "Processor": "MunkiImporter",
             "Arguments": {
-                # TODO(Elliot): Add necessary arguments for this processor.
+                "pkg_path": "%pathname%",
+                "repo_subdirectory": "%MUNKI_REPO_SUBDIR%"
             }
         })
 
