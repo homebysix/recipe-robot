@@ -737,7 +737,7 @@ def handle_app_input(input_path, recipes, args):
     robo_print("log", "Checking for a Sparkle feed in SUFeeduRL...")
     try:
         sparkle_feed = info_plist["SUFeedURL"]
-        # TODO(Elliot): Find out what format the Sparkle feed downloads in.
+        download_format = get_sparkle_download_format(sparkle_feed)
     except Exception:
         robo_print("warning", "No SUFeedURL found in this app's Info.plist.")
     if sparkle_feed == "":
@@ -845,9 +845,9 @@ def handle_app_input(input_path, recipes, args):
                 })
 
             if recipe["name"] == "munki":
-                # Example: Transmit.munki
+                # Example: Firefox.munki
                 # TODO(Elliot): Review inline comments below and adjust.
-                recipe["keys"]["Input"]["MUNKI_REPO_SUBDIR"] = ""
+                recipe["keys"]["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%s" % app_name
                 recipe["keys"]["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
                     # TODO(Elliot): Bug is setting description to None.
@@ -863,7 +863,8 @@ def handle_app_input(input_path, recipes, args):
                 recipe["keys"]["Process"].append({
                     "Processor": "MunkiImporter",
                     "Arguments": {
-                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%." + download_format,
+                        # TODO(Elliot): Bug is setting download_format to None.
+                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%." + str(download_format),
                         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%"
                     }
                 })
@@ -1568,6 +1569,8 @@ def generate_selected_recipes(prefs, recipes):
 
                 recipe["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipe[
                     "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
                 if recipe["icon_path"] != "":
                     png_path = "%s/%s.png" % (
@@ -1585,11 +1588,15 @@ def generate_selected_recipes(prefs, recipes):
 
                 recipe["keys"]["Description"] = "Installs the latest version of %s." % recipe[
                     "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
             elif recipe["name"] == "jss":
 
                 recipe["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipe[
                     "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
                 if recipe["icon_path"] != "":
                     png_path = "%s/%s.png" % (
@@ -1600,16 +1607,23 @@ def generate_selected_recipes(prefs, recipes):
 
                 recipe["keys"]["Description"] = "Imports the latest version of %s into Absolute Manage." % recipe[
                     "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
             elif recipe["name"] == "sccm":
 
                 recipe["keys"]["Description"] = "Downloads the latest version of %s and creates a cmmac package for deploying via Microsoft SCCM." % recipe[
                     "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
             elif recipe["name"] == "ds":
 
                 recipe["keys"]["Description"] = "Imports the latest version of %s into DeployStudio." % recipe[
                     "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
+
             else:
                 robo_print(
                     "error", "I don't know how to generate a recipe of type %s." % recipe["name"])
