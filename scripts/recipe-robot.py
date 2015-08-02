@@ -956,8 +956,11 @@ def handle_app_input(input_path, recipes, args):
 
             if recipe["name"] == "jss":
                 recipe["icon_path"] = icon_path
+                recipe["keys"]["Input"]["prod_name"] = app_name
+                if icon_path != "":
+                    recipe["keys"]["Input"]["self_service_icon"] = app_name + ".png"
                 recipe["keys"]["Input"]["self_service_description"] = description
-                pass
+                recipe["keys"]["Input"]["GROUP_NAME"] = app_name + "-update-smart"
 
             if recipe["name"] == "absolute":
                 # TODO(Elliot): What info do we need for this recipe type?
@@ -1618,6 +1621,11 @@ def generate_selected_recipes(prefs, recipes):
                     "keys"]["Input"]["NAME"]
                 recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
                     "keys"]["Input"]["NAME"])
+                recipe["keys"]["Input"]["category"] = "None"
+                recipe["keys"]["Input"]["policy_category"] = "Testing"
+                recipe["keys"]["Input"]["policy_template"] = "PolicyTemplate.xml"
+                recipe["keys"]["Input"]["groups"] = []
+                recipe["keys"]["Input"]["GROUP_TEMPLATE"] = "SmartGroupTemplate.xml"
 
                 if recipe["icon_path"] != "":
                     png_path = "%s/%s.png" % (
