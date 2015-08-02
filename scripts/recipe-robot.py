@@ -483,6 +483,10 @@ def init_prefs(prefs, recipes, args):
                 robo_print(
                     "warning", "Will offer to build recipes even if they already exist on GitHub. Please don't upload duplicate recipes.")
 
+            if args.config is True:
+                robo_print("log", "Showing configuration options...")
+                prefs = build_prefs(prefs, recipes)
+
         except Exception:
             print("There was a problem opening the prefs file. "
                   "Building new preferences.")
