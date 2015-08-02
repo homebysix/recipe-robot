@@ -756,7 +756,7 @@ def handle_app_input(input_path, recipes, args):
     github_repo = ""
     sourceforge_id = ""
     download_format = ""
-    robo_print("log", "Checking for a Sparkle feed in SUFeeduRL...")
+    robo_print("log", "Checking for a Sparkle feed in SUFeedURL...")
     try:
         sparkle_feed = info_plist["SUFeedURL"]
         download_format = get_sparkle_download_format(sparkle_feed)
