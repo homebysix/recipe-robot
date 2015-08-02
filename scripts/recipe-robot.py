@@ -563,7 +563,7 @@ def build_prefs(prefs, recipes):
         robo_print("log", "      S. Save changes and proceed.")
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
-            "type between ON [*] and OFF [ ]. When you're satisfied "
+            "type between ON [*] and OFF [ ].\nWhen you're satisfied "
             "with your choices, type an \"S\" to save and proceed: ")
         if choice.upper() == "S":
             break
@@ -1553,7 +1553,7 @@ def select_recipes_to_generate(recipes):
         robo_print("log", "      S. Save changes and proceed.")
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
-            "type between ON [*] and OFF [ ]. When you're satisfied "
+            "type between ON [*] and OFF [ ].\nWhen you're satisfied "
             "with your choices, type an \"S\" to save and proceed: ")
         robo_print("log", "")
         if choice.upper() == "S":
