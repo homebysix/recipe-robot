@@ -66,9 +66,6 @@ prefs_file = os.path.expanduser(
 # it in order to tell the recipes which Processors to use.
 supported_download_formats = ("dmg", "zip", "tar.gz", "gzip", "pkg")
 
-# TODO(Elliot): Send bcolors.ENDC upon exception or keyboard interrupt.
-# Otherwise people's terminal windows might get stuck in purple mode!
-
 
 class bcolors:
 
@@ -1652,71 +1649,79 @@ def congratulate(prefs):
 def main():
     """Make the magic happen."""
 
-    print_welcome_text()
+    try:
+        print_welcome_text()
 
-    argparser = build_argument_parser()
-    args = argparser.parse_args()
+        argparser = build_argument_parser()
+        args = argparser.parse_args()
 
-    # Temporary argument handling
-    input_path = args.input_path
-    input_path = input_path.rstrip("/ ")
+        # Temporary argument handling
+        input_path = args.input_path
+        input_path = input_path.rstrip("/ ")
 
-    # TODO(Elliot): Verify that the input path actually exists.
-    if not os.path.exists(input_path):
-        robo_print(
-            "error", "Input path does not exist. Please try again with a valid input path.")
-        sys.exit(1)
+        # TODO(Elliot): Verify that the input path actually exists.
+        if not os.path.exists(input_path):
+            robo_print(
+                "error", "Input path does not exist. Please try again with a valid input path.")
+            sys.exit(1)
 
-    # Create the master recipe information list.
-    recipes = init_recipes()
+        # Create the master recipe information list.
+        recipes = init_recipes()
 
-    # Read or create the user preferences.
-    prefs = {}
-    prefs = init_prefs(prefs, recipes, args)
+        # Read or create the user preferences.
+        prefs = {}
+        prefs = init_prefs(prefs, recipes, args)
 
-    input_type = get_input_type(input_path)
-    robo_print("log", "\nProcessing %s ..." % input_path)
+        input_type = get_input_type(input_path)
+        robo_print("log", "\nProcessing %s ..." % input_path)
 
-    # Orchestrate helper functions to handle input_path's "type".
-    if input_type is InputType.app:
-        handle_app_input(input_path, recipes, args)
-    elif input_type is InputType.download_recipe:
-        handle_download_recipe_input(input_path, recipes, args)
-    elif input_type is InputType.munki_recipe:
-        handle_munki_recipe_input(input_path, recipes, args)
-    elif input_type is InputType.pkg_recipe:
-        handle_pkg_recipe_input(input_path, recipes, args)
-    elif input_type is InputType.install_recipe:
-        handle_install_recipe_input(input_path, recipes, args)
-    elif input_type is InputType.jss_recipe:
-        handle_jss_recipe_input(input_path, recipes, args)
-    elif input_type is InputType.absolute_recipe:
-        handle_absolute_recipe_input(input_path, recipes, args)
-    elif input_type is InputType.sccm_recipe:
-        handle_sccm_recipe_input(input_path, recipes, args)
-    elif input_type is InputType.ds_recipe:
-        handle_ds_recipe_input(input_path, recipes, args)
-    else:
-        print("%s[ERROR] I haven't been trained on how to handle this input "
-              "path:\n    %s%s" % (bcolors.ERROR, input_path, bcolors.ENDC))
-        sys.exit(1)
+        # Orchestrate helper functions to handle input_path's "type".
+        if input_type is InputType.app:
+            handle_app_input(input_path, recipes, args)
+        elif input_type is InputType.download_recipe:
+            handle_download_recipe_input(input_path, recipes, args)
+        elif input_type is InputType.munki_recipe:
+            handle_munki_recipe_input(input_path, recipes, args)
+        elif input_type is InputType.pkg_recipe:
+            handle_pkg_recipe_input(input_path, recipes, args)
+        elif input_type is InputType.install_recipe:
+            handle_install_recipe_input(input_path, recipes, args)
+        elif input_type is InputType.jss_recipe:
+            handle_jss_recipe_input(input_path, recipes, args)
+        elif input_type is InputType.absolute_recipe:
+            handle_absolute_recipe_input(input_path, recipes, args)
+        elif input_type is InputType.sccm_recipe:
+            handle_sccm_recipe_input(input_path, recipes, args)
+        elif input_type is InputType.ds_recipe:
+            handle_ds_recipe_input(input_path, recipes, args)
+        else:
+            print("%s[ERROR] I haven't been trained on how to handle this input "
+                  "path:\n    %s%s" % (bcolors.ERROR, input_path, bcolors.ENDC))
+            sys.exit(1)
 
-    if debug_mode is True:
-        robo_print("debug", "ARGUMENT LIST:\n" + pprint.pformat(args) + "\n")
-        robo_print("debug", "SUPPORTED DOWNLOAD FORMATS:\n" +
-                   pprint.pformat(supported_download_formats) + "\n")
-        robo_print("debug", "PREFERENCES:\n" + pprint.pformat(prefs) + "\n")
-        robo_print(
-            "debug", "CURRENT RECIPE INFORMATION:\n" + pprint.pformat(recipes) + "\n")
+        if debug_mode is True:
+            robo_print(
+                "debug", "ARGUMENT LIST:\n" + pprint.pformat(args) + "\n")
+            robo_print("debug", "SUPPORTED DOWNLOAD FORMATS:\n" +
+                       pprint.pformat(supported_download_formats) + "\n")
+            robo_print(
+                "debug", "PREFERENCES:\n" + pprint.pformat(prefs) + "\n")
+            robo_print(
+                "debug", "CURRENT RECIPE INFORMATION:\n" + pprint.pformat(recipes) + "\n")
 
-    # Prompt the user with the available recipes types and let them choose.
-    select_recipes_to_generate(recipes)
+        # Prompt the user with the available recipes types and let them choose.
+        select_recipes_to_generate(recipes)
 
-    # Create recipes for the recipe types that were selected above.
-    generate_selected_recipes(prefs, recipes)
+        # Create recipes for the recipe types that were selected above.
+        generate_selected_recipes(prefs, recipes)
 
-    # Pat on the back!
-    congratulate(prefs)
+        # Pat on the back!
+        congratulate(prefs)
+
+    # Make sure to reset the terminal color with our dying breath.
+    except (KeyboardInterrupt, SystemExit):
+        print bcolors.ENDC
+        print "Thanks for using Recipe Robot!"
 
 
 if __name__ == '__main__':
