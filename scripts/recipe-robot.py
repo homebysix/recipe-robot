@@ -327,11 +327,11 @@ def robo_print(output_type, message):
     """
 
     if output_type == "error":
-        print >> sys.stderr, bcolors.ERROR, "   [ERROR]", message, bcolors.ENDC
+        print >> sys.stderr, bcolors.ERROR, "[ERROR]", message, bcolors.ENDC
     elif output_type == "warning":
-        print >> sys.stderr, bcolors.WARNING, "   [WARNING]", message, bcolors.ENDC
+        print >> sys.stderr, bcolors.WARNING, "[WARNING]", message, bcolors.ENDC
     elif output_type == "debug" and debug_mode is True:
-        print bcolors.DEBUG, "   [DEBUG]", message, bcolors.ENDC
+        print bcolors.DEBUG, "[DEBUG]", message, bcolors.ENDC
     else:
         print message
 
