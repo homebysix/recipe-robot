@@ -52,10 +52,10 @@ __munki__
         - display_name (string)
         - name (string)
         - unattended_install (bool)
-    - Process -> MunkiPkginfoMerger processor
     - Process -> MunkiImporter processor
 
 - Optional or conditional:
+- Process -> MunkiPkginfoMerger processor, if there is additional pkginfo
     - Process -> DmgCreator processor, if parent recipe produces a zip
     - Copy process to get the icon file into the repo?
     - Path to icon in pkginfo?
@@ -177,4 +177,3 @@ Here's what we're thinking about for the app interface, for now:
     The proper recipe identifier and ParentRecipe chain are automatically added.
 
     ![app04.png](images/app04.png)
-
