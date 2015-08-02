@@ -144,9 +144,6 @@ class MunkiRecipe(Recipe):
             "unattended_install": True
         }
         self["Process"].append({
-            "Processor": "MunkiPkginfoMerger"
-        })
-        self["Process"].append({
             "Processor": "MunkiImporter",
             "Arguments": {
                 "pkg_path": "%pathname%",
@@ -509,9 +506,6 @@ def init_prefs(prefs, recipes, args):
 def build_prefs(prefs, recipes):
     """Prompt user for preferences, then save them back to the plist."""
 
-    # TODO(Elliot): Make this something users can come back to and modify,
-    # rather than just a first-run thing.
-
     # Start recipe count at zero.
     prefs["RecipeCreateCount"] = 0
 
@@ -845,9 +839,6 @@ def handle_app_input(input_path, recipes, args):
                 }
                 # Save the icon path for use later with sips command.
                 recipe["icon_path"] = icon_path
-                recipe["keys"]["Process"].append({
-                    "Processor": "MunkiPkginfoMerger",
-                })
                 recipe["keys"]["Process"].append({
                     "Processor": "MunkiImporter",
                     "Arguments": {
