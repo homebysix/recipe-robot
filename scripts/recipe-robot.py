@@ -397,6 +397,15 @@ def print_welcome_text():
     robo_print("log", welcome_text)
 
 
+def verify_input(input_path):
+    """Before processing anything, verify that our input path exists."""
+
+    if not os.path.exists(input_path):
+        robo_print(
+            "error", "Input path does not exist. Please try again with a valid input path.")
+        sys.exit(1)
+
+
 def init_recipes():
     """Store information related to each supported AutoPkg recipe type."""
 
@@ -1658,12 +1667,7 @@ def main():
         # Temporary argument handling
         input_path = args.input_path
         input_path = input_path.rstrip("/ ")
-
-        # TODO(Elliot): Verify that the input path actually exists.
-        if not os.path.exists(input_path):
-            robo_print(
-                "error", "Input path does not exist. Please try again with a valid input path.")
-            sys.exit(1)
+        verify_input(input_path)
 
         # Create the master recipe information list.
         recipes = init_recipes()
@@ -1695,8 +1699,8 @@ def main():
         elif input_type is InputType.ds_recipe:
             handle_ds_recipe_input(input_path, recipes, args)
         else:
-            print("%s[ERROR] I haven't been trained on how to handle this input "
-                  "path:\n    %s%s" % (bcolors.ERROR, input_path, bcolors.ENDC))
+            robo_print("error", "I haven't been trained on how to handle "
+                       "this input path:\n    %s" % input_path)
             sys.exit(1)
 
         if debug_mode is True:
