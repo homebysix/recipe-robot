@@ -634,12 +634,34 @@ def get_input_type(input_path):
 def get_app_description(app_name):
     """Use an app's name to generate a description from MacUpdate.com."""
 
-    cmd = "curl -s http://www.macupdate.com/find/mac/" + app_name + " | awk -F '<|>' '/-shortdescrip/{print $3}' | head -1"
+    # TODO(Elliot): Consider this vs macupdate_scraper.py. Pick the best.
+
+    # Start with an empty string. (If it remains empty, the parent function
+    # will know that no description was available.)
+    description = ""
+
+    # This is the HTML immediately preceding the description text on the
+    # MacUpdate search results page.
+    description_marker = "-shortdescrip\">"
+
+    cmd = "curl -s \"http://www.macupdate.com/find/mac/\"" + app_name
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+
+    # For each line in the resulting text, look for the description marker.
+    html = out.split("\n")
     if exitcode == 0:
-        return out
+        for line in html:
+            if description_marker in line:
+                # Trim the HTML from the beginning of the line.
+                start = line.find(description_marker) + len(description_marker)
+                # Trim the HTML from the end of the line.
+                description = line[start:].rstrip("</span>")
+                # If we found a description, no need to process further lines.
+                break
     else:
         robo_print("warning", err)
+
+    return description
 
 
 def create_existing_recipe_list(app_name, recipes):
@@ -850,8 +872,7 @@ def handle_app_input(input_path, recipes, args):
                 recipe["keys"]["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%s" % app_name
                 recipe["keys"]["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
-                    # TODO(Elliot): Bug is setting description to None.
-                    "description": str(description),
+                    "description": description,
                     "display_name": app_name,
                     "icon_name": "%s.png" % app_name,
                     "minimum_os_version": min_sys_vers,
@@ -935,7 +956,7 @@ def handle_app_input(input_path, recipes, args):
 
             if recipe["name"] == "jss":
                 recipe["icon_path"] = icon_path
-                # description
+                recipe["keys"]["Input"]["self_service_description"] = description
                 pass
 
             if recipe["name"] == "absolute":
