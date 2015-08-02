@@ -631,6 +631,17 @@ def get_input_type(input_path):
         return InputType.ds_recipe
 
 
+def get_app_description(app_name):
+    """Use an app's name to generate a description from MacUpdate.com."""
+
+    cmd = "curl -s http://www.macupdate.com/find/mac/" + app_name + " | awk -F '<|>' '/-shortdescrip/{print $3}' | head -1"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        return out
+    else:
+        robo_print("warning", err)
+
+
 def create_existing_recipe_list(app_name, recipes):
     """Use autopkg search results to build existing recipe list."""
 
@@ -778,9 +789,18 @@ def handle_app_input(input_path, recipes, args):
         robo_print(
             "warning", "No CFBundleIdentifier found in this app's Info.plist.")
 
+    description = ""
+    robo_print("log", "Getting app description from MacUpdate...")
+    try:
+        description = get_app_description(app_name)
+        robo_print("log", "    Description: %s" % description)
+    except Exception:
+        pass
+    if description == "":
+        robo_print("warning", "Could not get app description.")
+
     # TODO(Elliot): Collect other information as required to build recipes.
     #    - Use bundle identifier to locate related helper apps on disk?
-    #    - Scrape app description from MacUpdate or similar site?
     #    - App category... maybe prompt for that if JSS recipe is selected.
     #    - Does the CFBundleShortVersionString provide a usable version number,
     #      or do we need to use CFBundleVersionString instead? (Will be
@@ -830,7 +850,8 @@ def handle_app_input(input_path, recipes, args):
                 recipe["keys"]["Input"]["MUNKI_REPO_SUBDIR"] = ""
                 recipe["keys"]["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
-                    "description": "",  # Scrape MacUpdate?
+                    # TODO(Elliot): Bug is setting description to None.
+                    "description": str(description),
                     "display_name": app_name,
                     "icon_name": "%s.png" % app_name,
                     "minimum_os_version": min_sys_vers,
@@ -913,6 +934,7 @@ def handle_app_input(input_path, recipes, args):
 
             if recipe["name"] == "jss":
                 recipe["icon_path"] = icon_path
+                # description
                 pass
 
             if recipe["name"] == "absolute":
