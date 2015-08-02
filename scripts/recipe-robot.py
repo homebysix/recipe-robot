@@ -851,7 +851,7 @@ def handle_app_input(input_path, recipes, args):
                 recipe["keys"]["Process"].append({
                     "Processor": "MunkiImporter",
                     "Arguments": {
-                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%.%s" % download_format,
+                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%." + download_format,
                         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%"
                     }
                 })
