@@ -1658,8 +1658,12 @@ def extract_app_icon(icon_path, png_path):
     png_path_absolute = os.path.expanduser(png_path)
     create_dest_dirs(os.path.dirname(png_path_absolute))
 
+    # Add .icns if the icon path doesn't already end with .icns.
+    if not icon_path.endswith(".icns"):
+        icon_path = icon_path + ".icns"
+
     if not os.path.exists(png_path_absolute):
-        cmd = "sips -s format png \"%s.icns\" --out \"%s\" --resampleHeightWidthMax 300" % (
+        cmd = "sips -s format png \"%s\" --out \"%s\" --resampleHeightWidthMax 300" % (
             icon_path, png_path_absolute)
         robo_print("debug", "Icon extraction command:")
         robo_print("debug", cmd)
