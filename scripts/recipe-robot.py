@@ -552,12 +552,24 @@ def build_prefs(prefs, recipes):
             robo_print("log", "  [%s] %s. %s - %s" %
                        (indicator, i, recipe["name"], recipe["description"]))
             i += 1
+        robo_print("log", "      A. Enable all recipe types.")
+        robo_print("log", "      D. Disable all recipe types.")
+        robo_print("log", "      Q. Quit without saving changes.")
+        robo_print("log", "      S. Save changes and proceed.")
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ]. When you're satisfied "
             "with your choices, type an \"S\" to save and proceed: ")
         if choice.upper() == "S":
             break
+        elif choice.upper() == "A":
+            for recipe in recipes:
+                recipe["preferred"] = True
+        elif choice.upper() == "D":
+            for recipe in recipes:
+                recipe["preferred"] = False
+        elif choice.upper() == "Q":
+            sys.exit(0)
         else:
             try:
                 if recipes[int(choice)]["preferred"] is False:
@@ -1486,6 +1498,10 @@ def select_recipes_to_generate(recipes):
                 robo_print(
                     "log", "  [%s] %s. %s - %s" % (indicator, i, recipe["name"], recipe["description"]))
             i += 1
+        robo_print("log", "      A. Enable all recipe types.")
+        robo_print("log", "      D. Disable all recipe types.")
+        robo_print("log", "      Q. Quit without saving changes.")
+        robo_print("log", "      S. Save changes and proceed.")
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ]. When you're satisfied "
@@ -1493,6 +1509,14 @@ def select_recipes_to_generate(recipes):
         robo_print("log", "")
         if choice.upper() == "S":
             break
+        elif choice.upper() == "A":
+            for recipe in recipes:
+                recipe["selected"] = True
+        elif choice.upper() == "D":
+            for recipe in recipes:
+                recipe["selected"] = False
+        elif choice.upper() == "Q":
+            sys.exit(0)
         else:
             try:
                 if recipes[int(choice)]["selected"] is False:
