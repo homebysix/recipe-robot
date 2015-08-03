@@ -720,7 +720,7 @@ def create_buildable_recipe_list(app_name, recipes, args):
 # the way to do this, but it's going to be a complex one. But I think
 # recusion will cut down on duplicate logic.
 
-def handle_app_input(input_path, recipes, args):
+def handle_app_input(input_path, recipes, args, prefs):
     """Process an app, gathering required information to create a recipe."""
 
     # Create variables for every piece of information we might need to create
@@ -744,7 +744,8 @@ def handle_app_input(input_path, recipes, args):
             robo_print(
                 "warning", "This app doesn't have a CFBundleName. That's OK, we'll keep trying.")
     if app_name == "":
-        robo_print("verbose", "Determining app's name from CFBundleExecutable...")
+        robo_print(
+            "verbose", "Determining app's name from CFBundleExecutable...")
         try:
             app_name = info_plist["CFBundleExecutable"]
         except KeyError:
@@ -842,9 +843,16 @@ def handle_app_input(input_path, recipes, args):
     # Send the information we discovered to the recipe keys.
     for recipe in recipes:
         recipe["keys"]["Input"]["NAME"] = app_name
+
+        # Set the identifier of the recipe.
+        recipe["keys"]["Identifier"] = "%s.%s.%s" % (
+            prefs["RecipeIdentifierPrefix"], recipe["name"], app_name)
+
         if recipe["buildable"] is True:
 
             if recipe["name"] == "download":
+                recipe["keys"]["Description"] = "Downloads the latest version of %s." % recipe[
+                    "keys"]["Input"]["NAME"]
                 if sparkle_feed != "":
                     # Example: Cyberduck.download
                     recipe["keys"]["Input"][
@@ -879,8 +887,17 @@ def handle_app_input(input_path, recipes, args):
 
             if recipe["name"] == "munki":
                 # Example: Firefox.munki
+                recipe["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipe[
+                    "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
+                if icon_path != "":
+                    png_path = "%s/%s.png" % (
+                        prefs["RecipeCreateLocation"], app_name)
+                    extract_app_icon(recipe["icon_path"], png_path)
                 # TODO(Elliot): Review inline comments below and adjust.
-                recipe["keys"]["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%s" % app_name
+                recipe["keys"]["Input"][
+                    "MUNKI_REPO_SUBDIR"] = "apps/%s" % app_name
                 recipe["keys"]["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
                     "description": description,
@@ -890,8 +907,6 @@ def handle_app_input(input_path, recipes, args):
                     "name": app_name,
                     "unattended_install": True  # Always?
                 }
-                # Save the icon path for use later with sips command.
-                recipe["icon_path"] = icon_path
                 recipe["keys"]["Process"].append({
                     "Processor": "MunkiImporter",
                     "Arguments": {
@@ -902,6 +917,10 @@ def handle_app_input(input_path, recipes, args):
                 })
 
             if recipe["name"] == "pkg":
+                recipe["keys"]["Description"] = "Downloads the latest version of %s and creates an installer package." % recipe[
+                    "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
                 if bundle_id != "":
                     recipe["keys"]["Input"]["PKG_ID"] = bundle_id
                 recipe["keys"]["Process"].append({
@@ -963,30 +982,56 @@ def handle_app_input(input_path, recipes, args):
                 })
 
             if recipe["name"] == "install":
-                pass
+                recipe["keys"]["Description"] = "Installs the latest version of %s." % recipe[
+                    "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
             if recipe["name"] == "jss":
-                recipe["icon_path"] = icon_path
+                recipe["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipe[
+                    "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
+                recipe["keys"]["Input"]["category"] = "None"
+                recipe["keys"]["Input"]["policy_category"] = "Testing"
+                recipe["keys"]["Input"][
+                    "policy_template"] = "PolicyTemplate.xml"
+                recipe["keys"]["Input"]["groups"] = []
+                recipe["keys"]["Input"][
+                    "GROUP_TEMPLATE"] = "SmartGroupTemplate.xml"
+                if icon_path != "":
+                    png_path = "%s/%s.png" % (
+                        prefs["RecipeCreateLocation"], app_name)
+                    extract_app_icon(recipe["icon_path"], png_path)
                 recipe["keys"]["Input"]["prod_name"] = app_name
                 if icon_path != "":
-                    recipe["keys"]["Input"]["self_service_icon"] = app_name + ".png"
-                recipe["keys"]["Input"]["self_service_description"] = description
-                recipe["keys"]["Input"]["GROUP_NAME"] = app_name + "-update-smart"
+                    recipe["keys"]["Input"][
+                        "self_service_icon"] = app_name + ".png"
+                recipe["keys"]["Input"][
+                    "self_service_description"] = description
+                recipe["keys"]["Input"][
+                    "GROUP_NAME"] = app_name + "-update-smart"
 
             if recipe["name"] == "absolute":
-                # TODO(Elliot): What info do we need for this recipe type?
-                pass
+                recipe["keys"]["Description"] = "Imports the latest version of %s into Absolute Manage." % recipe[
+                    "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
             if recipe["name"] == "sccm":
-                # TODO(Elliot): What info do we need for this recipe type?
-                pass
+                recipe["keys"]["Description"] = "Downloads the latest version of %s and creates a cmmac package for deploying via Microsoft SCCM." % recipe[
+                    "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
             if recipe["name"] == "ds":
-                # TODO(Elliot): What info do we need for this recipe type?
-                pass
+                recipe["keys"]["Description"] = "Imports the latest version of %s into DeployStudio." % recipe[
+                    "keys"]["Input"]["NAME"]
+                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
+                    "keys"]["Input"]["NAME"])
 
 
-def handle_download_recipe_input(input_path, recipes, args):
+def handle_download_recipe_input(input_path, recipes, args, prefs):
     """Process a download recipe, gathering information useful for building
     other types of recipes.
     """
@@ -1143,7 +1188,7 @@ def handle_download_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_munki_recipe_input(input_path, recipes, args):
+def handle_munki_recipe_input(input_path, recipes, args, prefs):
     """Process a munki recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1203,7 +1248,7 @@ def handle_munki_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_pkg_recipe_input(input_path, recipes, args):
+def handle_pkg_recipe_input(input_path, recipes, args, prefs):
     """Process a pkg recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1253,7 +1298,7 @@ def handle_pkg_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_install_recipe_input(input_path, recipes, args):
+def handle_install_recipe_input(input_path, recipes, args, prefs):
     """Process an install recipe, gathering information useful for building
     other types of recipes.
     """
@@ -1304,7 +1349,7 @@ def handle_install_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_jss_recipe_input(input_path, recipes, args):
+def handle_jss_recipe_input(input_path, recipes, args, prefs):
     """Process a jss recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1355,7 +1400,7 @@ def handle_jss_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_absolute_recipe_input(input_path, recipes, args):
+def handle_absolute_recipe_input(input_path, recipes, args, prefs):
     """Process an absolute recipe, gathering information useful for building
     other types of recipes.
     """
@@ -1406,7 +1451,7 @@ def handle_absolute_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_sccm_recipe_input(input_path, recipes, args):
+def handle_sccm_recipe_input(input_path, recipes, args, prefs):
     """Process a sccm recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1457,7 +1502,7 @@ def handle_sccm_recipe_input(input_path, recipes, args):
                 pass
 
 
-def handle_ds_recipe_input(input_path, recipes, args):
+def handle_ds_recipe_input(input_path, recipes, args, prefs):
     """Process a ds recipe, gathering information useful for building other
     types of recipes.
     """
@@ -1586,99 +1631,24 @@ def generate_selected_recipes(prefs, recipes):
             selected_recipe_count += 1
 
     if selected_recipe_count > 0:
-        robo_print("log", "\nGenerating %s selected recipes..." % selected_recipe_count)
+        robo_print("log", "\nGenerating %s selected recipes..." %
+                   selected_recipe_count)
     else:
         robo_print("log", "\nNo recipes selected.")
 
     for recipe in recipes:
         if (recipe["preferred"] is True and recipe["buildable"] is True and recipe["selected"] is True):
-
-            # Set the identifier of the recipe.
-            recipe["keys"]["Identifier"] = "%s.%s.%s" % (
-                prefs["RecipeIdentifierPrefix"], recipe["name"], recipe["keys"]["Input"]["NAME"])
-
-            # Set type-specific keys.
-            if recipe["name"] == "download":
-
-                recipe["keys"]["Description"] = "Downloads the latest version of %s." % recipe[
-                    "keys"]["Input"]["NAME"]
-
-                # TODO(Elliot): Read flag for GH/SF releases. If the flag is
-                # present, copy relevant processors to the recipe output
-                # folder.
-
-            elif recipe["name"] == "munki":
-
-                recipe["keys"]["Description"] = "Imports the latest version of %s into Munki." % recipe[
-                    "keys"]["Input"]["NAME"]
-                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
-                    "keys"]["Input"]["NAME"])
-
-                if recipe["icon_path"] != "":
-                    png_path = "%s/%s.png" % (
-                        prefs["RecipeCreateLocation"], recipe["keys"]["Input"]["NAME"])
-                    extract_app_icon(recipe["icon_path"], png_path)
-
-            elif recipe["name"] == "pkg":
-
-                recipe["keys"]["Description"] = "Downloads the latest version of %s and creates an installer package." % recipe[
-                    "keys"]["Input"]["NAME"]
-                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
-                    "keys"]["Input"]["NAME"])
-
-            elif recipe["name"] == "install":
-
-                recipe["keys"]["Description"] = "Installs the latest version of %s." % recipe[
-                    "keys"]["Input"]["NAME"]
-                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
-                    "keys"]["Input"]["NAME"])
-
-            elif recipe["name"] == "jss":
-
-                recipe["keys"]["Description"] = "Imports the latest version of %s into your JSS." % recipe[
-                    "keys"]["Input"]["NAME"]
-                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
-                    "keys"]["Input"]["NAME"])
-                recipe["keys"]["Input"]["category"] = "None"
-                recipe["keys"]["Input"]["policy_category"] = "Testing"
-                recipe["keys"]["Input"]["policy_template"] = "PolicyTemplate.xml"
-                recipe["keys"]["Input"]["groups"] = []
-                recipe["keys"]["Input"]["GROUP_TEMPLATE"] = "SmartGroupTemplate.xml"
-
-                if recipe["icon_path"] != "":
-                    png_path = "%s/%s.png" % (
-                        prefs["RecipeCreateLocation"], recipe["keys"]["Input"]["NAME"])
-                    extract_app_icon(recipe["icon_path"], png_path)
-
-            elif recipe["name"] == "absolute":
-
-                recipe["keys"]["Description"] = "Imports the latest version of %s into Absolute Manage." % recipe[
-                    "keys"]["Input"]["NAME"]
-                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
-                    "keys"]["Input"]["NAME"])
-
-            elif recipe["name"] == "sccm":
-
-                recipe["keys"]["Description"] = "Downloads the latest version of %s and creates a cmmac package for deploying via Microsoft SCCM." % recipe[
-                    "keys"]["Input"]["NAME"]
-                recipe["keys"]["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
-                    "keys"]["Input"]["NAME"])
-
-            elif recipe["name"] == "ds":
-
-                recipe["keys"]["Description"] = "Imports the latest version of %s into DeployStudio." % recipe[
-                    "keys"]["Input"]["NAME"]
-                recipe["keys"]["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], recipe[
-                    "keys"]["Input"]["NAME"])
-
-            else:
-                robo_print(
-                    "error", "I don't know how to generate a recipe of type %s." % recipe["name"])
-
             # Write the recipe to disk.
             filename = "%s.%s.recipe" % (
                 recipe["keys"]["Input"]["NAME"], recipe["name"])
-            write_recipe_file(filename, prefs, recipe["keys"])
+
+            dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
+            create_dest_dirs(dest_dir)
+            # TODO(Elliot): Warning if a file already exists here.
+            dest_path = "%s/%s" % (dest_dir, filename)
+            plistlib.writePlist(recipe["keys"], dest_path)
+            increment_recipe_count(prefs)
+
             robo_print("verbose", "    %s/%s" %
                        (prefs["RecipeCreateLocation"], filename))
 
@@ -1719,19 +1689,6 @@ def extract_app_icon(icon_path, png_path):
             robo_print("verbose", "    %s" % png_path)
         else:
             robo_print("error", err)
-
-
-def write_recipe_file(filename, prefs, keys):
-    """Write a generated recipe to disk."""
-
-    dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
-    create_dest_dirs(dest_dir)
-
-    # TODO(Elliot): Warning if a file already exists here.
-
-    dest_path = "%s/%s" % (dest_dir, filename)
-    plistlib.writePlist(keys, dest_path)
-    increment_recipe_count(prefs)
 
 
 def congratulate(prefs):
@@ -1782,23 +1739,23 @@ def main():
 
         # Orchestrate helper functions to handle input_path's "type".
         if input_type is InputType.app:
-            handle_app_input(input_path, recipes, args)
+            handle_app_input(input_path, recipes, args, prefs)
         elif input_type is InputType.download_recipe:
-            handle_download_recipe_input(input_path, recipes, args)
+            handle_download_recipe_input(input_path, recipes, args, prefs)
         elif input_type is InputType.munki_recipe:
-            handle_munki_recipe_input(input_path, recipes, args)
+            handle_munki_recipe_input(input_path, recipes, args, prefs)
         elif input_type is InputType.pkg_recipe:
-            handle_pkg_recipe_input(input_path, recipes, args)
+            handle_pkg_recipe_input(input_path, recipes, args, prefs)
         elif input_type is InputType.install_recipe:
-            handle_install_recipe_input(input_path, recipes, args)
+            handle_install_recipe_input(input_path, recipes, args, prefs)
         elif input_type is InputType.jss_recipe:
-            handle_jss_recipe_input(input_path, recipes, args)
+            handle_jss_recipe_input(input_path, recipes, args, prefs)
         elif input_type is InputType.absolute_recipe:
-            handle_absolute_recipe_input(input_path, recipes, args)
+            handle_absolute_recipe_input(input_path, recipes, args, prefs)
         elif input_type is InputType.sccm_recipe:
-            handle_sccm_recipe_input(input_path, recipes, args)
+            handle_sccm_recipe_input(input_path, recipes, args, prefs)
         elif input_type is InputType.ds_recipe:
-            handle_ds_recipe_input(input_path, recipes, args)
+            handle_ds_recipe_input(input_path, recipes, args, prefs)
         else:
             robo_print("error", "I haven't been trained on how to handle "
                        "this input path:\n    %s" % input_path)
