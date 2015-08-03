@@ -1582,7 +1582,7 @@ def generate_selected_recipes(prefs, recipes):
 
     selected_recipe_count = 0
     for recipe in recipes:
-        if recipe["selected"] is True:
+        if recipe["buildable"] is True and recipe["selected"] is True:
             selected_recipe_count += 1
 
     if selected_recipe_count > 0:
