@@ -1580,8 +1580,15 @@ def select_recipes_to_generate(recipes):
 def generate_selected_recipes(prefs, recipes):
     """Generate the selected types of recipes."""
 
-    robo_print("log", "\nGenerating selected recipes...")
-    # TODO(Elliot): Say "no recipes selected" if appropriate.
+    selected_recipe_count = 0
+    for recipe in recipes:
+        if recipe["selected"] is True:
+            selected_recipe_count += 1
+
+    if selected_recipe_count > 0:
+        robo_print("log", "\nGenerating %s selected recipes..." % selected_recipe_count)
+    else:
+        robo_print("log", "\nNo recipes selected.")
 
     for recipe in recipes:
         if (recipe["preferred"] is True and recipe["buildable"] is True and recipe["selected"] is True):
