@@ -47,24 +47,30 @@ optional arguments:
 
 import argparse
 import os.path
-import plistlib
+import FoundationPlist
 import pprint
 import random
+import re
 import shlex
 from subprocess import Popen, PIPE
 import sys
 
+# TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
+try:
+    import FoundationPlist
+except:
+    print '[WARNING] importing plistlib as FoundationPlist'
+    import plistlib as FoundationPlist
+
 
 # Global variables.
-version = '0.0.1'
+version = '0.0.2'
 verbose_mode = False  # set to True for additional user-facing output
-debug_mode = False  # set to True to output everything all the time
+debug_mode = True  # set to True to output everything all the time
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
 # Build the list of download formats we know about.
-# TODO: It would be great if we didn't need this list, but I suspect we do need
-# it in order to tell the recipes which Processors to use.
 supported_download_formats = ("dmg", "zip", "tar.gz", "gzip", "pkg")
 
 
@@ -343,7 +349,6 @@ def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr."""
 
     args = shlex.split(cmd)
-    # TODO(Elliot): I've been told Popen is not a good practice. Better idea?
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
@@ -474,7 +479,7 @@ def init_prefs(prefs, recipes, args):
 
         # Open the file.
         try:
-            prefs = plistlib.readPlist(prefs_file)
+            prefs = FoundationPlist.readPlist(prefs_file)
 
             for recipe in recipes:
                 # Load preferred recipe types.
@@ -509,7 +514,7 @@ def init_prefs(prefs, recipes, args):
     prefs["LastRecipeRobotVersion"] = version
 
     # Write preferences to plist.
-    plistlib.writePlist(prefs, prefs_file)
+    FoundationPlist.writePlist(prefs, prefs_file)
 
     return prefs
 
@@ -600,16 +605,16 @@ def get_sparkle_download_format(sparkle_url):
     cmd = "curl -s %s | awk -F 'url=\"|\"' '/enclosure url/{print $2}' | head -1" % sparkle_url
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-        for format in supported_download_formats:
-            if out.endswith(format):
-                return format
+        for this_format in supported_download_formats:
+            if out.endswith(this_format):
+                return this_format
 
 
 def increment_recipe_count(prefs):
     """Add 1 to the cumulative count of recipes created by Recipe Robot."""
 
     prefs["RecipeCreateCount"] += 1
-    plistlib.writePlist(prefs, prefs_file)
+    FoundationPlist.writePlist(prefs, prefs_file)
 
 
 def get_input_type(input_path):
@@ -645,8 +650,6 @@ def get_input_type(input_path):
 def get_app_description(app_name):
     """Use an app's name to generate a description from MacUpdate.com."""
 
-    # TODO(Elliot): Consider this vs macupdate_scraper.py. Pick the best.
-
     # Start with an empty string. (If it remains empty, the parent function
     # will know that no description was available.)
     description = ""
@@ -678,25 +681,36 @@ def get_app_description(app_name):
 def create_existing_recipe_list(app_name, recipes):
     """Use autopkg search results to build existing recipe list."""
 
-    robo_print(
-        "log", "Searching for existing AutoPkg recipes for %s..." % app_name)
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
-    # TODO(Elliot): Do search again without spaces in app names.
-    # TODO(Elliot): Match results for apps with "!" in names. (e.g. Paparazzi!)
-    cmd = "autopkg search -p %s" % app_name
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if exitcode == 0:
-        # TODO(Elliot): There's probably a more efficient way to do this.
-        # For each recipe type, see if it exists in the search results.
-        for recipe in recipes:
-            search_term = "%s.%s.recipe" % (app_name, recipe["name"])
-            for line in out.split("\n"):
-                if search_term in line:
-                    # Set to False by default. If found, set to True.
-                    recipe["existing"] = True
-    else:
-        robo_print("error", err)
-        sys.exit(exitcode)
+
+    recipe_searches = []
+    recipe_searches.append(app_name)
+
+    app_name_no_space = "".join(app_name.split())
+    if app_name_no_space != app_name:
+        recipe_searches.append(app_name_no_space)
+
+    app_name_no_symbol = re.sub(r'[^\w]', '', app_name)
+    if app_name_no_symbol != app_name and app_name_no_symbol != app_name_no_space:
+        recipe_searches.append(app_name_no_symbol)
+
+    for this_search in recipe_searches:
+        robo_print("log", "Searching for existing AutoPkg recipes for %s..." % this_search)
+        cmd = "autopkg search -p \"%s\"" % this_search
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            # TODO(Elliot): There's probably a more efficient way to do this.
+            # For each recipe type, see if it exists in the search results.
+            for recipe in recipes:
+                recipe_name = "%s.%s.recipe" % (this_search, recipe["name"])
+                for line in out.split("\n"):
+                    if recipe_name in line:
+                        # Set to False by default. If found, set to True.
+                        recipe["existing"] = True
+                        robo_print("log", "Found existing %s." % recipe_name)
+        else:
+            robo_print("error", err)
+            sys.exit(exitcode)
 
 
 def create_buildable_recipe_list(app_name, recipes, args):
@@ -716,9 +730,7 @@ def create_buildable_recipe_list(app_name, recipes, args):
 # TODO(Shea): Let's have a think about how we're handling input in the
 # functions below. In addition to external input (the arguments passed
 # when the script is run) we may want to handle internal input too (from
-# one recipe type to another). I feel like a recursive function might be
-# the way to do this, but it's going to be a complex one. But I think
-# recusion will cut down on duplicate logic.
+# one recipe type to another).
 
 def handle_app_input(input_path, recipes, args, prefs):
     """Process an app, gathering required information to create a recipe."""
@@ -729,7 +741,7 @@ def handle_app_input(input_path, recipes, args, prefs):
     app_name = ""
     robo_print("verbose", "Validating app...")
     try:
-        info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
+        info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
     except Exception:
         robo_print("error", "This doesn't look like a valid app to me.")
         if debug_mode is True:
@@ -1037,7 +1049,7 @@ def handle_download_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1197,7 +1209,7 @@ def handle_munki_recipe_input(input_path, recipes, args, prefs):
     # If not, add it to the list of offered recipe formats.
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1254,7 +1266,7 @@ def handle_pkg_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1304,7 +1316,7 @@ def handle_install_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1355,7 +1367,7 @@ def handle_jss_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1406,7 +1418,7 @@ def handle_absolute_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1457,7 +1469,7 @@ def handle_sccm_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1508,7 +1520,7 @@ def handle_ds_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1560,10 +1572,12 @@ def search_sourceforge_and_github(app_name):
     """
 
     # TODO(Shea): Search on SourceForge for the project.
+    #     Search URL: http://sourceforge.net/directory/developmentstatus:production/os:mac/?q=_____
     #     If found, pass the project ID back to the recipe generator.
     #     To get ID: https://gist.github.com/homebysix/9640c6a6eecff82d3b16
     # TODO(Shea): Search on GitHub for the project.
-    #     If found, pass the username and repo back to the recipe generator.
+    #     Search URL: https://github.com/search?utf8=✓&type=Repositories&ref=searchresults&q=_____
+    #     If found, pass the repo string back to the recipe generator.
 
 
 def select_recipes_to_generate(recipes):
@@ -1646,7 +1660,7 @@ def generate_selected_recipes(prefs, recipes):
             create_dest_dirs(dest_dir)
             # TODO(Elliot): Warning if a file already exists here.
             dest_path = "%s/%s" % (dest_dir, filename)
-            plistlib.writePlist(recipe["keys"], dest_path)
+            FoundationPlist.writePlist(recipe["keys"], dest_path)
             increment_recipe_count(prefs)
 
             robo_print("verbose", "    %s/%s" %
