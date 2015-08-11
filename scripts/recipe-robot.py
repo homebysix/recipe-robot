@@ -56,7 +56,7 @@ import sys
 
 
 # Global variables.
-version = '0.0.1'
+version = '0.0.2'
 verbose_mode = False  # set to True for additional user-facing output
 debug_mode = False  # set to True to output everything all the time
 prefs_file = os.path.expanduser(
