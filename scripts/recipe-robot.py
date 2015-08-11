@@ -730,9 +730,7 @@ def create_buildable_recipe_list(app_name, recipes, args):
 # TODO(Shea): Let's have a think about how we're handling input in the
 # functions below. In addition to external input (the arguments passed
 # when the script is run) we may want to handle internal input too (from
-# one recipe type to another). I feel like a recursive function might be
-# the way to do this, but it's going to be a complex one. But I think
-# recusion will cut down on duplicate logic.
+# one recipe type to another).
 
 def handle_app_input(input_path, recipes, args, prefs):
     """Process an app, gathering required information to create a recipe."""
@@ -1574,10 +1572,12 @@ def search_sourceforge_and_github(app_name):
     """
 
     # TODO(Shea): Search on SourceForge for the project.
+    #     Search URL: http://sourceforge.net/directory/developmentstatus:production/os:mac/?q=_____
     #     If found, pass the project ID back to the recipe generator.
     #     To get ID: https://gist.github.com/homebysix/9640c6a6eecff82d3b16
     # TODO(Shea): Search on GitHub for the project.
-    #     If found, pass the username and repo back to the recipe generator.
+    #     Search URL: https://github.com/search?utf8=✓&type=Repositories&ref=searchresults&q=_____
+    #     If found, pass the repo string back to the recipe generator.
 
 
 def select_recipes_to_generate(recipes):
