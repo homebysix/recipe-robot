@@ -47,7 +47,7 @@ optional arguments:
 
 import argparse
 import os.path
-import plistlib
+import FoundationPlist
 import pprint
 import random
 import re
@@ -55,11 +55,18 @@ import shlex
 from subprocess import Popen, PIPE
 import sys
 
+# TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
+try:
+    import FoundationPlist
+except:
+    print '[WARNING] importing plistlib as FoundationPlist'
+    import plistlib as FoundationPlist
+
 
 # Global variables.
 version = '0.0.2'
 verbose_mode = False  # set to True for additional user-facing output
-debug_mode = False  # set to True to output everything all the time
+debug_mode = True  # set to True to output everything all the time
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
@@ -472,7 +479,7 @@ def init_prefs(prefs, recipes, args):
 
         # Open the file.
         try:
-            prefs = plistlib.readPlist(prefs_file)
+            prefs = FoundationPlist.readPlist(prefs_file)
 
             for recipe in recipes:
                 # Load preferred recipe types.
@@ -507,7 +514,7 @@ def init_prefs(prefs, recipes, args):
     prefs["LastRecipeRobotVersion"] = version
 
     # Write preferences to plist.
-    plistlib.writePlist(prefs, prefs_file)
+    FoundationPlist.writePlist(prefs, prefs_file)
 
     return prefs
 
@@ -607,7 +614,7 @@ def increment_recipe_count(prefs):
     """Add 1 to the cumulative count of recipes created by Recipe Robot."""
 
     prefs["RecipeCreateCount"] += 1
-    plistlib.writePlist(prefs, prefs_file)
+    FoundationPlist.writePlist(prefs, prefs_file)
 
 
 def get_input_type(input_path):
@@ -736,7 +743,7 @@ def handle_app_input(input_path, recipes, args, prefs):
     app_name = ""
     robo_print("verbose", "Validating app...")
     try:
-        info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
+        info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
     except Exception:
         robo_print("error", "This doesn't look like a valid app to me.")
         if debug_mode is True:
@@ -1044,7 +1051,7 @@ def handle_download_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1204,7 +1211,7 @@ def handle_munki_recipe_input(input_path, recipes, args, prefs):
     # If not, add it to the list of offered recipe formats.
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1261,7 +1268,7 @@ def handle_pkg_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1311,7 +1318,7 @@ def handle_install_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1362,7 +1369,7 @@ def handle_jss_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1413,7 +1420,7 @@ def handle_absolute_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1464,7 +1471,7 @@ def handle_sccm_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1515,7 +1522,7 @@ def handle_ds_recipe_input(input_path, recipes, args, prefs):
     """
 
     # Read the recipe as a plist.
-    input_recipe = plistlib.readPlist(input_path)
+    input_recipe = FoundationPlist.readPlist(input_path)
 
     robo_print("verbose", "Determining app's name from NAME input key...")
     app_name = input_recipe["Input"]["NAME"]
@@ -1653,7 +1660,7 @@ def generate_selected_recipes(prefs, recipes):
             create_dest_dirs(dest_dir)
             # TODO(Elliot): Warning if a file already exists here.
             dest_path = "%s/%s" % (dest_dir, filename)
-            plistlib.writePlist(recipe["keys"], dest_path)
+            FoundationPlist.writePlist(recipe["keys"], dest_path)
             increment_recipe_count(prefs)
 
             robo_print("verbose", "    %s/%s" %
