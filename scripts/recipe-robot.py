@@ -50,6 +50,7 @@ import os.path
 import plistlib
 import pprint
 import random
+import re
 import shlex
 from subprocess import Popen, PIPE
 import sys
@@ -63,8 +64,6 @@ prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
 # Build the list of download formats we know about.
-# TODO: It would be great if we didn't need this list, but I suspect we do need
-# it in order to tell the recipes which Processors to use.
 supported_download_formats = ("dmg", "zip", "tar.gz", "gzip", "pkg")
 
 
@@ -343,7 +342,6 @@ def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr."""
 
     args = shlex.split(cmd)
-    # TODO(Elliot): I've been told Popen is not a good practice. Better idea?
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
@@ -600,9 +598,9 @@ def get_sparkle_download_format(sparkle_url):
     cmd = "curl -s %s | awk -F 'url=\"|\"' '/enclosure url/{print $2}' | head -1" % sparkle_url
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-        for format in supported_download_formats:
-            if out.endswith(format):
-                return format
+        for this_format in supported_download_formats:
+            if out.endswith(this_format):
+                return this_format
 
 
 def increment_recipe_count(prefs):
@@ -645,8 +643,6 @@ def get_input_type(input_path):
 def get_app_description(app_name):
     """Use an app's name to generate a description from MacUpdate.com."""
 
-    # TODO(Elliot): Consider this vs macupdate_scraper.py. Pick the best.
-
     # Start with an empty string. (If it remains empty, the parent function
     # will know that no description was available.)
     description = ""
@@ -678,25 +674,36 @@ def get_app_description(app_name):
 def create_existing_recipe_list(app_name, recipes):
     """Use autopkg search results to build existing recipe list."""
 
-    robo_print(
-        "log", "Searching for existing AutoPkg recipes for %s..." % app_name)
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
-    # TODO(Elliot): Do search again without spaces in app names.
-    # TODO(Elliot): Match results for apps with "!" in names. (e.g. Paparazzi!)
-    cmd = "autopkg search -p %s" % app_name
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if exitcode == 0:
-        # TODO(Elliot): There's probably a more efficient way to do this.
-        # For each recipe type, see if it exists in the search results.
-        for recipe in recipes:
-            search_term = "%s.%s.recipe" % (app_name, recipe["name"])
-            for line in out.split("\n"):
-                if search_term in line:
-                    # Set to False by default. If found, set to True.
-                    recipe["existing"] = True
-    else:
-        robo_print("error", err)
-        sys.exit(exitcode)
+
+    recipe_searches = []
+    recipe_searches.append(app_name)
+
+    app_name_no_space = "".join(app_name.split())
+    if app_name_no_space != app_name:
+        recipe_searches.append(app_name_no_space)
+
+    app_name_no_symbol = re.sub(r'[^\w]', '', app_name)
+    if app_name_no_symbol != app_name:
+        recipe_searches.append(app_name_no_symbol)
+
+    for this_search in recipe_searches:
+        robo_print("log", "Searching for existing AutoPkg recipes for %s..." % this_search)
+        cmd = "autopkg search -p \"%s\"" % this_search
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            # TODO(Elliot): There's probably a more efficient way to do this.
+            # For each recipe type, see if it exists in the search results.
+            for recipe in recipes:
+                recipe_name = "%s.%s.recipe" % (this_search, recipe["name"])
+                for line in out.split("\n"):
+                    if recipe_name in line:
+                        # Set to False by default. If found, set to True.
+                        recipe["existing"] = True
+                        robo_print("log", "Found existing %s." % recipe_name)
+        else:
+            robo_print("error", err)
+            sys.exit(exitcode)
 
 
 def create_buildable_recipe_list(app_name, recipes, args):
