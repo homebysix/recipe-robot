@@ -691,7 +691,7 @@ def create_existing_recipe_list(app_name, recipes):
         recipe_searches.append(app_name_no_space)
 
     app_name_no_symbol = re.sub(r'[^\w]', '', app_name)
-    if app_name_no_symbol != app_name:
+    if app_name_no_symbol != app_name and app_name_no_symbol != app_name_no_space:
         recipe_searches.append(app_name_no_symbol)
 
     for this_search in recipe_searches:
