@@ -474,6 +474,12 @@ def init_prefs(prefs, recipes, args):
     prefs = {}
     global verbose_mode
 
+    # TODO(Elliot): Preference hierarchy:
+    #    - If --config is specified, build pref plist and save to disk.
+    #    - If a specific pref is specified in an arg, use that. Don't save.
+    #    - If a specific pref is specified in an existing plist, then use that.
+    #    - If no prefs are specified or saved on disk, same as --config.
+
     # If prefs file exists, try to read from it.
     if os.path.isfile(prefs_file):
 
@@ -896,6 +902,13 @@ def handle_app_input(input_path, recipes, args, prefs):
                 recipe["keys"]["Process"].append({
                     "Processor": "EndOfCheckPhase"
                 })
+                if download_format == "dmg":
+                    # TODO(Elliot): Add CodeSignatureVerifier at %pathname%/%NAME%.app
+                    pass
+                else:  # probably a zip or archive file
+                    # TODO(Elliot): Add Unarchiver
+                    # TODO(Elliot): Add CodeSignatureVerifier at %pathname%/%NAME%/%NAME%.app
+                    pass
 
             if recipe["name"] == "munki":
                 # Example: Firefox.munki
