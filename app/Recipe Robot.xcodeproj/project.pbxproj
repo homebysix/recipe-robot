@@ -9,13 +9,17 @@
 /* Begin PBXBuildFile section */
 		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
-		8B42AC891B5C5BEC0058A814 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC871B5C5BEC0058A814 /* MainMenu.xib */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
-		8B42AC9F1B5C5C1C0058A814 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC9E1B5C5C1C0058A814 /* Preferences.xib */; };
-		8B42ACA11B5C5C540058A814 /* MainWindow00.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42ACA01B5C5C540058A814 /* MainWindow00.xib */; };
-		8B42ACA31B5C5C5D0058A814 /* MainWindow01.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42ACA21B5C5C5D0058A814 /* MainWindow01.xib */; };
-		8B42ACA51B5C5C690058A814 /* MainWindow02.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42ACA41B5C5C690058A814 /* MainWindow02.xib */; };
-		8B42ACA71B5C5C740058A814 /* MainWindow03.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8B42ACA61B5C5C740058A814 /* MainWindow03.xib */; };
+		BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */; };
+		BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE34C8351B7EC5DF00E0822E /* Main.storyboard */; };
+		BE6F6B9A1B800DFB0082011D /* __init__.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B961B800DFB0082011D /* __init__.py */; };
+		BE6F6B9B1B800DFB0082011D /* __init__.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B961B800DFB0082011D /* __init__.py */; };
+		BE6F6B9C1B800DFB0082011D /* FoundationPlist.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B971B800DFB0082011D /* FoundationPlist.py */; };
+		BE6F6B9D1B800DFB0082011D /* FoundationPlist.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B971B800DFB0082011D /* FoundationPlist.py */; };
+		BE6F6B9F1B800DFB0082011D /* macupdate_scraper.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B981B800DFB0082011D /* macupdate_scraper.py */; };
+		BE6F6BA11B800DFB0082011D /* recipe-robot.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B991B800DFB0082011D /* recipe-robot.py */; };
+		BE6F6BA31B800E270082011D /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
+		BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,15 +37,17 @@
 		8B42AC821B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8B42AC851B5C5BEC0058A814 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		8B42AC881B5C5BEC0058A814 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		8B42AC8E1B5C5BEC0058A814 /* Recipe RobotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Recipe RobotTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B42AC931B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe_RobotTests.swift; sourceTree = "<group>"; };
-		8B42AC9E1B5C5C1C0058A814 /* Preferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
-		8B42ACA01B5C5C540058A814 /* MainWindow00.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow00.xib; sourceTree = "<group>"; };
-		8B42ACA21B5C5C5D0058A814 /* MainWindow01.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow01.xib; sourceTree = "<group>"; };
-		8B42ACA41B5C5C690058A814 /* MainWindow02.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow02.xib; sourceTree = "<group>"; };
-		8B42ACA61B5C5C740058A814 /* MainWindow03.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow03.xib; sourceTree = "<group>"; };
+		BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotViewController.swift; sourceTree = "<group>"; };
+		BE34C8361B7EC5DF00E0822E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		BE6F6B961B800DFB0082011D /* __init__.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = __init__.py; sourceTree = "<group>"; };
+		BE6F6B971B800DFB0082011D /* FoundationPlist.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FoundationPlist.py; sourceTree = "<group>"; };
+		BE6F6B981B800DFB0082011D /* macupdate_scraper.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = macupdate_scraper.py; sourceTree = "<group>"; };
+		BE6F6B991B800DFB0082011D /* recipe-robot.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "recipe-robot.py"; sourceTree = "<group>"; };
+		BE6F6BA21B800E270082011D /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
+		BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotTask.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +71,7 @@
 		8B42AC751B5C5BEC0058A814 = {
 			isa = PBXGroup;
 			children = (
+				BE6F6BA21B800E270082011D /* scripts */,
 				8B42AC801B5C5BEC0058A814 /* Recipe Robot */,
 				8B42AC911B5C5BEC0058A814 /* Recipe RobotTests */,
 				8B42AC7F1B5C5BEC0058A814 /* Products */,
@@ -83,15 +90,12 @@
 		8B42AC801B5C5BEC0058A814 /* Recipe Robot */ = {
 			isa = PBXGroup;
 			children = (
+				BE34C8351B7EC5DF00E0822E /* Main.storyboard */,
 				8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */,
+				BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */,
+				BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */,
 				8B42AC851B5C5BEC0058A814 /* Images.xcassets */,
-				8B42AC871B5C5BEC0058A814 /* MainMenu.xib */,
 				8B42AC811B5C5BEC0058A814 /* Supporting Files */,
-				8B42AC9E1B5C5C1C0058A814 /* Preferences.xib */,
-				8B42ACA01B5C5C540058A814 /* MainWindow00.xib */,
-				8B42ACA21B5C5C5D0058A814 /* MainWindow01.xib */,
-				8B42ACA41B5C5C690058A814 /* MainWindow02.xib */,
-				8B42ACA61B5C5C740058A814 /* MainWindow03.xib */,
 			);
 			path = "Recipe Robot";
 			sourceTree = "<group>";
@@ -100,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				8B42AC821B5C5BEC0058A814 /* Info.plist */,
+				BE6F6B941B800DFB0082011D /* scripts */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -119,6 +124,26 @@
 				8B42AC931B5C5BEC0058A814 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BE6F6B941B800DFB0082011D /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				BE6F6B951B800DFB0082011D /* FoundationPlist */,
+				BE6F6B981B800DFB0082011D /* macupdate_scraper.py */,
+				BE6F6B991B800DFB0082011D /* recipe-robot.py */,
+			);
+			name = scripts;
+			path = ../../scripts;
+			sourceTree = "<group>";
+		};
+		BE6F6B951B800DFB0082011D /* FoundationPlist */ = {
+			isa = PBXGroup;
+			children = (
+				BE6F6B961B800DFB0082011D /* __init__.py */,
+				BE6F6B971B800DFB0082011D /* FoundationPlist.py */,
+			);
+			path = FoundationPlist;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -201,13 +226,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B42ACA51B5C5C690058A814 /* MainWindow02.xib in Resources */,
-				8B42ACA31B5C5C5D0058A814 /* MainWindow01.xib in Resources */,
+				BE6F6BA31B800E270082011D /* scripts in Resources */,
+				BE6F6B9C1B800DFB0082011D /* FoundationPlist.py in Resources */,
+				BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */,
+				BE6F6B9A1B800DFB0082011D /* __init__.py in Resources */,
 				8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */,
-				8B42AC9F1B5C5C1C0058A814 /* Preferences.xib in Resources */,
-				8B42ACA11B5C5C540058A814 /* MainWindow00.xib in Resources */,
-				8B42AC891B5C5BEC0058A814 /* MainMenu.xib in Resources */,
-				8B42ACA71B5C5C740058A814 /* MainWindow03.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,6 +238,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE6F6B9D1B800DFB0082011D /* FoundationPlist.py in Resources */,
+				BE6F6BA11B800DFB0082011D /* recipe-robot.py in Resources */,
+				BE6F6B9B1B800DFB0082011D /* __init__.py in Resources */,
+				BE6F6B9F1B800DFB0082011D /* macupdate_scraper.py in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,6 +253,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */,
+				BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */,
+				BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,12 +277,12 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		8B42AC871B5C5BEC0058A814 /* MainMenu.xib */ = {
+		BE34C8351B7EC5DF00E0822E /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				8B42AC881B5C5BEC0058A814 /* Base */,
+				BE34C8361B7EC5DF00E0822E /* Base */,
 			);
-			name = MainMenu.xib;
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
