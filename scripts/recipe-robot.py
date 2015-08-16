@@ -765,7 +765,7 @@ def create_existing_recipe_list(app_name, recipes):
 
     for this_search in recipe_searches:
         robo_print("log", "Searching for existing AutoPkg recipes for %s..." % this_search)
-        cmd = "autopkg search -p \"%s\"" % this_search
+        cmd = "/usr/local/bin/autopkg search -p \"%s\"" % this_search
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             # TODO(Elliot): There's probably a more efficient way to do this.
