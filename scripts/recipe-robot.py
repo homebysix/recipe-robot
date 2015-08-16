@@ -71,8 +71,10 @@ prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
 # Build the list of download formats we know about.
-supported_download_formats = ("dmg", "zip", "tar.gz", "gzip", "pkg")
-
+supported_image_formats = ("dmg", "iso")
+supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2")
+supported_install_formats = ("pkg", "mpkg")
+all_supported_formats = supported_image_formats + supported_archive_formats + supported_install_formats
 
 class bcolors:
 
@@ -611,7 +613,7 @@ def get_sparkle_download_format(sparkle_url):
     cmd = "curl -s %s | awk -F 'url=\"|\"' '/enclosure url/{print $2}' | head -1" % sparkle_url
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-        for this_format in supported_download_formats:
+        for this_format in all_supported_formats:
             if out.endswith(this_format):
                 return this_format
 
@@ -934,12 +936,15 @@ def handle_app_input(input_path, recipes, args, prefs):
                             "input_path": "%pathname%/%s.app" % app_name
                         }
 
-                    if download_format == "dmg":
+                    if download_format in supported_image_formats:
                         recipe["keys"]["Process"].append({
                             "Processor": "CodeSignatureVerifier",
                             "Arguments": code_sign_args
                         })
-                    else:  # probably a zip or archive file
+                    elif download_format in supported_install_formats:
+                        # TODO(Elliot):  Check for code signing on pkg download?
+                        pass
+                    elif download_format in supported_archive_formats:
                         recipe["keys"]["Process"].append({
                             "Processor": "Unarchiver",
                             "Arguments": {
@@ -1008,7 +1013,7 @@ def handle_app_input(input_path, recipes, args, prefs):
                         }
                     }
                 })
-                if download_format == "dmg":
+                if download_format in supported_image_formats:
                     # Example: AutoPkgr.pkg
                     recipe["keys"]["Process"].append({
                         "Processor": "AppDmgVersioner",
@@ -1023,7 +1028,10 @@ def handle_app_input(input_path, recipes, args, prefs):
                             "destination_path": "%pkgroot%/Applications/%NAME%.app"
                         }
                     })
-                else:  # probably a zip or archive file
+                elif download_format in supported_install_formats:
+                    # TODO(Elliot): Code sign verify for pkg?
+                    pass
+                elif download_format in supported_archive_formats:
                     # Example: AppZapper.pkg
                     recipe["keys"]["Process"].append({
                         "Processor": "Unarchiver",
@@ -1130,7 +1138,7 @@ def handle_download_recipe_input(input_path, recipes, args, prefs):
     # TODO(Elliot): Parse the recipe properly. Don't use grep.
     robo_print("verbose", "Determining download format...")
     parsed_download_format = ""
-    for download_format in supported_download_formats:
+    for download_format in all_supported_formats:
         cmd = "grep '.%s</string>' '%s'" % (download_format, input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
@@ -1150,7 +1158,7 @@ def handle_download_recipe_input(input_path, recipes, args, prefs):
                 pass
 
             if recipe["name"] == "pkg":
-                if parsed_download_format == "dmg":
+                if parsed_download_format in supported_image_formats:
                     # Example: GoogleChrome.pkg
                     recipe["Process"].append({
                         "Processor": "AppDmgVersioner",
@@ -1192,7 +1200,7 @@ def handle_download_recipe_input(input_path, recipes, args, prefs):
                             }
                         }
                     })
-                elif parsed_download_format in ("zip", "tar.gz", "gzip"):
+                elif parsed_download_format in supported_archive_formats:
                     # Example: TheUnarchiver.pkg
                     recipe["Process"].append({
                         "Processor": "PkgRootCreator",
@@ -1237,7 +1245,7 @@ def handle_download_recipe_input(input_path, recipes, args, prefs):
                             }
                         }
                     })
-                elif parsed_download_format == "pkg":
+                elif parsed_download_format in supported_install_formats:
                     # TODO(Elliot): Do we want to create download recipes for
                     # .pkg downloads, or skip right to the pkg recipe? I vote
                     # for making a download recipe, since the download format
@@ -1843,7 +1851,7 @@ def main():
             robo_print(
                 "debug", "ARGUMENT LIST:\n" + pprint.pformat(args) + "\n")
             robo_print("debug", "SUPPORTED DOWNLOAD FORMATS:\n" +
-                       pprint.pformat(supported_download_formats) + "\n")
+                       pprint.pformat(all_supported_formats) + "\n")
             robo_print(
                 "debug", "PREFERENCES:\n" + pprint.pformat(prefs) + "\n")
             robo_print(
