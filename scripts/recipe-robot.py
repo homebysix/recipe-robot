@@ -782,6 +782,7 @@ def handle_app_input(input_path, recipes, args, prefs):
     # The buildable list will be used to determine what is offered to the user.
     create_buildable_recipe_list(app_name, recipes, args)
 
+    # Attempt to determine how to download this app.
     sparkle_feed = ""
     github_repo = ""
     sourceforge_id = ""
@@ -814,6 +815,7 @@ def handle_app_input(input_path, recipes, args, prefs):
         # TODO(Elliot): Find out what format the GH/SF feed downloads in.
         pass
 
+    # Attempt to determine minimum compatible OS X version.
     min_sys_vers = ""
     robo_print("verbose", "Checking for minimum OS version requirements...")
     try:
@@ -822,6 +824,7 @@ def handle_app_input(input_path, recipes, args, prefs):
     except Exception:
         robo_print("warning", "No LSMinimumSystemVersion found.")
 
+    # Determine path to the app's icon.
     icon_path = ""
     robo_print("verbose", "Looking for app icon...")
     try:
@@ -832,6 +835,7 @@ def handle_app_input(input_path, recipes, args, prefs):
         robo_print(
             "warning", "No CFBundleIconFile found in this app's Info.plist.")
 
+    # Determine the bundle identifier of the app.
     bundle_id = ""
     robo_print("verbose", "Getting bundle identifier...")
     try:
@@ -841,6 +845,7 @@ def handle_app_input(input_path, recipes, args, prefs):
         robo_print(
             "warning", "No CFBundleIdentifier found in this app's Info.plist.")
 
+    # Attempt to get a description of the app from MacUpdate.com.
     description = ""
     robo_print("verbose", "Getting app description from MacUpdate...")
     try:
@@ -850,6 +855,22 @@ def handle_app_input(input_path, recipes, args, prefs):
         pass
     if description == "":
         robo_print("warning", "Could not get app description.")
+
+    # Attempt to determine code signing verification/requirements.
+    cmd = "codesign --display -r- \"%s\"" % (input_path)
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        code_signed = True
+        code_sign_reqs = ""
+
+        # Determine code signing requirements.
+        marker = "designated => "
+        for line in out.split("\n"):
+            if line.startswith(marker):
+                code_sign_reqs = line[len(marker):]
+
+    else:
+        code_signed = False
 
     # TODO(Elliot): Collect other information as required to build recipes.
     #    - Use bundle identifier to locate related helper apps on disk?
@@ -902,13 +923,43 @@ def handle_app_input(input_path, recipes, args, prefs):
                 recipe["keys"]["Process"].append({
                     "Processor": "EndOfCheckPhase"
                 })
-                if download_format == "dmg":
-                    # TODO(Elliot): Add CodeSignatureVerifier at %pathname%/%NAME%.app
-                    pass
-                else:  # probably a zip or archive file
-                    # TODO(Elliot): Add Unarchiver
-                    # TODO(Elliot): Add CodeSignatureVerifier at %pathname%/%NAME%/%NAME%.app
-                    pass
+                if code_signed is True:
+                    if code_sign_reqs != "":
+                        code_sign_args = {
+                            "input_path": "%pathname%/%s.app" % app_name,
+                            "requirement": code_sign_reqs
+                        }
+                    else:
+                        code_sign_args = {
+                            "input_path": "%pathname%/%s.app" % app_name
+                        }
+
+                    if download_format == "dmg":
+                        recipe["keys"]["Process"].append({
+                            "Processor": "CodeSignatureVerifier",
+                            "Arguments": code_sign_args
+                        })
+                    else:  # probably a zip or archive file
+                        recipe["keys"]["Process"].append({
+                            "Processor": "Unarchiver",
+                            "Arguments": {
+                                "archive_path": "%pathname%",
+                                "destination_path": "%RECIPE_CACHE_DIR%/%NAME%",
+                                "purge_destination": True
+                            }
+                        })
+                        recipe["keys"]["Process"].append({
+                            "Processor": "CodeSignatureVerifier",
+                            "Arguments": code_sign_args
+                        })
+                        recipe["keys"]["Process"].append({
+                            "Processor": "PathDeleter",
+                            "Arguments": {
+                                "path_list": [
+                                    "%RECIPE_CACHE_DIR%/%NAME%"
+                                ]
+                            }
+                        })
 
             if recipe["name"] == "munki":
                 # Example: Firefox.munki
