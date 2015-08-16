@@ -71,9 +71,9 @@ prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 
 # Build the list of download formats we know about.
-supported_image_formats = ("dmg", "iso")
+supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
 supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2")
-supported_install_formats = ("pkg", "mpkg")
+supported_install_formats = ("pkg", "mpkg")  # downloading mpkg unlikely
 all_supported_formats = supported_image_formats + supported_archive_formats + supported_install_formats
 
 class bcolors:
@@ -116,9 +116,9 @@ class Recipe(object):
     def create(self):
         """Create a new recipe with required keys set to defaults."""
         self["Identifier"] = ""
-        self["Input"] = {}
+        self["Input"] = {}  # dict
         self["Input"]["NAME"] = ""
-        self["Process"] = []
+        self["Process"] = []  # list/array
         self["MinimumVersion"] = "0.5.0"
 
     def add_input(self, key, value=""):
@@ -305,7 +305,7 @@ class DSRecipe(Recipe):
         })
 
 
-# TODO(Elliot): Once classes are added, rework these functions to use classes
+# TODO(Elliot or more likely Shea): Once classes are added, rework these functions to use classes
 # instead of existing hard-wired logic:
 #    - init_recipes
 #    - init_prefs
@@ -330,6 +330,10 @@ class DSRecipe(Recipe):
 def robo_print(output_type, message):
     """Print the specified message in an appropriate color, and only print
     debug output if debug_mode is True.
+
+    Args:
+        output_type: One of "error", "warning", "debug", or "verbose".
+        message: String to be printed to output.
     """
 
     if output_type == "error":
@@ -348,7 +352,16 @@ def robo_print(output_type, message):
 
 
 def get_exitcode_stdout_stderr(cmd):
-    """Execute the external command and get its exitcode, stdout and stderr."""
+    """Execute the external command and get its exitcode, stdout and stderr.
+
+    Args:
+        cmd: The single shell command to be executed. No piping allowed.
+
+    Returns:
+        exitcode: Zero upon success. Non-zero upon error.
+        out: String from standard output.
+        err: String from standard error.
+    """
 
     args = shlex.split(cmd)
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
@@ -358,7 +371,11 @@ def get_exitcode_stdout_stderr(cmd):
 
 
 def build_argument_parser():
-    """Build and return the argument parser for Recipe Robot."""
+    """Build and return the argument parser for Recipe Robot.
+
+    Returns:
+        Parser object.
+    """
 
     parser = argparse.ArgumentParser(
         description="Easily and automatically create AutoPkg recipes.")
@@ -415,38 +432,42 @@ def verify_input(input_path):
 
 
 def init_recipes():
-    """Store information related to each supported AutoPkg recipe type."""
+    """Store information related to each supported AutoPkg recipe type.
+
+    Returns:
+        A tuple of dicts that describe all the AutoPkg recipe types we know about.
+    """
 
     recipes = (
-        {  # index 0
+        {
             "name": "download",
             "description": "Downloads an app in whatever format the developer provides."
         },
-        {  # index 1
+        {
             "name": "munki",
             "description": "Imports into your Munki repository."
         },
-        {  # index 2
+        {
             "name": "pkg",
             "description": "Creates a standard pkg installer file."
         },
-        {  # index 3
+        {
             "name": "install",
             "description": "Installs the app on the computer running AutoPkg."
         },
-        {  # index 4
+        {
             "name": "jss",
             "description": "Imports into your Casper JSS and creates necessary groups, policies, etc."
         },
-        {  # index 5
+        {
             "name": "absolute",
             "description": "Imports into your Absolute Manage server."
         },
-        {  # index 6
+        {
             "name": "sccm",
             "description": "Creates a cmmac package for deploying via Microsoft SCCM."
         },
-        {  # index 7
+        {
             "name": "ds",
             "description": "Imports into your DeployStudio Packages folder."
         }
@@ -471,7 +492,16 @@ def init_recipes():
 
 
 def init_prefs(prefs, recipes, args):
-    """Read from preferences plist, if it exists."""
+    """Read from preferences plist, if it exists.
+
+    Args:
+        prefs: TODO
+        recipes: TODO
+        args: TODO
+
+    Returns:
+        prefs: TODO
+    """
 
     prefs = {}
     global verbose_mode
@@ -528,7 +558,15 @@ def init_prefs(prefs, recipes, args):
 
 
 def build_prefs(prefs, recipes):
-    """Prompt user for preferences, then save them back to the plist."""
+    """Prompt user for preferences, then save them back to the plist.
+
+    Args:
+        prefs: TODO
+        recipes: TODO
+
+    Returns:
+        prefs: TODO
+    """
 
     # Start recipe count at zero.
     prefs["RecipeCreateCount"] = 0
@@ -607,7 +645,14 @@ def build_prefs(prefs, recipes):
 
 
 def get_sparkle_download_format(sparkle_url):
-    """Parse a Sparkle feed URL and return the type of download it produces."""
+    """Parse a Sparkle feed URL and return the type of download it produces.
+
+    Args:
+        sparkle_url: TODO
+
+    Returns:
+        String containing the format of the Sparkle-provided download.
+    """
 
     # TODO(Elliot): There's got to be a better way than curl.
     cmd = "curl -s %s | awk -F 'url=\"|\"' '/enclosure url/{print $2}' | head -1" % sparkle_url
@@ -619,7 +664,11 @@ def get_sparkle_download_format(sparkle_url):
 
 
 def increment_recipe_count(prefs):
-    """Add 1 to the cumulative count of recipes created by Recipe Robot."""
+    """Add 1 to the cumulative count of recipes created by Recipe Robot.
+
+    Args:
+        prefs: TODO
+    """
 
     prefs["RecipeCreateCount"] += 1
     FoundationPlist.writePlist(prefs, prefs_file)
@@ -656,7 +705,14 @@ def get_input_type(input_path):
 
 
 def get_app_description(app_name):
-    """Use an app's name to generate a description from MacUpdate.com."""
+    """Use an app's name to generate a description from MacUpdate.com.
+
+    Args:
+        app_name: TODO
+
+    Returns:
+        description: A string containing a description of the app.
+    """
 
     # Start with an empty string. (If it remains empty, the parent function
     # will know that no description was available.)
@@ -687,7 +743,12 @@ def get_app_description(app_name):
 
 
 def create_existing_recipe_list(app_name, recipes):
-    """Use autopkg search results to build existing recipe list."""
+    """Use autopkg search results to build existing recipe list.
+
+    Args:
+        app_name: TODO
+        recipes: TODO
+    """
 
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
 
@@ -724,6 +785,11 @@ def create_existing_recipe_list(app_name, recipes):
 def create_buildable_recipe_list(app_name, recipes, args):
     """Add any preferred recipe types that don't already exist to the buildable
     list.
+
+    Args:
+        app_name: TODO
+        recipes: TODO
+        args: TODO
     """
 
     for recipe in recipes:
@@ -741,7 +807,14 @@ def create_buildable_recipe_list(app_name, recipes, args):
 # one recipe type to another).
 
 def handle_app_input(input_path, recipes, args, prefs):
-    """Process an app, gathering required information to create a recipe."""
+    """Process an app, gathering required information to create a recipe.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
+    """
 
     # Create variables for every piece of information we might need to create
     # any sort of AutoPkg recipe. Then populate those variables with the info.
@@ -1118,6 +1191,12 @@ def handle_app_input(input_path, recipes, args, prefs):
 def handle_download_recipe_input(input_path, recipes, args, prefs):
     """Process a download recipe, gathering information useful for building
     other types of recipes.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
     """
 
     # Read the recipe as a plist.
@@ -1275,6 +1354,12 @@ def handle_download_recipe_input(input_path, recipes, args, prefs):
 def handle_munki_recipe_input(input_path, recipes, args, prefs):
     """Process a munki recipe, gathering information useful for building other
     types of recipes.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
     """
 
     # Determine whether there's already a download Parent recipe.
@@ -1335,6 +1420,12 @@ def handle_munki_recipe_input(input_path, recipes, args, prefs):
 def handle_pkg_recipe_input(input_path, recipes, args, prefs):
     """Process a pkg recipe, gathering information useful for building other
     types of recipes.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
     """
 
     # Read the recipe as a plist.
@@ -1385,6 +1476,12 @@ def handle_pkg_recipe_input(input_path, recipes, args, prefs):
 def handle_install_recipe_input(input_path, recipes, args, prefs):
     """Process an install recipe, gathering information useful for building
     other types of recipes.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
     """
 
     # Read the recipe as a plist.
@@ -1436,6 +1533,12 @@ def handle_install_recipe_input(input_path, recipes, args, prefs):
 def handle_jss_recipe_input(input_path, recipes, args, prefs):
     """Process a jss recipe, gathering information useful for building other
     types of recipes.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
     """
 
     # Read the recipe as a plist.
@@ -1487,6 +1590,12 @@ def handle_jss_recipe_input(input_path, recipes, args, prefs):
 def handle_absolute_recipe_input(input_path, recipes, args, prefs):
     """Process an absolute recipe, gathering information useful for building
     other types of recipes.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
     """
 
     # Read the recipe as a plist.
@@ -1538,6 +1647,12 @@ def handle_absolute_recipe_input(input_path, recipes, args, prefs):
 def handle_sccm_recipe_input(input_path, recipes, args, prefs):
     """Process a sccm recipe, gathering information useful for building other
     types of recipes.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
     """
 
     # Read the recipe as a plist.
@@ -1589,6 +1704,12 @@ def handle_sccm_recipe_input(input_path, recipes, args, prefs):
 def handle_ds_recipe_input(input_path, recipes, args, prefs):
     """Process a ds recipe, gathering information useful for building other
     types of recipes.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
     """
 
     # Read the recipe as a plist.
@@ -1641,6 +1762,9 @@ def search_sourceforge_and_github(app_name):
     """For apps that do not have a Sparkle feed, try to locate their project
     information on either SourceForge or GitHub so that the corresponding
     URL provider processors can be used to generate a recipe.
+
+    Args:
+        app_name: TODO
     """
 
     # TODO(Shea): Search on SourceForge for the project.
@@ -1653,7 +1777,11 @@ def search_sourceforge_and_github(app_name):
 
 
 def select_recipes_to_generate(recipes):
-    """Display menu that allows user to select which recipes to create."""
+    """Display menu that allows user to select which recipes to create.
+
+    Args:
+        recipes: TODO
+    """
 
     buildable_count = 0
     for recipe in recipes:
@@ -1709,7 +1837,12 @@ def select_recipes_to_generate(recipes):
 
 
 def generate_selected_recipes(prefs, recipes):
-    """Generate the selected types of recipes."""
+    """Generate the selected types of recipes.
+
+    Args:
+        prefs: TODO
+        recipes: TODO
+    """
 
     selected_recipe_count = 0
     for recipe in recipes:
@@ -1740,7 +1873,11 @@ def generate_selected_recipes(prefs, recipes):
 
 
 def create_dest_dirs(path):
-    """Creates the path to the recipe export location, if it doesn't exist."""
+    """Creates the path to the recipe export location, if it doesn't exist.
+
+    Args:
+        path: TODO
+    """
 
     dest_dir = os.path.expanduser(path)
     if not os.path.exists(dest_dir):
@@ -1756,6 +1893,10 @@ def create_dest_dirs(path):
 
 def extract_app_icon(icon_path, png_path):
     """Convert the app's icns file to 300x300 png at the specified path. 300x300 is Munki's preferred size, and 128x128 is Casper's preferred size, as of 2015-08-01.
+
+    Args:
+        icon_path: TODO
+        png_path: TODO
     """
 
     png_path_absolute = os.path.expanduser(png_path)
@@ -1778,7 +1919,11 @@ def extract_app_icon(icon_path, png_path):
 
 
 def congratulate(prefs):
-    """Display a friendly congratulatory message upon creating recipes."""
+    """Display a friendly congratulatory message upon creating recipes.
+
+    Args:
+        prefs: TODO
+    """
 
     congrats_msg = (
         "That's awesome!",
