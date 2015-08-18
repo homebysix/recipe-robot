@@ -47,7 +47,6 @@ optional arguments:
 
 import argparse
 import os.path
-import FoundationPlist
 import pprint
 import random
 import re
