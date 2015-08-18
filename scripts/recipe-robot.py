@@ -1057,7 +1057,6 @@ def handle_app_input(input_path, recipes, args, prefs):
                     "description": description,
                     "display_name": app_name,
                     "icon_name": "%s.png" % app_name,
-                    "minimum_os_version": min_sys_vers,
                     "name": app_name,
                     "unattended_install": True  # Always?
                 }
