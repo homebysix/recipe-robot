@@ -773,6 +773,45 @@ def create_buildable_recipe_list(app_name, recipes, args):
 # when the script is run) we may want to handle internal input too (from
 # one recipe type to another).
 
+def handle_github_url_input(input_path, recipes, args, prefs):
+    """Process a GitHub URL, gathering required information to create a
+    recipe.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
+    """
+    pass
+
+
+def handle_sourceforge_url_input(input_path, recipes, args, prefs):
+    """Process a SourceForge URL, gathering required information to create a
+    recipe.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
+    """
+    pass
+
+
+def handle_download_url_input(input_path, recipes, args, prefs):
+    """Process a direct download URL, gathering required information to
+    create a recipe.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
+    """
+    pass
+
+
 def handle_app_input(input_path, recipes, args, prefs):
     """Process an app, gathering required information to create a recipe.
 
@@ -1926,19 +1965,13 @@ def main():
 
         if input_path.startswith("http"):
             if input_path.find("github.com"):
-                # GitHub URL
-                pass
+                handle_github_url_input(input_path, recipes, args, prefs)
             if input_path.find("sourceforge.com"):
-                # SourceForge URL
-                pass
+                handle_sourceforge_url_input(input_path, recipes, args, prefs)
             else:
-                # Direct download URL
-                pass
-
+                handle_download_url_input(input_path, recipes, args, prefs)
         elif input_path.startswith("ftp"):
-            # Direct download URL
-            pass
-
+            handle_download_url_input(input_path, recipes, args, prefs)
         elif os.path.exists(input_path):
             if input_path.endswith(".app"):
                 handle_app_input(input_path, recipes, args, prefs)
