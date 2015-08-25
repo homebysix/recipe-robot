@@ -381,7 +381,9 @@ def build_argument_parser():
         description="Easily and automatically create AutoPkg recipes.")
     parser.add_argument(
         "input_path",
-        help="Path to a recipe or app from which to derive AutoPkg recipes.")
+        help="Path from which to derive AutoPkg recipes. This can be one of "
+             "the following: existing app, existing AutoPkg recipe, input "
+             "plist, GitHub or SourceForge URL, or direct download URL.")
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
