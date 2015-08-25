@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>errors</key>
+    <array>
+        <string>Error one.</string>
+        <string>Error two.</string>
+    </array>
+    <key>recipe_paths</key>
+    <array>
+        <string>~/Library/AutoPkg/RecipeOverrides/Foo.download.recipe</string>
+        <string>~/Library/AutoPkg/RecipeOverrides/Foo.pkg.recipe</string>
+        <string>~/Library/AutoPkg/RecipeOverrides/Foo.munki.recipe</string>
+    </array>
+    <key>cumulative_recipe_count</key>
+    <integer>23</integer>
+</dict>
+</plist>
