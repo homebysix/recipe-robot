@@ -994,7 +994,10 @@ def handle_app_input(input_path, recipes, args, prefs):
                         "SOURCEFORGE_PROJECT_ID"] = sourceforge_id
                 # end if
                 recipe["keys"]["Process"].append({
-                    "Processor": "URLDownloader"
+                    "Processor": "URLDownloader",
+                    "Arguments": {
+                        "filename": "%%NAME%%-%%version%%.%s" % download_format
+                    }
                 })
                 recipe["keys"]["Process"].append({
                     "Processor": "EndOfCheckPhase"
