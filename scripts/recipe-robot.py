@@ -20,24 +20,24 @@
 """
 recipe-robot.py
 
-usage: recipe-robot.py [-h] [-v] [-o OUTPUT] [-t RECIPE_TYPE]
+Easily and automatically create AutoPkg recipes.
+
+usage: recipe-robot.py [-h] [-v] [-o OUTPUT_DIR] [-t RECIPE_TYPES]
                        [--include-existing] [--config]
                        input_path
 
-Easily and automatically create AutoPkg recipes.
-
 positional arguments:
-  input_path            Path to a recipe or app to use as the basis for
-                        creating AutoPkg recipes.
+  input_path            Path to a recipe or app from which to derive AutoPkg
+                        recipes.
 
 optional arguments:
   -h, --help            show this help message and exit
   -v, --verbose         Generate additional output about the process.
-  -o OUTPUT, --output OUTPUT
+  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
                         Path to a folder you'd like to save your generated
                         recipes in.
-  -t RECIPE_TYPE, --recipe-type RECIPE_TYPE
-                        The type(s) of recipe you'd like to generate.
+  -t RECIPE_TYPES, --recipe-types RECIPE_TYPES
+                        The types of recipe you'd like to generate.
   --include-existing    Offer to generate recipes even if one already exists
                         on GitHub.
   --config              Adjust Recipe Robot preferences prior to generating
@@ -381,19 +381,19 @@ def build_argument_parser():
         description="Easily and automatically create AutoPkg recipes.")
     parser.add_argument(
         "input_path",
-        help="Path to a recipe or app to use as the basis for creating AutoPkg recipes.")
+        help="Path to a recipe or app from which to derive AutoPkg recipes.")
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
         help="Generate additional output about the process.")
     parser.add_argument(
-        "-o", "--output",
+        "-o", "--output-dir",
         action="store",
         help="Path to a folder you'd like to save your generated recipes in.")
     parser.add_argument(
-        "-t", "--recipe-type",
+        "-t", "--recipe-types",
         action="store",
-        help="The type(s) of recipe you'd like to generate.")
+        help="The types of recipe you'd like to generate.")
     parser.add_argument(
         "--include-existing",
         action="store_true",
