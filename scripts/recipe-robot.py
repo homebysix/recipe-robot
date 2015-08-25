@@ -304,8 +304,8 @@ class DSRecipe(Recipe):
         })
 
 
-# TODO(Elliot or more likely Shea): Once classes are added, rework these functions to use classes
-# instead of existing hard-wired logic:
+# TODO(Elliot or more likely Shea): Once classes are added, rework these
+# functions to use classes instead of existing hard-wired logic:
 #    - init_recipes
 #    - init_prefs
 #    - build_prefs
@@ -337,6 +337,7 @@ def robo_print(output_type, message):
 
     if output_type == "error":
         print >> sys.stderr, bcolors.ERROR, "[ERROR]", message, bcolors.ENDC
+        sys.exit(1)
     elif output_type == "warning":
         print >> sys.stderr, bcolors.WARNING, "[WARNING]", message, bcolors.ENDC
     elif output_type == "debug" and debug_mode is True:
@@ -778,7 +779,6 @@ def create_existing_recipe_list(app_name, recipes):
                         robo_print("log", "Found existing %s." % recipe_name)
         else:
             robo_print("error", err)
-            sys.exit(exitcode)
 
 
 def create_buildable_recipe_list(app_name, recipes, args):
@@ -824,10 +824,6 @@ def handle_app_input(input_path, recipes, args, prefs):
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
     except Exception:
         robo_print("error", "This doesn't look like a valid app to me.")
-        if debug_mode is True:
-            raise
-        else:
-            sys.exit(1)
     if app_name == "":  # Will always be true at this point.
         robo_print("verbose", "Determining app's name from CFBundleName...")
         try:
@@ -877,7 +873,6 @@ def handle_app_input(input_path, recipes, args, prefs):
             robo_print("warning", "No SUOriginalFeedURL found in this app's Info.plist.")
     if sparkle_feed == "":
         robo_print("error", "Sorry, this app doesn't have a Sparkle feed.")
-        sys.exit(1)
         # TODO(Elliot): Make this error into a warning once we can support
         # GitHub and SourceForge searching. Until then, Sparkle or bust.
     else:
@@ -1793,7 +1788,6 @@ def select_recipes_to_generate(recipes):
 
     if buildable_count < 1:
         robo_print("error", "Sorry, there are no recipe types to generate.")
-        sys.exit(0)
 
     robo_print("log", "\nPlease select which recipes you'd like to create:\n")
 
@@ -1888,10 +1882,6 @@ def create_dest_dirs(path):
             os.makedirs(dest_dir)
         except Exception:
             robo_print("error", "Unable to create directory at %s." % dest_dir)
-            if debug_mode:
-                raise
-            else:
-                sys.exit(1)
 
 
 def extract_app_icon(icon_path, png_path):
@@ -1993,7 +1983,6 @@ def main():
         else:
             robo_print("error", "I haven't been trained on how to handle "
                        "this input path:\n    %s" % input_path)
-            sys.exit(1)
 
         if debug_mode is True:
             robo_print(
