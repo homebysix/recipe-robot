@@ -4,11 +4,27 @@ Some scattered notes to assist in the design and development of Recipe Robot.
 
 <!-- MarkdownTOC autolink=true depth=4 bracket=round -->
 
+- [Planned script workflow](#planned-script-workflow)
 - [Facts necessary to produce recipe types](#facts-necessary-to-produce-recipe-types)
+- [Elliot's recipe template logic](#elliots-recipe-template-logic)
 - [Recipe creation functions](#recipe-creation-functions)
 - [App interface](#app-interface)
 
 <!-- /MarkdownTOC -->
+
+## Planned script workflow
+
+Script takes the following as input, either as a plist or as arguments:
+
+- Input path to app or existing AutoPkg recipe
+- Desired recipe identifier (e.g. com.github.homebysix)
+- Desired recipe types (e.g. download, munki, pkg, etc.)
+- Desired recipe save location
+
+And produces the following as output:
+
+- One recipe for each selected recipe type that doesn't already exist
+- A plist with meta-information about the recipe creation process, including errors
 
 ## Facts necessary to produce recipe types
 
