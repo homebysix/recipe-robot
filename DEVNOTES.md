@@ -127,6 +127,72 @@ __ds__
     - Process -> StopProcessingIf processor
     - Process -> Copier processor
 
+## Elliot's recipe template logic
+
+Here's the logic I was using to create recipes manually until this point:
+
+- The app has a Sparkle feed:
+    - Downloaded file is zip, .tar.gz, etc:
+        - App is signed:
+            - SPARKLE ZIP SIGNED __DOWNLOAD__ RECIPE TEMPLATE:
+                - SparkleUpdateInfoProvider
+                - URLDownloader
+                - EndOfCheckPhase
+                - Unarchiver
+                - CodeSignatureVerifier
+            - SPARKLE ZIP SIGNED __MUNKI__ RECIPE TEMPLATE
+                - DmgCreator
+                - MunkiImporter
+            - SPARKLE ZIP SIGNED __PKG__ RECIPE TEMPLATE
+                - PkgCreator
+            - SPARKLE ZIP SIGNED __INSTALL__ RECIPE TEMPLATE
+                - DmgCreator
+                - InstallFromDMG
+        - App is unsigned:
+            - SPARKLE ZIP UNSIGNED __DOWNLOAD__ RECIPE TEMPLATE:
+                - SparkleUpdateInfoProvider
+                - URLDownloader
+                - EndOfCheckPhase
+            - SPARKLE ZIP UNSIGNED __MUNKI__ RECIPE TEMPLATE:
+                - Unarchiver
+                - DmgCreator
+                - MunkiImporter
+            - SPARKLE ZIP UNSIGNED __PKG__ RECIPE TEMPLATE:
+                - Unarchiver
+                - PkgCreator
+            - SPARKLE ZIP UNSIGNED __INSTALL__ RECIPE TEMPLATE:
+                - Unarchiver
+                - DmgCreator
+                - InstallFromDMG
+    - Downloaded file is dmg, iso:
+        - App is signed:
+            - SPARKLE DMG SIGNED __DOWNLOAD__ RECIPE TEMPLATE:
+                - SparkleUpdateInfoProvider
+                - URLDownloader
+                - EndOfCheckPhase
+                - CodeSignatureVerifier
+            - SPARKLE DMG SIGNED __MUNKI__ RECIPE TEMPLATE
+                - MunkiImporter
+            - SPARKLE DMG SIGNED __PKG__ RECIPE TEMPLATE
+                - PkgRootCreator
+                - Copier
+                - PkgCreator
+            - SPARKLE DMG SIGNED __INSTALL__ RECIPE TEMPLATE
+                - InstallFromDMG
+        - App is unsigned:
+            - SPARKLE DMG UNSIGNED __DOWNLOAD__ RECIPE TEMPLATE:
+                - SparkleUpdateInfoProvider
+                - URLDownloader
+                - EndOfCheckPhase
+            - SPARKLE DMG UNSIGNED __MUNKI__ RECIPE TEMPLATE
+                - MunkiImporter
+            - SPARKLE DMG UNSIGNED __PKG__ RECIPE TEMPLATE
+                - PkgRootCreator
+                - Copier
+                - PkgCreator
+            - SPARKLE DMG UNSIGNED __INSTALL__ RECIPE TEMPLATE
+                - InstallFromDMG
+
 ## Recipe creation functions
 
 Here's a map of the planned creation (blue) and extraction (orange) functions.
