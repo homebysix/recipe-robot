@@ -874,10 +874,12 @@ def handle_app_input(input_path, recipes, args, prefs):
             sparkle_feed = info_plist["SUOriginalFeedURL"]
             download_format = get_sparkle_download_format(sparkle_feed)
         except Exception:
-            robo_print(
-                "warning", "No SUOriginalFeedURL found in this app's Info.plist.")
+            robo_print("warning", "No SUOriginalFeedURL found in this app's Info.plist.")
     if sparkle_feed == "":
-        robo_print("warning", "No Sparkle feed.")
+        robo_print("error", "Sorry, this app doesn't have a Sparkle feed.")
+        sys.exit(1)
+        # TODO(Elliot): Make this error into a warning once we can support
+        # GitHub and SourceForge searching. Until then, Sparkle or bust.
     else:
         robo_print("verbose", "    Sparkle feed is: %s" % sparkle_feed)
     if sparkle_feed == "":
@@ -1000,12 +1002,12 @@ def handle_app_input(input_path, recipes, args, prefs):
                 if code_signed is True:
                     if code_sign_reqs != "":
                         code_sign_args = {
-                            "input_path": "%pathname%/%s.app" % app_name,
+                            "input_path": "%%pathname%%/%s.app" % app_name,
                             "requirement": code_sign_reqs
                         }
                     else:
                         code_sign_args = {
-                            "input_path": "%pathname%/%s.app" % app_name
+                            "input_path": "%%pathname%%/%s.app" % app_name
                         }
 
                     if download_format in supported_image_formats:
