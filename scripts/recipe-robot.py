@@ -1906,6 +1906,12 @@ def main():
         argparser = build_argument_parser()
         args = argparser.parse_args()
 
+        if args.include_existing is True:
+            robo_print("warning", "Will offer to build recipes even if they already exist on GitHub. Please don't upload duplicate recipes.")
+        if args.verbose is True:
+            robo_print("verbose", "Verbose mode is on.")
+            verbose_mode = True
+
         # Create the master recipe information list.
         recipes = init_recipes()
 
