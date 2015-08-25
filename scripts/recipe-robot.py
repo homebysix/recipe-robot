@@ -490,7 +490,14 @@ def init_recipes():
 
 
 def init_prefs(prefs, recipes, args):
-    """Read from preferences plist, if it exists.
+    """Read Recipe Robot preferences in the following priority order:
+        0. If --config argument is specified, skip to step 4.
+        1. If a setting is defined in a command line argument, use it.
+        2. If a setting is defined in an input plist, use it.
+        3. If neither of the above, and a preferences plist exists, use it.
+        4. If none of the above or if --config is specified, prompt user
+           for each setting, then save to a preferences plist that will be
+           used in step 3 next time.
 
     Args:
         prefs: TODO
@@ -501,47 +508,45 @@ def init_prefs(prefs, recipes, args):
         prefs: TODO
     """
 
-    prefs = {}
+    prefs = {
+        "input_path": "",
+        "identifier_prefix": "",
+        "recipe_types": [],
+        "output_dir": "",
+    }
     global verbose_mode
+    global prefs_file
 
-    # TODO(Elliot): Preference hierarchy:
-    #    - If --config is specified, build pref plist and save to disk.
-    #    - If a specific pref is specified in an arg, use that. Don't save.
-    #    - If a specific pref is specified in an existing plist, then use that.
-    #    - If no prefs are specified or saved on disk, same as --config.
+    # If --config is specified, build preferences from scratch.
+    if args.config is True:
+        robo_print("log", "Showing configuration options...")
+        prefs = build_prefs(prefs, recipes, args)
+
+    # If an input plist is specified, use that for one-time preferences.
+    elif args.input_path.endswith(".plist"):
+        prefs_file = args.input_path
+
+    # WIP
 
     # If prefs file exists, try to read from it.
     if os.path.isfile(prefs_file):
-
-        # Open the file.
         try:
             prefs = FoundationPlist.readPlist(prefs_file)
-
             for recipe in recipes:
                 # Load preferred recipe types.
                 if recipe["name"] in prefs["recipe_types"]:
                     recipe["preferred"] = True
                 else:
                     recipe["preferred"] = False
-
-            if args.include_existing is True:
-                robo_print("warning", "Will offer to build recipes even if they already exist on GitHub. Please don't upload duplicate recipes.")
-
-            if args.config is True:
-                robo_print("log", "Showing configuration options...")
-                prefs = build_prefs(prefs, recipes, args)
-
-            if args.verbose is True:
-                robo_print("verbose", "Verbose mode is on.")
-                verbose_mode = True
-
         except Exception:
-            print("There was a problem opening the prefs file. "
-                  "Building new preferences.")
+            robo_print("warning",
+                       "There was a problem opening the prefs file at %s. "
+                       "Building new preferences." % prefs_file)
             prefs = build_prefs(prefs, recipes, args)
 
     else:
-        robo_print("warning", "No prefs file found. Building new preferences...")
+        robo_print("warning",
+                   "No prefs file found. Building new preferences...")
         prefs = build_prefs(prefs, recipes, args)
 
     # Record last version number.
