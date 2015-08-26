@@ -89,219 +89,204 @@ class bcolors:
     WARNING = '\033[93m'
 
 
-class InputType(object):
-
-    """Python pseudo-enum for describing types of input."""
-
-    (app,
-     download_recipe,
-     munki_recipe,
-     pkg_recipe,
-     install_recipe,
-     jss_recipe,
-     absolute_recipe,
-     sccm_recipe,
-     ds_recipe) = range(9)
-
-
-# Use this as a reference to build out the classes below:
+# TODO(Elliot): Use this as a reference to build out the classes below:
 # https://github.com/homebysix/recipe-robot/blob/master/DEVNOTES.md
 
 
-class Recipe(object):
-
-    """A generic AutoPkg recipe class."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["Identifier"] = ""
-        self["Input"] = {}  # dict
-        self["Input"]["NAME"] = ""
-        self["Process"] = []  # list/array
-        self["MinimumVersion"] = "0.5.0"
-
-    def add_input(self, key, value=""):
-        """Add or set a recipe input variable."""
-        self["Input"][key] = value
-
-
-class DownloadRecipe(Recipe):
-
-    """A download recipe class. Extends Recipe."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["Process"].append({
-            "Processor": "URLDownloader"
-        })
-
-
-class MunkiRecipe(Recipe):
-
-    """A munki recipe class. Extends Recipe."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["ParentRecipe"] = ""
-        self["Input"]["MUNKI_REPO_SUBDIR"] = ""
-        self["Input"]["pkginfo"] = {
-            "catalogs": [],
-            "description": [],
-            "display_name": [],
-            "name": [],
-            "unattended_install": True
-        }
-        self["Process"].append({
-            "Processor": "MunkiImporter",
-            "Arguments": {
-                "pkg_path": "%pathname%",
-                "repo_subdirectory": "%MUNKI_REPO_SUBDIR%"
-            }
-        })
-
-
-class PkgRecipe(Recipe):
-
-    """A pkg recipe class. Extends Recipe."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["ParentRecipe"] = ""
-        self["Input"]["PKG_ID"] = ""
-        self["Process"].append({
-            "Processor": "PkgRootCreator",
-            "Arguments": {
-                "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
-                "pkgdirs": {}
-            }
-        })
-        self["Process"].append({
-            "Processor": "Versioner",
-            "Arguments": {
-                "input_plist_path": "",
-                "plist_version_key": ""
-            }
-        })
-        self["Process"].append({
-            "Processor": "PkgCreator",
-            "Arguments": {
-                "pkg_request": {
-                    "pkgname": "%NAME%-%version%",
-                    "version": "%version%",
-                    "id": "",
-                    "options": "purge_ds_store",
-                    "chown": [{
-                        "path": "Applications",
-                        "user": "root",
-                        "group": "admin"
-                    }]
-                }
-            }
-        })
-
-
-class InstallRecipe(Recipe):
-
-    """An install recipe class. Extends Recipe."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["ParentRecipe"] = ""
-
-
-class JSSRecipe(Recipe):
-
-    """A jss recipe class. Extends Recipe."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["ParentRecipe"] = ""
-        self["Input"]["prod_name"] = ""
-        self["Input"]["category"] = ""
-        self["Input"]["policy_category"] = ""
-        self["Input"]["policy_template"] = ""
-        self["Input"]["self_service_icon"] = ""
-        self["Input"]["self_service_description"] = ""
-        self["Input"]["groups"] = []
-        self["Input"]["GROUP_NAME"] = ""
-        self["Input"]["GROUP_TEMPLATE"] = ""
-        self["Process"].append({
-            "Processor": "JSSImporter",
-            "Arguments": {
-                "prod_name": "%NAME%",
-                "category": "%CATEGORY%",
-                "policy_category": "%POLICY_CATEGORY%",
-                "policy_template": "%POLICY_TEMPLATE%",
-                "self_service_icon": "%SELF_SERVICE_ICON%",
-                "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
-                "groups": [{
-                    "name": "%GROUP_NAME%",
-                    "smart": True,
-                    "template_path": "%GROUP_TEMPLATE%"
-                }]
-            }
-        })
-
-
-class AbsoluteRecipe(Recipe):
-
-    """An absolute recipe class. Extends Recipe."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["ParentRecipe"] = ""
-        self["Process"].append({
-            "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
-            "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
-            "Arguments": {
-                "dest_payload_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
-                "sdpackages_ampkgprops_path": "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
-                "source_payload_path": "%pkg_path%",
-                "import_abman_to_servercenter": True
-            }
-        })
-
-
-class SCCMRecipe(Recipe):
-
-    """An sccm recipe class. Extends Recipe."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["ParentRecipe"] = ""
-        self["Process"].append({
-            "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
-            "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
-            "Arguments": {
-                "source_file": "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg",
-                "destination_directory": "%RECIPE_CACHE_DIR%"
-            }
-        })
-
-
-class DSRecipe(Recipe):
-
-    """A ds recipe class. Extends Recipe."""
-
-    def create(self):
-        """Create a new recipe with required keys set to defaults."""
-        self["ParentRecipe"] = ""
-        self["Input"]["DS_PKGS_PATH"] = ""
-        self["Input"]["DS_NAME"] = ""
-        self["Process"].append({
-            "Processor": "StopProcessingIf",
-            "Arguments": {
-                "predicate": "new_package_request == FALSE"
-            }
-        })
-        self["Process"].append({
-            "Processor": "Copier",
-            "Arguments": {
-                "source_path": "%pkg_path%",
-                "destination_path": "%DS_PKGS_PATH%/%DS_NAME%.pkg",
-                "overwrite": True
-            }
-        })
+# class Recipe(object):
+#
+#     """A generic AutoPkg recipe class."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["Identifier"] = ""
+#         self["Input"] = {}  # dict
+#         self["Input"]["NAME"] = ""
+#         self["Process"] = []  # list/array
+#         self["MinimumVersion"] = "0.5.0"
+#
+#     def add_input(self, key, value=""):
+#         """Add or set a recipe input variable."""
+#         self["Input"][key] = value
+#
+#
+# class DownloadRecipe(Recipe):
+#
+#     """A download recipe class. Extends Recipe."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["Process"].append({
+#             "Processor": "URLDownloader"
+#         })
+#
+#
+# class MunkiRecipe(Recipe):
+#
+#     """A munki recipe class. Extends Recipe."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["ParentRecipe"] = ""
+#         self["Input"]["MUNKI_REPO_SUBDIR"] = ""
+#         self["Input"]["pkginfo"] = {
+#             "catalogs": [],
+#             "description": [],
+#             "display_name": [],
+#             "name": [],
+#             "unattended_install": True
+#         }
+#         self["Process"].append({
+#             "Processor": "MunkiImporter",
+#             "Arguments": {
+#                 "pkg_path": "%pathname%",
+#                 "repo_subdirectory": "%MUNKI_REPO_SUBDIR%"
+#             }
+#         })
+#
+#
+# class PkgRecipe(Recipe):
+#
+#     """A pkg recipe class. Extends Recipe."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["ParentRecipe"] = ""
+#         self["Input"]["PKG_ID"] = ""
+#         self["Process"].append({
+#             "Processor": "PkgRootCreator",
+#             "Arguments": {
+#                 "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+#                 "pkgdirs": {}
+#             }
+#         })
+#         self["Process"].append({
+#             "Processor": "Versioner",
+#             "Arguments": {
+#                 "input_plist_path": "",
+#                 "plist_version_key": ""
+#             }
+#         })
+#         self["Process"].append({
+#             "Processor": "PkgCreator",
+#             "Arguments": {
+#                 "pkg_request": {
+#                     "pkgname": "%NAME%-%version%",
+#                     "version": "%version%",
+#                     "id": "",
+#                     "options": "purge_ds_store",
+#                     "chown": [{
+#                         "path": "Applications",
+#                         "user": "root",
+#                         "group": "admin"
+#                     }]
+#                 }
+#             }
+#         })
+#
+#
+# class InstallRecipe(Recipe):
+#
+#     """An install recipe class. Extends Recipe."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["ParentRecipe"] = ""
+#
+#
+# class JSSRecipe(Recipe):
+#
+#     """A jss recipe class. Extends Recipe."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["ParentRecipe"] = ""
+#         self["Input"]["prod_name"] = ""
+#         self["Input"]["category"] = ""
+#         self["Input"]["policy_category"] = ""
+#         self["Input"]["policy_template"] = ""
+#         self["Input"]["self_service_icon"] = ""
+#         self["Input"]["self_service_description"] = ""
+#         self["Input"]["groups"] = []
+#         self["Input"]["GROUP_NAME"] = ""
+#         self["Input"]["GROUP_TEMPLATE"] = ""
+#         self["Process"].append({
+#             "Processor": "JSSImporter",
+#             "Arguments": {
+#                 "prod_name": "%NAME%",
+#                 "category": "%CATEGORY%",
+#                 "policy_category": "%POLICY_CATEGORY%",
+#                 "policy_template": "%POLICY_TEMPLATE%",
+#                 "self_service_icon": "%SELF_SERVICE_ICON%",
+#                 "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
+#                 "groups": [{
+#                     "name": "%GROUP_NAME%",
+#                     "smart": True,
+#                     "template_path": "%GROUP_TEMPLATE%"
+#                 }]
+#             }
+#         })
+#
+#
+# class AbsoluteRecipe(Recipe):
+#
+#     """An absolute recipe class. Extends Recipe."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["ParentRecipe"] = ""
+#         self["Process"].append({
+#             "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
+#             "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
+#             "Arguments": {
+#                 "dest_payload_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
+#                 "sdpackages_ampkgprops_path": "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
+#                 "source_payload_path": "%pkg_path%",
+#                 "import_abman_to_servercenter": True
+#             }
+#         })
+#
+#
+# class SCCMRecipe(Recipe):
+#
+#     """An sccm recipe class. Extends Recipe."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["ParentRecipe"] = ""
+#         self["Process"].append({
+#             "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
+#             "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
+#             "Arguments": {
+#                 "source_file": "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg",
+#                 "destination_directory": "%RECIPE_CACHE_DIR%"
+#             }
+#         })
+#
+#
+# class DSRecipe(Recipe):
+#
+#     """A ds recipe class. Extends Recipe."""
+#
+#     def create(self):
+#         """Create a new recipe with required keys set to defaults."""
+#         self["ParentRecipe"] = ""
+#         self["Input"]["DS_PKGS_PATH"] = ""
+#         self["Input"]["DS_NAME"] = ""
+#         self["Process"].append({
+#             "Processor": "StopProcessingIf",
+#             "Arguments": {
+#                 "predicate": "new_package_request == FALSE"
+#             }
+#         })
+#         self["Process"].append({
+#             "Processor": "Copier",
+#             "Arguments": {
+#                 "source_path": "%pkg_path%",
+#                 "destination_path": "%DS_PKGS_PATH%/%DS_NAME%.pkg",
+#                 "overwrite": True
+#             }
+#         })
 
 
 # TODO(Elliot or more likely Shea): Once classes are added, rework these
@@ -309,7 +294,6 @@ class DSRecipe(Recipe):
 #    - init_recipes
 #    - init_prefs
 #    - build_prefs
-#    - get_input_type
 #    - create_existing_recipe_list
 #    - create_buildable_recipe_list
 #    - handle_app_input
@@ -382,8 +366,8 @@ def build_argument_parser():
     parser.add_argument(
         "input_path",
         help="Path from which to derive AutoPkg recipes. This can be one of "
-             "the following: existing app, existing AutoPkg recipe, input "
-             "plist, GitHub or SourceForge URL, or direct download URL.")
+             "the following: existing app, existing AutoPkg recipe, Sparkle "
+             "feed, GitHub or SourceForge URL, or direct download URL.")
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
@@ -435,7 +419,7 @@ def init_recipes():
         {
             "name": "download",
             "description": "Downloads an app in whatever format the developer "
-            "provides."
+                           "provides."
         },
         {
             "name": "munki",
@@ -452,7 +436,7 @@ def init_recipes():
         {
             "name": "jss",
             "description": "Imports into your Casper JSS and creates "
-            "necessary groups, policies, etc."
+                           "necessary groups, policies, etc."
         },
         {
             "name": "absolute",
@@ -461,7 +445,7 @@ def init_recipes():
         {
             "name": "sccm",
             "description": "Creates a cmmac package for deploying via "
-            "Microsoft SCCM."
+                           "Microsoft SCCM."
         },
         {
             "name": "ds",
@@ -491,13 +475,9 @@ def init_recipes():
 
 def init_prefs(prefs, recipes, args):
     """Read Recipe Robot preferences in the following priority order:
-        0. If --config argument is specified, skip to step 4.
-        1. If a setting is defined in a command line argument, use it.
-        2. If a setting is defined in an input plist, use it.
-        3. If neither of the above, and a preferences plist exists, use it.
-        4. If none of the above or if --config is specified, prompt user
-           for each setting, then save to a preferences plist that will be
-           used in step 3 next time.
+        0. If --config argument is specified, ignore prefs and rebuild.
+        3. If preferences plist doesn't exist, rebuild.
+        4. If preferences plist does exist, use it.
 
     Args:
         prefs: TODO
@@ -508,46 +488,36 @@ def init_prefs(prefs, recipes, args):
         prefs: TODO
     """
 
-    prefs = {
-        "input_path": "",
-        "identifier_prefix": "",
-        "recipe_types": [],
-        "output_dir": "",
-    }
-    global verbose_mode
+    prefs = {}
     global prefs_file
-
-    # If --config is specified, build preferences from scratch.
-    if args.config is True:
-        robo_print("log", "Showing configuration options...")
-        prefs = build_prefs(prefs, recipes, args)
-
-    # If an input plist is specified, use that for one-time preferences.
-    elif args.input_path.endswith(".plist"):
-        prefs_file = args.input_path
-
-    # WIP
 
     # If prefs file exists, try to read from it.
     if os.path.isfile(prefs_file):
+
+        # Open the file.
         try:
             prefs = FoundationPlist.readPlist(prefs_file)
+
             for recipe in recipes:
                 # Load preferred recipe types.
-                if recipe["name"] in prefs["recipe_types"]:
+                if recipe["name"] in prefs["RecipeTypes"]:
                     recipe["preferred"] = True
                 else:
                     recipe["preferred"] = False
+
+            if args.config is True:
+                robo_print("log", "Showing configuration options...")
+                prefs = build_prefs(prefs, recipes)
+
+
         except Exception:
-            robo_print("warning",
-                       "There was a problem opening the prefs file at %s. "
-                       "Building new preferences." % prefs_file)
-            prefs = build_prefs(prefs, recipes, args)
+            print("There was a problem opening the prefs file. "
+                  "Building new preferences.")
+            prefs = build_prefs(prefs, recipes)
 
     else:
-        robo_print("warning",
-                   "No prefs file found. Building new preferences...")
-        prefs = build_prefs(prefs, recipes, args)
+        robo_print("warning", "No prefs file found. Building new preferences...")
+        prefs = build_prefs(prefs, recipes)
 
     # Record last version number.
     prefs["LastRecipeRobotVersion"] = version
@@ -558,13 +528,12 @@ def init_prefs(prefs, recipes, args):
     return prefs
 
 
-def build_prefs(prefs, recipes, args):
+def build_prefs(prefs, recipes):
     """Prompt user for preferences, then save them back to the plist.
 
     Args:
         prefs: TODO
         recipes: TODO
-        args: TODO
 
     Returns:
         prefs: TODO
@@ -788,6 +757,19 @@ def handle_github_url_input(input_path, recipes, args, prefs):
 
 def handle_sourceforge_url_input(input_path, recipes, args, prefs):
     """Process a SourceForge URL, gathering required information to create a
+    recipe.
+
+    Args:
+        input_path: TODO
+        recipes: TODO
+        args: TODO
+        prefs: TODO
+    """
+    pass
+
+
+def handle_sparkle_feed_url(input_path, recipes, args, prefs):
+    """Process a Sparkle feed URL, gathering required information to create a
     recipe.
 
     Args:
@@ -1939,14 +1921,17 @@ def main():
     """Make the magic happen."""
 
     try:
+        global verbose_mode
+
         print_welcome_text()
 
-        # Parse command line arguments, if any.
         argparser = build_argument_parser()
         args = argparser.parse_args()
-
         if args.include_existing is True:
-            robo_print("warning", "Will offer to build recipes even if they already exist on GitHub. Please don't upload duplicate recipes.")
+            robo_print("warning",
+                       "Will offer to build recipes even if they already "
+                       "exist on GitHub. Please don't upload duplicate "
+                       "recipes.")
         if args.verbose is True:
             robo_print("verbose", "Verbose mode is on.")
             verbose_mode = True
@@ -1958,7 +1943,6 @@ def main():
         prefs = {}
         prefs = init_prefs(prefs, recipes, args)
 
-        # Validate and process the input path.
         input_path = args.input_path
         input_path = input_path.rstrip("/ ")
         robo_print("log", "\nProcessing %s ..." % input_path)
@@ -1966,10 +1950,17 @@ def main():
         if input_path.startswith("http"):
             if input_path.find("github.com"):
                 handle_github_url_input(input_path, recipes, args, prefs)
-            if input_path.find("sourceforge.com"):
+            elif input_path.find("sourceforge.com"):
                 handle_sourceforge_url_input(input_path, recipes, args, prefs)
+            elif input_path.endswith(".xml"):
+                handle_sparkle_feed_url(input_path, recipes, args, prefs)
             else:
-                handle_download_url_input(input_path, recipes, args, prefs)
+                pass
+                # TODO(Elliot): Determine whether Sparkle or direct download.
+                # If sparkle:
+                #   handle_sparkle_feed_url(input_path, recipes, args, prefs)
+                # If download:
+                #   handle_download_url_input(input_path, recipes, args, prefs)
         elif input_path.startswith("ftp"):
             handle_download_url_input(input_path, recipes, args, prefs)
         elif os.path.exists(input_path):

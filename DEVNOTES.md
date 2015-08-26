@@ -14,13 +14,14 @@ Some scattered notes to assist in the design and development of Recipe Robot.
 
 ## Planned script workflow
 
-Script takes the following as input, either as a plist or as arguments:
+Script takes the following as input:
 
 - Input path, which can be one of the following
     - Path to an app
     - Path to an existing AutoPkg recipe
     - GitHub URL
     - SourceForge URL
+    - Sparkle feed URL
     - Direct download URL
 - Desired recipe identifier (e.g. com.github.homebysix)
 - Desired recipe types (e.g. download, munki, pkg, etc.)
