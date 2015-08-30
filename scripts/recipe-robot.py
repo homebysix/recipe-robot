@@ -677,8 +677,14 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     facts["sparkle_feed"] = input_path
 
     # Download the Sparkle feed and parse it.
-    html = urlopen(input_path)
-    doc = parse(html)
+    try:
+        raw_xml = urlopen(input_path)
+    except Exception as err:
+        robo_print("warning",
+                   "Error occured while inspecting Sparkle feed: %s" % err)
+        return facts
+
+    doc = parse(raw_xml)
 
     # Get the latest download URL.
     download_url = ""
