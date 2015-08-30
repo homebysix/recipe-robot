@@ -1333,9 +1333,13 @@ def generate_recipes(facts, prefs, recipes):
                 })
 
                 # Extract the app's icon and save it to disk.
-                extracted_icon = "%s/%s.png" % (prefs["RecipeCreateLocation"],
-                                                facts["app_name"])
-                extract_app_icon(facts["icon_path"], extracted_icon)
+                if "icon_path" in facts:
+                    extracted_icon = "%s/%s.png" % (prefs["RecipeCreateLocation"], facts["app_name"])
+                    extract_app_icon(facts["icon_path"], extracted_icon)
+                else:
+                    robo_print("warning",
+                               "I don't have enough information to create a "
+                               "PNG icon for this app.")
 
             # Set keys specific to pkg recipes.
             elif recipe["type"] == "pkg":
@@ -1554,9 +1558,13 @@ def generate_recipes(facts, prefs, recipes):
                     })
 
                 # Extract the app's icon and save it to disk.
-                extracted_icon = "%s/%s.png" % (prefs["RecipeCreateLocation"],
-                                                facts["app_name"])
-                extract_app_icon(facts["icon_path"], extracted_icon)
+                if "icon_path" in facts:
+                    extracted_icon = "%s/%s.png" % (prefs["RecipeCreateLocation"], facts["app_name"])
+                    extract_app_icon(facts["icon_path"], extracted_icon)
+                else:
+                    robo_print("warning",
+                               "I don't have enough information to create a "
+                               "PNG icon for this app.")
 
             # Set keys specific to absolute recipes.
             elif recipe["type"] == "absolute":
