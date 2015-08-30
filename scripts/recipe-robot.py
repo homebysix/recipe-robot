@@ -1234,6 +1234,8 @@ def generate_recipes(facts, prefs, recipes):
                 # TODO(Elliot): What if it's somebody else's download recipe?
                 keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
+                import_file_var = "%pathname%"
+
                 if facts["download_format"] in supported_image_formats and "sparkle_feed" not in facts:
                     # It's a dmg download, but not from Sparkle, so we need to version it.
                     keys["Process"].append({
@@ -1248,10 +1250,11 @@ def generate_recipes(facts, prefs, recipes):
                     keys["Process"].append({
                         "Processor": "DmgCreator",
                         "Arguments": {
-                            "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
-                            "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg"
+                            "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
+                            "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications"
                         }
                     })
+                    import_file_var = "%dmg_path%"
 
                 elif facts["download_format"] in supported_install_formats:
                     # TODO(Elliot): Put pkg in dmg?
@@ -1263,7 +1266,7 @@ def generate_recipes(facts, prefs, recipes):
                 keys["Process"].append({
                     "Processor": "MunkiImporter",
                     "Arguments": {
-                        "pkg_path": "%pathname%",
+                        "pkg_path": import_file_var,
                         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
                         "version_comparison_key": facts["version_key"]
                     }
