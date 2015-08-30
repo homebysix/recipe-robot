@@ -1258,6 +1258,17 @@ def generate_recipes(facts, prefs, recipes):
                     })
 
                 elif facts["download_format"] in supported_archive_formats:
+                    if facts["codesign_status"] == "unsigned":
+                        # If unsigned, that means the download recipe hasn't
+                        # unarchived the zip yet.
+                        keys["Process"].append({
+                            "Processor": "Unarchiver",
+                            "Arguments": {
+                                "archive_path": "%pathname%",
+                                "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                                "purge_destination": True
+                            }
+                        })
                     keys["Process"].append({
                         "Processor": "DmgCreator",
                         "Arguments": {
