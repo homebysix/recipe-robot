@@ -1119,13 +1119,37 @@ def generate_recipes(facts, prefs, recipes):
         robo_print("log", "Sorry, no recipes available to generate.")
 
     # We don't have enough information to create a recipe set.
-    if("download_format" not in facts
-           or "app_name" not in facts
-          or "bundle_id" not in facts):
+    if("download_format" not in facts):
         robo_print("error",
-                   "Sorry, I'm missing some crucial information and can't "
-                   "build recipes for this app.")
+                   "Sorry, I can't tell what format to download this app in. "
+                   "Maybe try another angle? If you provided an app, try "
+                   "providing the Sparkle feed for the app instead. Or maybe "
+                   "the app's developers offer a direct download URL on their "
+                   "website.")
+    if("bundle_id" not in facts):
+        robo_print("error",
+                   "Sorry, I can't determine the bundle identifier of this "
+                   "app. You may want to actually download the app and try "
+                   "again, using the .app file itself as input.")
 
+    # We have enough information to create a recipe set, but with assumptions.
+    if "codesign_status" not in facts:
+        robo_print("reminder",
+                   "I can't tell whether this app is codesigned or not, so "
+                   "I'm going to assume it's not. You may want to verify that "
+                   "yourself and add the CodeSignatureVerifier processor if "
+                   "necessary.")
+        facts["codesign_status"] = "unsigned"
+    if "version_key" not in facts:
+        robo_print("reminder",
+                   "I can't tell whether to use CFBundleShortVersionString or "
+                   "CFBundleVersion for the version key of this app. Most "
+                   "apps use CFBundleShortVersionString, so that's what I'll "
+                   "use. You may want to verify that and modify the recipes "
+                   "if necessary.")
+        facts["version_key"] = "CFBundleShortVersionString"
+
+    # Create a recipe for each buildable type we know about.
     for recipe in recipes:
         if recipe["buildable"] is True:
             keys = recipe["keys"]
