@@ -668,6 +668,9 @@ def inspect_sourceforge_url(input_path, args, facts):
 
             # Download the RSS feed and parse it.
             # Example: http://sourceforge.net/projects/grandperspectiv/rss
+            # Example: http://sourceforge.net/projects/cord/rss
+            # TODO(Elliot): Per SourceForge TOS we should limit RSS
+            # requests to one hit per 30 minute period per feed.
             files_rss = "http://sourceforge.net/projects/%s/rss" % proj_name
             try:
                 raw_xml = urlopen(files_rss)
@@ -682,7 +685,9 @@ def inspect_sourceforge_url(input_path, args, facts):
             robo_print("verbose",
                        "Determining download URL from SourceForge RSS feed...")
             for item in doc.iterfind('channel/item'):
-                if item.find("{https://sourceforge.net/api/files.rdf#}extra-info").text == "data":
+                # TODO(Elliot): The extra-info tag is not a reliable indicator
+                # of which item should actually be downloaded.
+                if item.find("{https://sourceforge.net/api/files.rdf#}extra-info").text.startswith("data"):
                     download_url = item.find("link").text.rstrip("/download")
                     break
             if download_url != "":
