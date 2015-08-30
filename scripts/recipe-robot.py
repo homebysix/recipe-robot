@@ -841,6 +841,21 @@ def inspect_app(input_path, args, facts):
     # TODO(Elliot): Are there ways to download other than Sparkle that are
     # exposed in the app's Info.plist?
 
+    if "is_from_app_store" not in facts:
+        robo_print("verbose",
+                   "Determining whether app was downloaded from the Mac App "
+                   "Store...")
+        if os.path.exists("%s/Contents/_MASReceipt/receipt" % input_path):
+            robo_print("verbose", "    App came from the App Store")
+            facts["is_from_app_store"] = True
+            # TODO(Elliot): Build an AppStoreApp recipe?
+            robo_print("warning",
+                       "I don't yet know how to build AppStoreApp recipes. "
+                       "Working on it!")
+        else:
+            robo_print("verbose", "    App did not come from the App Store")
+            facts["is_from_app_store"] = False
+
     # Determine whether to use CFBundleShortVersionString or
     # CFBundleVersionString for versioning.
     if "version_key" not in facts:
