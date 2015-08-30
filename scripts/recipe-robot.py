@@ -413,13 +413,8 @@ def process_input_path(input_path, args, facts):
             robo_print("verbose", "Input path looks like a BitBucket URL.")
             robo_print("error", "Sorry, I don't yet speak BitBucket.")
         else:
-            robo_print("verbose", "Input path looks like another kind of URL.")
-            robo_print("error",
-                       "Sorry, my programmer hasn't told me what to do with "
-                       "that URL yet.")
-            # TODO(Elliot): Some Sparkle feeds don't have .xml extensions.
-            # Otherwise this is probably a direct download.
-            pass
+            robo_print("verbose", "Input path looks like a download URL.")
+            facts = inspect_download_url(input_path, args, facts)
     elif input_path.startswith("ftp"):
         robo_print("verbose", "Input path looks like a download URL.")
         facts = inspect_download_url(input_path, args, facts)
@@ -503,11 +498,14 @@ def inspect_github_url(input_path, args, facts):
 
         # TODO(Elliot): How can we use GitHub tokens to prevent rate limiting?
 
-        # Use GitHub API to obtain project information.
-        repo_api_url = "https://api.github.com/repos/" + github_repo
+        # Use GitHub API to obtain information about the repo and releases.
+        repo_api_url = "https://api.github.com/repos/%s" % github_repo
+        releases_api_url = "https://api.github.com/repos/%s/releases/latest" % github_repo
         try:
-            raw_json = urlopen(repo_api_url).read()
-            parsed_json = json.loads(raw_json)
+            raw_json_repo = urlopen(repo_api_url).read()
+            parsed_repo = json.loads(raw_json_repo)
+            raw_json_release = urlopen(releases_api_url).read()
+            parsed_release = json.loads(raw_json_release)
         except Exception as err:
             robo_print("warning",
                        "Error occurred while talking to GitHub. If you've "
@@ -520,9 +518,9 @@ def inspect_github_url(input_path, args, facts):
         if "app_name" not in facts:
             app_name = ""
             robo_print("verbose", "Getting app name...")
-            if "name" in parsed_json:
-                if parsed_json["name"] != "":
-                    app_name = parsed_json["name"]
+            if "name" in parsed_repo:
+                if parsed_repo["name"] != "":
+                    app_name = parsed_repo["name"]
             if app_name != "":
                 robo_print("verbose", "    App name is: %s" % app_name)
                 facts["app_name"] = app_name
@@ -531,25 +529,45 @@ def inspect_github_url(input_path, args, facts):
         if "description" not in facts:
             description = ""
             robo_print("verbose", "Getting GitHub description...")
-            if "description" in parsed_json:
-                if parsed_json["description"] != "":
-                    description = parsed_json["description"]
+            if "description" in parsed_repo:
+                if parsed_repo["description"] != "":
+                    description = parsed_repo["description"]
             if description != "":
-                robo_print("verbose", "    GitHub description is: %s" % description)
+                robo_print("verbose",
+                           "    GitHub description is: %s" % description)
                 facts["description"] = description
             else:
                 robo_print("warning", "Could not detect GitHub description.")
 
+        # Get download format of latest release.
+        if "download_format" not in facts:
+            download_format = ""
+            robo_print("verbose",
+                       "Getting download format of latest GitHub release...")
+            if "assets" in parsed_release:
+                for asset in parsed_release["assets"]:
+                    for this_format in all_supported_formats:
+                        if asset["browser_download_url"].endswith(this_format):
+                            download_format = this_format
+            if download_format != "":
+                robo_print("verbose",
+                           "    GitHub release download format "
+                           "is: %s" % download_format)
+                facts["download_format"] = download_format
+            else:
+                robo_print("warning",
+                           "Could not detect GitHub release download format.")
+
         # Warn user if the GitHub project is private.
-        if "private" in parsed_json:
-            if parsed_json["private"] is True:
+        if "private" in parsed_repo:
+            if parsed_repo["private"] is True:
                 robo_print("warning",
                            "This GitHub project is marked \"private\" "
                            "and recipes you generate may not work for others.")
 
         # Warn user if the GitHub project is a fork.
-        if "private" in parsed_json:
-            if parsed_json["fork"] is True:
+        if "private" in parsed_repo:
+            if parsed_repo["fork"] is True:
                 robo_print("warning",
                            "This GitHub project is a fork. You may want to "
                            "try again with the original repo URL instead.")
@@ -739,7 +757,7 @@ def inspect_download_url(input_path, args, facts):
     download_format = ""
     robo_print("verbose", "Determining download type from download URL...")
     for this_format in all_supported_formats:
-        if filename.endswith(this_format):
+        if filename.lower().endswith(this_format):
             download_format = this_format
             break  # should stop after the first format match
     if download_format != "":
@@ -751,7 +769,7 @@ def inspect_download_url(input_path, args, facts):
     # files? https://gist.github.com/gourneau/1430932
     # robo_print("verbose", "Downloading file for further inspection...")
     # f = urlopen(input_path)
-    # tmp_path = "/tmp/%s" % filename
+    # tmp_path = "/private/tmp/%s" % filename
     # with open(tmp_path, "wb") as code:
     #     code.write(f.read())
     #     robo_print("verbose", "    Downloaded to %s" % tmp_path)
@@ -759,9 +777,13 @@ def inspect_download_url(input_path, args, facts):
     # TODO(Elliot): Further processing of downloaded files.
     if download_format in supported_image_formats:
         # Mount the dmg and look for an app.
+        # cmd = "/usr/bin/hdiutil attach -plist -mountrandom /private/tmp -nobrowse %s" % tmp_path
+        # exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         pass
     elif download_format in supported_archive_formats:
         # Unzip the zip and look for an app.
+        # cmd = "/usr/bin/unzip %s" % tmp_path
+        # exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         pass
     elif download_format in supported_install_formats:
         # Use pkgutil to extract contents and look for an app.
