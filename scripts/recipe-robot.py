@@ -1425,7 +1425,7 @@ def generate_recipes(facts, prefs, recipes):
                     keys["Process"].append({
                         "Processor": "DmgCreator",
                         "Arguments": {
-                            "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
+                            "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                             "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg"
                         }
                     })
