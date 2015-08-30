@@ -7,7 +7,6 @@ Some scattered notes to assist in the design and development of Recipe Robot.
 - [Planned script workflow](#planned-script-workflow)
 - [Facts necessary to produce recipe types](#facts-necessary-to-produce-recipe-types)
 - [Elliot's recipe template logic](#elliots-recipe-template-logic)
-- [Recipe creation functions](#recipe-creation-functions)
 - [App interface](#app-interface)
 
 <!-- /MarkdownTOC -->
@@ -23,9 +22,11 @@ Script takes the following as input:
     - SourceForge URL
     - Sparkle feed URL
     - Direct download URL
+    - Others?
 - Desired recipe identifier (e.g. com.github.homebysix)
 - Desired recipe types (e.g. download, munki, pkg, etc.)
 - Desired recipe save location
+- For DeployStudio recipes, path to DS packages
 
 And produces the following as output:
 
@@ -37,6 +38,21 @@ And produces the following as output:
 These are the pieces of information we'll need to collect from app and recipe input in order to create the corresponding recipe types.
 
 This may be useful when we create the various Recipe classes and subclasses.
+
+- app_name
+- bundle_id
+- description
+- developer
+- download_format
+- download_url
+- github_repo
+- max_os_vers
+- min_os_vers
+- codesign_status
+- codesign_reqs
+- sourceforge_id
+- sparkle_feed
+- version_key
 
 __Any recipe type__
 
@@ -153,6 +169,7 @@ __ds__
 
 Here's the logic I was using to create recipes manually until this point:
 
+- Input type is app
 - The app has a Sparkle feed:
     - Downloaded file is zip, .tar.gz, etc:
         - App is signed:
@@ -215,20 +232,16 @@ Here's the logic I was using to create recipes manually until this point:
             - SPARKLE DMG UNSIGNED __INSTALL__ RECIPE TEMPLATE
                 - InstallFromDMG
 
-## Recipe creation functions
-
-Here's a map of the planned creation (blue) and extraction (orange) functions.
-
-![creation-extraction](images/creation-extraction.png)
-
 ## App interface
 
 Here's what we're thinking about for the app interface, for now:
 
-1. Upon first launch, the user is prompted for two pieces of information:
+1. Upon first launch, the user is prompted for a few pieces of information:
 
     - preferred identifier
     - preferred formats
+    - path to save recipes to
+    - (if DS) path to DS packages
 
     The user can get back to this screen at any time by choosing Preferences from the Recipe Robot menu.
 
@@ -252,16 +265,6 @@ Here's what we're thinking about for the app interface, for now:
 
     &nbsp;
 
-4. After processing, Recipe Robot asks which recipes you'd like to create.
-
-    Options for recipes that already exist based on autopkg search results will be dimmed.
-
-    ![app03.png](images/app03.png)
-
-    &nbsp;
-
-5. Recipes are created by calling the Python scripts, and the resulting files are placed into a cache folder, which can be accessed by double-clicking.
-
-    The proper recipe identifier and ParentRecipe chain are automatically added.
+4. Recipes for all preferred formats possible are created by calling the Python scripts, and the resulting files are placed into a cache folder, which can be accessed by double-clicking.
 
     ![app04.png](images/app04.png)
