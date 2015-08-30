@@ -399,7 +399,7 @@ def process_input_path(input_path, args, facts):
     """
 
     if input_path.startswith("http"):
-        if input_path.endswith(".xml"):
+        if input_path.endswith(".xml") or input_path.endswith(".php"):
             robo_print("verbose", "Input path looks like a Sparkle feed.")
             facts = inspect_sparkle_feed_url(input_path, args, facts)
         elif "github.com" in input_path or "githubusercontent.com" in input_path:
