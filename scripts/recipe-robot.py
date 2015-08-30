@@ -46,6 +46,7 @@ optional arguments:
 
 
 import argparse
+from distutils.version import StrictVersion
 import json
 import os.path
 import pprint
@@ -910,21 +911,44 @@ def inspect_app(input_path, args, facts):
             facts["is_from_app_store"] = False
 
     # Determine whether to use CFBundleShortVersionString or
-    # CFBundleVersionString for versioning.
+    # CFBundleVersion for versioning.
     if "version_key" not in facts:
         version_key = ""
         robo_print("verbose", "Looking for version key...")
         if "CFBundleShortVersionString" in info_plist:
-            # TODO(Elliot): Validate whether this is a true version.
-            version_key = "CFBundleShortVersionString"
-        elif "CFBundleVersionString" in info_plist:
-            # TODO(Elliot): Validate whether this is a true version.
-            version_key = "CFBundleVersionString"
+            if "CFBundleVersion" in info_plist:
+                # Both keys exist, so we must decide with a cage match!
+                try:
+                    if StrictVersion(info_plist["CFBundleShortVersionString"]):
+                        # CFBundleShortVersionString is strict. Use it.
+                        version_key = "CFBundleShortVersionString"
+                except ValueError:
+                    # CFBundleShortVersionString is not strict.
+                    try:
+                        if StrictVersion(info_plist["CFBundleVersion"]):
+                            # CFBundleVersion is strict. Use it.
+                            version_key = "CFBundleVersion"
+                    except ValueError:
+                        # Neither are strict versions. Are they integers?
+                        if info_plist["CFBundleShortVersionString"].isdigit():
+                            version_key = "CFBundleShortVersionString"
+                        elif info_plist["CFBundleVersion"].isdigit():
+                            version_key = "CFBundleVersion"
+                        else:
+                            # CFBundleShortVersionString wins by default.
+                            version_key = "CFBundleShortVersionString"
+            else:
+                version_key = "CFBundleShortVersionString"
         else:
-            robo_print("warning", "Can't determine which key to use for version.")
+            if "CFBundleVersion" in info_plist:
+                version_key = "CFBundleVersion"
         if version_key != "":
-            robo_print("verbose", "    Version key is: %s" % version_key)
+            robo_print("verbose", "    Version key is: %s (%s)" % (version_key, info_plist[version_key]))
             facts["version_key"] = version_key
+        else:
+            robo_print("error",
+                       "Sorry, I can't determine which version key to use "
+                       "for this app.")
 
     # Determine path to the app's icon.
     if "icon_path" not in facts:
