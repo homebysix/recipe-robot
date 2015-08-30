@@ -888,6 +888,11 @@ def inspect_app(input_path, args, facts):
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             codesign_status = "signed"
+
+            # TODO(Elliot): Account for this error:
+            #     CodeSignatureVerifier: /Applications/CoRD.app: resource
+            #     envelope is obsolete (version 1 signature)
+
             # Determine code signing requirements.
             marker = "designated => "
             for line in out.split("\n"):
