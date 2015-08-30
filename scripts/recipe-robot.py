@@ -501,6 +501,8 @@ def inspect_github_url(input_path, args, facts):
         robo_print("verbose", "    GitHub repo is: %s" % github_repo)
         facts["github_repo"] = github_repo
 
+        # TODO(Elliot): How can we use GitHub tokens to prevent rate limiting?
+
         # Use GitHub API to obtain project information.
         repo_api_url = "https://api.github.com/repos/" + github_repo
         try:
@@ -1075,8 +1077,17 @@ def generate_recipes(facts, prefs, recipes):
                            "(https://github.com/homebysix/recipe-robot)" % version
             }
 
+    # All known recipe types already appear in "autopkg search" results.
     if preferred_recipe_count == 0:
         robo_print("log", "Sorry, no recipes available to generate.")
+
+    # We don't have enough information to create a recipe set.
+    if("download_format" not in facts
+           or "app_name" not in facts
+          or "bundle_id" not in facts):
+        robo_print("error",
+                   "Sorry, we're missing some crucial information and can't "
+                   "build recipes for this app.")
 
     for recipe in recipes:
         if recipe["buildable"] is True:
@@ -1225,9 +1236,9 @@ def generate_recipes(facts, prefs, recipes):
                     keys["Input"]["pkginfo"]["description"] = facts["description"]
                 else:
                     robo_print("reminder",
-                               "I couldn't find a description of this app, so "
-                               "you'll need to manually add one to the munki "
-                               "recipe.")
+                               "I couldn't find a description for this app, "
+                               "so you'll need to manually add one to the "
+                               "munki recipe.")
                     keys["Input"]["pkginfo"]["description"] = " "
 
                 # Make the download recipe the parent of the Munki recipe.
@@ -1674,9 +1685,8 @@ def congratulate(prefs):
         "Fantastic.",
         "Good on ya!",
         "Imagine all the typing you saved.",
-        "Isn't meta-automation fun?",
-        "It's pretty fun for me too.",
-        "Just one more? Please?",
+        "Isn't meta-automation great?",
+        "(Yep, it's pretty fun for me too.)",
         "Pretty cool, right?",
         "Round of applause for you!",
         "Terrific job!",
@@ -1706,10 +1716,10 @@ def main():
         args = argparser.parse_args()
         if args.include_existing is True:
             robo_print("warning",
-                       "Will offer to build recipes even if they already "
-                       "exist on GitHub. Please don't upload duplicate "
-                       "recipes.")
-        if args.verbose is True:
+                       "Will build recipes even if they already exist in "
+                       "\"autopkg search\" results. Please don't upload "
+                       "duplicate recipes.")
+        if args.verbose is True or verbose_mode is True:
             robo_print("verbose", "Verbose mode is on.")
             verbose_mode = True
 
