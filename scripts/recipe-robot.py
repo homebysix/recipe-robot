@@ -1343,6 +1343,15 @@ def generate_recipes(facts, prefs, recipes):
                             }
                         }
                     })
+                    keys["Process"].append({
+                        "Processor": "Copier",
+                        "Arguments": {
+                            "source_path": "%%pathname%%/%s.app" % app_name_key,
+                            "destination_path": "%%pkgroot%%/Applications/%s.app" % app_name_key
+                        }
+                    })
+
+                elif facts["download_format"] in supported_archive_formats:
                     if facts["codesign_status"] == "unsigned":
                         # If unsigned, that means the download recipe hasn't
                         # unarchived the zip yet. Need to do that and version.
@@ -1361,17 +1370,6 @@ def generate_recipes(facts, prefs, recipes):
                                 "plist_version_key": facts["version_key"]
                             }
                         })
-                    keys["Process"].append({
-                        "Processor": "Copier",
-                        "Arguments": {
-                            "source_path": "%%pathname%%/%s.app" % app_name_key,
-                            "destination_path": "%%pkgroot%%/Applications/%s.app" % app_name_key
-                        }
-                    })
-
-                elif facts["download_format"] in supported_archive_formats:
-                    # Pkgroot is already in place from previous unarchiving.
-                    pass
 
                 elif facts["download_format"] in supported_install_formats:
                     robo_print("verbose",
