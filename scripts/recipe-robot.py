@@ -1038,7 +1038,9 @@ def inspect_recipe(input_path, args, facts):
         if "Input" in input_recipe:
             if "NAME" in input_recipe["Input"]:
                 app_name = input_recipe["Input"]["NAME"]
-        robo_print("verbose", "    App name is: %s" % app_name)
+        if app_name != "":
+            robo_print("verbose", "    App name is: %s" % app_name)
+            facts["app_name"] = app_name
 
     # Determine parent recipe, and get more facts from it.
     marker = "Parent recipe(s):"
@@ -1055,8 +1057,7 @@ def inspect_recipe(input_path, args, facts):
         robo_print("verbose", "Looking for a Sparkle feed...")
         for line in out:
             if marker in line:
-                sparkle_feed = line[len(marker):].lstrip()
-                robo_print("verbose", "    Sparkle feed is: %s" % sparkle_feed)
+                sparkle_feed = line.split("\"")[-2]
                 facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
 
     # Determine whether there's a download URL.
@@ -1203,11 +1204,6 @@ def generate_recipes(facts, prefs, recipes):
                    "providing the Sparkle feed for the app instead. Or maybe "
                    "the app's developers offer a direct download URL on their "
                    "website.")
-    if("bundle_id" not in facts):
-        robo_print("error",
-                   "Sorry, I can't determine the bundle identifier of this "
-                   "app. You may want to actually download the app and try "
-                   "again, using the .app file itself as input.")
 
     # We have enough information to create a recipe set, but with assumptions.
     if "codesign_status" not in facts:
@@ -1447,6 +1443,16 @@ def generate_recipes(facts, prefs, recipes):
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
+                # Can't make this recipe without a bundle identifier.
+                if("bundle_id" not in facts):
+                    robo_print("warning",
+                               "Skipping %s recipe, because I wasn't able to "
+                               "determine the bundle identifier of this app. "
+                               "You may want to actually download the app and "
+                               "try again, using the .app file itself as "
+                               "input." % recipe["type"])
+                    continue
+
                 # Save a description that explains what this recipe does.
                 keys["Description"] = ("Downloads the latest version of %s and "
                                       "creates a package." % facts["app_name"])
@@ -1580,6 +1586,16 @@ def generate_recipes(facts, prefs, recipes):
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
+                # Can't make this recipe without a bundle identifier.
+                if("bundle_id" not in facts):
+                    robo_print("warning",
+                               "Skipping %s recipe, because I wasn't able to "
+                               "determine the bundle identifier of this app. "
+                               "You may want to actually download the app and "
+                               "try again, using the .app file itself as "
+                               "input." % recipe["type"])
+                    continue
+
                 # Authors of jss recipes are encouraged to use spaces.
                 filename = "%s.%s.recipe" % (facts["app_name"], recipe["type"])
 
@@ -1672,6 +1688,16 @@ def generate_recipes(facts, prefs, recipes):
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
+                # Can't make this recipe without a bundle identifier.
+                if("bundle_id" not in facts):
+                    robo_print("warning",
+                               "Skipping %s recipe, because I wasn't able to "
+                               "determine the bundle identifier of this app. "
+                               "You may want to actually download the app and "
+                               "try again, using the .app file itself as "
+                               "input." % recipe["type"])
+                    continue
+
                 # Save a description that explains what this recipe does.
                 keys["Description"] = ("Downloads the latest version of %s and "
                                       "copies it into your Absolute Manage "
@@ -1698,6 +1724,16 @@ def generate_recipes(facts, prefs, recipes):
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
+                # Can't make this recipe without a bundle identifier.
+                if("bundle_id" not in facts):
+                    robo_print("warning",
+                               "Skipping %s recipe, because I wasn't able to "
+                               "determine the bundle identifier of this app. "
+                               "You may want to actually download the app and "
+                               "try again, using the .app file itself as "
+                               "input." % recipe["type"])
+                    continue
+
                 # Save a description that explains what this recipe does.
                 keys["Description"] = ("Downloads the latest version of %s and "
                                       "copies it into your SCCM "
@@ -1721,6 +1757,16 @@ def generate_recipes(facts, prefs, recipes):
             elif recipe["type"] == "ds":
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
+
+                # Can't make this recipe without a bundle identifier.
+                if("bundle_id" not in facts):
+                    robo_print("warning",
+                               "Skipping %s recipe, because I wasn't able to "
+                               "determine the bundle identifier of this app. "
+                               "You may want to actually download the app and "
+                               "try again, using the .app file itself as "
+                               "input." % recipe["type"])
+                    continue
 
                 # Save a description that explains what this recipe does.
                 keys["Description"] = ("Downloads the latest version of %s and "
