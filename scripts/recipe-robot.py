@@ -589,7 +589,6 @@ def inspect_sourceforge_url(input_path, args, facts):
 
     # Determine the name of the SourceForge project.
     proj_name = ""
-    robo_print("verbose", "Determining name of SourceForge project...")
     # TODO(Elliot): Is it better to do this with re.search()?
     if  "/projects/" in input_path:
         # Example: http://sourceforge.net/projects/adium/?source=recommended
@@ -663,6 +662,33 @@ def inspect_sourceforge_url(input_path, args, facts):
                 facts["description"] = description
             else:
                 robo_print("warning", "Could not detect SourceForge description.")
+
+        # Get download format of latest release.
+        if "download_url" not in facts:
+
+            # Download the RSS feed and parse it.
+            # Example: http://sourceforge.net/projects/grandperspectiv/rss
+            files_rss = "http://sourceforge.net/projects/%s/rss" % proj_name
+            try:
+                raw_xml = urlopen(files_rss)
+            except Exception as err:
+                robo_print("warning",
+                           "Error occured while inspecting SourceForge RSS "
+                           "feed: %s" % err)
+            doc = parse(raw_xml)
+
+            # Get the latest download URL.
+            download_url = ""
+            robo_print("verbose",
+                       "Determining download URL from SourceForge RSS feed...")
+            for item in doc.iterfind('channel/item'):
+                if item.find("{https://sourceforge.net/api/files.rdf#}extra-info").text == "data":
+                    download_url = item.find("link").text.rstrip("/download")
+                    break
+            if download_url != "":
+                facts = inspect_download_url(download_url, args, facts)
+            else:
+                robo_print("warning", "Could not detect SourceForge latest release download_url.")
 
         # Warn user if the SourceForge project is private.
         if "private" in parsed_json:
