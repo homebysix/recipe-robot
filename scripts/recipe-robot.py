@@ -1269,6 +1269,7 @@ def generate_recipes(facts, prefs, recipes):
 
                 elif facts["download_format"] in supported_install_formats:
                     # TODO(Elliot): Put pkg in dmg?
+                    keys["Input"]["pkginfo"]["blocking_applications"] = "%s.app" % app_name_key
                     robo_print("warning",
                                "Sorry, I don't yet know how to create "
                                "munki recipes from pkg downloads.")
