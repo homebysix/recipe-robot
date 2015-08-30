@@ -695,10 +695,14 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     if download_url != "":
         facts = inspect_download_url(download_url, args, facts)
 
-    # If Sparkle feed is hosted on GitHub, we can gather more information.
-    if "github_repo" not in facts:
-        if "github.com" in input_path or "githubusercontent.com" in input_path:
+    # If Sparkle feed is hosted on GitHub or SourceForge, we can gather more
+    # information.
+    if "github.com" in input_path or "githubusercontent.com" in input_path:
+        if "github_repo" not in facts:
             facts = inspect_github_url(input_path, args, facts)
+    if "sourceforge.net" in input_path:
+        if "sourceforge_id" not in facts:
+            facts = inspect_sourceforge_url(input_path, args, facts)
 
     return facts
 
@@ -717,11 +721,23 @@ def inspect_download_url(input_path, args, facts):
     robo_print("verbose", "    Download URL is: %s" % input_path)
     facts["download_url"] = input_path
 
+    # Get the filename from the URL (everything after the last "/").
+    filename = input_path.split("/")[-1]
+
+    # If download URL is hosted on GitHub or SourceForge, we can gather more
+    # information.
+    if "github.com" in input_path or "githubusercontent.com" in input_path:
+        if "github_repo" not in facts:
+            facts = inspect_github_url(input_path, args, facts)
+    if "sourceforge.net" in input_path:
+        if "sourceforge_id" not in facts:
+            facts = inspect_sourceforge_url(input_path, args, facts)
+            filename = input_path.rstrip("/download").split("/")[-1]
+
     # Try to determine the type of file downloaded. (Overwrites any previous
     # download_type, because the download URL is the most reliable source.)
     download_format = ""
     robo_print("verbose", "Determining download type from download URL...")
-    filename = input_path.split("/")[-1]
     for this_format in all_supported_formats:
         if filename.endswith(this_format):
             download_format = this_format
@@ -729,11 +745,6 @@ def inspect_download_url(input_path, args, facts):
     if download_format != "":
         robo_print("verbose", "    Download format is: %s" % download_format)
         facts["download_format"] = download_format
-
-    # If download URL is hosted on GitHub, we can gather more information.
-    if "github_repo" not in facts:
-        if "github.com" in input_path or "githubusercontent.com" in input_path:
-            facts = inspect_github_url(input_path, args, facts)
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
@@ -1092,7 +1103,7 @@ def generate_recipes(facts, prefs, recipes):
            or "app_name" not in facts
           or "bundle_id" not in facts):
         robo_print("error",
-                   "Sorry, we're missing some crucial information and can't "
+                   "Sorry, I'm missing some crucial information and can't "
                    "build recipes for this app.")
 
     for recipe in recipes:
