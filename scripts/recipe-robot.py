@@ -53,6 +53,7 @@ import pprint
 import random
 import re
 import shlex
+import shutil
 from subprocess import Popen, PIPE
 import sys
 from urllib2 import urlopen
@@ -788,56 +789,61 @@ def inspect_download_url(input_path, args, facts):
     # Try to determine the type of file downloaded. (Overwrites any previous
     # download_type, because the download URL is the most reliable source.)
     download_format = ""
-    robo_print("verbose", "Determining download type from download URL...")
     for this_format in all_supported_formats:
         if filename.lower().endswith(this_format):
             download_format = this_format
             break  # should stop after the first format match
     if download_format != "":
-        robo_print("verbose", "    Download format is: %s" % download_format)
         facts["download_format"] = download_format
-    else:
-        robo_print("warning",
-                   "Not able to determine download format. This could prove "
-                   "problematic later.")
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
     # files? https://gist.github.com/gourneau/1430932
     robo_print("verbose", "Downloading file for further inspection...")
+    # Remove and recreate the cache folder, so we have a blank slate.
+    if os.path.exists(cache_dir):
+        shutil.rmtree(cache_dir)
     create_dest_dirs(cache_dir)
     f = urlopen(input_path)
-    tmp_path = "/private/tmp/recipe-robot"
-    with open("%s/%s" % (tmp_path, filename), "wb") as code:
+    # TODO(Elliot): Consider using a filename other than the one provided by
+    # the URL (e.g. "download.php?id=FreewayExpress6")."
+    with open("%s/%s" % (cache_dir, filename), "wb") as code:
         code.write(f.read())
-        robo_print("verbose", "    Downloaded to %s" % tmp_path)
-
-    # TODO(Elliot): Further processing of downloaded files.
+        robo_print("verbose", "    Downloaded to %s/%s" % (cache_dir, filename))
     if download_format == "" or download_format in supported_image_formats:
         # Mount the dmg and look for an app.
-        cmd = "/usr/bin/hdiutil attach \"%s/%s\"" % (tmp_path, filename)
+        cmd = "/usr/bin/hdiutil attach -plist \"%s/%s\"" % (cache_dir, filename)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            print "This looks like an image!"
-            # Find the app inside the attached image.
-        else:
-            robo_print("debug", "The downloaded file is not an image.")
+            download_format = "dmg"
+            facts["download_format"] = download_format
+            dmg_plist = FoundationPlist.readPlist(out)
+            dmg_mount = dmg_plist["system-entities"][-1]["mount-point"]
+            for this_file in os.listdir(dmg_mount):
+                if this_file.endswith(".app"):
+                    app_path = "%s/%s" % (dmg_mount, this_file)
+                    facts = inspect_app(app_path, args, facts)
+                    break
     if download_format == "" or download_format in supported_archive_formats:
         # Unzip the zip and look for an app.
-        cmd = "/usr/bin/unzip \"%s/%s\" -d \"%s/unpacked\"" % (tmp_path, filename)
+        cmd = "/usr/bin/unzip \"%s/%s\" -d \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            for this_file in os.listdir("%s/unpacked" % tmp_path):
+            download_format = "zip"
+            facts["download_format"] = download_format
+            for this_file in os.listdir("%s/unpacked" % cache_dir):
                 if this_file.endswith(".app"):
-                    print this_file
-        else:
-            robo_print("debug", "The downloaded file is not an archive.")
+                    app_path = "%s/unpacked/%s" % (cache_dir, this_file)
+                    facts = inspect_app(app_path, args, facts)
+                    break
     if download_format == "" or download_format in supported_install_formats:
-        # Use pkgutil to extract contents and look for an app.
+        # TODO(Elliot): Use pkgutil to extract contents and look for an app.
         pass
-    sys.exit(0)
-
-    # TODO(Elliot): Delete file from /tmp.
+    if download_format == "":
+        robo_print("warning",
+                   "I've investigated pretty thoroughly, and I'm still not "
+                   "sure what the download format is. This could cause "
+                   "problems later.")
 
     return facts
 
@@ -857,6 +863,7 @@ def inspect_app(input_path, args, facts):
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
         robo_print("verbose", "    App seems valid")
     except Exception:
+        raise
         robo_print("error",
                    "%s doesn't look like a valid app to me." % input_path)
 
@@ -1981,6 +1988,10 @@ def main():
 
         # Pat on the back!
         congratulate(prefs)
+
+        # Clean up cache folder.
+        if os.path.exists(cache_dir):
+            shutil.rmtree(cache_dir)
 
     # If killed, make sure to reset the terminal color with our dying breath.
     except (KeyboardInterrupt, SystemExit):
