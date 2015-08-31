@@ -179,7 +179,7 @@ def build_argument_parser():
 
 
 def print_welcome_text():
-    """Print the text that people see when they first start Recipe Robot."""
+    """Print the text that appears when you run Recipe Robot."""
 
     welcome_text = """%s%s
                       -----------------------------------
@@ -248,12 +248,14 @@ def init_prefs(prefs, recipes, args):
         4. If preferences plist does exist, use it.
 
     Args:
-        prefs: TODO
-        recipes: TODO
-        args: TODO
+        prefs: A dictionary containing a key/value pair for each preference.
+            When this function is called for the first time, the prefs dict
+            is typically empty.
+        recipes: The list of known recipe types, created by init_recipes().
+        args: The command line arguments.
 
     Returns:
-        prefs: TODO
+        prefs: A fully populated preference dictionary.
     """
 
     prefs = {}
@@ -303,11 +305,11 @@ def build_prefs(prefs, recipes):
     """Prompt user for preferences, then save them back to the plist.
 
     Args:
-        prefs: TODO
-        recipes: TODO
+        prefs: The preference dictionary, passed from init_prefs().
+        recipes: The list of known recipe types, created by init_recipes().
 
     Returns:
-        prefs: TODO
+        prefs: The preference dictionary, newly populated from user input.
     """
 
     # Start recipe count at zero, if no value already exists.
@@ -398,7 +400,11 @@ def process_input_path(input_path, args, facts):
     """Determine which functions to call based on the type of input path.
 
     Args:
-        input_path: TODO
+        input_path: The path or URL that Recipe Robot was asked to use to
+            create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the information
+            we know so far about the app associated with the input path.
     """
 
     if input_path.startswith("http"):
@@ -442,7 +448,7 @@ def get_app_description(app_name):
     """Use an app's name to generate a description from MacUpdate.com.
 
     Args:
-        app_name: TODO
+        app_name: The name of the app that we need to describe.
 
     Returns:
         description: A string containing a description of the app.
@@ -481,11 +487,6 @@ def get_app_description(app_name):
 def inspect_github_url(input_path, args, facts):
     """Process a GitHub URL, gathering required information to create a
     recipe.
-
-    Args:
-        input_path: TODO
-        args: TODO
-        facts: TODO
     """
 
     # Grab the GitHub repo path.
@@ -583,11 +584,6 @@ def inspect_github_url(input_path, args, facts):
 def inspect_sourceforge_url(input_path, args, facts):
     """Process a SourceForge URL, gathering required information to create a
     recipe.
-
-    Args:
-        input_path: TODO
-        args: TODO
-        facts: TODO
     """
 
     # Determine the name of the SourceForge project.
@@ -717,11 +713,6 @@ def inspect_sourceforge_url(input_path, args, facts):
 def inspect_sparkle_feed_url(input_path, args, facts):
     """Process a Sparkle feed URL, gathering required information to create a
     recipe.
-
-    Args:
-        input_path: TODO
-        args: TODO
-        facts: TODO
     """
 
     # Save the Sparkle feed URL to the dictionary of facts.
@@ -762,11 +753,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 def inspect_download_url(input_path, args, facts):
     """Process a direct download URL, gathering required information to
     create a recipe.
-
-    Args:
-        input_path: TODO
-        args: TODO
-        facts: TODO
     """
 
     # Save the download URL to the dictionary of facts.
@@ -850,11 +836,6 @@ def inspect_download_url(input_path, args, facts):
 
 def inspect_app(input_path, args, facts):
     """Process an app, gathering required information to create a recipe.
-
-    Args:
-        input_path: TODO
-        args: TODO
-        facts: TODO
     """
 
     # Read the app's Info.plist.
@@ -1033,11 +1014,6 @@ def inspect_app(input_path, args, facts):
 def inspect_recipe(input_path, args, facts):
     """Process a recipe, gathering information useful for building other types
     of recipes.
-
-    Args:
-        input_path: TODO
-        args: TODO
-        facts: TODO
     """
 
     # Read the recipe as a plist.
@@ -1124,8 +1100,9 @@ def create_existing_recipe_list(app_name, recipes, args):
     """Use autopkg search results to build existing recipe list.
 
     Args:
-        app_name: TODO
-        recipes: TODO
+        app_name: The name of the app for which we're searching for recipes.
+        recipes: The list of known recipe types, created by init_recipes().
+        args: The command line arguments.
     """
 
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
@@ -1170,10 +1147,11 @@ def create_buildable_recipe_list(app_name, recipes, args, facts):
     list.
 
     Args:
-        app_name: TODO
-        recipes: TODO
-        args: TODO
-        facts: TODO
+        app_name: The name of the app for which we're searching for recipes.
+        recipes: The list of known recipe types, created by init_recipes().
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the information
+            we know so far about the app associated with the input path.
     """
 
     # Determine which recipes are buildable based on "preferred" preference
@@ -1196,8 +1174,10 @@ def generate_recipes(facts, prefs, recipes):
     """Generate the selected types of recipes.
 
     Args:
-        prefs: TODO
-        recipes: TODO
+        facts: A continually-updated dictionary containing all the information
+            we know so far about the app associated with the input path.
+        prefs: The dictionary containing a key/value pair for each preference.
+        recipes: The list of known recipe types, created by init_recipes().
     """
 
     preferred_recipe_count = 0
@@ -1845,10 +1825,12 @@ def generate_recipes(facts, prefs, recipes):
 
 
 def create_dest_dirs(path):
-    """Creates the path to the recipe export location, if it doesn't exist.
+    """Creates the path to the recipe export location, if it doesn't exist. If
+    intermediate folders are necessary in order to create the path, they will
+    be created too.
 
     Args:
-        path: TODO
+        path: The path to the directory that needs to be created.
     """
 
     dest_dir = os.path.expanduser(path)
@@ -1865,8 +1847,8 @@ def extract_app_icon(icon_path, png_path):
     as of 2015-08-01.
 
     Args:
-        icon_path: TODO
-        png_path: TODO
+        icon_path: The path to the .icns file we're converting to .png.
+        png_path: The path to the .png file we're creating.
     """
 
     png_path_absolute = os.path.expanduser(png_path)
@@ -1905,7 +1887,7 @@ def congratulate(prefs):
     """Display a friendly congratulatory message upon creating recipes.
 
     Args:
-        prefs: TODO
+        prefs: A dictionary containing a key/value pair for each preference.
     """
 
     congrats_msg = (
