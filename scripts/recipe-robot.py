@@ -544,15 +544,18 @@ def inspect_github_url(input_path, args, facts):
                 robo_print("warning", "Could not detect GitHub description.")
 
         # Get download format of latest release.
-        if "download_format" not in facts:
+        if "download_format" not in facts or "download_url" not in facts:
             download_format = ""
+            download_url = ""
             robo_print("verbose",
-                       "Getting download format of latest GitHub release...")
+                       "Getting information from latest GitHub release...")
             if "assets" in parsed_release:
                 for asset in parsed_release["assets"]:
                     for this_format in all_supported_formats:
                         if asset["browser_download_url"].endswith(this_format):
                             download_format = this_format
+                            download_url =  asset["browser_download_url"]
+                            break
             if download_format != "":
                 robo_print("verbose",
                            "    GitHub release download format "
@@ -561,6 +564,15 @@ def inspect_github_url(input_path, args, facts):
             else:
                 robo_print("warning",
                            "Could not detect GitHub release download format.")
+            if download_url != "":
+                robo_print("verbose",
+                           "    GitHub release download URL "
+                           "is: %s" % download_url)
+                facts["download_url"] = download_url
+                inspect_download_url(download_url, args, facts)
+            else:
+                robo_print("warning",
+                           "Could not detect GitHub release download URL.")
 
         # Warn user if the GitHub project is private.
         if "private" in parsed_repo:
@@ -793,9 +805,13 @@ def inspect_download_url(input_path, args, facts):
     f = urlopen(input_path)
     # TODO(Elliot): Consider using a filename other than the one provided by
     # the URL (e.g. "download.php?id=FreewayExpress6")."
-    with open("%s/%s" % (cache_dir, filename), "wb") as code:
-        code.write(f.read())
+    with open("%s/%s" % (cache_dir, filename), "wb") as download_file:
+        download_file.write(f.read())
         robo_print("verbose", "    Downloaded to %s/%s" % (cache_dir, filename))
+
+    # Open the disk image (or test to see whether the download is one).
+    # TODO(Elliot):  DON'T download the download_url if the original input was
+    # the app itself. How can we track that?
     if download_format == "" or download_format in supported_image_formats:
         # Mount the dmg and look for an app.
         cmd = "/usr/bin/hdiutil attach -plist \"%s/%s\"" % (cache_dir, filename)
@@ -803,13 +819,27 @@ def inspect_download_url(input_path, args, facts):
         if exitcode == 0:
             download_format = "dmg"
             facts["download_format"] = download_format
-            dmg_plist = FoundationPlist.readPlist(out)
-            dmg_mount = dmg_plist["system-entities"][-1]["mount-point"]
+            with open("%s/dmg_attach.plist" % cache_dir, "wb") as dmg_plist:
+                dmg_plist.write(out)
+            dmg_dict = FoundationPlist.readPlist("%s/dmg_attach.plist" % cache_dir)
+            dmg_mount = dmg_dict["system-entities"][-1]["mount-point"]
             for this_file in os.listdir(dmg_mount):
                 if this_file.endswith(".app"):
-                    app_path = "%s/%s" % (dmg_mount, this_file)
-                    facts = inspect_app(app_path, args, facts)
+                    # Copy app to cache folder.
+                    # TODO(Elliot): What if .app isn't on root of dmg mount?
+                    attached_app_path = "%s/%s" % (dmg_mount, this_file)
+                    cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
+                    try:
+                        shutil.copytree(attached_app_path, cached_app_path)
+                    except shutil.Error:
+                        pass
+                    # Unmount attached volume when done.
+                    cmd = "/usr/bin/hdiutil detach \"%s\"" % dmg_mount
+                    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+                    facts = inspect_app(cached_app_path, args, facts)
                     break
+
+    # Open the archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
         # Unzip the zip and look for an app.
         cmd = "/usr/bin/unzip \"%s/%s\" -d \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
@@ -822,9 +852,12 @@ def inspect_download_url(input_path, args, facts):
                     app_path = "%s/unpacked/%s" % (cache_dir, this_file)
                     facts = inspect_app(app_path, args, facts)
                     break
+
+    # Inspect the installer (or test to see whether the download is one).
     if download_format == "" or download_format in supported_install_formats:
         # TODO(Elliot): Use pkgutil to extract contents and look for an app.
         pass
+
     if download_format == "":
         robo_print("warning",
                    "I've investigated pretty thoroughly, and I'm still not "
@@ -854,21 +887,21 @@ def inspect_app(input_path, args, facts):
     # Determine the name of the app. (Overwrites any previous app_name, because
     # the app Info.plist itself is the most reliable source.)
     app_name = ""
-    robo_print("verbose", "Getting name of software...")
+    robo_print("verbose", "Getting app name...")
     if "CFBundleName" in info_plist:
         app_name = info_plist["CFBundleName"]
     elif "CFBundleExecutable" in info_plist:
         app_name = info_plist["CFBundleExecutable"]
     else:
         app_name = app_file
-    robo_print("verbose", "    Software name is: %s" % app_name)
+    robo_print("verbose", "    App name is: %s" % app_name)
     facts["app_name"] = app_name
 
     # If the app's filename is different than the app's name, we need to make
     # a note of that. Many recipes require another input variable for this.
     if app_name != app_file:
-        robo_print("verbose", "Software name differs from the bundle filename.")
-        robo_print("verbose", "    Bundle filename: %s.app" % app_file)
+        robo_print("verbose", "App name differs from the actual app filename.")
+        robo_print("verbose", "    Actual app filename: %s.app" % app_file)
         facts["app_file"] = app_file
 
     # Determine the bundle identifier of the app.
@@ -895,7 +928,7 @@ def inspect_app(input_path, args, facts):
             sparkle_feed = info_plist["SUOriginalFeedURL"]
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
         else:
-            robo_print("warning", "This app doesn't have a Sparkle feed.")
+            robo_print("verbose", "    No Sparkle feed")
 
     # TODO(Elliot): Are there ways to download other than Sparkle that are
     # exposed in the app's Info.plist?
@@ -1204,7 +1237,17 @@ def generate_recipes(facts, prefs, recipes):
         robo_print("log", "Sorry, no recipes available to generate.")
 
     # We don't have enough information to create a recipe set.
-    if("download_format" not in facts):
+    if ("sparkle_feed" not in facts and
+        "github_repo" not in facts and
+        "sourceforge_id" not in facts and
+        "download_url" not in facts):
+        robo_print("error",
+                   "Sorry, I don't know how to download this app. "
+                   "Maybe try another angle? If you provided an app, try "
+                   "providing the Sparkle feed for the app instead. Or maybe "
+                   "the app's developers offer a direct download URL on their "
+                   "website.")
+    if "download_format" not in facts:
         robo_print("error",
                    "Sorry, I can't tell what format to download this app in. "
                    "Maybe try another angle? If you provided an app, try "
