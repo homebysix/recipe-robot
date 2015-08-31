@@ -884,8 +884,8 @@ def inspect_download_url(input_path, args, facts):
             facts["download_format"] = download_format
             for this_file in os.listdir("%s/unpacked" % cache_dir):
                 if this_file.endswith(".app"):
-                    app_path = "%s/unpacked/%s" % (cache_dir, this_file)
-                    facts = inspect_app(app_path, args, facts)
+                    cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
+                    facts = inspect_app(cached_app_path, args, facts)
                     break
 
     # Inspect the installer (or test to see whether the download is one).
@@ -911,6 +911,9 @@ def inspect_app(input_path, args, facts):
         return facts
     else:
         facts["inspections"].append("app")
+
+    # Save the path of the app. (Used when overriding AppStoreApp recipes.)
+    facts["app_path"] = input_path
 
     # Read the app's Info.plist.
     robo_print("verbose", "Validating app...")
@@ -981,10 +984,6 @@ def inspect_app(input_path, args, facts):
         if os.path.exists("%s/Contents/_MASReceipt/receipt" % input_path):
             robo_print("verbose", "    App came from the App Store")
             facts["is_from_app_store"] = True
-            # TODO(Elliot): Build an AppStoreApp recipe?
-            robo_print("warning",
-                       "I don't yet know how to build AppStoreApp recipes. "
-                       "Working on it!")
         else:
             robo_print("verbose", "    App did not come from the App Store")
             facts["is_from_app_store"] = False
@@ -1278,7 +1277,8 @@ def generate_recipes(facts, prefs, recipes):
         robo_print("log", "Sorry, no recipes available to generate.")
 
     # We don't have enough information to create a recipe set.
-    if ("sparkle_feed" not in facts and
+    if (facts["is_from_app_store"] is False and
+        "sparkle_feed" not in facts and
         "github_repo" not in facts and
         "sourceforge_id" not in facts and
         "download_url" not in facts):
@@ -1288,7 +1288,8 @@ def generate_recipes(facts, prefs, recipes):
                    "providing the Sparkle feed for the app instead. Or maybe "
                    "the app's developers offer a direct download URL on their "
                    "website.")
-    if "download_format" not in facts:
+    if (facts["is_from_app_store"] is False and
+        "download_format" not in facts):
         robo_print("error",
                    "Sorry, I can't tell what format to download this app in. "
                    "Maybe try another angle? If you provided an app, try "
@@ -1337,6 +1338,14 @@ def generate_recipes(facts, prefs, recipes):
 
             # Set keys specific to download recipes.
             if recipe["type"] == "download":
+
+                # Can't make this recipe if the app is from the App Store.
+                if facts["is_from_app_store"] is True:
+                    robo_print("verbose",
+                               "Skipping %s recipe, because this app "
+                               "was downloaded from the "
+                               "App Store." % recipe["type"])
+                    continue
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
@@ -1436,20 +1445,21 @@ def generate_recipes(facts, prefs, recipes):
                                    "CodeSignatureVerifier with pkg downloads.")
                         continue
 
-            # Set keys specific to munki recipes.
-            elif recipe["type"] == "munki":
+            # Set keys specific to App Store munki overrides.
+            elif recipe["type"] == "munki" and facts["is_from_app_store"] is True:
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
                 # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of %s "
-                                      "and imports it into "
-                                      "Munki" % facts["app_name"])
+                keys["Description"] = ("Downloads the latest version of "
+                                       "%s from the Mac App Store and "
+                                       "imports it into "
+                                       "Munki." % facts["app_name"])
+                keys["ParentRecipe"] = "com.github.nmcspadden.munki.appstore"
+                keys["Input"]["PATH"] = facts["app_path"]
+                filename = "MAS-" + filename
 
-                # Specify the Munki repo subdirectory.
                 keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
-
-                # Save Munki pkginfo.
                 keys["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
                     "display_name": facts["app_name"],
@@ -1466,10 +1476,43 @@ def generate_recipes(facts, prefs, recipes):
                                "munki recipe.")
                     keys["Input"]["pkginfo"]["description"] = " "
 
-                # Make the download recipe the parent of the Munki recipe.
+                robo_print("reminder",
+                           "I've created an AppStoreApp override for you. "
+                           "Be sure to add the nmcspadden-recipes repo and "
+                           "install pyasn1, if you haven't already. (More "
+                           "information: https://github.com/autopkg/"
+                           "nmcspadden-recipes#appstoreapp-recipe)")
+
+            # Set keys specific to non-App Store munki recipes.
+            elif recipe["type"] == "munki" and facts["is_from_app_store"] is False:
+
+                robo_print("log", "Generating %s recipe..." % recipe["type"])
+
+                # Save a description that explains what this recipe does.
+                keys["Description"] = ("Downloads the latest version of %s "
+                                       "and imports it into "
+                                       "Munki" % facts["app_name"])
                 # TODO(Elliot): What if it's somebody else's download recipe?
                 keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
+                keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
+                keys["Input"]["pkginfo"] = {
+                    "catalogs": ["testing"],
+                    "display_name": facts["app_name"],
+                    "name": "%NAME%",
+                    "unattended_install": True
+                }
+
+                if "description" in facts:
+                    keys["Input"]["pkginfo"]["description"] = facts["description"]
+                else:
+                    robo_print("reminder",
+                               "I couldn't find a description for this app, "
+                               "so you'll need to manually add one to the "
+                               "munki recipe.")
+                    keys["Input"]["pkginfo"]["description"] = " "
+
+                # Set default variable to use for substitution.
                 import_file_var = "%pathname%"
 
                 if facts["download_format"] in supported_image_formats and "sparkle_feed" not in facts:
@@ -1529,14 +1572,32 @@ def generate_recipes(facts, prefs, recipes):
                                "I don't have enough information to create a "
                                "PNG icon for this app.")
 
-            # Set keys specific to pkg recipes.
-            elif recipe["type"] == "pkg":
+            # Set keys specific to App Store pkg overrides.
+            elif recipe["type"] == "pkg" and facts["is_from_app_store"] is True:
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
+                # Save a description that explains what this recipe does.
+                keys["Description"] = ("Downloads the latest version of "
+                                       "%s from the Mac App Store and "
+                                       "creates a package." % facts["app_name"])
+                keys["ParentRecipe"] = "com.github.nmcspadden.pkg.appstore"
+                keys["Input"]["PATH"] = facts["app_path"]
+                filename = "MAS-" + filename
+
+                robo_print("reminder",
+                           "I've created an AppStoreApp override for you. "
+                           "Be sure to add the nmcspadden-recipes repo and "
+                           "install pyasn1, if you haven't already. (More "
+                           "information: https://github.com/autopkg/"
+                           "nmcspadden-recipes#appstoreapp-recipe)")
+
+            # Set keys specific to non-App Store pkg recipes.
+            elif recipe["type"] == "pkg" and facts["is_from_app_store"] is False:
+
                 # Can't make this recipe without a bundle identifier.
                 if("bundle_id" not in facts):
-                    robo_print("warning",
+                    robo_print("verbose",
                                "Skipping %s recipe, because I wasn't able to "
                                "determine the bundle identifier of this app. "
                                "You may want to actually download the app and "
@@ -1544,16 +1605,27 @@ def generate_recipes(facts, prefs, recipes):
                                "input." % recipe["type"])
                     continue
 
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of %s and "
-                                      "creates a package." % facts["app_name"])
+                robo_print("log", "Generating %s recipe..." % recipe["type"])
+
+                # If it's an App Store app, create AppStoreApp recipe override.
+                if facts["is_from_app_store"] is True:
+                    # Save a description that explains what this recipe does.
+                    keys["Description"] = ("Downloads the latest version of "
+                                           "%s from the Mac App Store and "
+                                           "creates a package." % facts["app_name"])
+                    keys["ParentRecipe"] = "com.github.nmcspadden.pkg.appstore"
+                    keys["Input"]["PATH"] = facts["app_path"]
+                    filename = "MAS-" + filename
+                    continue
+                else:
+                    # Save a description that explains what this recipe does.
+                    keys["Description"] = ("Downloads the latest version of %s and "
+                                           "creates a package." % facts["app_name"])
+                    # TODO(Elliot): What if it's somebody else's download recipe?
+                    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
                 # Save bundle identifier.
                 keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
-
-                # Make the download recipe the parent of the Munki recipe.
-                # TODO(Elliot): What if it's somebody else's download recipe?
-                keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
                 if facts["download_format"] in supported_image_formats:
                     keys["Process"].append({
@@ -1620,6 +1692,14 @@ def generate_recipes(facts, prefs, recipes):
             # Set keys specific to install recipes.
             elif recipe["type"] == "install":
 
+                # Can't make this recipe if the app is from the App Store.
+                if facts["is_from_app_store"] is True:
+                    robo_print("verbose",
+                               "Skipping %s recipe, because this app "
+                               "was downloaded from the "
+                               "App Store." % recipe["type"])
+                    continue
+
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
                 # Save a description that explains what this recipe does.
@@ -1675,17 +1755,17 @@ def generate_recipes(facts, prefs, recipes):
             # Set keys specific to jss recipes.
             elif recipe["type"] == "jss":
 
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
                 # Can't make this recipe without a bundle identifier.
                 if("bundle_id" not in facts):
-                    robo_print("warning",
+                    robo_print("verbose",
                                "Skipping %s recipe, because I wasn't able to "
                                "determine the bundle identifier of this app. "
                                "You may want to actually download the app and "
                                "try again, using the .app file itself as "
                                "input." % recipe["type"])
                     continue
+
+                robo_print("log", "Generating %s recipe..." % recipe["type"])
 
                 # Authors of jss recipes are encouraged to use spaces.
                 filename = "%s.%s.recipe" % (facts["app_name"], recipe["type"])
@@ -1777,17 +1857,17 @@ def generate_recipes(facts, prefs, recipes):
             # Set keys specific to absolute recipes.
             elif recipe["type"] == "absolute":
 
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
                 # Can't make this recipe without a bundle identifier.
                 if("bundle_id" not in facts):
-                    robo_print("warning",
+                    robo_print("verbose",
                                "Skipping %s recipe, because I wasn't able to "
                                "determine the bundle identifier of this app. "
                                "You may want to actually download the app and "
                                "try again, using the .app file itself as "
                                "input." % recipe["type"])
                     continue
+
+                robo_print("log", "Generating %s recipe..." % recipe["type"])
 
                 # Save a description that explains what this recipe does.
                 keys["Description"] = ("Downloads the latest version of %s and "
@@ -1813,17 +1893,17 @@ def generate_recipes(facts, prefs, recipes):
             # Set keys specific to sccm recipes.
             elif recipe["type"] == "sccm":
 
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
                 # Can't make this recipe without a bundle identifier.
                 if("bundle_id" not in facts):
-                    robo_print("warning",
+                    robo_print("verbose",
                                "Skipping %s recipe, because I wasn't able to "
                                "determine the bundle identifier of this app. "
                                "You may want to actually download the app and "
                                "try again, using the .app file itself as "
                                "input." % recipe["type"])
                     continue
+
+                robo_print("log", "Generating %s recipe..." % recipe["type"])
 
                 # Save a description that explains what this recipe does.
                 keys["Description"] = ("Downloads the latest version of %s and "
@@ -1847,17 +1927,17 @@ def generate_recipes(facts, prefs, recipes):
             # Set keys specific to ds recipes.
             elif recipe["type"] == "ds":
 
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
                 # Can't make this recipe without a bundle identifier.
                 if("bundle_id" not in facts):
-                    robo_print("warning",
+                    robo_print("verbose",
                                "Skipping %s recipe, because I wasn't able to "
                                "determine the bundle identifier of this app. "
                                "You may want to actually download the app and "
                                "try again, using the .app file itself as "
                                "input." % recipe["type"])
                     continue
+
+                robo_print("log", "Generating %s recipe..." % recipe["type"])
 
                 # Save a description that explains what this recipe does.
                 keys["Description"] = ("Downloads the latest version of %s and "
