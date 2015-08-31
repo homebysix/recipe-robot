@@ -48,7 +48,7 @@ optional arguments:
 import argparse
 from distutils.version import StrictVersion
 import json
-import os.path
+import os
 import pprint
 import random
 import re
@@ -72,6 +72,7 @@ verbose_mode = False  # set to True for additional user-facing output
 debug_mode = False  # set to True to output everything all the time
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
+cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
 
 # Build the list of download formats we know about.
 supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
@@ -795,31 +796,46 @@ def inspect_download_url(input_path, args, facts):
     if download_format != "":
         robo_print("verbose", "    Download format is: %s" % download_format)
         facts["download_format"] = download_format
+    else:
+        robo_print("warning",
+                   "Not able to determine download format. This could prove "
+                   "problematic later.")
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
     # files? https://gist.github.com/gourneau/1430932
-    # robo_print("verbose", "Downloading file for further inspection...")
-    # f = urlopen(input_path)
-    # tmp_path = "/private/tmp/%s" % filename
-    # with open(tmp_path, "wb") as code:
-    #     code.write(f.read())
-    #     robo_print("verbose", "    Downloaded to %s" % tmp_path)
+    robo_print("verbose", "Downloading file for further inspection...")
+    create_dest_dirs(cache_dir)
+    f = urlopen(input_path)
+    tmp_path = "/private/tmp/recipe-robot"
+    with open("%s/%s" % (tmp_path, filename), "wb") as code:
+        code.write(f.read())
+        robo_print("verbose", "    Downloaded to %s" % tmp_path)
 
     # TODO(Elliot): Further processing of downloaded files.
-    if download_format in supported_image_formats:
+    if download_format == "" or download_format in supported_image_formats:
         # Mount the dmg and look for an app.
-        # cmd = "/usr/bin/hdiutil attach -plist -mountrandom /private/tmp -nobrowse %s" % tmp_path
-        # exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        pass
-    elif download_format in supported_archive_formats:
+        cmd = "/usr/bin/hdiutil attach \"%s/%s\"" % (tmp_path, filename)
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            print "This looks like an image!"
+            # Find the app inside the attached image.
+        else:
+            robo_print("debug", "The downloaded file is not an image.")
+    if download_format == "" or download_format in supported_archive_formats:
         # Unzip the zip and look for an app.
-        # cmd = "/usr/bin/unzip %s" % tmp_path
-        # exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        pass
-    elif download_format in supported_install_formats:
+        cmd = "/usr/bin/unzip \"%s/%s\" -d \"%s/unpacked\"" % (tmp_path, filename)
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            for this_file in os.listdir("%s/unpacked" % tmp_path):
+                if this_file.endswith(".app"):
+                    print this_file
+        else:
+            robo_print("debug", "The downloaded file is not an archive.")
+    if download_format == "" or download_format in supported_install_formats:
         # Use pkgutil to extract contents and look for an app.
         pass
+    sys.exit(0)
 
     # TODO(Elliot): Delete file from /tmp.
 
@@ -841,7 +857,8 @@ def inspect_app(input_path, args, facts):
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
         robo_print("verbose", "    App seems valid")
     except Exception:
-        robo_print("error", "This doesn't look like a valid app to me.")
+        robo_print("error",
+                   "%s doesn't look like a valid app to me." % input_path)
 
     # Get the filename of the app (which is usually the same as the app name.)
     app_file = os.path.basename(input_path)[:-4]
@@ -1041,6 +1058,9 @@ def inspect_recipe(input_path, args, facts):
         if app_name != "":
             robo_print("verbose", "    App name is: %s" % app_name)
             facts["app_name"] = app_name
+            # If the app exists on disk, we can cheat by using it as input.
+            if os.path.exists("/Applications/%s.app" % app_name):
+                inspect_app("/Applications/%s.app" % app_name, args, facts)
 
     # Determine parent recipe, and get more facts from it.
     marker = "Parent recipe(s):"
