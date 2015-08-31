@@ -407,6 +407,9 @@ def process_input_path(input_path, args, facts):
             we know so far about the app associated with the input path.
     """
 
+    # Keep track of the inspections we perform, to make sure we don't loop.
+    facts["inspections"] = []
+
     if input_path.startswith("http"):
         if input_path.endswith(".xml") or input_path.endswith(".php"):
             robo_print("verbose", "Input path looks like a Sparkle feed.")
@@ -488,6 +491,12 @@ def inspect_github_url(input_path, args, facts):
     """Process a GitHub URL, gathering required information to create a
     recipe.
     """
+
+    # Only proceed if we haven't inspected this GitHub URL yet.
+    if "github_url" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("github_url")
 
     # Grab the GitHub repo path.
     github_repo = ""
@@ -597,6 +606,12 @@ def inspect_sourceforge_url(input_path, args, facts):
     """Process a SourceForge URL, gathering required information to create a
     recipe.
     """
+
+    # Only proceed if we haven't inspected this SourceForge URL yet.
+    if "sourceforge_url" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("sourceforge_url")
 
     # Determine the name of the SourceForge project.
     proj_name = ""
@@ -727,6 +742,12 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     recipe.
     """
 
+    # Only proceed if we haven't inspected this Sparkle feed yet.
+    if "sparkle_feed_url" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("sparkle_feed_url")
+
     # Save the Sparkle feed URL to the dictionary of facts.
     robo_print("verbose", "    Sparkle feed is: %s" % input_path)
     facts["sparkle_feed"] = input_path
@@ -767,6 +788,12 @@ def inspect_download_url(input_path, args, facts):
     create a recipe.
     """
 
+    # Only proceed if we haven't inspected this download URL yet.
+    if "download_url" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("download_url")
+
     # Save the download URL to the dictionary of facts.
     robo_print("verbose", "    Download URL is: %s" % input_path)
     facts["download_url"] = input_path
@@ -794,6 +821,16 @@ def inspect_download_url(input_path, args, facts):
     if download_format != "":
         facts["download_format"] = download_format
 
+    # Only proceed if we haven't inspected the app already.
+    # TODO(Elliot): One downside of stopping here is the following scenario:
+    #    1. App with Sparkle is given as input.
+    #    2. Sparkle feed is inspected.
+    #    3. Download URL doesn't end with a known file format.
+    #    4. Download URL is not inspected, and therefore we don't know the
+    #       download format.
+    if "app" in facts["inspections"]:
+        return facts
+
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
     # files? https://gist.github.com/gourneau/1430932
@@ -810,8 +847,6 @@ def inspect_download_url(input_path, args, facts):
         robo_print("verbose", "    Downloaded to %s/%s" % (cache_dir, filename))
 
     # Open the disk image (or test to see whether the download is one).
-    # TODO(Elliot):  DON'T download the download_url if the original input was
-    # the app itself. How can we track that?
     if download_format == "" or download_format in supported_image_formats:
         # Mount the dmg and look for an app.
         cmd = "/usr/bin/hdiutil attach -plist \"%s/%s\"" % (cache_dir, filename)
@@ -870,6 +905,12 @@ def inspect_download_url(input_path, args, facts):
 def inspect_app(input_path, args, facts):
     """Process an app, gathering required information to create a recipe.
     """
+
+    # Only proceed if we haven't inspected this app yet.
+    if "app" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("app")
 
     # Read the app's Info.plist.
     robo_print("verbose", "Validating app...")
