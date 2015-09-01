@@ -28,3 +28,5 @@ mailcore2/unittest/data
 
 # Compiled Python scripts
 *.pyc
+
+TODO.md
