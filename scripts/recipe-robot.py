@@ -1275,6 +1275,7 @@ def generate_recipes(facts, prefs, recipes):
     # All known recipe types already appear in "autopkg search" results.
     if preferred_recipe_count == 0:
         robo_print("log", "Sorry, no recipes available to generate.")
+        sys.exit(0)
 
     # We don't have enough information to create a recipe set.
     if (facts["is_from_app_store"] is False and
