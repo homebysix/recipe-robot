@@ -1314,6 +1314,9 @@ def generate_recipes(facts, prefs, recipes):
                    "if necessary.")
         facts["version_key"] = "CFBundleShortVersionString"
 
+    # Keep track of whether we've created any AppStoreApp overrides.
+    app_store_app_override_created = False
+
     # Create a recipe for each buildable type we know about.
     for recipe in recipes:
         if recipe["buildable"] is True:
@@ -1476,12 +1479,7 @@ def generate_recipes(facts, prefs, recipes):
                                "munki recipe.")
                     keys["Input"]["pkginfo"]["description"] = " "
 
-                robo_print("reminder",
-                           "I've created an AppStoreApp override for you. "
-                           "Be sure to add the nmcspadden-recipes repo and "
-                           "install pyasn1, if you haven't already. (More "
-                           "information: https://github.com/autopkg/"
-                           "nmcspadden-recipes#appstoreapp-recipe)")
+                app_store_app_override_created = True
 
             # Set keys specific to non-App Store munki recipes.
             elif recipe["type"] == "munki" and facts["is_from_app_store"] is False:
@@ -1585,12 +1583,7 @@ def generate_recipes(facts, prefs, recipes):
                 keys["Input"]["PATH"] = facts["app_path"]
                 filename = "MAS-" + filename
 
-                robo_print("reminder",
-                           "I've created an AppStoreApp override for you. "
-                           "Be sure to add the nmcspadden-recipes repo and "
-                           "install pyasn1, if you haven't already. (More "
-                           "information: https://github.com/autopkg/"
-                           "nmcspadden-recipes#appstoreapp-recipe)")
+                app_store_app_override_created = True
 
             # Set keys specific to non-App Store pkg recipes.
             elif recipe["type"] == "pkg" and facts["is_from_app_store"] is False:
@@ -1607,22 +1600,11 @@ def generate_recipes(facts, prefs, recipes):
 
                 robo_print("log", "Generating %s recipe..." % recipe["type"])
 
-                # If it's an App Store app, create AppStoreApp recipe override.
-                if facts["is_from_app_store"] is True:
-                    # Save a description that explains what this recipe does.
-                    keys["Description"] = ("Downloads the latest version of "
-                                           "%s from the Mac App Store and "
-                                           "creates a package." % facts["app_name"])
-                    keys["ParentRecipe"] = "com.github.nmcspadden.pkg.appstore"
-                    keys["Input"]["PATH"] = facts["app_path"]
-                    filename = "MAS-" + filename
-                    continue
-                else:
-                    # Save a description that explains what this recipe does.
-                    keys["Description"] = ("Downloads the latest version of %s and "
-                                           "creates a package." % facts["app_name"])
-                    # TODO(Elliot): What if it's somebody else's download recipe?
-                    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
+                # Save a description that explains what this recipe does.
+                keys["Description"] = ("Downloads the latest version of %s and "
+                                       "creates a package." % facts["app_name"])
+                # TODO(Elliot): What if it's somebody else's download recipe?
+                keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
                 # Save bundle identifier.
                 keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
@@ -1981,8 +1963,16 @@ def generate_recipes(facts, prefs, recipes):
             FoundationPlist.writePlist(recipe["keys"], dest_path)
             prefs["RecipeCreateCount"] += 1
 
-            robo_print("verbose", "    %s/%s" %
+            robo_print("log", "    %s/%s" %
                        (prefs["RecipeCreateLocation"], filename))
+
+    if app_store_app_override_created is True:
+       robo_print("reminder",
+                  "I've created at least one AppStoreApp override for you. "
+                  "Be sure to add the nmcspadden-recipes repo and install "
+                  "pyasn1, if you haven't already. (More information: "
+                  "https://github.com/autopkg/nmcspadden-recipes"
+                  "#appstoreapp-recipe)")
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, prefs_file)
