@@ -1728,10 +1728,10 @@ def generate_recipes(facts, prefs, recipes):
                     "Processor": "InstallFromDMG",
                     "Arguments": {
                         "dmg_path": "%dmg_path%",
-                        "items_to_copy": {
+                        "items_to_copy": [{
                             "source_item": "%s.app" % app_name_key,
                             "destination_path": "/Applications"
-                        }
+                        }]
                     }
                 })
 
