@@ -1093,11 +1093,12 @@ def inspect_recipe(input_path, args, facts):
     robo_print("verbose", "Validating recipe...")
     try:
         input_recipe = FoundationPlist.readPlist(input_path)
+        robo_print("verbose", "    Recipe is a valid plist")
     except Exception:
         robo_print("warning", "Could not parse recipe as a plist.")
 
     # Run autopkg info on the recipe and save the output.
-    cmd = "autopkg info %s" % input_path
+    cmd = "autopkg info \"%s\"" % input_path
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
         out = out.split("\n")
@@ -1120,12 +1121,16 @@ def inspect_recipe(input_path, args, facts):
 
     # Determine parent recipe, and get more facts from it.
     marker = "Parent recipe(s):"
+    parent_recipe_path = ""
     robo_print("verbose", "Looking for a parent recipe...")
     for line in out:
         if marker in line:
             parent_recipe_path = line[len(marker):].lstrip()
-            robo_print("verbose", "    Parent recipe is: %s" % parent_recipe_path)
-            facts = inspect_recipe(parent_recipe_path, args, facts)
+    if parent_recipe_path != "":
+        robo_print("verbose", "    Parent recipe is: %s" % parent_recipe_path)
+        facts = inspect_recipe(parent_recipe_path, args, facts)
+    else:
+        robo_print("verbose", "    No parent recipe found")
 
     # Determine whether there's a Sparkle feed.
     if "sparkle_feed" not in facts:
