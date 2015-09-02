@@ -1713,8 +1713,16 @@ def generate_recipes(facts, prefs, recipes):
                 keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
                 if facts["download_format"] in supported_image_formats:
-                    pass  # InstallFromDMG (added below) is the only
-                          # processor required.
+                    keys["Process"].append({
+                        "Processor": "InstallFromDMG",
+                        "Arguments": {
+                            "dmg_path": "%pathname%",
+                            "items_to_copy": [{
+                                "source_item": "%s.app" % app_name_key,
+                                "destination_path": "/Applications"
+                            }]
+                        }
+                    })
 
                 elif facts["download_format"] in supported_archive_formats:
                     if facts["codesign_status"] == "unsigned":
@@ -1731,6 +1739,16 @@ def generate_recipes(facts, prefs, recipes):
                         "Arguments": {
                             "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                             "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg"
+                        }
+                    })
+                    keys["Process"].append({
+                        "Processor": "InstallFromDMG",
+                        "Arguments": {
+                            "dmg_path": "%dmg_path%",
+                            "items_to_copy": [{
+                                "source_item": "%s.app" % app_name_key,
+                                "destination_path": "/Applications"
+                            }]
                         }
                     })
 
