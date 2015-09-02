@@ -832,6 +832,7 @@ def inspect_download_url(input_path, args, facts):
             break  # should stop after the first format match
     if download_format != "":
         robo_print("verbose", "    Download format is %s" % download_format)
+        facts["download_format"] = download_format
     else:
         robo_print("verbose", "    Unknown download format")
 
@@ -876,8 +877,8 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was a disk image image. Make a note of that.
             if download_format == "":
                 download_format = "dmg"  # most common disk image format
+                facts["download_format"] = download_format
             robo_print("verbose", "    Download format is %s" % download_format)
-            facts["download_format"] = download_format
 
             # If the download filename was ambiguous, change it.
             if not facts["download_filename"].endswith(supported_image_formats):
@@ -914,8 +915,8 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "zip"  # most common archive format
+                facts["download_format"] = download_format
             robo_print("verbose", "    Download format is %s" % download_format)
-            facts["download_format"] = download_format
 
             # If the download filename was ambiguous, change it.
             if not facts["download_filename"].endswith(supported_archive_formats):
