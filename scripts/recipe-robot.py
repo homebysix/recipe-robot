@@ -821,12 +821,17 @@ def inspect_download_url(input_path, args, facts):
     # Try to determine the type of file downloaded. (Overwrites any previous
     # download_type, because the download URL is the most reliable source.)
     download_format = ""
+    robo_print("verbose", "Determining download format...")
     for this_format in all_supported_formats:
         if filename.lower().endswith(this_format):
             download_format = this_format
             break  # should stop after the first format match
     if download_format != "":
+        robo_print("verbose", "    Download format is %s" % download_format)
         facts["download_format"] = download_format
+    else:
+        robo_print("verbose", "    Unknown download format")
+
 
     # Only proceed if we haven't inspected the app already.
     # TODO(Elliot): One downside of stopping here is the following scenario:
@@ -855,6 +860,8 @@ def inspect_download_url(input_path, args, facts):
 
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
+        robo_print("verbose", "Verifying downloaded file format...")
+
         # Mount the dmg and look for an app.
         # TODO(Elliot): Handle dmgs with license agreements:
         # https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
@@ -862,6 +869,7 @@ def inspect_download_url(input_path, args, facts):
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             download_format = "dmg"
+            robo_print("verbose", "    Download format is %s" % download_format)
             facts["download_format"] = download_format
             with open("%s/dmg_attach.plist" % cache_dir, "wb") as dmg_plist:
                 dmg_plist.write(out)
@@ -890,6 +898,7 @@ def inspect_download_url(input_path, args, facts):
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             download_format = "zip"
+            robo_print("verbose", "    Download format is %s" % download_format)
             facts["download_format"] = download_format
             for this_file in os.listdir("%s/unpacked" % cache_dir):
                 if this_file.endswith(".app"):
