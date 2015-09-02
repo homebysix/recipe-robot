@@ -1117,6 +1117,22 @@ def inspect_app(input_path, args, facts):
             robo_print("verbose", "    Codesign requirements are: %s" % codesign_reqs)
             facts["codesign_reqs"] = codesign_reqs
 
+    # Attempt to determine code signing verification/requirements.
+    if "developer" not in facts:
+        developer = ""
+        robo_print("verbose", "Determining application developer...")
+        cmd = "codesign --display -r- --verbose=3 \"%s\"" % (input_path)
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            marker = "Authority=Developer ID Application: "
+            # For some reason, the information we want is output to stderr.
+            for line in err.split("\n"):
+                if line.startswith(marker):
+                    developer = line[len(marker):]
+        if developer != "":
+            robo_print("verbose", "    Developer: %s" % developer)
+            facts["developer"] = developer
+
     # TODO(Elliot): Collect other information as required to build recipes.
     #    - Use bundle identifier to locate related helper apps on disk?
     #    - App category... maybe prompt for that if JSS recipe is selected.
@@ -1551,6 +1567,7 @@ def generate_recipes(facts, prefs, recipes):
                 keys["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
                     "display_name": facts["app_name"],
+                    "developer": facts.get("developer", ""),
                     "name": "%NAME%",
                     "unattended_install": True
                 }
