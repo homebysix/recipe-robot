@@ -1208,7 +1208,7 @@ def create_existing_recipe_list(app_name, recipes, args):
         recipe_searches.append(app_name_no_symbol)
 
     for this_search in recipe_searches:
-        robo_print("verbose", "Searching for existing AutoPkg recipes for %s..." % this_search)
+        robo_print("verbose", "Searching for existing AutoPkg recipes for \"%s\"..." % this_search)
         cmd = "/usr/local/bin/autopkg search -p \"%s\"" % this_search
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
