@@ -982,7 +982,7 @@ def inspect_app(input_path, args, facts):
     if "sparkle_feed" not in facts:
         sparkle_feed = ""
         download_format = ""
-        robo_print("verbose", "Checking for a Sparkle feed in SUFeedURL...")
+        robo_print("verbose", "Checking for a Sparkle feed...")
         if "SUFeedURL" in info_plist:
             sparkle_feed = info_plist["SUFeedURL"]
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
