@@ -856,6 +856,8 @@ def inspect_download_url(input_path, args, facts):
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
         # Mount the dmg and look for an app.
+        # TODO(Elliot): Handle dmgs with license agreements:
+        # https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
         cmd = "/usr/bin/hdiutil attach -plist \"%s/%s\"" % (cache_dir, filename)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
