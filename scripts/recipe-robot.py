@@ -397,6 +397,7 @@ def build_prefs(prefs, recipes):
 
     return prefs
 
+
 def process_input_path(input_path, args, facts):
     """Determine which functions to call based on the type of input path.
 
