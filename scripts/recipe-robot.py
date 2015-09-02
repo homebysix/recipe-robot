@@ -1639,6 +1639,15 @@ def generate_recipes(facts, prefs, recipes):
                 keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
                 if facts["download_format"] in supported_image_formats:
+                    # TODO(Elliot): We only need Versioner in certain cases.
+                    # (e.g. if direct download only, no Sparkle feed)
+                    keys["Process"].append({
+                        "Processor": "Versioner",
+                        "Arguments": {
+                            "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % app_name_key,
+                            "plist_version_key": facts["version_key"]
+                        }
+                    })
                     keys["Process"].append({
                         "Processor": "PkgRootCreator",
                         "Arguments": {
