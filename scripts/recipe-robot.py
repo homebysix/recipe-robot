@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
