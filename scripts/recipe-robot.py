@@ -1423,6 +1423,8 @@ def generate_recipes(facts, prefs, recipes):
                             "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
                         }
                     })
+                    # TODO(Elliot): Copy SourceForgeURLProvider.py to recipe
+                    # output directory.
                 elif "download_url" in facts:
                     keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
                     keys["Process"].append({
