@@ -1217,14 +1217,18 @@ def create_existing_recipe_list(app_name, recipes, args):
         if exitcode == 0:
             # TODO(Elliot): There's probably a more efficient way to do this.
             # For each recipe type, see if it exists in the search results.
+            is_existing = False
             for recipe in recipes:
                 recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
                 for line in out:
                     if recipe_name.lower() in line.lower():
                         # Set to False by default. If found, set to True.
                         recipe["existing"] = True
-                        robo_print("verbose", "    Found existing %s." % recipe_name)
+                        robo_print("verbose", "    Found existing %s" % recipe_name)
+                        is_existing = True
                         break
+            if not is_existing:
+                robo_print("verbose", "    No results")
         else:
             robo_print("error", err)
 
