@@ -756,6 +756,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # Download the Sparkle feed and parse it.
     try:
+        # TODO(Elliot): Some servers block based on user-agent. For example:
+        # http://www.mythoughtsformac.com/updates/mythoughtscast_new.xml
+        # Do we want to set user-agent to 'Mozilla/5.0'?
         raw_xml = urlopen(input_path)
     except Exception as err:
         robo_print("warning",
