@@ -57,6 +57,7 @@ import shutil
 from subprocess import Popen, PIPE
 import sys
 from urllib2 import urlopen
+from urlparse import urlparse
 from xml.etree.ElementTree import parse
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
@@ -798,8 +799,14 @@ def inspect_download_url(input_path, args, facts):
     robo_print("verbose", "    Download URL is: %s" % input_path)
     facts["download_url"] = input_path
 
-    # Get the filename from the URL (everything after the last "/").
-    filename = input_path.split("/")[-1]
+    # Get the filename from the URL.
+    # Example: https://www.dropbox.com/s/b0hk0i2n386824c/IconGrabber.dmg?dl=1
+    # Should produce: IconGrabber.dmg
+    robo_print("verbose", "Getting download filename...")
+    parsed_url = urlparse(input_path)
+    filename = parsed_url.path.split("/")[-1]
+    robo_print("verbose", "    Download filename is: %s" % filename)
+    facts["download_filename"] = filename
 
     # If download URL is hosted on GitHub or SourceForge, we can gather more
     # information.
@@ -1406,7 +1413,8 @@ def generate_recipes(facts, prefs, recipes):
                     keys["Process"].append({
                         "Processor": "URLDownloader",
                         "Arguments": {
-                            "url": "%DOWNLOAD_URL%"
+                            "url": "%DOWNLOAD_URL%",
+                            "filename": facts["download_filename"]
                         }
                     })
                 keys["Process"].append({
@@ -1727,18 +1735,6 @@ def generate_recipes(facts, prefs, recipes):
                             "pkg_path": "%pathname%"
                         }
                     })
-                    continue  # No more processors needed for pkg install.
-
-                keys["Process"].append({
-                    "Processor": "InstallFromDMG",
-                    "Arguments": {
-                        "dmg_path": "%dmg_path%",
-                        "items_to_copy": [{
-                            "source_item": "%s.app" % app_name_key,
-                            "destination_path": "/Applications"
-                        }]
-                    }
-                })
 
             # Set keys specific to jss recipes.
             elif recipe["type"] == "jss":
