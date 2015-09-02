@@ -2033,7 +2033,6 @@ def create_dest_dirs(path):
     Args:
         path: The path to the directory that needs to be created.
     """
-
     dest_dir = os.path.expanduser(path)
     if not os.path.exists(dest_dir):
         try:
@@ -2051,7 +2050,6 @@ def extract_app_icon(icon_path, png_path):
         icon_path: The path to the .icns file we're converting to .png.
         png_path: The path to the .png file we're creating.
     """
-
     png_path_absolute = os.path.expanduser(png_path)
     create_dest_dirs(os.path.dirname(png_path_absolute))
 
@@ -2076,12 +2074,9 @@ def debug_dump(items):
     Args:
         items: A dict of dicts of all the things to dump to output.
     """
-
     for key, value in items.iteritems():
-        print "%s\n%s:\n\n%s\n%s" % (BColors.DEBUG,
-                                           key.upper(),
-                                           pprint.pformat(value),
-                                           BColors.ENDC)
+        print "%s\n%s:\n\n%s\n%s" % (BColors.DEBUG, key.upper(),
+                                     pprint.pformat(value), BColors.ENDC)
 
 
 def congratulate(prefs):
@@ -2090,7 +2085,6 @@ def congratulate(prefs):
     Args:
         prefs: A dictionary containing a key/value pair for each preference.
     """
-
     congrats_msg = (
         "Amazing.",
         "Easy peasy.",
