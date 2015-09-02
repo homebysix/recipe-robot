@@ -61,6 +61,7 @@ from urlparse import urlparse
 from xml.etree.ElementTree import parse
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
+# Or not use it at all (i.e. use the preferences system correctly).
 try:
     import FoundationPlist
 except:
@@ -80,20 +81,19 @@ cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
 supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
 supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz")
 supported_install_formats = ("pkg", "mpkg")  # downloading mpkg unlikely
-all_supported_formats = supported_image_formats + supported_archive_formats + supported_install_formats
+all_supported_formats = (supported_image_formats + supported_archive_formats +
+                         supported_install_formats)
 
-class bcolors:
-
+class BColors:
     """Specify colors that are used in Terminal output."""
-
-    BOLD = '\033[1m'
-    DEBUG = '\033[95m'
-    ENDC = '\033[0m'
-    ERROR = '\033[91m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    UNDERLINE = '\033[4m'
-    WARNING = '\033[93m'
+    BOLD = "\033[1m"
+    DEBUG = "\033[95m"
+    ENDC = "\033[0m"
+    ERROR = "\033[91m"
+    OKBLUE = "\033[94m"
+    OKGREEN = "\033[92m"
+    UNDERLINE = "\033[4m"
+    WARNING = "\033[93m"
 
 
 def robo_print(output_type, message):
@@ -106,14 +106,14 @@ def robo_print(output_type, message):
     """
 
     if output_type == "error":
-        print >> sys.stderr, "%s[ERROR] %s%s" % (bcolors.ERROR, message, bcolors.ENDC)
+        print >> sys.stderr, "%s[ERROR] %s%s" % (BColors.ERROR, message, BColors.ENDC)
         sys.exit(1)
     elif output_type == "warning":
-        print >> sys.stderr, "%s[WARNING] %s%s" % (bcolors.WARNING, message, bcolors.ENDC)
+        print >> sys.stderr, "%s[WARNING] %s%s" % (BColors.WARNING, message, BColors.ENDC)
     elif output_type == "reminder":
-        print "%s[REMINDER] %s%s" % (bcolors.OKBLUE, message, bcolors.ENDC)
+        print "%s[REMINDER] %s%s" % (BColors.OKBLUE, message, BColors.ENDC)
     elif output_type == "debug" and debug_mode is True:
-        print "%s[DEBUG] %s%s" % (bcolors.DEBUG, message, bcolors.ENDC)
+        print "%s[DEBUG] %s%s" % (BColors.DEBUG, message, BColors.ENDC)
     elif output_type == "verbose":
         if verbose_mode is True or debug_mode is True:
             print message
@@ -191,7 +191,7 @@ def print_welcome_text():
                                    d-||-b
                                      ||
                                    _/  \_
-    """ % (bcolors.DEBUG, bcolors.ENDC, version)
+    """ % (BColors.DEBUG, BColors.ENDC, version)
 
     robo_print("log", welcome_text)
 
@@ -2077,10 +2077,10 @@ def debug_dump(items):
     """
 
     for key, value in items.iteritems():
-        print "%s\n%s:\n\n%s\n%s" % (bcolors.DEBUG,
+        print "%s\n%s:\n\n%s\n%s" % (BColors.DEBUG,
                                            key.upper(),
                                            pprint.pformat(value),
-                                           bcolors.ENDC)
+                                           BColors.ENDC)
 
 
 def congratulate(prefs):
@@ -2177,7 +2177,7 @@ def main():
 
     # If killed, make sure to reset the terminal color with our dying breath.
     except (KeyboardInterrupt, SystemExit):
-        print bcolors.ENDC
+        print BColors.ENDC
 
 
 if __name__ == '__main__':
