@@ -63,13 +63,13 @@ __Any recipe type__
     - Process (list)
 
 - Optional or conditional:
-    - MinimumVersion (string, probably "0.5.0" for our purposes)
+    - MinimumVersion (string, probably "0.5.0", or whatever is contemporaneous with recipe-rebot's development.
 
 __download__
 
 - Required:
     - Process -> URLDownloader processor
-    - Process -> EndOfCheckPhase processor, after the actual download occurs but before unarchiving or veriying code sig, and only if we need the recipe to be compatible with autopkg's `--check` argument
+    - Process -> EndOfCheckPhase processor, after the actual download occurs but before unarchiving or veriying code sig.
 
 - Optional or conditional:
     - Input -> SPARKLE_FEED_URL (string), if using Sparkle
@@ -164,73 +164,6 @@ __ds__
     - Input -> DS_NAME (string)
     - Process -> StopProcessingIf processor
     - Process -> Copier processor
-
-## Elliot's recipe template logic
-
-Here's the logic I was using to create recipes manually until this point:
-
-- Input type is app
-- The app has a Sparkle feed:
-    - Downloaded file is zip, .tar.gz, etc:
-        - App is signed:
-            - SPARKLE ZIP SIGNED __DOWNLOAD__ RECIPE TEMPLATE:
-                - SparkleUpdateInfoProvider
-                - URLDownloader
-                - EndOfCheckPhase
-                - Unarchiver
-                - CodeSignatureVerifier
-            - SPARKLE ZIP SIGNED __MUNKI__ RECIPE TEMPLATE
-                - DmgCreator
-                - MunkiImporter
-            - SPARKLE ZIP SIGNED __PKG__ RECIPE TEMPLATE
-                - PkgCreator
-            - SPARKLE ZIP SIGNED __INSTALL__ RECIPE TEMPLATE
-                - DmgCreator
-                - InstallFromDMG
-        - App is unsigned:
-            - SPARKLE ZIP UNSIGNED __DOWNLOAD__ RECIPE TEMPLATE:
-                - SparkleUpdateInfoProvider
-                - URLDownloader
-                - EndOfCheckPhase
-            - SPARKLE ZIP UNSIGNED __MUNKI__ RECIPE TEMPLATE:
-                - Unarchiver
-                - DmgCreator
-                - MunkiImporter
-            - SPARKLE ZIP UNSIGNED __PKG__ RECIPE TEMPLATE:
-                - Unarchiver
-                - PkgCreator
-            - SPARKLE ZIP UNSIGNED __INSTALL__ RECIPE TEMPLATE:
-                - Unarchiver
-                - DmgCreator
-                - InstallFromDMG
-    - Downloaded file is dmg, iso:
-        - App is signed:
-            - SPARKLE DMG SIGNED __DOWNLOAD__ RECIPE TEMPLATE:
-                - SparkleUpdateInfoProvider
-                - URLDownloader
-                - EndOfCheckPhase
-                - CodeSignatureVerifier
-            - SPARKLE DMG SIGNED __MUNKI__ RECIPE TEMPLATE
-                - MunkiImporter
-            - SPARKLE DMG SIGNED __PKG__ RECIPE TEMPLATE
-                - PkgRootCreator
-                - Copier
-                - PkgCreator
-            - SPARKLE DMG SIGNED __INSTALL__ RECIPE TEMPLATE
-                - InstallFromDMG
-        - App is unsigned:
-            - SPARKLE DMG UNSIGNED __DOWNLOAD__ RECIPE TEMPLATE:
-                - SparkleUpdateInfoProvider
-                - URLDownloader
-                - EndOfCheckPhase
-            - SPARKLE DMG UNSIGNED __MUNKI__ RECIPE TEMPLATE
-                - MunkiImporter
-            - SPARKLE DMG UNSIGNED __PKG__ RECIPE TEMPLATE
-                - PkgRootCreator
-                - Copier
-                - PkgCreator
-            - SPARKLE DMG UNSIGNED __INSTALL__ RECIPE TEMPLATE
-                - InstallFromDMG
 
 ## App interface
 
