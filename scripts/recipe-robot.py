@@ -829,7 +829,6 @@ def inspect_download_url(input_path, args, facts):
             break  # should stop after the first format match
     if download_format != "":
         robo_print("verbose", "    Download format is %s" % download_format)
-        facts["download_format"] = download_format
     else:
         robo_print("verbose", "    Unknown download format")
 
@@ -859,9 +858,10 @@ def inspect_download_url(input_path, args, facts):
         download_file.write(f.read())
         robo_print("verbose", "    Downloaded to %s/%s" % (cache_dir, filename))
 
+    robo_print("verbose", "Verifying downloaded file format...")
+
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
-        robo_print("verbose", "Verifying downloaded file format...")
 
         # Mount the dmg and look for an app.
         # TODO(Elliot): Handle dmgs with license agreements:
@@ -869,9 +869,18 @@ def inspect_download_url(input_path, args, facts):
         cmd = "/usr/bin/hdiutil attach -plist \"%s/%s\"" % (cache_dir, filename)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            download_format = "dmg"
+
+            # Confirmed; the download was a disk image image. Make a note of that.
+            if download_format == "":
+                download_format = "dmg"  # most common disk image format
             robo_print("verbose", "    Download format is %s" % download_format)
             facts["download_format"] = download_format
+
+            # If the download filename was ambiguous, change it.
+            if not facts["download_filename"].endswith(supported_image_formats):
+                facts["download_filename"] = facts["download_filename"] + ".dmg"
+
+            # Locate and inspect the app.
             with open("%s/dmg_attach.plist" % cache_dir, "wb") as dmg_plist:
                 dmg_plist.write(out)
             dmg_dict = FoundationPlist.readPlist("%s/dmg_attach.plist" % cache_dir)
@@ -898,9 +907,18 @@ def inspect_download_url(input_path, args, facts):
         cmd = "/usr/bin/unzip \"%s/%s\" -d \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            download_format = "zip"
+
+            # Confirmed; the download was an archive. Make a note of that.
+            if download_format == "":
+                download_format = "zip"  # most common archive format
             robo_print("verbose", "    Download format is %s" % download_format)
             facts["download_format"] = download_format
+
+            # If the download filename was ambiguous, change it.
+            if not facts["download_filename"].endswith(supported_archive_formats):
+                facts["download_filename"] = facts["download_filename"] + ".zip"
+
+            # Locate and inspect the app.
             for this_file in os.listdir("%s/unpacked" % cache_dir):
                 if this_file.endswith(".app"):
                     cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
