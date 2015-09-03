@@ -748,6 +748,11 @@ def inspect_download_url(input_path, args, facts):
     create a recipe.
     """
 
+    # We never skip download URL inspection, even if we've already inspected
+    # a download URL during this run. This handles rare situations in which
+    # the download URL is in a different format than the Sparkle download.
+    # Example: http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
+
     # Save the download URL to the dictionary of facts.
     robo_print("verbose", "    Download URL is: %s" % input_path)
     facts["download_url"] = input_path
