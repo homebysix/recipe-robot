@@ -387,6 +387,8 @@ def process_input_path(input_path, args, facts):
             robo_print("error",
                        "I haven't been trained on how to handle this "
                        "input path:\n    %s" % input_path)
+            # TODO(Elliot): Handle zipped pkgs. Example:
+            # http://www.busymac.com/download/BusyCal.zip
     else:
         robo_print("error",
                    "Input path does not exist. Please try again with a "
