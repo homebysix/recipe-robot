@@ -145,6 +145,10 @@ My goal is not to make Recipe Robot generate perfect recipes 100% of the time. T
 
 You may still need to make a recipe the old fashioned way, if the Robot comes up empty.
 
+__App Store Apps__
+
+If you provide Recipe Robot with the path to an app that came from the Mac App Store, it will create an override for use with Nick McSpadden's [AppStoreApp recipes](https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe). Please see the details in his README for requirements necessary to use these overrides.
+
 __A note about existing recipes__
 
 AutoPkg recipe authors put a lot of work into the recipes they write, and it's important that we respect that by refraining from uploading duplicate recipes to GitHub.
@@ -172,6 +176,8 @@ Each time Recipe Robot produces a batch of recipes for you, I suggest you check 
 - Run again with `--verbose` when errors occur, and you'll usually see why. It's often because Recipe Robot couldn't determine how to download the app. As I said, the Robot won't work for all apps.
 
 - If you get Python exceptions while using Recipe Robot, I invite you to [create an issue on GitHub](https://github.com/homebysix/recipe-robot/issues/new) so I can track the problem. Include full traceback plus whatever input (URL, path, etc) you provided when you ran Recipe Robot.
+
+- It might seem obvious, but inputting a version-specific direct download URL will not serve the purpose of downloading the latest version using AutoPkg. If you see a version in the URL, try inputting the path to the app itself instead. Hopefully there's a Sparkle feed that Recipe Robot can use.
 
 
 ## Feedback
