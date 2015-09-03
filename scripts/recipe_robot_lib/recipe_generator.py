@@ -277,6 +277,7 @@ def generate_recipes(facts, prefs, recipes):
                 keys["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
                     "display_name": facts["app_name"],
+                    "developer": facts.get("developer", ""),
                     "name": "%NAME%",
                     "unattended_install": True
                 }
