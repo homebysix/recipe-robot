@@ -18,7 +18,7 @@ __Table of contents__
 
 Recipe Robot will soon become the easiest way to create AutoPkg recipes. It will consist of two components:
 
-- __Python script__ that takes various types of input and automatically outputs AutoPkg recipes in various formats.
+- A __Python script__ that takes various types of input and automatically outputs AutoPkg recipes in various formats.
 
 - A __native Mac app__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
 
@@ -32,7 +32,7 @@ The Python script is under heavy development right now and is super rough, but y
 Just open Terminal, `cd` to the scripts folder, then type:
 
 ```
-python recipe-robot.py <input>
+recipe-robot <input>
 ```
 
 For `<input>`, you can use one of several types of information:
@@ -46,7 +46,7 @@ For `<input>`, you can use one of several types of information:
 
 The first time Recipe Robot runs, you'll be prompted for some information. On subsequent runs, you can use the `--config` argument to force this prompt to return.
 
-Here's what Recipe Robot looks like when it's working properly. The command I used was: `python recipe-robot.py http://delicious-monster.com/downloads/DeliciousLibrary3.zip`
+Here's what Recipe Robot looks like when it's working properly. The command I used was: `recipe-robot http://delicious-monster.com/downloads/DeliciousLibrary3.zip`
 
 ```
                       -----------------------------------
