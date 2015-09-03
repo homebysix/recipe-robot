@@ -784,6 +784,9 @@ def inspect_download_url(input_path, args, facts):
         if filename.lower().endswith(this_format):
             download_format = this_format
             break  # should stop after the first format match
+        if this_format in parsed_url.query:
+            download_format = this_format
+            break  # should stop after the first format match
     if download_format != "":
         robo_print("verbose", "    Download format is %s" % download_format)
         facts["download_format"] = download_format
