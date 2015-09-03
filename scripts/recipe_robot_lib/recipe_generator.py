@@ -274,8 +274,8 @@ def generate_recipes(facts, prefs, recipes):
                 keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
                 keys["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
-                    "display_name": facts["app_name"],
                     "developer": facts.get("developer", ""),
+                    "display_name": facts["app_name"],
                     "name": "%NAME%",
                     "unattended_install": True
                 }
@@ -306,6 +306,7 @@ def generate_recipes(facts, prefs, recipes):
                 keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
                 keys["Input"]["pkginfo"] = {
                     "catalogs": ["testing"],
+                    "developer": facts.get("developer", ""),
                     "display_name": facts["app_name"],
                     "name": "%NAME%",
                     "unattended_install": True
