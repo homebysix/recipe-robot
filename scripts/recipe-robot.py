@@ -56,7 +56,7 @@ import shlex
 import shutil
 from subprocess import Popen, PIPE
 import sys
-from urllib2 import urlopen
+from urllib2 import urlopen, build_opener
 from urlparse import urlparse
 from xml.etree.ElementTree import parse
 
@@ -756,14 +756,17 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # Download the Sparkle feed and parse it.
     try:
-        # TODO(Elliot): Some servers block based on user-agent. For example:
-        # http://www.mythoughtsformac.com/updates/mythoughtscast_new.xml
-        # Do we want to set user-agent to 'Mozilla/5.0'?
         raw_xml = urlopen(input_path)
     except Exception as err:
-        robo_print("warning",
-                   "Error occured while inspecting Sparkle feed: %s" % err)
-        return facts
+        # Try again, this time with a user-agent.
+        try:
+            opener = build_opener()
+            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+            raw_xml = opener.open(input_path)
+        except Exception as err:
+            robo_print("warning",
+                       "Error occured while inspecting Sparkle feed: %s" % err)
+            return facts
 
     doc = parse(raw_xml)
 
@@ -855,11 +858,21 @@ def inspect_download_url(input_path, args, facts):
     if os.path.exists(cache_dir):
         shutil.rmtree(cache_dir)
     create_dest_dirs(cache_dir)
-    f = urlopen(input_path)
-    # TODO(Elliot): Consider using a filename other than the one provided by
-    # the URL (e.g. "download.php?id=FreewayExpress6")."
+
+    # Write the file to our cache folder.
+    try:
+        raw_download = urlopen(input_path)
+    except Exception as err:
+        # Try again, this time with a user-agent.
+        try:
+            opener = build_opener()
+            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+            raw_download = opener.open(input_path)
+        except Exception as err:
+            robo_print("warning",
+                       "Error encountered during file download: " + err)
     with open("%s/%s" % (cache_dir, filename), "wb") as download_file:
-        download_file.write(f.read())
+        download_file.write(raw_download.read())
         robo_print("verbose", "    Downloaded to %s/%s" % (cache_dir, filename))
 
     robo_print("verbose", "Verifying downloaded file format...")
