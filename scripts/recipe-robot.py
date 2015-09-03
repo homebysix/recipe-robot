@@ -763,6 +763,11 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             opener = build_opener()
             opener.addheaders = [('User-agent', 'Mozilla/5.0')]
             raw_xml = opener.open(input_path)
+            robo_print("warning",
+                       "I had to use a different user-agent in order to "
+                       "read this Sparkle feed. If you run the recipes and "
+                       "get a \"Can't open URL\" error, it means AutoPkg "
+                       "encountered the same problem.")
         except Exception as err:
             robo_print("warning",
                        "Error occured while inspecting Sparkle feed: %s" % err)
@@ -868,6 +873,11 @@ def inspect_download_url(input_path, args, facts):
             opener = build_opener()
             opener.addheaders = [('User-agent', 'Mozilla/5.0')]
             raw_download = opener.open(input_path)
+            robo_print("warning",
+                       "I had to use a different user-agent in order to "
+                       "download this file. If you run the recipes and get a "
+                       "\"Can't open URL\" error, it means AutoPkg "
+                       "encountered the same problem.")
         except Exception as err:
             robo_print("warning",
                        "Error encountered during file download: " + err)
