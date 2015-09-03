@@ -763,7 +763,11 @@ def inspect_download_url(input_path, args, facts):
     robo_print("verbose", "Getting download filename...")
     parsed_url = urlparse(input_path)
     filename = parsed_url.path.split("/")[-1]
-    robo_print("verbose", "    Download filename is: %s" % filename)
+    if filename != "":
+        robo_print("verbose", "    Download filename is: %s" % filename)
+    else:
+        robo_print("verbose", "    No filename provided")
+        filename = "download"
     facts["download_filename"] = filename
 
     # If download URL is hosted on GitHub or SourceForge, we can gather more
