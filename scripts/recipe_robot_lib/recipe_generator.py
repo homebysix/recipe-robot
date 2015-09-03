@@ -216,7 +216,8 @@ def generate_recipes(facts, prefs, recipes):
                     "Processor": "EndOfCheckPhase"
                 })
 
-                if facts["codesign_status"] == "signed":
+                if (facts["codesign_status"] == "signed" and
+                    facts["codesign_version"] != "1"):
                     if facts["download_format"] in supported_image_formats:
                         keys["Process"].append({
                             "Processor": "CodeSignatureVerifier",

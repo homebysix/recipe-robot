@@ -1077,11 +1077,6 @@ def inspect_app(input_path, args, facts):
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             codesign_status = "signed"
-
-            # TODO(Elliot): Account for this error:
-            #     CodeSignatureVerifier: /Applications/CoRD.app: resource
-            #     envelope is obsolete (version 1 signature)
-
             # Determine code signing requirements.
             marker = "designated => "
             for line in out.split("\n"):
@@ -1095,21 +1090,31 @@ def inspect_app(input_path, args, facts):
             robo_print("verbose", "    Codesign requirements are: %s" % codesign_reqs)
             facts["codesign_reqs"] = codesign_reqs
 
-    # Attempt to determine code signing verification/requirements.
-    if "developer" not in facts:
+    # Attempt to determine name of developer and code signature version.
+    if "developer" not in facts or "codesign_version" not in facts:
         developer = ""
-        robo_print("verbose", "Determining application developer...")
+        robo_print("verbose",
+                   "Determining application developer and codesign version...")
         cmd = "codesign --display -r- --verbose=3 \"%s\"" % (input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            marker = "Authority=Developer ID Application: "
+            dev_marker = "Authority=Developer ID Application: "
+            vers_marker = "Sealed Resources version="
             # For some reason, the information we want is output to stderr.
             for line in err.split("\n"):
-                if line.startswith(marker):
-                    developer = line[len(marker):]
+                if line.startswith(dev_marker):
+                    developer = line[len(dev_marker):]
+                if line.startswith(vers_marker):
+                    codesign_version = line[len(vers_marker):len(vers_marker) + 1]
         if developer != "":
             robo_print("verbose", "    Developer: %s" % developer)
             facts["developer"] = developer
+        if codesign_version != "":
+            robo_print("verbose", "    Codesign version: %s" % codesign_version)
+            facts["codesign_version"] = codesign_version
+            if codesign_version == "1":
+                robo_print("warning",
+                           "This app uses an obsolete code signature.")
 
     # TODO(Elliot): Collect other information as required to build recipes.
     #    - Use bundle identifier to locate related helper apps on disk?
