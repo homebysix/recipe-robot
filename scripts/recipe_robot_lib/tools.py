@@ -29,21 +29,6 @@ from subprocess import Popen, PIPE
 import sys
 
 
-# Global variables.
-__version__ = '0.0.3'
-verbose_mode = False  # set to True for additional user-facing output
-debug_mode = False  # set to True to output everything all the time
-prefs_file = os.path.expanduser(
-    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
-cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
-
-# Build the list of download formats we know about.
-supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
-supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz")
-supported_install_formats = ("pkg", "mpkg")  # downloading mpkg unlikely
-all_supported_formats = (supported_image_formats + supported_archive_formats +
-                         supported_install_formats)
-
 class BColors(object):
     """Specify colors that are used in Terminal output."""
     BOLD = "\033[1m"
@@ -54,6 +39,28 @@ class BColors(object):
     OKGREEN = "\033[92m"
     UNDERLINE = "\033[4m"
     WARNING = "\033[93m"
+
+
+class OutputMode(object):
+    """Manage global output mode state with a singleton."""
+    verbose_mode = False  # set to True for additional user-facing output
+    debug_mode = False  # set to True to output everything all the time
+
+    @classmethod
+    def set_verbose_mode(cls, value):
+        """Set the class variable for verbose_mode."""
+        if isinstance(value, bool):
+            cls.verbose_mode = value
+        else:
+            raise ValueError
+
+    @classmethod
+    def set_debug_mode(cls, value):
+        """Set the class variable for debug_mode."""
+        if isinstance(value, bool):
+            cls.debug_mode = value
+        else:
+            raise ValueError
 
 
 def robo_print(output_type, message):
@@ -72,10 +79,10 @@ def robo_print(output_type, message):
         print >> sys.stderr, "%s[WARNING] %s%s" % (BColors.WARNING, message, BColors.ENDC)
     elif output_type == "reminder":
         print "%s[REMINDER] %s%s" % (BColors.OKBLUE, message, BColors.ENDC)
-    elif output_type == "debug" and debug_mode is True:
+    elif output_type == "debug" and OutputMode.debug_mode is True:
         print "%s[DEBUG] %s%s" % (BColors.DEBUG, message, BColors.ENDC)
     elif output_type == "verbose":
-        if verbose_mode is True or debug_mode is True:
+        if OutputMode.verbose_mode is True or OutputMode.debug_mode is True:
             print message
         else:
             pass

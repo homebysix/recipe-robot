@@ -49,6 +49,8 @@ import argparse
 from distutils.version import StrictVersion
 import json
 import os
+#TODO: Remove for release
+import pdb
 import pprint
 import random
 import re
@@ -61,7 +63,7 @@ from xml.etree.ElementTree import parse
 import recipe_robot_lib
 from recipe_robot_lib.tools import (create_dest_dirs,
                                     get_exitcode_stdout_stderr, robo_print,
-                                    BColors)
+                                    BColors, OutputMode)
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly).
 try:
@@ -73,8 +75,6 @@ except:
 
 # Global variables.
 __version__ = '0.0.3'
-verbose_mode = False  # set to True for additional user-facing output
-debug_mode = False  # set to True to output everything all the time
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
@@ -1329,8 +1329,6 @@ def main():
     """Make the magic happen."""
 
     try:
-        global verbose_mode
-
         print_welcome_text()
 
         argparser = build_argument_parser()
@@ -1340,9 +1338,9 @@ def main():
                        "Will build recipes even if they already exist in "
                        "\"autopkg search\" results. Please don't upload "
                        "duplicate recipes.")
-        if args.verbose is True or verbose_mode is True:
+        if args.verbose is True or OutputMode.verbose_mode is True:
+            OutputMode.set_verbose_mode(True)
             robo_print("verbose", "Verbose mode is on.")
-            verbose_mode = True
 
         # Create the master recipe information list.
         recipes = init_recipes()
@@ -1369,7 +1367,7 @@ def main():
         recipe_robot_lib.generate_recipes(facts, prefs, recipes)
 
         # If debug is on, print all the things.
-        if debug_mode is True:
+        if OutputMode.debug_mode is True:
             debug_dump({
                 "Command line arguments": args,
                 "Supported file formats": all_supported_formats,

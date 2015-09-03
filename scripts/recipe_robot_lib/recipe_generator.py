@@ -36,8 +36,6 @@ except ImportError:
 
 # Global variables.
 __version__ = '0.0.3'
-verbose_mode = False  # set to True for additional user-facing output
-debug_mode = False  # set to True to output everything all the time
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
