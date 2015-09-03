@@ -18,7 +18,7 @@
 
 
 """
-recipe-robot.py
+recipe-robot
 
 Easily and automatically create AutoPkg recipes.
 
@@ -52,18 +52,20 @@ import os
 import pprint
 import random
 import re
-import shlex
 import shutil
-from subprocess import Popen, PIPE
 import sys
 from urllib2 import urlopen, build_opener
 from urlparse import urlparse
 from xml.etree.ElementTree import parse
 
+import recipe_robot_lib
+from recipe_robot_lib.tools import (create_dest_dirs,
+                                    get_exitcode_stdout_stderr, robo_print,
+                                    BColors)
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly).
 try:
-    import FoundationPlist
+    from recipe_robot_lib import FoundationPlist
 except:
     print '[WARNING] importing plistlib as FoundationPlist'
     import plistlib as FoundationPlist
@@ -83,63 +85,6 @@ supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz")
 supported_install_formats = ("pkg", "mpkg")  # downloading mpkg unlikely
 all_supported_formats = (supported_image_formats + supported_archive_formats +
                          supported_install_formats)
-
-class BColors:
-    """Specify colors that are used in Terminal output."""
-    BOLD = "\033[1m"
-    DEBUG = "\033[95m"
-    ENDC = "\033[0m"
-    ERROR = "\033[91m"
-    OKBLUE = "\033[94m"
-    OKGREEN = "\033[92m"
-    UNDERLINE = "\033[4m"
-    WARNING = "\033[93m"
-
-
-def robo_print(output_type, message):
-    """Print the specified message in an appropriate color, and only print
-    debug output if debug_mode is True.
-
-    Args:
-        output_type: One of "error", "warning", "debug", or "verbose".
-        message: String to be printed to output.
-    """
-
-    if output_type == "error":
-        print >> sys.stderr, "%s[ERROR] %s%s" % (BColors.ERROR, message, BColors.ENDC)
-        sys.exit(1)
-    elif output_type == "warning":
-        print >> sys.stderr, "%s[WARNING] %s%s" % (BColors.WARNING, message, BColors.ENDC)
-    elif output_type == "reminder":
-        print "%s[REMINDER] %s%s" % (BColors.OKBLUE, message, BColors.ENDC)
-    elif output_type == "debug" and debug_mode is True:
-        print "%s[DEBUG] %s%s" % (BColors.DEBUG, message, BColors.ENDC)
-    elif output_type == "verbose":
-        if verbose_mode is True or debug_mode is True:
-            print message
-        else:
-            pass
-    else:
-        print message
-
-
-def get_exitcode_stdout_stderr(cmd):
-    """Execute the external command and get its exitcode, stdout and stderr.
-
-    Args:
-        cmd: The single shell command to be executed. No piping allowed.
-
-    Returns:
-        exitcode: Zero upon success. Non-zero upon error.
-        out: String from standard output.
-        err: String from standard error.
-    """
-
-    args = shlex.split(cmd)
-    proc = Popen(args, stdout=PIPE, stderr=PIPE)
-    out, err = proc.communicate()
-    exitcode = proc.returncode
-    return exitcode, out, err
 
 
 def build_argument_parser():
@@ -203,10 +148,10 @@ def init_recipes():
         A tuple of dicts that describe all the AutoPkg recipe types we know about.
     """
 
-    recipes = ( {
-            "type": "download",
-            "description": "Downloads an app in whatever format the developer "
-                           "provides."
+    recipes = ({
+        "type": "download",
+        "description": "Downloads an app in whatever format the developer "
+                       "provides."
         }, {
             "type": "munki",
             "description": "Imports into your Munki repository."
@@ -230,8 +175,7 @@ def init_recipes():
         }, {
             "type": "ds",
             "description": "Imports into your DeployStudio Packages folder."
-        }
-    )
+        })
 
     # Set default values for all recipe types.
     for recipe in recipes:
@@ -565,7 +509,7 @@ def inspect_github_url(input_path, args, facts):
                     for this_format in all_supported_formats:
                         if asset["browser_download_url"].endswith(this_format):
                             download_format = this_format
-                            download_url =  asset["browser_download_url"]
+                            download_url = asset["browser_download_url"]
                             break
             if download_format != "":
                 robo_print("verbose",
@@ -715,7 +659,8 @@ def inspect_sourceforge_url(input_path, args, facts):
             for item in doc.iterfind('channel/item'):
                 # TODO(Elliot): The extra-info tag is not a reliable indicator
                 # of which item should actually be downloaded.
-                if item.find("{https://sourceforge.net/api/files.rdf#}extra-info").text.startswith("data"):
+                search = "{https://sourceforge.net/api/files.rdf#}extra-info"
+                if item.find(search).text.startswith("data"):
                     download_url = item.find("link").text.rstrip("/download")
                     break
             if download_url != "":
@@ -986,6 +931,7 @@ def inspect_app(input_path, args, facts):
         robo_print("verbose", "    App seems valid")
     except Exception:
         raise
+        #TODO(Shea): This is unreachable.
         robo_print("error",
                    "%s doesn't look like a valid app to me." % input_path)
 
@@ -1085,7 +1031,8 @@ def inspect_app(input_path, args, facts):
             if "CFBundleVersion" in info_plist:
                 version_key = "CFBundleVersion"
         if version_key != "":
-            robo_print("verbose", "    Version key is: %s (%s)" % (version_key, info_plist[version_key]))
+            robo_print("verbose", "    Version key is: %s (%s)" %
+                       (version_key, info_plist[version_key]))
             facts["version_key"] = version_key
         else:
             robo_print("error",
@@ -1332,804 +1279,6 @@ def create_buildable_recipe_list(app_name, recipes, args, facts):
     # recipe.
 
 
-def generate_recipes(facts, prefs, recipes):
-    """Generate the selected types of recipes.
-
-    Args:
-        facts: A continually-updated dictionary containing all the information
-            we know so far about the app associated with the input path.
-        prefs: The dictionary containing a key/value pair for each preference.
-        recipes: The list of known recipe types, created by init_recipes().
-    """
-
-    preferred_recipe_count = 0
-    for recipe in recipes:
-        if recipe["buildable"] is True:
-
-            # Count the number of preferred recipes.
-            preferred_recipe_count += 1
-
-            # Construct the default keys common to all recipes.
-            recipe["keys"] = {
-                "Identifier": "",
-                "MinimumVersion": "0.5.0",
-                "Input": {
-                    "NAME": facts["app_name"]
-                },
-                "Process": [],
-                "Comment": "Generated by Recipe Robot v%s "
-                           "(https://github.com/homebysix/recipe-robot)" % __version__
-            }
-
-    # All known recipe types already appear in "autopkg search" results.
-    if preferred_recipe_count == 0:
-        robo_print("log", "Sorry, no recipes available to generate.")
-        sys.exit(0)
-
-    # We don't have enough information to create a recipe set.
-    if (facts["is_from_app_store"] is False and
-        "sparkle_feed" not in facts and
-        "github_repo" not in facts and
-        "sourceforge_id" not in facts and
-        "download_url" not in facts):
-        robo_print("error",
-                   "Sorry, I don't know how to download this app. "
-                   "Maybe try another angle? If you provided an app, try "
-                   "providing the Sparkle feed for the app instead. Or maybe "
-                   "the app's developers offer a direct download URL on their "
-                   "website.")
-    if (facts["is_from_app_store"] is False and
-        "download_format" not in facts):
-        robo_print("error",
-                   "Sorry, I can't tell what format to download this app in. "
-                   "Maybe try another angle? If you provided an app, try "
-                   "providing the Sparkle feed for the app instead. Or maybe "
-                   "the app's developers offer a direct download URL on their "
-                   "website.")
-
-    # We have enough information to create a recipe set, but with assumptions.
-    if "codesign_status" not in facts:
-        robo_print("reminder",
-                   "I can't tell whether this app is codesigned or not, so "
-                   "I'm going to assume it's not. You may want to verify that "
-                   "yourself and add the CodeSignatureVerifier processor if "
-                   "necessary.")
-        facts["codesign_status"] = "unsigned"
-    if "version_key" not in facts:
-        robo_print("reminder",
-                   "I can't tell whether to use CFBundleShortVersionString or "
-                   "CFBundleVersion for the version key of this app. Most "
-                   "apps use CFBundleShortVersionString, so that's what I'll "
-                   "use. You may want to verify that and modify the recipes "
-                   "if necessary.")
-        facts["version_key"] = "CFBundleShortVersionString"
-
-    # Keep track of whether we've created any AppStoreApp overrides.
-    app_store_app_override_created = False
-
-    # Create a recipe for each buildable type we know about.
-    for recipe in recipes:
-        if recipe["buildable"] is True:
-            keys = recipe["keys"]
-
-            # Set the recipe filename (no spaces, except JSS recipes).
-            filename = "%s.%s.recipe" % (
-                facts["app_name"].replace(" ", ""), recipe["type"])
-
-            # Set the recipe identifier.
-            keys["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"],
-                                               recipe["type"],
-                                               facts["app_name"].replace(" ", ""))
-
-            # If the name of the app bundle differs from the name of the app
-            # itself, we need another input variable for that.
-            if "app_file" in facts:
-                keys["Input"]["APP_FILENAME"] = facts["app_file"]
-                app_name_key = "%APP_FILENAME%"
-            else:
-                app_name_key = "%NAME%"
-
-            # Set keys specific to download recipes.
-            if recipe["type"] == "download":
-
-                # Can't make this recipe if the app is from the App Store.
-                if facts["is_from_app_store"] is True:
-                    robo_print("verbose",
-                               "Skipping %s recipe, because this app "
-                               "was downloaded from the "
-                               "App Store." % recipe["type"])
-                    continue
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version "
-                                       "of %s." % facts["app_name"])
-
-                if "sparkle_feed" in facts:
-                    keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
-                    keys["Process"].append({
-                        "Processor": "SparkleUpdateInfoProvider",
-                        "Arguments": {
-                            "appcast_url": "%SPARKLE_FEED_URL%"
-                        }
-                    })
-                    keys["Process"].append({
-                        "Processor": "URLDownloader",
-                        "Arguments": {
-                            "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
-                        }
-                    })
-                elif "github_repo" in facts:
-                    keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
-                    recipe["keys"]["Process"].append({
-                        "Processor": "GitHubReleasesInfoProvider",
-                        "Arguments": {
-                            "github_repo": "%GITHUB_REPO%"
-                        }
-                    })
-                    keys["Process"].append({
-                        "Processor": "URLDownloader",
-                        "Arguments": {
-                            "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
-                        }
-                    })
-                elif "sourceforge_id" in facts:
-                    keys["Input"]["SOURCEFORGE_PROJECT_ID"] = facts["sourceforge_id"]
-                    recipe["keys"]["Process"].append({
-                        "Processor": "SourceForgeURLProvider"
-                    })
-                    keys["Process"].append({
-                        "Processor": "URLDownloader",
-                        "Arguments": {
-                            "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
-                        }
-                    })
-                    # TODO(Elliot): Copy SourceForgeURLProvider.py to recipe
-                    # output directory.
-                elif "download_url" in facts:
-                    keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-                    keys["Process"].append({
-                        "Processor": "URLDownloader",
-                        "Arguments": {
-                            "url": "%DOWNLOAD_URL%",
-                            "filename": facts["download_filename"]
-                        }
-                    })
-                keys["Process"].append({
-                    "Processor": "EndOfCheckPhase"
-                })
-
-                if facts["codesign_status"] == "signed":
-                    if facts["download_format"] in supported_image_formats:
-                        keys["Process"].append({
-                            "Processor": "CodeSignatureVerifier",
-                            "Arguments": {
-                                # TODO(Elliot): What if the app name isn't the same as %NAME%?
-                                "input_path": "%%pathname%%/%s.app" % app_name_key,
-                                "requirement": facts["codesign_reqs"]
-                            }
-                        })
-                    elif facts["download_format"] in supported_archive_formats:
-                        keys["Process"].append({
-                            "Processor": "Unarchiver",
-                            "Arguments": {
-                                "archive_path": "%pathname%",
-                                "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
-                                "purge_destination": True
-                            }
-                        })
-                        keys["Process"].append({
-                            "Processor": "CodeSignatureVerifier",
-                            "Arguments": {
-                                "input_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" % app_name_key,
-                                "requirement": facts["codesign_reqs"]
-                            }
-                        })
-                        keys["Process"].append({
-                            "Processor": "Versioner",
-                            "Arguments": {
-                                "input_plist_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app/Contents/Info.plist" % app_name_key,
-                                "plist_version_key": facts["version_key"]
-                            }
-                        })
-
-                    elif facts["download_format"] in supported_install_formats:
-                        # TODO(Elliot): Check for signed .pkg files.
-                        robo_print("warning",
-                                   "Sorry, I don't yet know how to use "
-                                   "CodeSignatureVerifier with pkg downloads.")
-                        continue
-
-            # Set keys specific to App Store munki overrides.
-            elif recipe["type"] == "munki" and facts["is_from_app_store"] is True:
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of "
-                                       "%s from the Mac App Store and "
-                                       "imports it into "
-                                       "Munki." % facts["app_name"])
-                keys["ParentRecipe"] = "com.github.nmcspadden.munki.appstore"
-                keys["Input"]["PATH"] = facts["app_path"]
-                filename = "MAS-" + filename
-
-                keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
-                keys["Input"]["pkginfo"] = {
-                    "catalogs": ["testing"],
-                    "display_name": facts["app_name"],
-                    "name": "%NAME%",
-                    "unattended_install": True
-                }
-
-                if "description" in facts:
-                    keys["Input"]["pkginfo"]["description"] = facts["description"]
-                else:
-                    robo_print("reminder",
-                               "I couldn't find a description for this app, "
-                               "so you'll need to manually add one to the "
-                               "munki recipe.")
-                    keys["Input"]["pkginfo"]["description"] = " "
-
-                app_store_app_override_created = True
-
-            # Set keys specific to non-App Store munki recipes.
-            elif recipe["type"] == "munki" and facts["is_from_app_store"] is False:
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of %s "
-                                       "and imports it into "
-                                       "Munki" % facts["app_name"])
-                # TODO(Elliot): What if it's somebody else's download recipe?
-                keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
-
-                keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
-                keys["Input"]["pkginfo"] = {
-                    "catalogs": ["testing"],
-                    "display_name": facts["app_name"],
-                    "developer": facts.get("developer", ""),
-                    "name": "%NAME%",
-                    "unattended_install": True
-                }
-
-                if "description" in facts:
-                    keys["Input"]["pkginfo"]["description"] = facts["description"]
-                else:
-                    robo_print("reminder",
-                               "I couldn't find a description for this app, "
-                               "so you'll need to manually add one to the "
-                               "munki recipe.")
-                    keys["Input"]["pkginfo"]["description"] = " "
-
-                # Set default variable to use for substitution.
-                import_file_var = "%pathname%"
-
-                if facts["download_format"] in supported_image_formats and "sparkle_feed" not in facts:
-                    # It's a dmg download, but not from Sparkle, so we need to version it.
-                    keys["Process"].append({
-                        "Processor": "Versioner",
-                        "Arguments": {
-                            "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % app_name_key,
-                            "plist_version_key": facts["version_key"]
-                        }
-                    })
-
-                elif facts["download_format"] in supported_archive_formats:
-                    if facts["codesign_status"] == "unsigned":
-                        # If unsigned, that means the download recipe hasn't
-                        # unarchived the zip yet.
-                        keys["Process"].append({
-                            "Processor": "Unarchiver",
-                            "Arguments": {
-                                "archive_path": "%pathname%",
-                                "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
-                                "purge_destination": True
-                            }
-                        })
-                    keys["Process"].append({
-                        "Processor": "DmgCreator",
-                        "Arguments": {
-                            "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
-                            "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications"
-                        }
-                    })
-                    import_file_var = "%dmg_path%"
-
-                elif facts["download_format"] in supported_install_formats:
-                    # TODO(Elliot): Put pkg in dmg?
-                    keys["Input"]["pkginfo"]["blocking_applications"] = "%s.app" % app_name_key
-                    robo_print("warning",
-                               "Sorry, I don't yet know how to create "
-                               "munki recipes from pkg downloads.")
-                    continue
-
-                keys["Process"].append({
-                    "Processor": "MunkiImporter",
-                    "Arguments": {
-                        "pkg_path": import_file_var,
-                        "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
-                        "version_comparison_key": facts["version_key"]
-                    }
-                })
-
-                # Extract the app's icon and save it to disk.
-                if "icon_path" in facts:
-                    extracted_icon = "%s/%s.png" % (prefs["RecipeCreateLocation"], facts["app_name"])
-                    extract_app_icon(facts["icon_path"], extracted_icon)
-                else:
-                    robo_print("warning",
-                               "I don't have enough information to create a "
-                               "PNG icon for this app.")
-
-            # Set keys specific to App Store pkg overrides.
-            elif recipe["type"] == "pkg" and facts["is_from_app_store"] is True:
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of "
-                                       "%s from the Mac App Store and "
-                                       "creates a package." % facts["app_name"])
-                keys["ParentRecipe"] = "com.github.nmcspadden.pkg.appstore"
-                keys["Input"]["PATH"] = facts["app_path"]
-                filename = "MAS-" + filename
-
-                app_store_app_override_created = True
-
-            # Set keys specific to non-App Store pkg recipes.
-            elif recipe["type"] == "pkg" and facts["is_from_app_store"] is False:
-
-                # Can't make this recipe without a bundle identifier.
-                if("bundle_id" not in facts):
-                    robo_print("verbose",
-                               "Skipping %s recipe, because I wasn't able to "
-                               "determine the bundle identifier of this app. "
-                               "You may want to actually download the app and "
-                               "try again, using the .app file itself as "
-                               "input." % recipe["type"])
-                    continue
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of %s and "
-                                       "creates a package." % facts["app_name"])
-                # TODO(Elliot): What if it's somebody else's download recipe?
-                keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
-
-                # Save bundle identifier.
-                keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
-
-                if facts["download_format"] in supported_image_formats:
-                    # TODO(Elliot): We only need Versioner in certain cases.
-                    # (e.g. if direct download only, no Sparkle feed)
-                    keys["Process"].append({
-                        "Processor": "Versioner",
-                        "Arguments": {
-                            "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % app_name_key,
-                            "plist_version_key": facts["version_key"]
-                        }
-                    })
-                    keys["Process"].append({
-                        "Processor": "PkgRootCreator",
-                        "Arguments": {
-                            "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
-                            "pkgdirs": {
-                                "Applications": "0775"
-                            }
-                        }
-                    })
-                    keys["Process"].append({
-                        "Processor": "Copier",
-                        "Arguments": {
-                            "source_path": "%%pathname%%/%s.app" % app_name_key,
-                            "destination_path": "%%pkgroot%%/Applications/%s.app" % app_name_key
-                        }
-                    })
-
-                elif facts["download_format"] in supported_archive_formats:
-                    if facts["codesign_status"] == "unsigned":
-                        # If unsigned, that means the download recipe hasn't
-                        # unarchived the zip yet. Need to do that and version.
-                        keys["Process"].append({
-                            "Processor": "Unarchiver",
-                            "Arguments": {
-                                "archive_path": "%pathname%",
-                                "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
-                                "purge_destination": True
-                            }
-                        })
-                        keys["Process"].append({
-                            "Processor": "Versioner",
-                            "Arguments": {
-                                "input_plist_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app/Contents/Info.plist" % app_name_key,
-                                "plist_version_key": facts["version_key"]
-                            }
-                        })
-
-                elif facts["download_format"] in supported_install_formats:
-                    robo_print("verbose",
-                               "Skipping pkg recipe, since the download "
-                               "format is already pkg.")
-                    continue
-
-                keys["Process"].append({
-                    "Processor": "PkgCreator",
-                    "Arguments": {
-                        "pkg_request": {
-                            "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
-                            "pkgname": "%NAME%-%version%",
-                            "version": "%version%",
-                            "id": "%BUNDLE_ID%",
-                            "options": "purge_ds_store",
-                            "chown": [{
-                                "path": "Applications",
-                                "user": "root",
-                                "group": "admin"
-                            }]
-                        }
-                    }
-                })
-
-            # Set keys specific to install recipes.
-            elif recipe["type"] == "install":
-
-                # Can't make this recipe if the app is from the App Store.
-                if facts["is_from_app_store"] is True:
-                    robo_print("verbose",
-                               "Skipping %s recipe, because this app "
-                               "was downloaded from the "
-                               "App Store." % recipe["type"])
-                    continue
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Installs the latest version "
-                                      "of %s." % facts["app_name"])
-
-                # Make the download recipe the parent of the Munki recipe.
-                # TODO(Elliot): What if it's somebody else's download recipe?
-                keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
-
-                if facts["download_format"] in supported_image_formats:
-                    keys["Process"].append({
-                        "Processor": "InstallFromDMG",
-                        "Arguments": {
-                            "dmg_path": "%pathname%",
-                            "items_to_copy": [{
-                                "source_item": "%s.app" % app_name_key,
-                                "destination_path": "/Applications"
-                            }]
-                        }
-                    })
-
-                elif facts["download_format"] in supported_archive_formats:
-                    if facts["codesign_status"] == "unsigned":
-                        keys["Process"].append({
-                            "Processor": "Unarchiver",
-                            "Arguments": {
-                                "archive_path": "%pathname%",
-                                "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
-                                "purge_destination": True
-                            }
-                        })
-                    keys["Process"].append({
-                        "Processor": "DmgCreator",
-                        "Arguments": {
-                            "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
-                            "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg"
-                        }
-                    })
-                    keys["Process"].append({
-                        "Processor": "InstallFromDMG",
-                        "Arguments": {
-                            "dmg_path": "%dmg_path%",
-                            "items_to_copy": [{
-                                "source_item": "%s.app" % app_name_key,
-                                "destination_path": "/Applications"
-                            }]
-                        }
-                    })
-
-                elif facts["download_format"] in supported_install_formats:
-                    keys["Process"].append({
-                        "Processor": "Installer",
-                        "Arguments": {
-                            "pkg_path": "%pathname%"
-                        }
-                    })
-
-            # Set keys specific to jss recipes.
-            elif recipe["type"] == "jss":
-
-                # Can't make this recipe without a bundle identifier.
-                if("bundle_id" not in facts):
-                    robo_print("verbose",
-                               "Skipping %s recipe, because I wasn't able to "
-                               "determine the bundle identifier of this app. "
-                               "You may want to actually download the app and "
-                               "try again, using the .app file itself as "
-                               "input." % recipe["type"])
-                    continue
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Authors of jss recipes are encouraged to use spaces.
-                filename = "%s.%s.recipe" % (facts["app_name"], recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of %s and "
-                                      "imports it into your "
-                                      "JSS." % facts["app_name"])
-
-                # Set the parent recipe to the pkg recipe.
-                # Make the download recipe the parent of the Munki recipe.
-                # TODO(Elliot): What if it's somebody else's pkg recipe?
-                keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
-
-                # TODO(Elliot): How can we set the category automatically?
-                keys["Input"]["CATEGORY"] = ""
-                robo_print("reminder",
-                           "Remember to manually set the category "
-                           "in the jss recipe.")
-
-                keys["Input"]["POLICY_CATEGORY"] = "Testing"
-                keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
-                robo_print("reminder",
-                           "Please make sure PolicyTemplate.xml is in your "
-                           "AutoPkg search path.")
-                keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
-                robo_print("reminder",
-                           "Please make sure %s.png is in your AutoPkg search "
-                           "path." % facts["app_name"])
-                keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts["description"]
-                keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
-
-                if facts["version_key"] == "CFBundleVersion":
-                    keys["Input"]["GROUP_TEMPLATE"] = "CFBundleVersionSmartGroupTemplate.xml"
-                    robo_print("reminder",
-                               "Please make sure "
-                               "CFBundleVersionSmartGroupTemplate.xml is in "
-                               "your AutoPkg search path.")
-                    keys["Process"].append({
-                        "Processor": "JSSImporter",
-                        "Arguments": {
-                            "prod_name": "%NAME%",
-                            "category": "%CATEGORY%",
-                            "policy_category": "%POLICY_CATEGORY%",
-                            "policy_template": "%POLICY_TEMPLATE%",
-                            "self_service_icon": "%SELF_SERVICE_ICON%",
-                            "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
-                            "groups": [{
-                                "name": "%GROUP_NAME%",
-                                "smart": True,
-                                "template_path": "%GROUP_TEMPLATE%"
-                            }],
-                            "extension_attributes": [{
-                                "ext_attribute_path": "CFBundleVersionExtensionAttribute.xml"
-                            }]
-                        }
-                    })
-                else:
-                    keys["Input"]["GROUP_TEMPLATE"] = "SmartGroupTemplate.xml"
-                    robo_print("reminder",
-                               "Please make sure SmartGroupTemplate.xml is in "
-                               "your AutoPkg search path.")
-                    keys["Process"].append({
-                        "Processor": "JSSImporter",
-                        "Arguments": {
-                            "prod_name": "%NAME%",
-                            "category": "%CATEGORY%",
-                            "policy_category": "%POLICY_CATEGORY%",
-                            "policy_template": "%POLICY_TEMPLATE%",
-                            "self_service_icon": "%SELF_SERVICE_ICON%",
-                            "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
-                            "groups": [{
-                                "name": "%GROUP_NAME%",
-                                "smart": True,
-                                "template_path": "%GROUP_TEMPLATE%"
-                            }]
-                        }
-                    })
-
-                # Extract the app's icon and save it to disk.
-                if "icon_path" in facts:
-                    extracted_icon = "%s/%s.png" % (prefs["RecipeCreateLocation"], facts["app_name"])
-                    extract_app_icon(facts["icon_path"], extracted_icon)
-                else:
-                    robo_print("warning",
-                               "I don't have enough information to create a "
-                               "PNG icon for this app.")
-
-            # Set keys specific to absolute recipes.
-            elif recipe["type"] == "absolute":
-
-                # Can't make this recipe without a bundle identifier.
-                if("bundle_id" not in facts):
-                    robo_print("verbose",
-                               "Skipping %s recipe, because I wasn't able to "
-                               "determine the bundle identifier of this app. "
-                               "You may want to actually download the app and "
-                               "try again, using the .app file itself as "
-                               "input." % recipe["type"])
-                    continue
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of %s and "
-                                      "copies it into your Absolute Manage "
-                                      "Server." % facts["app_name"])
-
-                # Set the parent recipe to the pkg recipe.
-                # Make the download recipe the parent of the Munki recipe.
-                # TODO(Elliot): What if it's somebody else's pkg recipe?
-                keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
-
-                keys["Process"].append({
-                    "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
-                    "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
-                    "Arguments": {
-                        "dest_payload_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
-                        "sdpackages_ampkgprops_path": "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
-                        "source_payload_path": "%pkg_path%",
-                        "import_abman_to_servercenter": True
-                    }
-                })
-
-            # Set keys specific to sccm recipes.
-            elif recipe["type"] == "sccm":
-
-                # Can't make this recipe without a bundle identifier.
-                if("bundle_id" not in facts):
-                    robo_print("verbose",
-                               "Skipping %s recipe, because I wasn't able to "
-                               "determine the bundle identifier of this app. "
-                               "You may want to actually download the app and "
-                               "try again, using the .app file itself as "
-                               "input." % recipe["type"])
-                    continue
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of %s and "
-                                      "copies it into your SCCM "
-                                      "Server." % facts["app_name"])
-
-                # Set the parent recipe to the pkg recipe.
-                # Make the download recipe the parent of the Munki recipe.
-                # TODO(Elliot): What if it's somebody else's pkg recipe?
-                keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
-
-                keys["Process"].append({
-                    "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
-                    "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
-                    "Arguments": {
-                        "source_file": "%pkg_path%",
-                        "destination_directory": "%RECIPE_CACHE_DIR%"
-                    }
-                })
-
-            # Set keys specific to ds recipes.
-            elif recipe["type"] == "ds":
-
-                # Can't make this recipe without a bundle identifier.
-                if("bundle_id" not in facts):
-                    robo_print("verbose",
-                               "Skipping %s recipe, because I wasn't able to "
-                               "determine the bundle identifier of this app. "
-                               "You may want to actually download the app and "
-                               "try again, using the .app file itself as "
-                               "input." % recipe["type"])
-                    continue
-
-                robo_print("log", "Generating %s recipe..." % recipe["type"])
-
-                # Save a description that explains what this recipe does.
-                keys["Description"] = ("Downloads the latest version of %s and "
-                                      "copies it to your DeployStudio "
-                                      "packages." % facts["app_name"])
-
-                # Set the parent recipe to the pkg recipe.
-                # Make the download recipe the parent of the Munki recipe.
-                # TODO(Elliot): What if it's somebody else's pkg recipe?
-                keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
-                keys["Input"]["DS_PKGS_PATH"] = prefs["DSPackagesPath"]
-                keys["Input"]["DS_NAME"] = "%NAME%"
-                keys["Process"].append({
-                    "Processor": "StopProcessingIf",
-                    "Arguments": {
-                        "predicate": "new_package_request == FALSE"
-                    }
-                })
-                keys["Process"].append({
-                    "Processor": "Copier",
-                    "Arguments": {
-                        "source_path": "%pkg_path%",
-                        "destination_path": "%DS_PKGS_PATH%/%DS_NAME%.pkg",
-                        "overwrite": True
-                    }
-                })
-
-            else:
-                # This shouldn't happen, if all the right recipe types are
-                # specified in init_recipes() and also specified above.
-                robo_print("warning",
-                           "Oops, I think my programmer messed up. I don't "
-                           "yet know how to generate a %s recipe. Sorry about "
-                           "that." % recipe["type"])
-
-            # Write the recipe to disk.
-            dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
-            create_dest_dirs(dest_dir)
-            # TODO(Elliot): Warning if a file already exists here.
-            dest_path = "%s/%s" % (dest_dir, filename)
-            FoundationPlist.writePlist(recipe["keys"], dest_path)
-            prefs["RecipeCreateCount"] += 1
-
-            robo_print("log", "    %s/%s" %
-                       (prefs["RecipeCreateLocation"], filename))
-
-    if app_store_app_override_created is True:
-       robo_print("reminder",
-                  "I've created at least one AppStoreApp override for you. "
-                  "Be sure to add the nmcspadden-recipes repo and install "
-                  "pyasn1, if you haven't already. (More information: "
-                  "https://github.com/autopkg/nmcspadden-recipes"
-                  "#appstoreapp-recipe)")
-
-    # Save preferences to disk for next time.
-    FoundationPlist.writePlist(prefs, prefs_file)
-
-
-def create_dest_dirs(path):
-    """Creates the path to the recipe export location, if it doesn't exist. If
-    intermediate folders are necessary in order to create the path, they will
-    be created too.
-
-    Args:
-        path: The path to the directory that needs to be created.
-    """
-    dest_dir = os.path.expanduser(path)
-    if not os.path.exists(dest_dir):
-        try:
-            os.makedirs(dest_dir)
-        except Exception:
-            robo_print("error", "Unable to create directory at %s." % dest_dir)
-
-
-def extract_app_icon(icon_path, png_path):
-    """Convert the app's icns file to 300x300 png at the specified path.
-    300x300 is Munki's preferred size, and 128x128 is Casper's preferred size,
-    as of 2015-08-01.
-
-    Args:
-        icon_path: The path to the .icns file we're converting to .png.
-        png_path: The path to the .png file we're creating.
-    """
-    png_path_absolute = os.path.expanduser(png_path)
-    create_dest_dirs(os.path.dirname(png_path_absolute))
-
-    # Add .icns if the icon path doesn't already end with .icns.
-    if not icon_path.endswith(".icns"):
-        icon_path = icon_path + ".icns"
-
-    if not os.path.exists(png_path_absolute):
-        cmd = ("sips -s format png \"%s\" --out \"%s\" "
-               "--resampleHeightWidthMax 300" % (icon_path, png_path_absolute))
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        if exitcode == 0:
-            robo_print("verbose", "    %s" % png_path)
-        else:
-            robo_print("warning",
-                       "An error occurred during icon extraction: %s" % err)
-
-
 def debug_dump(items):
     """Dump all the variables we know about to output.
 
@@ -2165,10 +1314,12 @@ def congratulate(prefs):
         "You rock star, you."
     )
     if prefs["RecipeCreateCount"] == 1:
-        robo_print("log", "\nYou've created your first recipe with Recipe Robot. Congratulations!\n")
+        robo_print("log", "\nYou've created your first recipe with Recipe "
+                   "Robot. Congratulations!\n")
     elif prefs["RecipeCreateCount"] > 1:
-        robo_print("log", "\nYou've now created %s recipes with Recipe Robot. %s\n" % (
-            prefs["RecipeCreateCount"], random.choice(congrats_msg)))
+        robo_print("log", "\nYou've now created %s recipes with Recipe Robot. "
+                   "%s\n" % (prefs["RecipeCreateCount"],
+                             random.choice(congrats_msg)))
 
 
 # TODO(Elliot): Make main() shorter. Just a flowchart for the logic.
@@ -2213,7 +1364,7 @@ def main():
         create_buildable_recipe_list(facts["app_name"], recipes, args, facts)
 
         # Create recipes for the recipe types that were selected above.
-        generate_recipes(facts, prefs, recipes)
+        recipe_robot_lib.generate_recipes(facts, prefs, recipes)
 
         # If debug is on, print all the things.
         if debug_mode is True:
