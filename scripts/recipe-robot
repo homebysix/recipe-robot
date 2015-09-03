@@ -81,7 +81,7 @@ cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
 
 # Build the list of download formats we know about.
 supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
-supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz")
+supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
 supported_install_formats = ("pkg", "mpkg")  # downloading mpkg unlikely
 all_supported_formats = (supported_image_formats + supported_archive_formats +
                          supported_install_formats)
