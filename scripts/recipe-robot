@@ -63,7 +63,7 @@ from xml.etree.ElementTree import parse, ParseError
 import recipe_robot_lib
 from recipe_robot_lib.tools import (create_dest_dirs,
                                     get_exitcode_stdout_stderr, robo_print,
-                                    BColors, OutputMode)
+                                    LogLevel, OutputMode, print_welcome_text)
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly).
 try:
@@ -122,23 +122,6 @@ def build_argument_parser():
         action="store_true",
         help="Adjust Recipe Robot preferences prior to generating recipes.")
     return parser
-
-
-def print_welcome_text():
-    """Print the text that appears when you run Recipe Robot."""
-
-    welcome_text = """%s%s
-                      -----------------------------------
-                     |  Welcome to Recipe Robot v%s.  |
-                      -----------------------------------
-                                \   _[]_
-                                 \  [oo]
-                                   d-||-b
-                                     ||
-                                   _/  \_
-    """ % (BColors.DEBUG, BColors.ENDC, __version__)
-
-    robo_print("log", welcome_text)
 
 
 def init_recipes():
@@ -213,9 +196,8 @@ def init_prefs(prefs, recipes, args):
         try:
             prefs = FoundationPlist.readPlist(prefs_file)
         except Exception:
-            robo_print("warning",
-                       "There was a problem opening the prefs file. Building "
-                       "new preferences.")
+            robo_print("There was a problem opening the prefs file. Building "
+                       "new preferences.", LogLevel.WARNING)
             prefs = build_prefs(prefs, recipes)
 
         for recipe in recipes:
@@ -226,7 +208,7 @@ def init_prefs(prefs, recipes, args):
                 recipe["preferred"] = False
 
         if args.config is True:
-            robo_print("log", "Showing configuration options...")
+            robo_print("Showing configuration options...")
             prefs = build_prefs(prefs, recipes)
 
         # This seems to be necessary in order to avoid an error when reading
@@ -234,7 +216,8 @@ def init_prefs(prefs, recipes, args):
         prefs["RecipeCreateCount"] = int(prefs["RecipeCreateCount"])
 
     else:
-        robo_print("warning", "No prefs file found. Building new preferences...")
+        robo_print("No prefs file found. Building new preferences...",
+                   LogLevel.WARNING)
         prefs = build_prefs(prefs, recipes)
 
     # Record last version number.
@@ -263,8 +246,8 @@ def build_prefs(prefs, recipes):
 
     # Prompt for and save recipe identifier prefix.
     prefs["RecipeIdentifierPrefix"] = "com.github.homebysix"
-    robo_print("log", "\nRecipe identifier prefix")
-    robo_print("log", "This is your default identifier, in reverse-domain notation.\n")
+    robo_print("\nRecipe identifier prefix")
+    robo_print("This is your default identifier, in reverse-domain notation.\n")
     choice = raw_input(
         "[%s]: " % prefs["RecipeIdentifierPrefix"])
     if choice != "":
@@ -272,8 +255,8 @@ def build_prefs(prefs, recipes):
 
     # Prompt for recipe creation location.
     prefs["RecipeCreateLocation"] = "~/Library/AutoPkg/RecipeOverrides"
-    robo_print("log", "\nLocation to save new recipes")
-    robo_print("log", "This is where on disk your newly created recipes will be saved.\n")
+    robo_print("\nLocation to save new recipes")
+    robo_print("This is where on disk your newly created recipes will be saved.\n")
     choice = raw_input(
         "[%s]: " % prefs["RecipeCreateLocation"])
     if choice != "":
@@ -281,8 +264,8 @@ def build_prefs(prefs, recipes):
 
     # Prompt to set recipe types on/off as desired.
     prefs["RecipeTypes"] = []
-    robo_print("log", "\nPreferred recipe types")
-    robo_print("log", "Choose which recipe types will be offered to you by default.\n")
+    robo_print("\nPreferred recipe types")
+    robo_print("Choose which recipe types will be offered to you by default.\n")
     # TODO(Elliot): Make this interactive while retaining scrollback.
     # Maybe with curses module?
     while True:
@@ -292,13 +275,14 @@ def build_prefs(prefs, recipes):
                 indicator = " "
             else:
                 indicator = "*"
-            robo_print("log", "  [%s] %s. %s - %s" %
-                       (indicator, i, recipe["type"], recipe["description"]))
+            robo_print("[%s] %s. %s - %s" %
+                       (indicator, i, recipe["type"], recipe["description"]),
+                       indent=2)
             i += 1
-        robo_print("log", "      A. Enable all recipe types.")
-        robo_print("log", "      D. Disable all recipe types.")
-        robo_print("log", "      Q. Quit without saving changes.")
-        robo_print("log", "      S. Save changes and proceed.")
+        robo_print("A. Enable all recipe types.", indent=6)
+        robo_print("D. Disable all recipe types.", indent=6)
+        robo_print("Q. Quit without saving changes.", indent=6)
+        robo_print("S. Save changes and proceed.", indent=6)
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ].\nWhen you're satisfied "
@@ -320,9 +304,8 @@ def build_prefs(prefs, recipes):
                 else:
                     recipes[int(choice)]["preferred"] = False
             except Exception:
-                robo_print("warning",
-                           "%s is not a valid option. Please try "
-                           "again.\n" % choice)
+                robo_print("%s is not a valid option. Please try "
+                           "again.\n" % choice, LogLevel.WARNING)
 
     # Set "preferred" status of each recipe type according to preferences.
     for recipe in recipes:
@@ -331,8 +314,8 @@ def build_prefs(prefs, recipes):
 
             if recipe["type"] == "ds":
                 prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
-                robo_print("log", "\nLocation of your DeployStudio packages:")
-                robo_print("log", "This where packages will be copied in order to "
+                robo_print("\nLocation of your DeployStudio packages:")
+                robo_print("This where packages will be copied in order to "
                                   "appear in DeployStudio.\n")
                 choice = raw_input(
                     "[%s]: " % prefs["DSPackagesPath"])
@@ -358,40 +341,43 @@ def process_input_path(input_path, args, facts):
 
     if input_path.startswith("http"):
         if input_path.endswith(".xml") or input_path.endswith(".php"):
-            robo_print("verbose", "Input path looks like a Sparkle feed.")
+            robo_print("Input path looks like a Sparkle feed.",
+                       LogLevel.VERBOSE)
             facts = inspect_sparkle_feed_url(input_path, args, facts)
-        elif "github.com" in input_path or "githubusercontent.com" in input_path:
-            robo_print("verbose", "Input path looks like a GitHub URL.")
+        elif ("github.com" in input_path or
+              "githubusercontent.com" in input_path):
+            robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
             facts = inspect_github_url(input_path, args, facts)
         elif "sourceforge.net" in input_path:
-            robo_print("verbose", "Input path looks like a SourceForge URL.")
+            robo_print("Input path looks like a SourceForge URL.",
+                       LogLevel.VERBOSE)
             facts = inspect_sourceforge_url(input_path, args, facts)
         elif "bitbucket.org" in input_path:
-            robo_print("verbose", "Input path looks like a BitBucket URL.")
+            robo_print("Input path looks like a BitBucket URL.",
+                       LogLevel.VERBOSE)
             facts = inspect_bitbucket_url(input_path, args, facts)
         else:
-            robo_print("verbose", "Input path looks like a download URL.")
+            robo_print("Input path looks like a download URL.",
+                       LogLevel.VERBOSE)
             facts = inspect_download_url(input_path, args, facts)
     elif input_path.startswith("ftp"):
-        robo_print("verbose", "Input path looks like a download URL.")
+        robo_print("Input path looks like a download URL.", LogLevel.VERBOSE)
         facts = inspect_download_url(input_path, args, facts)
     elif os.path.exists(input_path):
         if input_path.endswith(".app"):
-            robo_print("verbose", "Input path looks like an app.")
+            robo_print("Input path looks like an app.", LogLevel.VERBOSE)
             facts = inspect_app(input_path, args, facts)
         elif input_path.endswith(".recipe"):
-            robo_print("verbose", "Input path looks like a recipe.")
+            robo_print("Input path looks like a recipe.", LogLevel.VERBOSE)
             facts = inspect_recipe(input_path, args, facts)
         else:
-            robo_print("error",
-                       "I haven't been trained on how to handle this "
-                       "input path:\n    %s" % input_path)
+            robo_print("I haven't been trained on how to handle this "
+                       "input path:\n    %s" % input_path, LogLevel.ERROR)
             # TODO(Elliot): Handle zipped pkgs. Example:
             # http://www.busymac.com/download/BusyCal.zip
     else:
-        robo_print("error",
-                   "Input path does not exist. Please try again with a "
-                   "valid input path.")
+        robo_print("Input path does not exist. Please try again with a "
+                   "valid input path.", LogLevel.ERROR)
 
 
 def get_app_description(app_name):
@@ -427,9 +413,8 @@ def get_app_description(app_name):
                 # If we found a description, no need to process further lines.
                 break
     else:
-        robo_print("warning",
-                   "Error occurred while getting description from "
-                   "MacUpdate: %s" % err)
+        robo_print("Error occurred while getting description from "
+                   "MacUpdate: %s" % err, LogLevel.WARNING)
 
     return description
 
@@ -447,13 +432,13 @@ def inspect_github_url(input_path, args, facts):
 
     # Grab the GitHub repo path.
     github_repo = ""
-    robo_print("verbose", "Getting GitHub repo...")
+    robo_print("Getting GitHub repo...", LogLevel.VERBOSE)
     input_path = input_path.replace("raw.githubusercontent.com", "github.com")
     r_obj = re.search(r"(?<=https://github\.com/)[\w-]+/[\w-]+", input_path)
     if r_obj is not None:
         github_repo = r_obj.group(0)
     if github_repo != "":
-        robo_print("verbose", "    GitHub repo is: %s" % github_repo)
+        robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
         facts["github_repo"] = github_repo
 
         # TODO(Elliot): How can we use GitHub tokens to prevent rate limiting?
@@ -467,44 +452,44 @@ def inspect_github_url(input_path, args, facts):
             raw_json_release = urlopen(releases_api_url).read()
             parsed_release = json.loads(raw_json_release)
         except Exception as err:
-            robo_print("warning",
-                       "Error occurred while talking to GitHub. If you've "
+            robo_print("Error occurred while talking to GitHub. If you've "
                        "been creating a lot of recipes quickly, you may have "
                        "hit the rate limit. Give it a few minutes, then try "
-                       "again. (%s)" % err)
+                       "again. (%s)" % err, LogLevel.WARNING)
             return facts
 
         # Get app name.
         if "app_name" not in facts:
             app_name = ""
-            robo_print("verbose", "Getting app name...")
+            robo_print("Getting app name...", LogLevel.VERBOSE)
             if "name" in parsed_repo:
                 if parsed_repo["name"] != "":
                     app_name = parsed_repo["name"]
             if app_name != "":
-                robo_print("verbose", "    App name is: %s" % app_name)
+                robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
                 facts["app_name"] = app_name
 
         # Get app description.
         if "description" not in facts:
             description = ""
-            robo_print("verbose", "Getting GitHub description...")
+            robo_print("Getting GitHub description...", LogLevel.VERBOSE)
             if "description" in parsed_repo:
                 if parsed_repo["description"] != "":
                     description = parsed_repo["description"]
             if description != "":
-                robo_print("verbose",
-                           "    GitHub description is: %s" % description)
+                robo_print("GitHub description is: %s" % description,
+                           LogLevel.VERBOSE, 4)
                 facts["description"] = description
             else:
-                robo_print("warning", "Could not detect GitHub description.")
+                robo_print("Could not detect GitHub description.",
+                           LogLevel.WARNING)
 
         # Get download format of latest release.
         if "download_format" not in facts or "download_url" not in facts:
             download_format = ""
             download_url = ""
-            robo_print("verbose",
-                       "Getting information from latest GitHub release...")
+            robo_print("Getting information from latest GitHub release...",
+                       LogLevel.VERBOSE)
             if "assets" in parsed_release:
                 for asset in parsed_release["assets"]:
                     for this_format in all_supported_formats:
@@ -513,22 +498,21 @@ def inspect_github_url(input_path, args, facts):
                             download_url = asset["browser_download_url"]
                             break
             if download_format != "":
-                robo_print("verbose",
-                           "    GitHub release download format "
-                           "is: %s" % download_format)
+                robo_print("GitHub release download format "
+                           "is: %s" % download_format,
+                           LogLevel.VERBOSE, 4)
                 facts["download_format"] = download_format
             else:
-                robo_print("warning",
-                           "Could not detect GitHub release download format.")
+                robo_print("Could not detect GitHub release download format.",
+                           LogLevel.WARNING)
             if download_url != "":
-                robo_print("verbose",
-                           "    GitHub release download URL "
-                           "is: %s" % download_url)
+                robo_print("GitHub release download URL "
+                           "is: %s" % download_url, LogLevel.WARNING, 4)
                 facts["download_url"] = download_url
                 inspect_download_url(download_url, args, facts)
             else:
-                robo_print("warning",
-                           "Could not detect GitHub release download URL.")
+                robo_print("Could not detect GitHub release download URL.",
+                           LogLevel.WARNING)
 
         # Warn user if the GitHub project is private.
         if "private" in parsed_repo:
@@ -1461,6 +1445,7 @@ def main():
     """Make the magic happen."""
 
     try:
+        recipe_robot_lib.tools.reset_term_colors()
         print_welcome_text()
 
         argparser = build_argument_parser()

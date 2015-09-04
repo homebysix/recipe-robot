@@ -29,16 +29,17 @@ from subprocess import Popen, PIPE
 import sys
 
 
-class BColors(object):
+ENDC = "\033[0m"
+
+
+class LogLevel(object):
     """Specify colors that are used in Terminal output."""
-    BOLD = "\033[1m"
-    DEBUG = "\033[95m"
-    ENDC = "\033[0m"
-    ERROR = "\033[91m"
-    OKBLUE = "\033[94m"
-    OKGREEN = "\033[92m"
-    UNDERLINE = "\033[4m"
-    WARNING = "\033[93m"
+    DEBUG = ("\033[95m", "DEBUG")
+    ERROR = ("\033[91m", "ERROR")
+    LOG = ("", "")
+    REMINDER = ("\033[94m", "REMINDER")
+    VERBOSE = ("\033[0m", "")
+    WARNING = ("\033[93m", "WARNING")
 
 
 class OutputMode(object):
@@ -63,31 +64,43 @@ class OutputMode(object):
             raise ValueError
 
 
-def robo_print(output_type, message):
+def robo_print(message, log_level=LogLevel.LOG, indent=0):
     """Print the specified message in an appropriate color, and only print
     debug output if debug_mode is True.
 
     Args:
-        output_type: One of "error", "warning", "debug", or "verbose".
+        log_level: LogLevel property for desired loglevel.
         message: String to be printed to output.
     """
-
-    if output_type == "error":
-        print >> sys.stderr, "%s[ERROR] %s%s" % (BColors.ERROR, message, BColors.ENDC)
-        sys.exit(1)
-    elif output_type == "warning":
-        print >> sys.stderr, "%s[WARNING] %s%s" % (BColors.WARNING, message, BColors.ENDC)
-    elif output_type == "reminder":
-        print "%s[REMINDER] %s%s" % (BColors.OKBLUE, message, BColors.ENDC)
-    elif output_type == "debug" and OutputMode.debug_mode is True:
-        print "%s[DEBUG] %s%s" % (BColors.DEBUG, message, BColors.ENDC)
-    elif output_type == "verbose":
-        if OutputMode.verbose_mode is True or OutputMode.debug_mode is True:
-            print message
-        else:
-            pass
+    color = log_level[0]
+    indents = indent * " "
+    if log_level[1]:
+        prefix = "[%s] " % log_level[1]
     else:
-        print message
+        prefix = ""
+    suffix = ENDC
+
+    line = "%s%s%s%s%s" % (color, indents, prefix, message, suffix)
+
+    if log_level in (LogLevel.ERROR, LogLevel.WARNING):
+        print_func = _print_stderr
+    else:
+        print_func = _print_stdout
+
+    # if ((log_level in ("error", "warning", "reminder")) or
+    #     (log_level is "debug" and OutputMode.debug_mode) or
+    #     (log_level is "verbose" and
+    #      (OutputMode.verbose_mode or OutputMode.debug_mode))):
+    #         print_func(line)
+    if ((log_level in (LogLevel.ERROR, LogLevel.WARNING,
+                       LogLevel.REMINDER, LogLevel.LOG)) or
+        (log_level is LogLevel.DEBUG and OutputMode.debug_mode) or
+        (log_level is LogLevel.VERBOSE and
+         (OutputMode.verbose_mode or OutputMode.debug_mode))):
+            print_func(line)
+
+    if log_level is LogLevel.ERROR:
+        sys.exit(1)
 
 
 def create_dest_dirs(path):
@@ -150,3 +163,33 @@ def get_exitcode_stdout_stderr(cmd):
     out, err = proc.communicate()
     exitcode = proc.returncode
     return exitcode, out, err
+
+def _print_stderr(p):
+    print >> sys.stderr, p
+
+
+def _print_stdout(p):
+    print p
+
+
+def print_welcome_text():
+    """Print the text that appears when you run Recipe Robot."""
+
+    #TODO(Shea): Get the version back in here.
+    welcome_text = """
+                      -----------------------------------
+                     |  Welcome to Recipe Robot v%s.  |
+                      -----------------------------------
+                                \   _[]_
+                                 \  [oo]
+                                   d-||-b
+                                     ||
+                                   _/  \_
+    """ % "Test"
+
+    robo_print(welcome_text)
+
+
+def reset_term_colors():
+    """Ensure terminal colors are normal."""
+    sys.stdout.write(ENDC)
