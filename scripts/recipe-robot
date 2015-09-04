@@ -1473,7 +1473,7 @@ def main():
 
     # If killed, make sure to reset the terminal color with our dying breath.
     except (KeyboardInterrupt, SystemExit):
-        print BColors.ENDC
+        recipe_robot_lib.tools.reset_term_colors()
 
 
 if __name__ == '__main__':
