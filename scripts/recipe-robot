@@ -1226,6 +1226,8 @@ def inspect_app(input_path, args, facts):
             # For some reason, the information we want is output to stderr.
             for line in err.split("\n"):
                 if line.startswith(dev_marker):
+                    if " (" in line:
+                        line = line.split(" (")[0]
                     developer = line[len(dev_marker):]
                 if line.startswith(vers_marker):
                     codesign_version = line[len(vers_marker):len(vers_marker) + 1]
