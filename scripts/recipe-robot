@@ -882,6 +882,9 @@ def inspect_download_url(input_path, args, facts):
     filename = parsed_url.path.split("/")[-1]
     if filename != "":
         robo_print("verbose", "    Download filename is: %s" % filename)
+        r_obj = re.search(r"[\d]+\.[\w]+$", input_path)
+        if r_obj is not None and "sparkle_feed" not in facts:
+            robo_print("warning", "Careful, this might be a version-specific URL.")
     else:
         robo_print("verbose", "    No filename provided")
         filename = "download"
