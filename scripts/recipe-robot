@@ -1216,6 +1216,7 @@ def inspect_app(input_path, args, facts):
     # Attempt to determine name of developer and code signature version.
     if "developer" not in facts or "codesign_version" not in facts:
         developer = ""
+        codesign_version = ""
         robo_print("verbose",
                    "Determining application developer and codesign version...")
         cmd = "codesign --display -r- --verbose=3 \"%s\"" % (input_path)
