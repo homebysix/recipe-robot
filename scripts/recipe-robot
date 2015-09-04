@@ -58,7 +58,7 @@ import shutil
 import sys
 from urllib2 import urlopen, build_opener
 from urlparse import urlparse
-from xml.etree.ElementTree import parse
+from xml.etree.ElementTree import parse, ParseError
 
 import recipe_robot_lib
 from recipe_robot_lib.tools import (create_dest_dirs,
@@ -829,10 +829,15 @@ def inspect_sparkle_feed_url(input_path, args, facts):
                        "encountered the same problem.")
         except Exception as err:
             robo_print("warning",
-                       "Error occured while inspecting Sparkle feed: %s" % err)
+                       "Error occured while downloading Sparkle feed (%s)" % err)
             return facts
 
-    doc = parse(raw_xml)
+    try:
+        doc = parse(raw_xml)
+    except ParseError as err:
+        robo_print("warning",
+                   "Error occured while parsing Sparkle feed (%s)" % err)
+        return facts
 
     # Get the latest download URL.
     download_url = ""
