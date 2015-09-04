@@ -367,9 +367,8 @@ def process_input_path(input_path, args, facts):
             robo_print("verbose", "Input path looks like a SourceForge URL.")
             facts = inspect_sourceforge_url(input_path, args, facts)
         elif "bitbucket.org" in input_path:
-            # TODO(Elliot): Also support BitBucket.
             robo_print("verbose", "Input path looks like a BitBucket URL.")
-            robo_print("error", "Sorry, I don't yet speak BitBucket.")
+            facts = inspect_bitbucket_url(input_path, args, facts)
         else:
             robo_print("verbose", "Input path looks like a download URL.")
             facts = inspect_download_url(input_path, args, facts)
@@ -686,6 +685,119 @@ def inspect_sourceforge_url(input_path, args, facts):
     return facts
 
 
+def inspect_bitbucket_url(input_path, args, facts):
+    """Process a BitBucket URL, gathering required information to create a
+    recipe.
+    """
+
+    # Only proceed if we haven't inspected this BitBucket URL yet.
+    if "bitbucket_url" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("bitbucket_url")
+
+    # Grab the BitBucket repo path.
+    bitbucket_repo = ""
+    robo_print("verbose", "Getting BitBucket repo...")
+    r_obj = re.search(r"(?<=https://bitbucket\.org/)[\w-]+/[\w-]+", input_path)
+    if r_obj is not None:
+        bitbucket_repo = r_obj.group(0)
+    if bitbucket_repo != "":
+        robo_print("verbose", "    BitBucket repo is: %s" % bitbucket_repo)
+        facts["bitbucket_repo"] = bitbucket_repo
+
+        # Use GitHub API to obtain information about the repo and releases.
+        repo_api_url = "https://api.bitbucket.org/2.0/repositories/%s" % bitbucket_repo
+        releases_api_url = "https://api.bitbucket.org/2.0/repositories/%s/downloads" % bitbucket_repo
+        try:
+            raw_json_repo = urlopen(repo_api_url).read()
+            parsed_repo = json.loads(raw_json_repo)
+            raw_json_release = urlopen(releases_api_url).read()
+            parsed_release = json.loads(raw_json_release)
+        except Exception as err:
+            robo_print("warning",
+                       "Error occurred while talking to BitBucket. (%s)" % err)
+            return facts
+
+        # Get app name.
+        if "app_name" not in facts:
+            app_name = ""
+            robo_print("verbose", "Getting app name...")
+            if "name" in parsed_repo:
+                if parsed_repo["name"] != "":
+                    app_name = parsed_repo["name"]
+            if app_name != "":
+                robo_print("verbose", "    App name is: %s" % app_name)
+                facts["app_name"] = app_name
+
+        # Get full name of owner.
+        developer = ""
+        if "developer" not in facts:
+            developer = parsed_repo["owner"]["display_name"]
+        if developer != "":
+            robo_print("verbose",
+                       "    BitBucket owner full name "
+                       "is: %s" % developer)
+            facts["developer"] = developer
+
+        # Get app description.
+        if "description" not in facts:
+            description = ""
+            robo_print("verbose", "Getting BitBucket description...")
+            if "description" in parsed_repo:
+                if parsed_repo["description"] != "":
+                    description = parsed_repo["description"]
+            if description != "":
+                robo_print("verbose",
+                           "    BitBucket description is: %s" % description)
+                facts["description"] = description
+            else:
+                robo_print("warning", "Could not detect BitBucket description.")
+
+        # Get download format of latest release.
+        if "download_format" not in facts or "download_url" not in facts:
+            download_format = ""
+            download_url = ""
+            robo_print("verbose",
+                       "Getting information from latest BitBucket release...")
+            if "values" in parsed_release:
+                for asset in parsed_release["values"]:
+                    for this_format in all_supported_formats:
+                        if asset["links"]["self"]["href"].endswith(this_format):
+                            download_format = this_format
+                            download_url = asset["links"]["self"]["href"]
+                            break
+            if download_format != "":
+                robo_print("verbose",
+                           "    BitBucket release download format "
+                           "is: %s" % download_format)
+                facts["download_format"] = download_format
+            else:
+                robo_print("warning",
+                           "Could not detect BitBucket release download format.")
+            if download_url != "":
+                robo_print("verbose",
+                           "    BitBucket release download URL "
+                           "is: %s" % download_url)
+                facts["download_url"] = download_url
+                inspect_download_url(download_url, args, facts)
+            else:
+                robo_print("warning",
+                           "Could not detect BitBucket release download URL.")
+
+        # Warn user if the BitBucket project is private.
+        if "is_private" in parsed_repo:
+            if parsed_repo["is_private"] is True:
+                robo_print("warning",
+                           "This BitBucket project is marked \"private\" "
+                           "and recipes you generate may not work for others.")
+
+    else:
+        robo_print("warning", "Could not detect BitBucket repo.")
+
+    return facts
+
+
 def inspect_sparkle_feed_url(input_path, args, facts):
     """Process a Sparkle feed URL, gathering required information to create a
     recipe.
@@ -850,7 +962,7 @@ def inspect_download_url(input_path, args, facts):
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
 
-            # Confirmed; the download was a disk image image. Make a note of that.
+            # Confirmed; the download was a disk image. Make a note of that.
             if download_format == "":
                 download_format = "dmg"  # most common disk image format
                 facts["download_format"] = download_format
@@ -906,9 +1018,12 @@ def inspect_download_url(input_path, args, facts):
                     break
 
     # Inspect the installer (or test to see whether the download is one).
-    if download_format == "" or download_format in supported_install_formats:
+    if download_format in supported_install_formats:
+
         # TODO(Elliot): Use pkgutil to extract contents and look for an app.
-        pass
+
+        robo_print("verbose", "    Download format is %s" % download_format)
+
 
     if download_format == "":
         robo_print("warning",
@@ -1116,11 +1231,6 @@ def inspect_app(input_path, args, facts):
                 robo_print("warning",
                            "This app uses an obsolete code signature.")
 
-    # TODO(Elliot): Collect other information as required to build recipes.
-    #    - Use bundle identifier to locate related helper apps on disk?
-    #    - App category... maybe prompt for that if JSS recipe is selected.
-
-    # Send the information we discovered to the recipe keys.
     return facts
 
 
