@@ -787,6 +787,7 @@ def generate_recipes(facts, prefs, recipes):
             dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
             create_dest_dirs(dest_dir)
             # TODO(Elliot): Warning if a file already exists here.
+            # TODO(Elliot): Create subfolders automatically.
             dest_path = "%s/%s" % (dest_dir, filename)
             FoundationPlist.writePlist(recipe["keys"], dest_path)
             prefs["RecipeCreateCount"] += 1
