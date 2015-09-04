@@ -517,18 +517,16 @@ def inspect_github_url(input_path, args, facts):
         # Warn user if the GitHub project is private.
         if "private" in parsed_repo:
             if parsed_repo["private"] is True:
-                robo_print("warning",
-                           "This GitHub project is marked \"private\" "
-                           "and recipes you generate may not work for others.")
+                robo_print("This GitHub project is marked \"private\" "
+                           "and recipes you generate may not work for others.", LogLevel.WARNING)
 
         # Warn user if the GitHub project is a fork.
         if "private" in parsed_repo:
             if parsed_repo["fork"] is True:
-                robo_print("warning",
-                           "This GitHub project is a fork. You may want to "
-                           "try again with the original repo URL instead.")
+                robo_print("This GitHub project is a fork. You may want to "
+                           "try again with the original repo URL instead.", LogLevel.WARNING)
     else:
-        robo_print("warning", "Could not detect GitHub repo.")
+        robo_print("Could not detect GitHub repo.", LogLevel.WARNING)
 
     return facts
 
@@ -572,7 +570,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         proj_str = input_path.lstrip("http://")
         proj_name = proj_str[:proj_str.find(marker)]
     else:
-        robo_print("warning", "Unable to parse SourceForge URL.")
+        robo_print("Unable to parse SourceForge URL.", LogLevel.WARNING)
     if proj_name != "":
 
         # Use SourceForge API to obtain project information.
@@ -590,35 +588,35 @@ def inspect_sourceforge_url(input_path, args, facts):
                 if parsed_json["name"] != "":
                     app_name = parsed_json["name"]
             if app_name != "":
-                robo_print("verbose", "    App name is: %s" % app_name)
+                robo_print("    App name is: %s" % app_name, LogLevel.VERBOSE)
                 facts["app_name"] = app_name
 
         # Determine project ID.
         proj_id = ""
-        robo_print("verbose", "Getting SourceForge project ID...")
+        robo_print("Getting SourceForge project ID...", LogLevel.VERBOSE)
         for this_dict in parsed_json["tools"]:
             if "sourceforge_group_id" in this_dict:
                 proj_id = this_dict["sourceforge_group_id"]
         if proj_id != "":
-            robo_print("verbose", "    SourceForge project ID is: %s" % proj_id)
+            robo_print("    SourceForge project ID is: %s" % proj_id, LogLevel.VERBOSE)
             facts["sourceforge_proj_id"] = proj_id
         else:
-            robo_print("warning", "Could not detect SourceForge project ID.")
+            robo_print("Could not detect SourceForge project ID.", LogLevel.WARNING)
 
         # Get project description.
         if "description" not in facts:
             description = ""
-            robo_print("verbose", "Getting SourceForge description...")
+            robo_print("Getting SourceForge description...", LogLevel.VERBOSE)
             if "summary" in parsed_json:
                 if parsed_json["summary"] != "":
                     description = parsed_json["summary"]
                 elif parsed_json["short_description"] != "":
                     description = parsed_json["short_description"]
             if description != "":
-                robo_print("verbose", "    SourceForge description is: %s" % description)
+                robo_print("    SourceForge description is: %s" % description, LogLevel.VERBOSE)
                 facts["description"] = description
             else:
-                robo_print("warning", "Could not detect SourceForge description.")
+                robo_print("Could not detect SourceForge description.", LogLevel.WARNING)
 
         # Get download format of latest release.
         if "download_url" not in facts:
@@ -632,15 +630,13 @@ def inspect_sourceforge_url(input_path, args, facts):
             try:
                 raw_xml = urlopen(files_rss)
             except Exception as err:
-                robo_print("warning",
-                           "Error occured while inspecting SourceForge RSS "
-                           "feed: %s" % err)
+                robo_print("Error occured while inspecting SourceForge RSS "
+                           "feed: %s" % err, LogLevel.WARNING)
             doc = parse(raw_xml)
 
             # Get the latest download URL.
             download_url = ""
-            robo_print("verbose",
-                       "Determining download URL from SourceForge RSS feed...")
+            robo_print("Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE)
             for item in doc.iterfind('channel/item'):
                 # TODO(Elliot): The extra-info tag is not a reliable indicator
                 # of which item should actually be downloaded.
@@ -651,20 +647,19 @@ def inspect_sourceforge_url(input_path, args, facts):
             if download_url != "":
                 facts = inspect_download_url(download_url, args, facts)
             else:
-                robo_print("warning", "Could not detect SourceForge latest release download_url.")
+                robo_print("Could not detect SourceForge latest release download_url.", LogLevel.WARNING)
 
         # Warn user if the SourceForge project is private.
         if "private" in parsed_json:
             if parsed_json["private"] is True:
-                robo_print("warning",
-                           "This SourceForge project is marked \"private\" "
-                           "and recipes you generate may not work for others.")
+                robo_print("This SourceForge project is marked \"private\" "
+                           "and recipes you generate may not work for others.", LogLevel.WARNING)
 
         # TODO(Elliot): Can we make use of parsed_json["icon"]?
         # Example: https://sourceforge.net/p/adium/icon
 
     else:
-        robo_print("warning", "Could not detect SourceForge project name.")
+        robo_print("Could not detect SourceForge project name.", LogLevel.WARNING)
 
     return facts
 
@@ -682,12 +677,12 @@ def inspect_bitbucket_url(input_path, args, facts):
 
     # Grab the BitBucket repo path.
     bitbucket_repo = ""
-    robo_print("verbose", "Getting BitBucket repo...")
+    robo_print("Getting BitBucket repo...", LogLevel.VERBOSE)
     r_obj = re.search(r"(?<=https://bitbucket\.org/)[\w-]+/[\w-]+", input_path)
     if r_obj is not None:
         bitbucket_repo = r_obj.group(0)
     if bitbucket_repo != "":
-        robo_print("verbose", "    BitBucket repo is: %s" % bitbucket_repo)
+        robo_print("    BitBucket repo is: %s" % bitbucket_repo, LogLevel.VERBOSE)
         facts["bitbucket_repo"] = bitbucket_repo
 
         # Use GitHub API to obtain information about the repo and releases.
@@ -699,19 +694,18 @@ def inspect_bitbucket_url(input_path, args, facts):
             raw_json_release = urlopen(releases_api_url).read()
             parsed_release = json.loads(raw_json_release)
         except Exception as err:
-            robo_print("warning",
-                       "Error occurred while talking to BitBucket. (%s)" % err)
+            robo_print("Error occurred while talking to BitBucket. (%s)" % err, LogLevel.WARNING)
             return facts
 
         # Get app name.
         if "app_name" not in facts:
             app_name = ""
-            robo_print("verbose", "Getting app name...")
+            robo_print("Getting app name...", LogLevel.VERBOSE)
             if "name" in parsed_repo:
                 if parsed_repo["name"] != "":
                     app_name = parsed_repo["name"]
             if app_name != "":
-                robo_print("verbose", "    App name is: %s" % app_name)
+                robo_print("    App name is: %s" % app_name, LogLevel.VERBOSE)
                 facts["app_name"] = app_name
 
         # Get full name of owner.
@@ -719,31 +713,28 @@ def inspect_bitbucket_url(input_path, args, facts):
         if "developer" not in facts:
             developer = parsed_repo["owner"]["display_name"]
         if developer != "":
-            robo_print("verbose",
-                       "    BitBucket owner full name "
-                       "is: %s" % developer)
+            robo_print("    BitBucket owner full name "
+                       "is: %s" % developer, LogLevel.VERBOSE)
             facts["developer"] = developer
 
         # Get app description.
         if "description" not in facts:
             description = ""
-            robo_print("verbose", "Getting BitBucket description...")
+            robo_print("Getting BitBucket description...", LogLevel.VERBOSE)
             if "description" in parsed_repo:
                 if parsed_repo["description"] != "":
                     description = parsed_repo["description"]
             if description != "":
-                robo_print("verbose",
-                           "    BitBucket description is: %s" % description)
+                robo_print("    BitBucket description is: %s" % description, LogLevel.VERBOSE)
                 facts["description"] = description
             else:
-                robo_print("warning", "Could not detect BitBucket description.")
+                robo_print("Could not detect BitBucket description.", LogLevel.WARNING)
 
         # Get download format of latest release.
         if "download_format" not in facts or "download_url" not in facts:
             download_format = ""
             download_url = ""
-            robo_print("verbose",
-                       "Getting information from latest BitBucket release...")
+            robo_print("Getting information from latest BitBucket release...", LogLevel.VERBOSE)
             if "values" in parsed_release:
                 for asset in parsed_release["values"]:
                     for this_format in all_supported_formats:
@@ -752,32 +743,27 @@ def inspect_bitbucket_url(input_path, args, facts):
                             download_url = asset["links"]["self"]["href"]
                             break
             if download_format != "":
-                robo_print("verbose",
-                           "    BitBucket release download format "
-                           "is: %s" % download_format)
+                robo_print("    BitBucket release download format "
+                           "is: %s" % download_format, LogLevel.VERBOSE)
                 facts["download_format"] = download_format
             else:
-                robo_print("warning",
-                           "Could not detect BitBucket release download format.")
+                robo_print("Could not detect BitBucket release download format.", LogLevel.WARNING)
             if download_url != "":
-                robo_print("verbose",
-                           "    BitBucket release download URL "
-                           "is: %s" % download_url)
+                robo_print("    BitBucket release download URL "
+                           "is: %s" % download_url, LogLevel.VERBOSE)
                 facts["download_url"] = download_url
                 inspect_download_url(download_url, args, facts)
             else:
-                robo_print("warning",
-                           "Could not detect BitBucket release download URL.")
+                robo_print("Could not detect BitBucket release download URL.", LogLevel.WARNING)
 
         # Warn user if the BitBucket project is private.
         if "is_private" in parsed_repo:
             if parsed_repo["is_private"] is True:
-                robo_print("warning",
-                           "This BitBucket project is marked \"private\" "
-                           "and recipes you generate may not work for others.")
+                robo_print("This BitBucket project is marked \"private\" "
+                           "and recipes you generate may not work for others.", LogLevel.WARNING)
 
     else:
-        robo_print("warning", "Could not detect BitBucket repo.")
+        robo_print("Could not detect BitBucket repo.", LogLevel.WARNING)
 
     return facts
 
@@ -794,7 +780,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts["inspections"].append("sparkle_feed_url")
 
     # Save the Sparkle feed URL to the dictionary of facts.
-    robo_print("verbose", "    Sparkle feed is: %s" % input_path)
+    robo_print("    Sparkle feed is: %s" % input_path, LogLevel.VERBOSE)
     facts["sparkle_feed"] = input_path
 
     # Download the Sparkle feed and parse it.
@@ -806,26 +792,23 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             opener = build_opener()
             opener.addheaders = [('User-agent', 'Mozilla/5.0')]
             raw_xml = opener.open(input_path)
-            robo_print("warning",
-                       "I had to use a different user-agent in order to "
+            robo_print("I had to use a different user-agent in order to "
                        "read this Sparkle feed. If you run the recipes and "
                        "get a \"Can't open URL\" error, it means AutoPkg "
-                       "encountered the same problem.")
+                       "encountered the same problem.", LogLevel.WARNING)
         except Exception as err:
-            robo_print("warning",
-                       "Error occured while downloading Sparkle feed (%s)" % err)
+            robo_print("Error occured while downloading Sparkle feed (%s)" % err, LogLevel.WARNING)
             return facts
 
     try:
         doc = parse(raw_xml)
     except ParseError as err:
-        robo_print("warning",
-                   "Error occured while parsing Sparkle feed (%s)" % err)
+        robo_print("Error occured while parsing Sparkle feed (%s)" % err, LogLevel.WARNING)
         return facts
 
     # Get the latest download URL.
     download_url = ""
-    robo_print("verbose", "Determining download URL from Sparkle feed...")
+    robo_print("Determining download URL from Sparkle feed...", LogLevel.VERBOSE)
     for item in doc.iterfind('channel/item/enclosure'):
         download_url = item.attrib["url"]
         break  # should stop after the most recent (first) enclosure item
@@ -855,22 +838,22 @@ def inspect_download_url(input_path, args, facts):
     # Example: http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
 
     # Save the download URL to the dictionary of facts.
-    robo_print("verbose", "    Download URL is: %s" % input_path)
+    robo_print("    Download URL is: %s" % input_path, LogLevel.VERBOSE)
     facts["download_url"] = input_path
 
     # Get the filename from the URL.
     # Example: https://www.dropbox.com/s/b0hk0i2n386824c/IconGrabber.dmg?dl=1
     # Should produce: IconGrabber.dmg
-    robo_print("verbose", "Getting download filename...")
+    robo_print("Getting download filename...", LogLevel.VERBOSE)
     parsed_url = urlparse(input_path)
     filename = parsed_url.path.split("/")[-1]
     if filename != "":
-        robo_print("verbose", "    Download filename is: %s" % filename)
+        robo_print("    Download filename is: %s" % filename, LogLevel.VERBOSE)
         r_obj = re.search(r"[\d]+\.[\w]+$", input_path)
         if r_obj is not None and "sparkle_feed" not in facts:
-            robo_print("warning", "Careful, this might be a version-specific URL.")
+            robo_print("Careful, this might be a version-specific URL.", LogLevel.WARNING)
     else:
-        robo_print("verbose", "    No filename provided")
+        robo_print("    No filename provided", LogLevel.VERBOSE)
         filename = "download"
     facts["download_filename"] = filename
 
@@ -887,7 +870,7 @@ def inspect_download_url(input_path, args, facts):
     # Try to determine the type of file downloaded. (Overwrites any previous
     # download_type, because the download URL is the most reliable source.)
     download_format = ""
-    robo_print("verbose", "Determining download format...")
+    robo_print("Determining download format...", LogLevel.VERBOSE)
     for this_format in all_supported_formats:
         if filename.lower().endswith(this_format):
             download_format = this_format
@@ -896,10 +879,10 @@ def inspect_download_url(input_path, args, facts):
             download_format = this_format
             break  # should stop after the first format match
     if download_format != "":
-        robo_print("verbose", "    Download format is %s" % download_format)
+        robo_print("    Download format is %s" % download_format, LogLevel.VERBOSE)
         facts["download_format"] = download_format
     else:
-        robo_print("verbose", "    Unknown download format")
+        robo_print("    Unknown download format", LogLevel.VERBOSE)
 
 
     # Only proceed if we haven't inspected the app already.
@@ -915,7 +898,7 @@ def inspect_download_url(input_path, args, facts):
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
     # files? https://gist.github.com/gourneau/1430932
-    robo_print("verbose", "Downloading file for further inspection...")
+    robo_print("Downloading file for further inspection...", LogLevel.VERBOSE)
     # Remove and recreate the cache folder, so we have a blank slate.
     if os.path.exists(cache_dir):
         shutil.rmtree(cache_dir)
@@ -930,19 +913,17 @@ def inspect_download_url(input_path, args, facts):
             opener = build_opener()
             opener.addheaders = [('User-agent', 'Mozilla/5.0')]
             raw_download = opener.open(input_path)
-            robo_print("warning",
-                       "I had to use a different user-agent in order to "
+            robo_print("I had to use a different user-agent in order to "
                        "download this file. If you run the recipes and get a "
                        "\"Can't open URL\" error, it means AutoPkg "
-                       "encountered the same problem.")
+                       "encountered the same problem.", LogLevel.WARNING)
         except Exception as err:
-            robo_print("warning",
-                       "Error encountered during file download: " + err)
+            robo_print("Error encountered during file download: " + err, LogLevel.WARNING)
     with open("%s/%s" % (cache_dir, filename), "wb") as download_file:
         download_file.write(raw_download.read())
-        robo_print("verbose", "    Downloaded to %s/%s" % (cache_dir, filename))
+        robo_print("    Downloaded to %s/%s" % (cache_dir, filename), LogLevel.VERBOSE)
 
-    robo_print("verbose", "Verifying downloaded file format...")
+    robo_print("Verifying downloaded file format...", LogLevel.VERBOSE)
 
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
@@ -958,7 +939,7 @@ def inspect_download_url(input_path, args, facts):
             if download_format == "":
                 download_format = "dmg"  # most common disk image format
                 facts["download_format"] = download_format
-            robo_print("verbose", "    Download format is %s" % download_format)
+            robo_print("    Download format is %s" % download_format, LogLevel.VERBOSE)
 
             # If the download filename was ambiguous, change it.
             if not facts["download_filename"].endswith(supported_image_formats):
@@ -996,7 +977,7 @@ def inspect_download_url(input_path, args, facts):
             if download_format == "":
                 download_format = "zip"  # most common archive format
                 facts["download_format"] = download_format
-            robo_print("verbose", "    Download format is %s" % download_format)
+            robo_print("    Download format is %s" % download_format, LogLevel.VERBOSE)
 
             # If the download filename was ambiguous, change it.
             if not facts["download_filename"].endswith(supported_archive_formats):
@@ -1014,14 +995,13 @@ def inspect_download_url(input_path, args, facts):
 
         # TODO(Elliot): Use pkgutil to extract contents and look for an app.
 
-        robo_print("verbose", "    Download format is %s" % download_format)
+        robo_print("    Download format is %s" % download_format, LogLevel.VERBOSE)
 
 
     if download_format == "":
-        robo_print("warning",
-                   "I've investigated pretty thoroughly, and I'm still not "
+        robo_print("I've investigated pretty thoroughly, and I'm still not "
                    "sure what the download format is. This could cause "
-                   "problems later.")
+                   "problems later.", LogLevel.WARNING)
 
     return facts
 
@@ -1040,15 +1020,12 @@ def inspect_app(input_path, args, facts):
     facts["app_path"] = input_path
 
     # Read the app's Info.plist.
-    robo_print("verbose", "Validating app...")
+    robo_print("Validating app...", LogLevel.VERBOSE)
     try:
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
-        robo_print("verbose", "    App seems valid")
+        robo_print("    App seems valid", LogLevel.VERBOSE)
     except Exception:
-        raise
-        #TODO(Shea): This is unreachable.
-        robo_print("error",
-                   "%s doesn't look like a valid app to me." % input_path)
+        robo_print("%s doesn't look like a valid app to me." % input_path, LogLevel.ERROR)
 
     # Get the filename of the app (which is usually the same as the app name.)
     app_file = os.path.basename(input_path)[:-4]
@@ -1056,40 +1033,40 @@ def inspect_app(input_path, args, facts):
     # Determine the name of the app. (Overwrites any previous app_name, because
     # the app Info.plist itself is the most reliable source.)
     app_name = ""
-    robo_print("verbose", "Getting app name...")
+    robo_print("Getting app name...", LogLevel.VERBOSE)
     if "CFBundleName" in info_plist:
         app_name = info_plist["CFBundleName"]
     elif "CFBundleExecutable" in info_plist:
         app_name = info_plist["CFBundleExecutable"]
     else:
         app_name = app_file
-    robo_print("verbose", "    App name is: %s" % app_name)
+    robo_print("    App name is: %s" % app_name, LogLevel.VERBOSE)
     facts["app_name"] = app_name
 
     # If the app's filename is different than the app's name, we need to make
     # a note of that. Many recipes require another input variable for this.
     if app_name != app_file:
-        robo_print("verbose", "App name differs from the actual app filename.")
-        robo_print("verbose", "    Actual app filename: %s.app" % app_file)
+        robo_print("App name differs from the actual app filename.", LogLevel.VERBOSE)
+        robo_print("    Actual app filename: %s.app" % app_file, LogLevel.VERBOSE)
         facts["app_file"] = app_file
 
     # Determine the bundle identifier of the app.
     if "bundle_id" not in facts:
         bundle_id = ""
-        robo_print("verbose", "Getting bundle identifier...")
+        robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
         if "CFBundleIdentifier" in info_plist:
             bundle_id = info_plist["CFBundleIdentifier"]
         else:
-            robo_print("warning", "This app doesn't have a bundle identifier.")
+            robo_print("This app doesn't have a bundle identifier.", LogLevel.WARNING)
         if bundle_id != "":
-            robo_print("verbose", "    Bundle idenfitier is: %s" % bundle_id)
+            robo_print("    Bundle idenfitier is: %s" % bundle_id, LogLevel.VERBOSE)
             facts["bundle_id"] = bundle_id
 
     # Attempt to determine how to download this app.
     if "sparkle_feed" not in facts:
         sparkle_feed = ""
         download_format = ""
-        robo_print("verbose", "Checking for a Sparkle feed...")
+        robo_print("Checking for a Sparkle feed...", LogLevel.VERBOSE)
         if "SUFeedURL" in info_plist:
             sparkle_feed = info_plist["SUFeedURL"]
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
@@ -1097,27 +1074,26 @@ def inspect_app(input_path, args, facts):
             sparkle_feed = info_plist["SUOriginalFeedURL"]
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
         else:
-            robo_print("verbose", "    No Sparkle feed")
+            robo_print("    No Sparkle feed", LogLevel.VERBOSE)
 
     # TODO(Elliot): Are there ways to download other than Sparkle that are
     # exposed in the app's Info.plist?
 
     if "is_from_app_store" not in facts:
-        robo_print("verbose",
-                   "Determining whether app was downloaded from the Mac App "
-                   "Store...")
+        robo_print("Determining whether app was downloaded from the Mac App "
+                   "Store...", LogLevel.VERBOSE)
         if os.path.exists("%s/Contents/_MASReceipt/receipt" % input_path):
-            robo_print("verbose", "    App came from the App Store")
+            robo_print("    App came from the App Store", LogLevel.VERBOSE)
             facts["is_from_app_store"] = True
         else:
-            robo_print("verbose", "    App did not come from the App Store")
+            robo_print("    App did not come from the App Store", LogLevel.VERBOSE)
             facts["is_from_app_store"] = False
 
     # Determine whether to use CFBundleShortVersionString or
     # CFBundleVersion for versioning.
     if "version_key" not in facts:
         version_key = ""
-        robo_print("verbose", "Looking for version key...")
+        robo_print("Looking for version key...", LogLevel.VERBOSE)
         if "CFBundleShortVersionString" in info_plist:
             if "CFBundleVersion" in info_plist:
                 # Both keys exist, so we must decide with a cage match!
@@ -1146,40 +1122,39 @@ def inspect_app(input_path, args, facts):
             if "CFBundleVersion" in info_plist:
                 version_key = "CFBundleVersion"
         if version_key != "":
-            robo_print("verbose", "    Version key is: %s (%s)" %
-                       (version_key, info_plist[version_key]))
+            robo_print("    Version key is: %s (%s)" %
+                       (version_key, info_plist[version_key]), LogLevel.VERBOSE)
             facts["version_key"] = version_key
         else:
-            robo_print("error",
-                       "Sorry, I can't determine which version key to use "
-                       "for this app.")
+            robo_print("Sorry, I can't determine which version key to use "
+                       "for this app.", LogLevel.ERROR)
 
     # Determine path to the app's icon.
     if "icon_path" not in facts:
         icon_path = ""
-        robo_print("verbose", "Looking for app icon...")
+        robo_print("Looking for app icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:
             icon_path = "%s/Contents/Resources/%s" % (
                 input_path, info_plist["CFBundleIconFile"])
         else:
-            robo_print("warning", "Can't determine app icon.")
+            robo_print("Can't determine app icon.", LogLevel.WARNING)
         if icon_path != "":
-            robo_print("verbose", "    App icon is: %s" % icon_path)
+            robo_print("    App icon is: %s" % icon_path, LogLevel.VERBOSE)
             facts["icon_path"] = icon_path
 
     # Attempt to get a description of the app from MacUpdate.com.
     if "description" not in facts:
-        robo_print("verbose", "Getting app description from MacUpdate...")
+        robo_print("Getting app description from MacUpdate...", LogLevel.VERBOSE)
         description = get_app_description(app_name)
         if description != "":
-            robo_print("verbose", "    Description: %s" % description)
+            robo_print("    Description: %s" % description, LogLevel.VERBOSE)
             facts["description"] = description
 
     # Attempt to determine code signing verification/requirements.
     if "codesign_status" not in facts:
         codesign_status = ""
         codesign_reqs = ""
-        robo_print("verbose", "Determining whether app is codesigned...")
+        robo_print("Determining whether app is codesigned...", LogLevel.VERBOSE)
         cmd = "codesign --display -r- \"%s\"" % (input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
@@ -1191,18 +1166,17 @@ def inspect_app(input_path, args, facts):
                     codesign_reqs = line[len(marker):]
         else:
             codesign_status = "unsigned"
-        robo_print("verbose", "    Codesign status is: %s" % codesign_status)
+        robo_print("    Codesign status is: %s" % codesign_status, LogLevel.VERBOSE)
         facts["codesign_status"] = codesign_status
         if codesign_reqs != "":
-            robo_print("verbose", "    Codesign requirements are: %s" % codesign_reqs)
+            robo_print("    Codesign requirements are: %s" % codesign_reqs, LogLevel.VERBOSE)
             facts["codesign_reqs"] = codesign_reqs
 
     # Attempt to determine name of developer and code signature version.
     if "developer" not in facts or "codesign_version" not in facts:
         developer = ""
         codesign_version = ""
-        robo_print("verbose",
-                   "Determining application developer and codesign version...")
+        robo_print("Determining application developer and codesign version...", LogLevel.VERBOSE)
         cmd = "codesign --display -r- --verbose=3 \"%s\"" % (input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
@@ -1217,14 +1191,13 @@ def inspect_app(input_path, args, facts):
                 if line.startswith(vers_marker):
                     codesign_version = line[len(vers_marker):len(vers_marker) + 1]
         if developer != "":
-            robo_print("verbose", "    Developer: %s" % developer)
+            robo_print("    Developer: %s" % developer, LogLevel.VERBOSE)
             facts["developer"] = developer
         if codesign_version != "":
-            robo_print("verbose", "    Codesign version: %s" % codesign_version)
+            robo_print("    Codesign version: %s" % codesign_version, LogLevel.VERBOSE)
             facts["codesign_version"] = codesign_version
             if codesign_version == "1":
-                robo_print("warning",
-                           "This app uses an obsolete code signature.")
+                robo_print("This app uses an obsolete code signature.", LogLevel.WARNING)
 
     return facts
 
@@ -1235,12 +1208,12 @@ def inspect_recipe(input_path, args, facts):
     """
 
     # Read the recipe as a plist.
-    robo_print("verbose", "Validating recipe...")
+    robo_print("Validating recipe...", LogLevel.VERBOSE)
     try:
         input_recipe = FoundationPlist.readPlist(input_path)
-        robo_print("verbose", "    Recipe is a valid plist")
+        robo_print("    Recipe is a valid plist", LogLevel.VERBOSE)
     except Exception:
-        robo_print("warning", "Could not parse recipe as a plist.")
+        robo_print("Could not parse recipe as a plist.", LogLevel.WARNING)
 
     # Run autopkg info on the recipe and save the output.
     cmd = "autopkg info \"%s\"" % input_path
@@ -1248,17 +1221,17 @@ def inspect_recipe(input_path, args, facts):
     if exitcode == 0:
         out = out.split("\n")
     else:
-        robo_print("warning", "Could not run \"autopkg info\" on recipe.")
+        robo_print("Could not run \"autopkg info\" on recipe.", LogLevel.WARNING)
 
     # Determine the name of the app.
     if "app_name" not in facts:
         app_name = ""
-        robo_print("verbose", "Getting name of app...")
+        robo_print("Getting name of app...", LogLevel.VERBOSE)
         if "Input" in input_recipe:
             if "NAME" in input_recipe["Input"]:
                 app_name = input_recipe["Input"]["NAME"]
         if app_name != "":
-            robo_print("verbose", "    App name is: %s" % app_name)
+            robo_print("    App name is: %s" % app_name, LogLevel.VERBOSE)
             facts["app_name"] = app_name
             # If the app exists on disk, we can cheat by using it as input.
             if os.path.exists("/Applications/%s.app" % app_name):
@@ -1267,20 +1240,20 @@ def inspect_recipe(input_path, args, facts):
     # Determine parent recipe, and get more facts from it.
     marker = "Parent recipe(s):"
     parent_recipe_path = ""
-    robo_print("verbose", "Looking for a parent recipe...")
+    robo_print("Looking for a parent recipe...", LogLevel.VERBOSE)
     for line in out:
         if marker in line:
             parent_recipe_path = line[len(marker):].lstrip()
     if parent_recipe_path != "":
-        robo_print("verbose", "    Parent recipe is: %s" % parent_recipe_path)
+        robo_print("    Parent recipe is: %s" % parent_recipe_path, LogLevel.VERBOSE)
         facts = inspect_recipe(parent_recipe_path, args, facts)
     else:
-        robo_print("verbose", "    No parent recipe found")
+        robo_print("    No parent recipe found", LogLevel.VERBOSE)
 
     # Determine whether there's a Sparkle feed.
     if "sparkle_feed" not in facts:
         marker = "SPARKLE"
-        robo_print("verbose", "Looking for a Sparkle feed...")
+        robo_print("Looking for a Sparkle feed...", LogLevel.VERBOSE)
         for line in out:
             if marker in line:
                 sparkle_feed = line.split("\"")[-2]
@@ -1289,7 +1262,7 @@ def inspect_recipe(input_path, args, facts):
     # Determine whether there's a download URL.
     if "download_url" not in facts:
         marker = "DOWNLOAD_URL"
-        robo_print("verbose", "Looking for a direct download URL...")
+        robo_print("Looking for a direct download URL...", LogLevel.VERBOSE)
         for line in out:
             if marker in line:
                 download_url = line[len(marker):].lstrip()
@@ -1298,7 +1271,7 @@ def inspect_recipe(input_path, args, facts):
     # Get the download file format.
     if "download_format" not in facts:
         download_format = ""
-        robo_print("verbose", "Trying to determine download format...")
+        robo_print("Trying to determine download format...", LogLevel.VERBOSE)
         for test_format in all_supported_formats:
             cmd = "grep '.%s</string>' '%s'" % (test_format, input_path)
             exitcode, out, err = get_exitcode_stdout_stderr(cmd)
@@ -1306,11 +1279,11 @@ def inspect_recipe(input_path, args, facts):
                 download_format = test_format
                 break
         if download_format != "":
-            robo_print("verbose", "    Download format (from recipe) is: %s" % download_format)
+            robo_print("    Download format (from recipe) is: %s" % download_format, LogLevel.VERBOSE)
             facts["download_format"] = download_format
 
     # Run the recipe and inspect the resulting app.
-    # robo_print("verbose", "Running recipe to see what we get...")
+    # robo_print("Running recipe to see what we get...", LogLevel.VERBOSE)
     # cmd = "autopkg run \"%s\"" % input_path
     # exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     # if exitcode == 0:
@@ -1346,7 +1319,7 @@ def create_existing_recipe_list(app_name, recipes, args):
         recipe_searches.append(app_name_no_symbol)
 
     for this_search in recipe_searches:
-        robo_print("verbose", "Searching for existing AutoPkg recipes for \"%s\"..." % this_search)
+        robo_print("Searching for existing AutoPkg recipes for \"%s\"..." % this_search, LogLevel.VERBOSE)
         cmd = "/usr/local/bin/autopkg search -p \"%s\"" % this_search
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
@@ -1360,13 +1333,13 @@ def create_existing_recipe_list(app_name, recipes, args):
                     if recipe_name.lower() in line.lower():
                         # Set to False by default. If found, set to True.
                         recipe["existing"] = True
-                        robo_print("verbose", "    Found existing %s" % recipe_name)
+                        robo_print("    Found existing %s" % recipe_name, LogLevel.VERBOSE)
                         is_existing = True
                         break
             if not is_existing:
-                robo_print("verbose", "    No results")
+                robo_print("    No results", LogLevel.VERBOSE)
         else:
-            robo_print("error", err)
+            robo_print(err, LogLevel.ERROR)
 
 
 def create_buildable_recipe_list(app_name, recipes, args, facts):
@@ -1432,10 +1405,10 @@ def congratulate(prefs):
         "You rock star, you."
     )
     if prefs["RecipeCreateCount"] == 1:
-        robo_print("log", "\nYou've created your first recipe with Recipe "
+        robo_print("\nYou've created your first recipe with Recipe "
                    "Robot. Congratulations!\n")
     elif prefs["RecipeCreateCount"] > 1:
-        robo_print("log", "\nYou've now created %s recipes with Recipe Robot. "
+        robo_print("\nYou've now created %s recipes with Recipe Robot. "
                    "%s\n" % (prefs["RecipeCreateCount"],
                              random.choice(congrats_msg)))
 
@@ -1451,13 +1424,11 @@ def main():
         argparser = build_argument_parser()
         args = argparser.parse_args()
         if args.include_existing is True:
-            robo_print("warning",
-                       "Will build recipes even if they already exist in "
+            robo_print("Will build recipes even if they already exist in "
                        "\"autopkg search\" results. Please don't upload "
-                       "duplicate recipes.")
+                       "duplicate recipes.", LogLevel.WARNING)
         if args.verbose is True or OutputMode.verbose_mode is True:
             OutputMode.set_verbose_mode(True)
-            robo_print("verbose", "Verbose mode is on.")
 
         # Create the master recipe information list.
         recipes = init_recipes()
@@ -1468,7 +1439,7 @@ def main():
 
         input_path = args.input_path
         input_path = input_path.rstrip("/ ")
-        robo_print("log", "\nProcessing %s ..." % input_path)
+        robo_print("Processing %s ..." % input_path)
 
         # Collect facts from the input path, based on the type of path given.
         facts = {}

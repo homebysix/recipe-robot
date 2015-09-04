@@ -80,7 +80,7 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
         prefix = ""
     suffix = ENDC
 
-    line = "%s%s%s%s%s" % (color, indents, prefix, message, suffix)
+    line = color + indents + prefix + message + suffix
 
     if log_level in (LogLevel.ERROR, LogLevel.WARNING):
         print_func = _print_stderr
@@ -116,7 +116,7 @@ def create_dest_dirs(path):
         try:
             os.makedirs(dest_dir)
         except OSError:
-            robo_print("error", "Unable to create directory at %s." % dest_dir)
+            robo_print("Unable to create directory at %s." % dest_dir, LogLevel.ERROR)
 
 
 def extract_app_icon(icon_path, png_path):
@@ -140,10 +140,9 @@ def extract_app_icon(icon_path, png_path):
                "--resampleHeightWidthMax 300" % (icon_path, png_path_absolute))
         exitcode, _, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            robo_print("verbose", "    %s" % png_path)
+            robo_print("    %s" % png_path, LogLevel.VERBOSE)
         else:
-            robo_print("warning",
-                       "An error occurred during icon extraction: %s" % err)
+            robo_print("An error occurred during icon extraction: %s" % err, LogLevel.WARNING)
 
 
 def get_exitcode_stdout_stderr(cmd):
