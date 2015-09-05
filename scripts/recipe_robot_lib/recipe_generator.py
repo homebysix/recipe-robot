@@ -162,19 +162,6 @@ def generate_recipes(facts, prefs, recipes):
                         keys["Process"].append({
                             "Processor": "SparkleUpdateInfoProvider",
                             "Arguments": {
-                                "appcast_url": "%SPARKLE_FEED_URL%"
-                            }
-                        })
-                        keys["Process"].append({
-                            "Processor": "URLDownloader",
-                            "Arguments": {
-                                "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
-                            }
-                        })
-                    else:
-                        keys["Process"].append({
-                            "Processor": "SparkleUpdateInfoProvider",
-                            "Arguments": {
                                 "appcast_request_headers": {
                                     "user-agent": facts["user-agent"]
                                 },
@@ -188,6 +175,19 @@ def generate_recipes(facts, prefs, recipes):
                                 "request_headers": {
                                     "user-agent": facts["user-agent"]
                                 }
+                            }
+                        })
+                    else:
+                        keys["Process"].append({
+                            "Processor": "SparkleUpdateInfoProvider",
+                            "Arguments": {
+                                "appcast_url": "%SPARKLE_FEED_URL%"
+                            }
+                        })
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
                             }
                         })
 
