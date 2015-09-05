@@ -182,6 +182,8 @@ Sparkle feed lists the most recent items last, instead of first:
 Zip download reveals a pkg installer:
 `recipe-robot -v http://download.bjango.com/istatserver/`
 
+App that uses a version 1 (obsolete) code signature:
+`recipe-robot -v http://mrrsoftware.com/Downloads/NameChanger/Updates/NameChanger-2_3_3.zip`
 
 
 ## App interface
