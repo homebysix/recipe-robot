@@ -1334,7 +1334,7 @@ def create_existing_recipe_list(app_name, recipes, args):
             for recipe in recipes:
                 recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
                 for line in out:
-                    if recipe_name.lower() in line.lower():
+                    if line.lower().startswith(recipe_name.lower()):
                         # Set to False by default. If found, set to True.
                         recipe["existing"] = True
                         robo_print("Found existing %s" % recipe_name, LogLevel.VERBOSE, 4)
