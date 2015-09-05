@@ -244,8 +244,7 @@ def generate_recipes(facts, prefs, recipes):
                     "Processor": "EndOfCheckPhase"
                 })
 
-                if (facts["codesign_status"] == "signed" and
-                    facts["codesign_version"] != "1"):
+                if facts["codesign_status"] == "signed":
                     if facts["download_format"] in supported_image_formats:
                         keys["Process"].append({
                             "Processor": "CodeSignatureVerifier",
@@ -360,7 +359,7 @@ def generate_recipes(facts, prefs, recipes):
                     })
 
                 elif facts["download_format"] in supported_archive_formats:
-                    if facts["codesign_status"] == "unsigned":
+                    if facts["codesign_status"] != "signed":
                         # If unsigned, that means the download recipe hasn't
                         # unarchived the zip yet.
                         keys["Process"].append({
@@ -470,7 +469,7 @@ def generate_recipes(facts, prefs, recipes):
                     })
 
                 elif facts["download_format"] in supported_archive_formats:
-                    if facts["codesign_status"] == "unsigned":
+                    if facts["codesign_status"] != "signed":
                         # If unsigned, that means the download recipe hasn't
                         # unarchived the zip yet. Need to do that and version.
                         keys["Process"].append({
@@ -545,7 +544,7 @@ def generate_recipes(facts, prefs, recipes):
                     })
 
                 elif facts["download_format"] in supported_archive_formats:
-                    if facts["codesign_status"] == "unsigned":
+                    if facts["codesign_status"] != "signed":
                         keys["Process"].append({
                             "Processor": "Unarchiver",
                             "Arguments": {

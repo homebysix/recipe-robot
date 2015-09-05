@@ -1187,7 +1187,7 @@ def inspect_app(input_path, args, facts):
             facts["codesign_reqs"] = codesign_reqs
 
     # Attempt to determine name of developer and code signature version.
-    if "developer" not in facts or "codesign_version" not in facts:
+    if "developer" not in facts:
         developer = ""
         codesign_version = ""
         robo_print("Determining application developer and codesign version...", LogLevel.VERBOSE)
@@ -1209,9 +1209,9 @@ def inspect_app(input_path, args, facts):
             facts["developer"] = developer
         if codesign_version != "":
             robo_print("Codesign version: %s" % codesign_version, LogLevel.VERBOSE, 4)
-            facts["codesign_version"] = codesign_version
             if codesign_version == "1":
                 robo_print("This app uses an obsolete code signature.", LogLevel.WARNING)
+                facts["codesign_status"] = "obsolete"
 
     return facts
 
