@@ -251,7 +251,7 @@ def generate_recipes(facts, prefs, recipes):
                             "Processor": "CodeSignatureVerifier",
                             "Arguments": {
                                 "input_path": "%%pathname%%/%s.app" % app_name_key,
-                                "requirement": facts["codesign_reqs"]
+                                "requirement": facts.get("codesign_reqs", "")
                             }
                         })
                     elif facts["download_format"] in supported_archive_formats:
@@ -267,7 +267,7 @@ def generate_recipes(facts, prefs, recipes):
                             "Processor": "CodeSignatureVerifier",
                             "Arguments": {
                                 "input_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" % app_name_key,
-                                "requirement": facts["codesign_reqs"]
+                                "requirement": facts.get("codesign_reqs", "")
                             }
                         })
                         keys["Process"].append({
