@@ -28,14 +28,13 @@ import sys
 try:
     from recipe_robot_lib import FoundationPlist
     from .tools import create_dest_dirs, extract_app_icon
-    from .tools import robo_print
+    from .tools import robo_print, LogLevel, __version__
 except ImportError:
     print '[WARNING] importing plistlib as FoundationPlist'
     import plistlib as FoundationPlist
 
 
 # Global variables.
-__version__ = '0.0.3'
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")

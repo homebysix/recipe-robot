@@ -29,6 +29,7 @@ from subprocess import Popen, PIPE
 import sys
 
 
+__version__ = '0.0.3'
 ENDC = "\033[0m"
 
 
@@ -184,7 +185,7 @@ def print_welcome_text():
                                    d-||-b
                                      ||
                                    _/  \_
-    """ % "Test"
+    """ % __version__
 
     robo_print(welcome_text)
 
