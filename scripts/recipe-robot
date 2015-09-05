@@ -969,6 +969,11 @@ def inspect_download_url(input_path, args, facts):
                     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                     facts = inspect_app(cached_app_path, args, facts)
                     break
+                if this_file.endswith(".pkg"):
+                    # TODO(Elliot): Process the pkg inside the dmg.
+                    robo_print("Sorry, I don't yet know how to handle a pkg "
+                               "inside a dmg. Hopefully I'll learn "
+                               "soon.", LogLevel.ERROR)
 
     # Open the archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
@@ -993,6 +998,11 @@ def inspect_download_url(input_path, args, facts):
                     cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
                     facts = inspect_app(cached_app_path, args, facts)
                     break
+                if this_file.endswith(".pkg"):
+                    # TODO(Elliot): Process the pkg inside the zip.
+                    robo_print("Sorry, I don't yet know how to handle a pkg "
+                               "inside a zip. Hopefully I'll learn "
+                               "soon.", LogLevel.ERROR)
 
     # Inspect the installer (or test to see whether the download is one).
     if download_format in supported_install_formats:
