@@ -6,7 +6,7 @@ Some scattered notes to assist in the design and development of Recipe Robot.
 
 - [Planned script workflow](#planned-script-workflow)
 - [Facts necessary to produce recipe types](#facts-necessary-to-produce-recipe-types)
-- [Elliot's recipe template logic](#elliots-recipe-template-logic)
+- [Interesting examples and edge cases to use for testing:](#interesting-examples-and-edge-cases-to-use-for-testing)
 - [App interface](#app-interface)
 
 <!-- /MarkdownTOC -->
@@ -164,6 +164,25 @@ __ds__
     - Input -> DS_NAME (string)
     - Process -> StopProcessingIf processor
     - Process -> Copier processor
+
+## Interesting examples and edge cases to use for testing:
+
+Zip download reveals an installer in .app format:
+`recipe-robot -v http://download.bjango.com/skalacolor/`
+
+Sparkle feed blocks Python user-agent:
+`recipe-robot -v http://bohemiancoding.com/static/download/sketch.zip`
+
+Downloaded disk image requires agreement to license before mounting:
+`recipe-robot -v https://www.revisionsapp.com/downloads/revisions-2.1.1.dmg`
+
+Sparkle feed lists the most recent items last, instead of first:
+`recipe-robot -v http://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml`
+
+Zip download reveals a pkg installer:
+`recipe-robot -v http://download.bjango.com/istatserver/`
+
+
 
 ## App interface
 
