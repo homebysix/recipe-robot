@@ -853,7 +853,10 @@ def inspect_download_url(input_path, args, facts):
     if filename != "":
         robo_print("Download filename is: %s" % filename, LogLevel.VERBOSE, 4)
         r_obj = re.search(r"[\d]+\.[\w]+$", input_path)
-        if r_obj is not None and "sparkle_feed" not in facts:
+        if r_obj is not None and ("sparkle_feed" not in facts and
+                                  "github_repo" not in facts and
+                                  "sourceforge_id" not in facts and
+                                  "bitbucket_repo" not in facts):
             robo_print("Careful, this might be a version-specific URL.", LogLevel.WARNING)
     else:
         robo_print("No filename provided", LogLevel.VERBOSE, 4)
