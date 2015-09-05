@@ -28,21 +28,20 @@ import sys
 try:
     from recipe_robot_lib import FoundationPlist
     from .tools import create_dest_dirs, extract_app_icon
-    from .tools import robo_print
+    from .tools import robo_print, LogLevel, __version__
 except ImportError:
     print '[WARNING] importing plistlib as FoundationPlist'
     import plistlib as FoundationPlist
 
 
 # Global variables.
-__version__ = '0.0.3'
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
 
 # Build the list of download formats we know about.
 supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
-supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz")
+supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
 supported_install_formats = ("pkg", "mpkg")  # downloading mpkg unlikely
 all_supported_formats = (supported_image_formats + supported_archive_formats +
                          supported_install_formats)
@@ -159,18 +158,39 @@ def generate_recipes(facts, prefs, recipes):
 
                 if "sparkle_feed" in facts:
                     keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
-                    keys["Process"].append({
-                        "Processor": "SparkleUpdateInfoProvider",
-                        "Arguments": {
-                            "appcast_url": "%SPARKLE_FEED_URL%"
-                        }
-                    })
-                    keys["Process"].append({
-                        "Processor": "URLDownloader",
-                        "Arguments": {
-                            "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
-                        }
-                    })
+                    if "user-agent" in facts:
+                        keys["Process"].append({
+                            "Processor": "SparkleUpdateInfoProvider",
+                            "Arguments": {
+                                "appcast_request_headers": {
+                                    "user-agent": facts["user-agent"]
+                                },
+                                "appcast_url": "%SPARKLE_FEED_URL%"
+                            }
+                        })
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"],
+                                "request_headers": {
+                                    "user-agent": facts["user-agent"]
+                                }
+                            }
+                        })
+                    else:
+                        keys["Process"].append({
+                            "Processor": "SparkleUpdateInfoProvider",
+                            "Arguments": {
+                                "appcast_url": "%SPARKLE_FEED_URL%"
+                            }
+                        })
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
+                            }
+                        })
+
                 elif "github_repo" in facts:
                     keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
                     recipe["keys"]["Process"].append({
@@ -199,14 +219,27 @@ def generate_recipes(facts, prefs, recipes):
                     # TODO(Elliot): Copy SourceForgeURLProvider.py to recipe
                     # output directory.
                 elif "download_url" in facts:
-                    keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-                    keys["Process"].append({
-                        "Processor": "URLDownloader",
-                        "Arguments": {
-                            "url": "%DOWNLOAD_URL%",
-                            "filename": facts["download_filename"]
-                        }
-                    })
+                    if "user-agent" in facts:
+                        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "url": "%DOWNLOAD_URL%",
+                                "filename": facts["download_filename"],
+                                "request_headers": {
+                                    "user-agent": facts["user-agent"]
+                                }
+                            }
+                        })
+                    else:
+                        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "url": "%DOWNLOAD_URL%",
+                                "filename": facts["download_filename"]
+                            }
+                        })
                 keys["Process"].append({
                     "Processor": "EndOfCheckPhase"
                 })
@@ -217,7 +250,6 @@ def generate_recipes(facts, prefs, recipes):
                         keys["Process"].append({
                             "Processor": "CodeSignatureVerifier",
                             "Arguments": {
-                                # TODO(Elliot): What if the app name isn't the same as %NAME%?
                                 "input_path": "%%pathname%%/%s.app" % app_name_key,
                                 "requirement": facts["codesign_reqs"]
                             }
@@ -768,8 +800,8 @@ def generate_recipes(facts, prefs, recipes):
             FoundationPlist.writePlist(recipe["keys"], dest_path)
             prefs["RecipeCreateCount"] += 1
 
-            robo_print("    %s/%s" %
-                       (prefs["RecipeCreateLocation"], filename))
+            robo_print("%s/%s" %
+                       (prefs["RecipeCreateLocation"], filename), LogLevel.LOG, 4)
 
     if app_store_app_override_created is True:
         robo_print("I've created at least one AppStoreApp override for you. "

@@ -29,6 +29,7 @@ from subprocess import Popen, PIPE
 import sys
 
 
+__version__ = '0.0.3'
 ENDC = "\033[0m"
 
 
@@ -140,7 +141,7 @@ def extract_app_icon(icon_path, png_path):
                "--resampleHeightWidthMax 300" % (icon_path, png_path_absolute))
         exitcode, _, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            robo_print("    %s" % png_path, LogLevel.VERBOSE)
+            robo_print("%s" % png_path, LogLevel.VERBOSE, 4)
         else:
             robo_print("An error occurred during icon extraction: %s" % err, LogLevel.WARNING)
 
@@ -184,7 +185,7 @@ def print_welcome_text():
                                    d-||-b
                                      ||
                                    _/  \_
-    """ % "Test"
+    """ % __version__
 
     robo_print(welcome_text)
 
