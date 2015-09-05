@@ -250,7 +250,6 @@ def generate_recipes(facts, prefs, recipes):
                         keys["Process"].append({
                             "Processor": "CodeSignatureVerifier",
                             "Arguments": {
-                                # TODO(Elliot): What if the app name isn't the same as %NAME%?
                                 "input_path": "%%pathname%%/%s.app" % app_name_key,
                                 "requirement": facts["codesign_reqs"]
                             }
@@ -801,8 +800,8 @@ def generate_recipes(facts, prefs, recipes):
             FoundationPlist.writePlist(recipe["keys"], dest_path)
             prefs["RecipeCreateCount"] += 1
 
-            robo_print("    %s/%s" %
-                       (prefs["RecipeCreateLocation"], filename))
+            robo_print("%s/%s" %
+                       (prefs["RecipeCreateLocation"], filename), LogLevel.LOG, 4)
 
     if app_store_app_override_created is True:
         robo_print("I've created at least one AppStoreApp override for you. "
