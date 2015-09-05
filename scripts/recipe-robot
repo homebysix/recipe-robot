@@ -796,6 +796,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
                        "read this Sparkle feed. If you run the recipes and "
                        "get a \"Can't open URL\" error, it means AutoPkg "
                        "encountered the same problem.", LogLevel.WARNING)
+            facts["user-agent"] = "Mozilla/5.0"
         except Exception as err:
             robo_print("Error occured while downloading Sparkle feed (%s)" % err, LogLevel.WARNING)
             return facts
@@ -917,6 +918,7 @@ def inspect_download_url(input_path, args, facts):
                        "download this file. If you run the recipes and get a "
                        "\"Can't open URL\" error, it means AutoPkg "
                        "encountered the same problem.", LogLevel.WARNING)
+            facts["user-agent"] = "Mozilla/5.0"
         except Exception as err:
             robo_print("Error encountered during file download: " + err, LogLevel.WARNING)
     with open("%s/%s" % (cache_dir, filename), "wb") as download_file:

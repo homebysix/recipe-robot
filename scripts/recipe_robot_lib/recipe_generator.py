@@ -159,18 +159,39 @@ def generate_recipes(facts, prefs, recipes):
 
                 if "sparkle_feed" in facts:
                     keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
-                    keys["Process"].append({
-                        "Processor": "SparkleUpdateInfoProvider",
-                        "Arguments": {
-                            "appcast_url": "%SPARKLE_FEED_URL%"
-                        }
-                    })
-                    keys["Process"].append({
-                        "Processor": "URLDownloader",
-                        "Arguments": {
-                            "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
-                        }
-                    })
+                    if "user-agent" in facts:
+                        keys["Process"].append({
+                            "Processor": "SparkleUpdateInfoProvider",
+                            "Arguments": {
+                                "appcast_url": "%SPARKLE_FEED_URL%"
+                            }
+                        })
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
+                            }
+                        })
+                    else:
+                        keys["Process"].append({
+                            "Processor": "SparkleUpdateInfoProvider",
+                            "Arguments": {
+                                "appcast_request_headers": {
+                                    "user-agent": facts["user-agent"]
+                                },
+                                "appcast_url": "%SPARKLE_FEED_URL%"
+                            }
+                        })
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"],
+                                "request_headers": {
+                                    "user-agent": facts["user-agent"]
+                                }
+                            }
+                        })
+
                 elif "github_repo" in facts:
                     keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
                     recipe["keys"]["Process"].append({
@@ -199,14 +220,27 @@ def generate_recipes(facts, prefs, recipes):
                     # TODO(Elliot): Copy SourceForgeURLProvider.py to recipe
                     # output directory.
                 elif "download_url" in facts:
-                    keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-                    keys["Process"].append({
-                        "Processor": "URLDownloader",
-                        "Arguments": {
-                            "url": "%DOWNLOAD_URL%",
-                            "filename": facts["download_filename"]
-                        }
-                    })
+                    if "user-agent" in facts:
+                        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "url": "%DOWNLOAD_URL%",
+                                "filename": facts["download_filename"],
+                                "request_headers": {
+                                    "user-agent": facts["user-agent"]
+                                }
+                            }
+                        })
+                    else:
+                        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
+                        keys["Process"].append({
+                            "Processor": "URLDownloader",
+                            "Arguments": {
+                                "url": "%DOWNLOAD_URL%",
+                                "filename": facts["download_filename"]
+                            }
+                        })
                 keys["Process"].append({
                     "Processor": "EndOfCheckPhase"
                 })
