@@ -433,7 +433,13 @@ def inspect_github_url(input_path, args, facts):
     # Grab the GitHub repo path.
     github_repo = ""
     robo_print("Getting GitHub repo...", LogLevel.VERBOSE)
-    r_obj = re.search(r"^https?://(?:[\w]+\.)?github(?:.+)?\.com(?:/.+)?/([\w-]+/[\w-]+)(?:.+)?$", input_path)
+    # TODO(Elliot): Match all these examples:
+    # [x] https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
+    # [x] https://github.com/lindegroup/autopkgr
+    # [x] https://raw.githubusercontent.com/macmule/AutoCasperNBI/master/README.md
+    # [ ] https://api.github.com/repos/macmule/AutoCasperNBI
+    # [ ] https://hjuutilainen.github.io/munkiadmin/
+    r_obj = re.search(r"^https?://(?:[\w]+\.)?github(?:.+)?\.com/([\w-]+/[\w-]+)(?:.+)?$", input_path)
     if r_obj is not None:
         github_repo = r_obj.group(1)
     if github_repo != "":
