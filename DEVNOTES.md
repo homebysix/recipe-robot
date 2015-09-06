@@ -191,6 +191,9 @@ App that uses a LooseVersion (3.1.4.0) for CFBundleShortVersionString (also, spe
 Direct download doesn't work because of "SSLV3_ALERT_HANDSHAKE_FAILURE":
 `recipe-robot -v http://www.macroplant.com/latest-binaries/adapter-mac.dmg`
 
+The app we want is not at the root level of the downloaded file:
+`recipe-robot -v https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip`
+
 
 ## App interface
 
