@@ -799,6 +799,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             facts["user-agent"] = "Mozilla/5.0"
         except Exception as err:
             robo_print("Error occured while downloading Sparkle feed (%s)" % err, LogLevel.WARNING)
+            # Remove Sparkle feed if it's not usable.
+            facts.pop("sparkle_feed", None)
             return facts
 
     try:
