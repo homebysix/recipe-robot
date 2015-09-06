@@ -185,6 +185,12 @@ Zip download reveals a pkg installer:
 App that uses a version 1 (obsolete) code signature:
 `recipe-robot -v http://mrrsoftware.com/Downloads/NameChanger/Updates/NameChanger-2_3_3.zip`
 
+App that uses a LooseVersion (3.1.4.0) for CFBundleShortVersionString (also, specifies download format in URL parameters):
+`recipe-robot -v https://srv3.airdroid.com/p14/web/getbinaryredirect?type=dmg`
+
+Direct download doesn't work because of "SSLV3_ALERT_HANDSHAKE_FAILURE":
+`recipe-robot -v http://www.macroplant.com/latest-binaries/adapter-mac.dmg`
+
 
 ## App interface
 
