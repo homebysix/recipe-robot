@@ -443,20 +443,51 @@ def inspect_github_url(input_path, args, facts):
         # TODO(Elliot): How can we use GitHub tokens to prevent rate limiting?
 
         # Use GitHub API to obtain information about the repo and releases.
+        # TODO(Shea): From here to line 490 can probably be simplified.
         repo_api_url = "https://api.github.com/repos/%s" % github_repo
         releases_api_url = "https://api.github.com/repos/%s/releases/latest" % github_repo
+        user_api_url = "https://api.github.com/users/%s" % github_repo.split("/")[0]
+
+        # Download the repo information from the GitHub API.
         try:
             raw_json_repo = urlopen(repo_api_url).read()
-            parsed_repo = json.loads(raw_json_repo)
-            raw_json_release = urlopen(releases_api_url).read()
-            parsed_release = json.loads(raw_json_release)
         except Exception as err:
             # TODO(Elliot): Differentiate 404 not found vs 403 forbidden.
-            robo_print("Error occurred while talking to GitHub. If you've "
-                       "been creating a lot of recipes quickly, you may have "
-                       "hit the rate limit. Give it a few minutes, then try "
+            robo_print("Error occurred while getting repo information from "
+                       "the GitHub API. If you've been creating a lot of "
+                       "recipes quickly, you may have hit the rate limit. "
+                       "Give it a few minutes, then try "
                        "again. (%s)" % err, LogLevel.WARNING)
             return facts
+
+        # Download the release information from the GitHub API.
+        try:
+            raw_json_release = urlopen(releases_api_url).read()
+        except Exception as err:
+            # TODO(Elliot): Differentiate 404 not found vs 403 forbidden.
+            robo_print("Error occurred while getting release information from "
+                       "the GitHub API. If you've been creating a lot of "
+                       "recipes quickly, you may have hit the rate limit. "
+                       "Give it a few minutes, then try "
+                       "again. (%s)" % err, LogLevel.WARNING)
+            return facts
+
+        # Download the owner/developer information from the GitHub API.
+        try:
+            raw_json_user = urlopen(user_api_url).read()
+        except Exception as err:
+            # TODO(Elliot): Differentiate 404 not found vs 403 forbidden.
+            robo_print("Error occurred while getting owner information from "
+                       "the GitHub API. If you've been creating a lot of "
+                       "recipes quickly, you may have hit the rate limit. "
+                       "Give it a few minutes, then try "
+                       "again. (%s)" % err, LogLevel.WARNING)
+            return facts
+
+        # Parse the downloaded JSON.
+        parsed_repo = json.loads(raw_json_repo)
+        parsed_release = json.loads(raw_json_release)
+        parsed_user = json.loads(raw_json_user)
 
         # Get app name.
         if "app_name" not in facts:
@@ -512,6 +543,21 @@ def inspect_github_url(input_path, args, facts):
                 inspect_download_url(download_url, args, facts)
             else:
                 robo_print("Could not detect GitHub release download URL.",
+                           LogLevel.WARNING)
+
+        # Get the developer's name from GitHub.
+        if "developer" not in facts:
+            developer = ""
+            robo_print("Getting developer name from GitHub...",
+                       LogLevel.VERBOSE)
+            if "name" in parsed_user:
+                developer = parsed_user["name"]
+            if developer != "":
+                robo_print("GitHub developer "
+                           "is: %s" % developer, LogLevel.VERBOSE, 4)
+                facts["developer"] = developer
+            else:
+                robo_print("Could not detect GitHub developer.",
                            LogLevel.WARNING)
 
         # Warn user if the GitHub project is private.
@@ -1194,7 +1240,7 @@ def inspect_app(input_path, args, facts):
             facts["codesign_reqs"] = codesign_reqs
 
     # Attempt to determine name of developer and code signature version.
-    if "developer" not in facts:
+    if "developer" not in facts and codesign_status != "unsigned":
         developer = ""
         codesign_version = ""
         robo_print("Determining application developer and codesign version...", LogLevel.VERBOSE)
