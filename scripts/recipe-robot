@@ -1039,7 +1039,7 @@ def inspect_download_url(input_path, args, facts):
                                "inside a dmg. Hopefully I'll learn "
                                "soon.", LogLevel.ERROR)
 
-    # Open the archive (or test to see whether the download is one).
+    # Open the zip archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
         # Unzip the zip and look for an app.
         cmd = "/usr/bin/unzip \"%s/%s\" -d \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
@@ -1059,6 +1059,8 @@ def inspect_download_url(input_path, args, facts):
             # Locate and inspect the app.
             for this_file in os.listdir("%s/unpacked" % cache_dir):
                 if this_file.endswith(".app"):
+                    # TODO(Elliot): What if .app isn't on root of zip?
+                    # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
                     cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
                     facts = inspect_app(cached_app_path, args, facts)
                     break
@@ -1066,6 +1068,36 @@ def inspect_download_url(input_path, args, facts):
                     # TODO(Elliot): Process the pkg inside the zip.
                     robo_print("Sorry, I don't yet know how to handle a pkg "
                                "inside a zip. Hopefully I'll learn "
+                               "soon.", LogLevel.ERROR)
+
+    # Open the tar archive (or test to see whether the download is one).
+    if download_format == "" or download_format in supported_archive_formats:
+        # Unzip the tgz and look for an app.
+        cmd = "/usr/bin/tar -zxvf \"%s/%s\" -C \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+
+            # Confirmed; the download was an archive. Make a note of that.
+            if download_format == "":
+                download_format = "tgz"
+                facts["download_format"] = download_format
+            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
+
+            # If the download filename was ambiguous, change it.
+            if not facts["download_filename"].endswith(supported_archive_formats):
+                facts["download_filename"] = facts["download_filename"] + ".tgz"
+
+            # Locate and inspect the app.
+            for this_file in os.listdir("%s/unpacked" % cache_dir):
+                if this_file.endswith(".app"):
+                    # TODO(Elliot): What if .app isn't on root of tgz?
+                    cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
+                    facts = inspect_app(cached_app_path, args, facts)
+                    break
+                if this_file.endswith(".pkg"):
+                    # TODO(Elliot): Process the pkg inside the tgz.
+                    robo_print("Sorry, I don't yet know how to handle a pkg "
+                               "inside a tgz. Hopefully I'll learn "
                                "soon.", LogLevel.ERROR)
 
     # Inspect the installer (or test to see whether the download is one).
