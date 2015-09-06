@@ -1011,7 +1011,12 @@ def inspect_download_url(input_path, args, facts):
             # Locate and inspect the app.
             with open("%s/dmg_attach.plist" % cache_dir, "wb") as dmg_plist:
                 dmg_plist.write(out)
-            dmg_dict = FoundationPlist.readPlist("%s/dmg_attach.plist" % cache_dir)
+            try:
+                dmg_dict = FoundationPlist.readPlist("%s/dmg_attach.plist" % cache_dir)
+            except Exception:
+                robo_print("Shoot, this dmg probably has a license agreement. "
+                           "I'm still learning what to do when that "
+                           "happens.", LogLevel.ERROR)
             dmg_mount = dmg_dict["system-entities"][-1]["mount-point"]
             for this_file in os.listdir(dmg_mount):
                 if this_file.endswith(".app"):
