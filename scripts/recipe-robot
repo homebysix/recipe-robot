@@ -433,10 +433,9 @@ def inspect_github_url(input_path, args, facts):
     # Grab the GitHub repo path.
     github_repo = ""
     robo_print("Getting GitHub repo...", LogLevel.VERBOSE)
-    input_path = input_path.replace("raw.githubusercontent.com", "github.com")
-    r_obj = re.search(r"(?<=https://github\.com/)[\w-]+/[\w-]+", input_path)
+    r_obj = re.search(r"^https?://(?:[\w]+\.)?github(?:.+)?\.com(?:/.+)?/([\w-]+/[\w-]+)(?:.+)?$", input_path)
     if r_obj is not None:
-        github_repo = r_obj.group(0)
+        github_repo = r_obj.group(1)
     if github_repo != "":
         robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
         facts["github_repo"] = github_repo
@@ -452,6 +451,7 @@ def inspect_github_url(input_path, args, facts):
             raw_json_release = urlopen(releases_api_url).read()
             parsed_release = json.loads(raw_json_release)
         except Exception as err:
+            # TODO(Elliot): Differentiate 404 not found vs 403 forbidden.
             robo_print("Error occurred while talking to GitHub. If you've "
                        "been creating a lot of recipes quickly, you may have "
                        "hit the rate limit. Give it a few minutes, then try "
