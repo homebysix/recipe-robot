@@ -927,7 +927,9 @@ def inspect_download_url(input_path, args, facts):
                        "encountered the same problem.", LogLevel.WARNING)
             facts["user-agent"] = "Mozilla/5.0"
         except Exception as err:
-            robo_print("Error encountered during file download: " + err, LogLevel.WARNING)
+            robo_print("Error encountered during file download. "
+                       "(%s)" % err, LogLevel.WARNING)
+            return facts  # Might still be able to recover from this.
     with open("%s/%s" % (cache_dir, filename), "wb") as download_file:
         download_file.write(raw_download.read())
         robo_print("Downloaded to %s/%s" % (cache_dir, filename), LogLevel.VERBOSE, 4)
