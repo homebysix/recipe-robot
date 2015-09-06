@@ -178,6 +178,8 @@ Each time Recipe Robot produces a batch of recipes for you, I suggest you check 
 
 - It might seem obvious, but inputting a version-specific direct download URL will not serve the purpose of downloading the latest version using AutoPkg. If you see a version in the URL, try inputting the path to the app itself instead. Hopefully there's a Sparkle feed that Recipe Robot can use.
 
+- Due to reasons I'm still learning about, Recipe Robot (and AutoPkg) don't work with certain kinds of SSL. If you see `SSLV3_ALERT_HANDSHAKE_FAILURE` in the traceback message, see the first troubleshooting point above. If none of those steps work, you might be out of luck.
+
 
 ## Feedback
 
