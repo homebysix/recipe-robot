@@ -1008,15 +1008,18 @@ def inspect_download_url(input_path, args, facts):
             if not facts["download_filename"].endswith(supported_image_formats):
                 facts["download_filename"] = facts["download_filename"] + ".dmg"
 
+            # Clean the output for cases where the dmg has a license agreement.
+            out_clean = out[out.find("<?xml"):]
+
             # Locate and inspect the app.
             with open("%s/dmg_attach.plist" % cache_dir, "wb") as dmg_plist:
-                dmg_plist.write(out)
+                dmg_plist.write(out_clean)
             try:
                 dmg_dict = FoundationPlist.readPlist("%s/dmg_attach.plist" % cache_dir)
             except Exception:
-                robo_print("Shoot, this dmg probably has a license agreement. "
-                           "I'm still learning what to do when that "
-                           "happens.", LogLevel.ERROR)
+                robo_print("Shoot, I had trouble parsing the output of "
+                           "hdiutil while mounting the downloaded dmg. Sorry "
+                           "about that.", LogLevel.ERROR)
             dmg_mount = dmg_dict["system-entities"][-1]["mount-point"]
             for this_file in os.listdir(dmg_mount):
                 if this_file.endswith(".app"):
