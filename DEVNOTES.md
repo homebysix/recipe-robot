@@ -193,7 +193,11 @@ Direct download doesn't work because of "SSLV3_ALERT_HANDSHAKE_FAILURE":
 
 The app we want is not at the root level of the downloaded file:
 `recipe-robot -v https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip`
+`recipe-robot -v http://www.softobe.com/download/kinemac.dmg`
+`recipe-robot -v http://www.softobe.com/download/flsy.dmg`
 
+Download URL has `&` which doesn't parse in Terminal:
+`recipe-robot -v http://www.dejal.com/download/?prod=simon&vers=4.1&lang=en&op=getnow&ref=footer`
 
 ## App interface
 
