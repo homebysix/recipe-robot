@@ -908,6 +908,15 @@ def inspect_download_url(input_path, args, facts):
         if "sourceforge_id" not in facts:
             facts = inspect_sourceforge_url(input_path, args, facts)
 
+    # Warn if it looks like we're using a version-specific download path, but
+    # only if the path was not obtained from a feed of some sort.
+    version_match = re.search(r"[\d]+\.[\w]+$", input_path)
+    if version_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
+                                      "github_url" not in facts["inspections"] and
+                                      "sourceforge_url" not in facts["inspections"] and
+                                      "bitbucket_url" not in facts["inspections"]):
+        robo_print("Careful, this might be a version-specific URL.", LogLevel.WARNING)
+
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
     # files? https://gist.github.com/gourneau/1430932
@@ -935,15 +944,6 @@ def inspect_download_url(input_path, args, facts):
             robo_print("Error encountered during file download. "
                        "(%s)" % err, LogLevel.WARNING)
             return facts  # Might still be able to recover from this.
-
-    # Warn if it looks like we're using a version-specific download path, but
-    # only if the path was not obtained from a feed of some sort.
-    version_match = re.search(r"[\d]+\.[\w]+$", input_path)
-    if version_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
-                                      "github_url" not in facts["inspections"] and
-                                      "sourceforge_url" not in facts["inspections"] and
-                                      "bitbucket_url" not in facts["inspections"]):
-        robo_print("Careful, this might be a version-specific URL.", LogLevel.WARNING)
 
     # Get the actual filename from the server, if it exists. If not, determine
     # the filename from the URL itself.
