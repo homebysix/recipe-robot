@@ -916,6 +916,7 @@ def inspect_download_url(input_path, args, facts):
         robo_print("No filename provided", LogLevel.VERBOSE, 4)
         filename = "download"
     facts["download_filename"] = filename
+    facts["is_from_app_store"] = False
 
     # If download URL is hosted on GitHub or SourceForge, we can gather more
     # information.
