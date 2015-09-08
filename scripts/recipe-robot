@@ -897,25 +897,6 @@ def inspect_download_url(input_path, args, facts):
     # Save the download URL to the dictionary of facts.
     robo_print("Download URL is: %s" % input_path, LogLevel.VERBOSE, 4)
     facts["download_url"] = input_path
-
-    # Get the filename from the URL.
-    # Example: https://www.dropbox.com/s/b0hk0i2n386824c/IconGrabber.dmg?dl=1
-    # Should produce: IconGrabber.dmg
-    robo_print("Getting download filename...", LogLevel.VERBOSE)
-    parsed_url = urlparse(input_path)
-    filename = parsed_url.path.split("/")[-1]
-    if filename != "":
-        robo_print("Download filename is: %s" % filename, LogLevel.VERBOSE, 4)
-        r_obj = re.search(r"[\d]+\.[\w]+$", input_path)
-        if r_obj is not None and ("sparkle_feed" not in facts and
-                                  "github_repo" not in facts and
-                                  "sourceforge_id" not in facts and
-                                  "bitbucket_repo" not in facts):
-            robo_print("Careful, this might be a version-specific URL.", LogLevel.WARNING)
-    else:
-        robo_print("No filename provided", LogLevel.VERBOSE, 4)
-        filename = "download"
-    facts["download_filename"] = filename
     facts["is_from_app_store"] = False
 
     # If download URL is hosted on GitHub or SourceForge, we can gather more
@@ -926,26 +907,6 @@ def inspect_download_url(input_path, args, facts):
     if "sourceforge.net" in input_path:
         if "sourceforge_id" not in facts:
             facts = inspect_sourceforge_url(input_path, args, facts)
-            filename = input_path.rstrip("/download").split("/")[-1]
-
-    # Try to determine the type of file downloaded. (Overwrites any previous
-    # download_type, because the download URL is the most reliable source.)
-    download_format = ""
-    robo_print("Determining download format...", LogLevel.VERBOSE)
-    for this_format in all_supported_formats:
-        if filename.lower().endswith(this_format):
-            download_format = this_format
-            break  # should stop after the first format match
-        if this_format in parsed_url.query:
-            download_format = this_format
-            break  # should stop after the first format match
-    if download_format != "":
-        robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
-        facts["download_format"] = download_format
-    else:
-        robo_print("Unknown download format", LogLevel.VERBOSE, 4)
-
-
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
@@ -956,7 +917,7 @@ def inspect_download_url(input_path, args, facts):
         shutil.rmtree(cache_dir)
     create_dest_dirs(cache_dir)
 
-    # Write the file to our cache folder.
+    # Actually download the file.
     try:
         raw_download = urlopen(input_path)
     except Exception as err:
@@ -974,11 +935,47 @@ def inspect_download_url(input_path, args, facts):
             robo_print("Error encountered during file download. "
                        "(%s)" % err, LogLevel.WARNING)
             return facts  # Might still be able to recover from this.
+
+    # Warn if it looks like we're using a version-specific download path, but
+    # only if the path was not obtained from a feed of some sort.
+    version_match = re.search(r"[\d]+\.[\w]+$", input_path)
+    if version_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
+                                      "github_url" not in facts["inspections"] and
+                                      "sourceforge_url" not in facts["inspections"] and
+                                      "bitbucket_url" not in facts["inspections"]):
+        robo_print("Careful, this might be a version-specific URL.", LogLevel.WARNING)
+
+    # Get the actual filename from the server, if it exists. If not, determine
+    # the filename from the URL itself.
+    if "Content-Disposition" in raw_download.info():
+        content_disp = raw_download.info()["Content-Disposition"]
+        filename = re.search(r"filename=\"(.+)\"\;", content_disp).group(1)
+    else:
+        # Example: https://www.dropbox.com/s/b0hk0i2n386824c/IconGrabber.dmg?dl=1
+        # Should produce: IconGrabber.dmg
+        parsed_url = urlparse(input_path)
+        filename = parsed_url.path.split("/")[-1]
+    if filename == "":
+        filename = "download"
+    facts["download_filename"] = filename
+
+    # Write the downloaded file to the cache folder.
     with open("%s/%s" % (cache_dir, filename), "wb") as download_file:
         download_file.write(raw_download.read())
         robo_print("Downloaded to %s/%s" % (cache_dir, filename), LogLevel.VERBOSE, 4)
 
-    robo_print("Verifying downloaded file format...", LogLevel.VERBOSE)
+    # Try to determine the type of file downloaded. (Overwrites any previous
+    # download_type, because the download URL is the most reliable source.)
+    download_format = ""
+    robo_print("Determining download format...", LogLevel.VERBOSE)
+    for this_format in all_supported_formats:
+        if filename.lower().endswith(this_format):
+            download_format = this_format
+            break  # should stop after the first format match
+        if this_format in parsed_url.query:
+            download_format = this_format
+            break  # should stop after the first format match
+
     # Only proceed if we haven't inspected the app already.
     if "app" in facts["inspections"]:
         return facts
@@ -996,7 +993,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was a disk image. Make a note of that.
             if download_format == "":
                 download_format = "dmg"  # most common disk image format
-                facts["download_format"] = download_format
+            facts["download_format"] = download_format
             robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
 
             # If the download filename was ambiguous, change it.
@@ -1031,7 +1028,7 @@ def inspect_download_url(input_path, args, facts):
                     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                     facts = inspect_app(cached_app_path, args, facts)
                     break
-                if this_file.endswith(".pkg"):
+                if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
                     # TODO(Elliot): Process the pkg inside the dmg.
                     robo_print("Sorry, I don't yet know how to handle a pkg "
                                "inside a dmg. Hopefully I'll learn "
@@ -1047,7 +1044,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "zip"  # most common archive format
-                facts["download_format"] = download_format
+            facts["download_format"] = download_format
             robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
 
             # If the download filename was ambiguous, change it.
@@ -1062,7 +1059,7 @@ def inspect_download_url(input_path, args, facts):
                     cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
                     facts = inspect_app(cached_app_path, args, facts)
                     break
-                if this_file.endswith(".pkg"):
+                if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
                     # TODO(Elliot): Process the pkg inside the zip.
                     robo_print("Sorry, I don't yet know how to handle a pkg "
                                "inside a zip. Hopefully I'll learn "
@@ -1078,7 +1075,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "tgz"
-                facts["download_format"] = download_format
+            facts["download_format"] = download_format
             robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
 
             # If the download filename was ambiguous, change it.
@@ -1092,7 +1089,7 @@ def inspect_download_url(input_path, args, facts):
                     cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
                     facts = inspect_app(cached_app_path, args, facts)
                     break
-                if this_file.endswith(".pkg"):
+                if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
                     # TODO(Elliot): Process the pkg inside the tgz.
                     robo_print("Sorry, I don't yet know how to handle a pkg "
                                "inside a tgz. Hopefully I'll learn "
