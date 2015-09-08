@@ -199,6 +199,10 @@ The app we want is not at the root level of the downloaded file:
 Download URL has `&` which doesn't parse in Terminal:
 `recipe-robot -v http://www.dejal.com/download/?prod=simon&vers=4.1&lang=en&op=getnow&ref=footer`
 
+The download produces a `CERTIFICATE_VERIFY_FAILED` error:
+`recipe-robot -v https://updates.aviatorbrowser.com/Aviator.dmg`
+
+
 ## App interface
 
 Here's what we're thinking about for the app interface, for now:
