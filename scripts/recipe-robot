@@ -946,15 +946,6 @@ def inspect_download_url(input_path, args, facts):
         robo_print("Unknown download format", LogLevel.VERBOSE, 4)
 
 
-    # Only proceed if we haven't inspected the app already.
-    # TODO(Elliot): One downside of stopping here is the following scenario:
-    #    1. App with Sparkle is given as input.
-    #    2. Sparkle feed is inspected.
-    #    3. Download URL doesn't end with a known file format.
-    #    4. Download URL is not inspected, and therefore we don't know the
-    #       download format.
-    if "app" in facts["inspections"]:
-        return facts
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
@@ -988,6 +979,9 @@ def inspect_download_url(input_path, args, facts):
         robo_print("Downloaded to %s/%s" % (cache_dir, filename), LogLevel.VERBOSE, 4)
 
     robo_print("Verifying downloaded file format...", LogLevel.VERBOSE)
+    # Only proceed if we haven't inspected the app already.
+    if "app" in facts["inspections"]:
+        return facts
 
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
