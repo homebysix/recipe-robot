@@ -917,6 +917,11 @@ def inspect_download_url(input_path, args, facts):
                                       "bitbucket_url" not in facts["inspections"]):
         robo_print("Careful, this might be a version-specific URL.", LogLevel.WARNING)
 
+    # Determine filename from input URL (will be overridden later if a better
+    # candidate is found.)
+    parsed_url = urlparse(input_path)
+    filename = parsed_url.path.split("/")[-1]
+
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
     # files? https://gist.github.com/gourneau/1430932
@@ -945,16 +950,15 @@ def inspect_download_url(input_path, args, facts):
                        "(%s)" % err, LogLevel.WARNING)
             return facts  # Might still be able to recover from this.
 
-    # Get the actual filename from the server, if it exists. If not, determine
-    # the filename from the URL itself.
+    # Get the actual filename from the server, if it exists.
     if "Content-Disposition" in raw_download.info():
         content_disp = raw_download.info()["Content-Disposition"]
-        filename = re.search(r"filename=\"(.+)\"\;", content_disp).group(1)
-    else:
-        # Example: https://www.dropbox.com/s/b0hk0i2n386824c/IconGrabber.dmg?dl=1
-        # Should produce: IconGrabber.dmg
-        parsed_url = urlparse(input_path)
-        filename = parsed_url.path.split("/")[-1]
+        r_obj = re.search(r"filename=\"(.+)\"\;", content_disp)
+        if r_obj is not None:
+            filename = r_obj.group(1)
+
+    # If filename was not detected from either the URL or the headers, use a
+    # safe default name.
     if filename == "":
         filename = "download"
     facts["download_filename"] = filename
@@ -994,8 +998,8 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was a disk image. Make a note of that.
             if download_format == "":
                 download_format = "dmg"  # most common disk image format
+                robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
-            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
 
             # If the download filename was ambiguous, change it.
             if not facts["download_filename"].endswith(supported_image_formats):
@@ -1037,6 +1041,7 @@ def inspect_download_url(input_path, args, facts):
 
     # Open the zip archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
+
         # Unzip the zip and look for an app.
         cmd = "/usr/bin/unzip \"%s/%s\" -d \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
@@ -1045,8 +1050,8 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "zip"  # most common archive format
+                robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
-            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
 
             # If the download filename was ambiguous, change it.
             if not facts["download_filename"].endswith(supported_archive_formats):
@@ -1068,6 +1073,7 @@ def inspect_download_url(input_path, args, facts):
 
     # Open the tar archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
+
         # Unzip the tgz and look for an app.
         cmd = "/usr/bin/tar -zxvf \"%s/%s\" -C \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
@@ -1076,8 +1082,8 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "tgz"
+                robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
-            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
 
             # If the download filename was ambiguous, change it.
             if not facts["download_filename"].endswith(supported_archive_formats):
