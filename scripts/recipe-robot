@@ -976,8 +976,9 @@ def inspect_download_url(input_path, args, facts):
             download_format = this_format
             break  # should stop after the first format match
 
-    # Only proceed if we haven't inspected the app already.
-    if "app" in facts["inspections"]:
+    # If we've already seen the app and the download format, there's no need
+    # to unpack the downloaded file.
+    if "download_format" in facts and "app" in facts["inspections"]:
         return facts
 
     # Open the disk image (or test to see whether the download is one).
