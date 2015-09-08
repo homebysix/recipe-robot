@@ -500,6 +500,7 @@ def inspect_github_url(input_path, args, facts):
             app_name = ""
             robo_print("Getting app name...", LogLevel.VERBOSE)
             if "name" in parsed_repo:
+                if parsed_repo["name"] is not None:
                     app_name = parsed_repo["name"]
             if app_name != "":
                 robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
@@ -510,6 +511,7 @@ def inspect_github_url(input_path, args, facts):
             description = ""
             robo_print("Getting GitHub description...", LogLevel.VERBOSE)
             if "description" in parsed_repo:
+                if parsed_repo["description"] is not None:
                     description = parsed_repo["description"]
             if description != "":
                 robo_print("GitHub description is: %s" % description,
