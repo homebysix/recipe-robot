@@ -1034,10 +1034,7 @@ def inspect_download_url(input_path, args, facts):
                     facts = inspect_app(cached_app_path, args, facts)
                     break
                 if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    # TODO(Elliot): Process the pkg inside the dmg.
-                    robo_print("Sorry, I don't yet know how to handle a pkg "
-                               "inside a dmg. Hopefully I'll learn "
-                               "soon.", LogLevel.ERROR)
+                    inspect_pkg(this_file, args, facts)
 
     # Open the zip archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
@@ -1066,10 +1063,7 @@ def inspect_download_url(input_path, args, facts):
                     facts = inspect_app(cached_app_path, args, facts)
                     break
                 if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    # TODO(Elliot): Process the pkg inside the zip.
-                    robo_print("Sorry, I don't yet know how to handle a pkg "
-                               "inside a zip. Hopefully I'll learn "
-                               "soon.", LogLevel.ERROR)
+                    inspect_pkg(this_file, args, facts)
 
     # Open the tar archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
@@ -1097,23 +1091,55 @@ def inspect_download_url(input_path, args, facts):
                     facts = inspect_app(cached_app_path, args, facts)
                     break
                 if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    # TODO(Elliot): Process the pkg inside the tgz.
-                    robo_print("Sorry, I don't yet know how to handle a pkg "
-                               "inside a tgz. Hopefully I'll learn "
-                               "soon.", LogLevel.ERROR)
+                    inspect_pkg(this_file, args, facts)
 
     # Inspect the installer (or test to see whether the download is one).
     if download_format in supported_install_formats:
-
-        # TODO(Elliot): Use pkgutil to extract contents and look for an app.
-
         robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
 
+        # Inspect the package.
+        inspect_pkg("%s/%s" % (cache_dir, filename), args, facts)
 
     if download_format == "":
         robo_print("I've investigated pretty thoroughly, and I'm still not "
                    "sure what the download format is. This could cause "
                    "problems later.", LogLevel.WARNING)
+
+    return facts
+
+
+def inspect_pkg(input_path, args, facts):
+    """Process a package, gathering required information to create a recipe.
+    """
+
+    # Only proceed if we haven't inspected this app yet.
+    if "pkg" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("pkg")
+
+    # TODO(Elliot): Expand flat package, process app?
+
+    # TODO(Elliot): What info do we need to gather to produce recipes here?
+
+    # Get developer name from pkg signature.
+    if "developer" not in facts:
+        developer = ""
+        robo_print("Getting developer from pkg signature...", LogLevel.VERBOSE)
+        cmd = "/usr/sbin/pkgutil --check-signature \"%s\"" % input_path
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            marker = "    1. Developer ID Installer: "
+            for line in out.split("\n"):
+                if line.startswith(marker):
+                    if " (" in line:
+                        line = line.split(" (")[0]
+                    developer = line[len(marker):]
+        if developer != "":
+            robo_print("Developer is: %s" % developer, LogLevel.VERBOSE, 4)
+            facts["developer"] = developer
+        else:
+            robo_print("Developer is unknown or pkg is unsigned.", LogLevel.VERBOSE, 4)
 
     return facts
 
