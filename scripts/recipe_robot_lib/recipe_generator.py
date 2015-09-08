@@ -178,10 +178,12 @@ def generate_recipes(facts, prefs, recipes):
         # TODO(Elliot): Create subfolders automatically.
         dest_path = "%s/%s" % (dest_dir, filename)
         FoundationPlist.writePlist(recipe["keys"], dest_path)
-        prefs["RecipeCreateCount"] += 1
-
         robo_print("%s/%s" %
                     (prefs["RecipeCreateLocation"], filename), LogLevel.LOG, 4)
+
+        # Keep track of the total number of recipes we've created.
+        # TODO(Elliot): Don't count do-over recipes.
+        prefs["RecipeCreateCount"] += 1
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, prefs_file)
