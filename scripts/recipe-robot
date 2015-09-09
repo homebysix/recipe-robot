@@ -1034,7 +1034,8 @@ def inspect_download_url(input_path, args, facts):
                     facts = inspect_app(cached_app_path, args, facts)
                     break
                 if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    inspect_pkg(this_file, args, facts)
+                    inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
+                    break
 
     # Open the zip archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
@@ -1059,11 +1060,11 @@ def inspect_download_url(input_path, args, facts):
                 if this_file.endswith(".app"):
                     # TODO(Elliot): What if .app isn't on root of zip?
                     # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
-                    cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
-                    facts = inspect_app(cached_app_path, args, facts)
+                    facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
                     break
                 if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    inspect_pkg(this_file, args, facts)
+                    inspect_pkg(os.path.join(cache_dir, "unpacked", this_file), args, facts)
+                    break
 
     # Open the tar archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
@@ -1087,11 +1088,11 @@ def inspect_download_url(input_path, args, facts):
             for this_file in os.listdir("%s/unpacked" % cache_dir):
                 if this_file.endswith(".app"):
                     # TODO(Elliot): What if .app isn't on root of tgz?
-                    cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
-                    facts = inspect_app(cached_app_path, args, facts)
+                    facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
                     break
                 if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    inspect_pkg(this_file, args, facts)
+                    inspect_pkg(os.path.join(cache_dir, "unpacked", this_file), args, facts)
+                    break
 
     # Inspect the installer (or test to see whether the download is one).
     if download_format in supported_install_formats:
@@ -1100,7 +1101,7 @@ def inspect_download_url(input_path, args, facts):
         facts["download_format"] = download_format
 
         # Inspect the package.
-        inspect_pkg("%s/%s" % (cache_dir, filename), args, facts)
+        inspect_pkg(os.path.join(cache_dir, filename), args, facts)
 
     if download_format == "":
         robo_print("I've investigated pretty thoroughly, and I'm still not "
