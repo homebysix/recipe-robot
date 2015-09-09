@@ -1121,10 +1121,6 @@ def inspect_pkg(input_path, args, facts):
     else:
         facts["inspections"].append("pkg")
 
-    # TODO(Elliot): Expand flat package, process app?
-
-    # TODO(Elliot): What info do we need to gather to produce recipes here?
-
     # Get developer name from pkg signature.
     if "developer" not in facts:
         developer = ""
@@ -1143,6 +1139,43 @@ def inspect_pkg(input_path, args, facts):
             facts["developer"] = developer
         else:
             robo_print("Developer is unknown or pkg is unsigned.", LogLevel.VERBOSE, 4)
+
+    # Expand the flat package and look for more facts.
+    expand_path = os.path.join(cache_dir, "expanded")
+    cmd = "/usr/sbin/pkgutil --expand \"%s\" \"%s\"" % (input_path, expand_path)
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        # Locate and inspect the app.
+        for this_file in os.listdir("%s/expanded" % cache_dir):
+            if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
+                if os.path.exists(os.path.join(cache_dir, "expanded", this_file, "PackageInfo")):
+                    # Do some things.
+                    pass
+
+                if os.path.exists(os.path.join(cache_dir, "expanded", this_file, "Payload")):
+
+                    # We found a payload. Let's peek inside and see if there's
+                    # an app.
+                    cmd = "/usr/bin/gunzip -c \"%s/expanded/%s/Payload\" | pax" % (cache_dir, this_file)
+                    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+                    if exitcode == 0:
+                        out = out.split("\n")
+                        for line in out:
+                            if line.endswith(".app"):
+                                extracted_app = os.path.join(cache_dir, "extracted_apps", os.path.split(line)[1])
+                                cmd = "/usr/bin/gunzip -c \"%s/expanded/%s/Payload\" | pax -r -s \",%s,%s,\"" % (cache_dir, this_file, line, extracted_app)
+                                exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+                                if exitcode == 0:
+                                    inspect_app(extracted_app, args, facts)
+
+                                # TODO(Elliot): Should we stop at the first app?
+                                # Find multiple, but use the one with the shortest path?
+                                # Find multiple, but use the largest file size?
+                                # Inspect all of them, use only the one with a Sparkle feed?
+                                break  # stop iterating through apps in the payload
+                break  # stop iterating through files in the expanded package
+
+    # TODO(Elliot): What info do we need to gather to produce recipes here?
 
     return facts
 
