@@ -22,13 +22,15 @@ recipe-robot
 
 Easily and automatically create AutoPkg recipes.
 
-usage: recipe-robot.py [-h] [-v] [-o OUTPUT_DIR] [-t RECIPE_TYPES]
-                       [--include-existing] [--config]
-                       input_path
+usage: recipe-robot [-h] [-v] [-o OUTPUT_DIR] [-t RECIPE_TYPES]
+                    [--include-existing] [--keep-cache] [--config]
+                    input_path
 
 positional arguments:
-  input_path            Path to a recipe or app from which to derive AutoPkg
-                        recipes.
+  input_path            Path from which to derive AutoPkg recipes. This can be
+                        one of the following: existing app, existing AutoPkg
+                        recipe, Sparkle feed, GitHub or SourceForge URL, or
+                        direct download URL.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -40,6 +42,10 @@ optional arguments:
                         The types of recipe you'd like to generate.
   --include-existing    Offer to generate recipes even if one already exists
                         on GitHub.
+  --keep-cache          Keep the Recipe Robot cache, instead of performing the
+                        usual cleanup. This allows you to manually inspect the
+                        files Recipe Robot downloaded. The cache will be
+                        cleared again upon next run.
   --config              Adjust Recipe Robot preferences prior to generating
                         recipes.
 """
@@ -117,6 +123,13 @@ def build_argument_parser():
         "--include-existing",
         action="store_true",
         help="Offer to generate recipes even if one already exists on GitHub.")
+    parser.add_argument(
+        "--keep-cache",
+        action="store_true",
+        help="Keep the Recipe Robot cache, instead of performing the usual "
+             "cleanup. This allows you to manually inspect the files Recipe "
+             "Robot downloaded. The cache will be cleared again upon next "
+             "run.")
     parser.add_argument(
         "--config",
         action="store_true",
@@ -1642,7 +1655,7 @@ def main():
         congratulate(prefs)
 
         # Clean up cache folder.
-        if os.path.exists(cache_dir):
+        if os.path.exists(cache_dir) and args.keep_cache is False:
             shutil.rmtree(cache_dir)
 
     # If killed, make sure to reset the terminal color with our dying breath.
