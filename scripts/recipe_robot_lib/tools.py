@@ -150,7 +150,7 @@ def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr.
 
     Args:
-        cmd: The single shell command to be executed. No piping allowed.
+        cmd: The shell command to be executed.
 
     Returns:
         exitcode: Zero upon success. Non-zero upon error.
@@ -158,11 +158,26 @@ def get_exitcode_stdout_stderr(cmd):
         err: String from standard error.
     """
 
-    args = shlex.split(cmd)
-    proc = Popen(args, stdout=PIPE, stderr=PIPE)
-    out, err = proc.communicate()
-    exitcode = proc.returncode
+    if "|" in cmd:
+        cmd_parts = cmd.split("|")
+    else:
+        cmd_parts = [cmd]
+
+    i = 0
+    p = {}
+    for cmd_part in cmd_parts:
+        cmd_part = cmd_part.strip()
+        if i == 0:
+            p[i]=Popen(shlex.split(cmd_part), stdin=None, stdout=PIPE, stderr=PIPE)
+        else:
+            p[i]=Popen(shlex.split(cmd_part), stdin=p[i-1].stdout, stdout=PIPE, stderr=PIPE)
+        i = i + 1
+
+    out, err = p[i-1].communicate()
+    exitcode = p[i-1].returncode
+
     return exitcode, out, err
+
 
 def _print_stderr(p):
     print >> sys.stderr, p
