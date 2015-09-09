@@ -998,7 +998,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was a disk image. Make a note of that.
             if download_format == "":
                 download_format = "dmg"  # most common disk image format
-                robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
+            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
 
             # If the download filename was ambiguous, change it.
@@ -1047,7 +1047,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "zip"  # most common archive format
-                robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
+            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
 
             # If the download filename was ambiguous, change it.
@@ -1076,7 +1076,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "tgz"
-                robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
+            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
 
             # If the download filename was ambiguous, change it.
@@ -1095,7 +1095,9 @@ def inspect_download_url(input_path, args, facts):
 
     # Inspect the installer (or test to see whether the download is one).
     if download_format in supported_install_formats:
+
         robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
+        facts["download_format"] = download_format
 
         # Inspect the package.
         inspect_pkg("%s/%s" % (cache_dir, filename), args, facts)
