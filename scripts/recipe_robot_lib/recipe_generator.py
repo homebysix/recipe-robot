@@ -462,6 +462,16 @@ def generate_munki_recipe(facts, prefs, recipe):
                     "munki recipes from pkg downloads.", LogLevel.WARNING)
         return
 
+    if facts["version_key"] != "CFBundleShortVersionString":
+        keys["Process"].append({
+            "Processor": "MunkiPkginfoMerger",
+            "Arguments": {
+                "additional_pkginfo": {
+                    "version": "%version%"
+                }
+            }
+        })
+
     keys["Process"].append({
         "Processor": "MunkiImporter",
         "Arguments": {
