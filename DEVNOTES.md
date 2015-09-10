@@ -202,6 +202,9 @@ Download URL has `&` which doesn't parse in Terminal:
 The download produces a `CERTIFICATE_VERIFY_FAILED` error:
 `recipe-robot -v https://updates.aviatorbrowser.com/Aviator.dmg`
 
+Direct download URL (dmg) is a different format than the Sparkle download URL (zip):
+`recipe-robot -v https://tunnelblick.net/release/Tunnelblick_3.5.3_build_4270.4371.dmg --include-existing`
+
 
 ## App interface
 
