@@ -400,7 +400,7 @@ def generate_munki_recipe(facts, prefs, recipe):
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into "
-                            "Munki" % facts["app_name"])
+                            "Munki." % facts["app_name"])
     # TODO(Elliot): What if it's somebody else's download recipe?
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
