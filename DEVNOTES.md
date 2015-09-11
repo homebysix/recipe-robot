@@ -205,6 +205,9 @@ The download produces a `CERTIFICATE_VERIFY_FAILED` error:
 Direct download URL (dmg) is a different format than the Sparkle download URL (zip):
 `recipe-robot -v https://tunnelblick.net/release/Tunnelblick_3.5.3_build_4270.4371.dmg --include-existing`
 
+An app installer at the root level of the DMG (Can we have some kind of warning about this?):
+`recipe-robot -v http://cdn01.downloads.smartbear.com/soapui/5.2.0/SoapUI-5.2.0.dmg`
+
 
 ## App interface
 
