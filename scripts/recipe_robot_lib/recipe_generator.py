@@ -737,7 +737,7 @@ def generate_jss_recipe(facts, prefs, recipe):
     # Make the download recipe the parent of the Munki recipe.
     # TODO(Elliot): What if it's somebody else's pkg recipe?
     keys["ParentRecipe"] = "%s.pkg.%s" % (
-        prefs["RecipeIdentifierPrefix"], facts["app_name"])
+        prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     # TODO(Elliot): How can we set the category automatically?
     # Good luck! I suppose we could do some kind of fuzzy decision tree
