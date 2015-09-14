@@ -386,8 +386,6 @@ def process_input_path(input_path, args, facts):
         else:
             robo_print("I haven't been trained on how to handle this "
                        "input path:\n    %s" % input_path, LogLevel.ERROR)
-            # TODO(Elliot): Handle zipped pkgs. Example:
-            # http://www.busymac.com/download/BusyCal.zip
     else:
         robo_print("Input path does not exist. Please try again with a "
                    "valid input path.", LogLevel.ERROR)
@@ -427,7 +425,7 @@ def get_app_description(app_name):
                 break
     else:
         robo_print("Error occurred while getting description from "
-                   "MacUpdate: %s" % err, LogLevel.WARNING)
+                   "MacUpdate: %s" % err.strip(), LogLevel.WARNING)
 
     return description
 
@@ -476,7 +474,7 @@ def inspect_github_url(input_path, args, facts):
                        "the GitHub API. If you've been creating a lot of "
                        "recipes quickly, you may have hit the rate limit. "
                        "Give it a few minutes, then try "
-                       "again. (%s)" % err, LogLevel.WARNING)
+                       "again. (%s)" % err.strip(), LogLevel.WARNING)
             return facts
 
         # Download the release information from the GitHub API.
@@ -488,7 +486,7 @@ def inspect_github_url(input_path, args, facts):
                        "the GitHub API. If you've been creating a lot of "
                        "recipes quickly, you may have hit the rate limit. "
                        "Give it a few minutes, then try "
-                       "again. (%s)" % err, LogLevel.WARNING)
+                       "again. (%s)" % err.strip(), LogLevel.WARNING)
             return facts
 
         # Download the owner/developer information from the GitHub API.
@@ -500,7 +498,7 @@ def inspect_github_url(input_path, args, facts):
                        "the GitHub API. If you've been creating a lot of "
                        "recipes quickly, you may have hit the rate limit. "
                        "Give it a few minutes, then try "
-                       "again. (%s)" % err, LogLevel.WARNING)
+                       "again. (%s)" % err.strip(), LogLevel.WARNING)
             return facts
 
         # Parse the downloaded JSON.
@@ -696,7 +694,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 raw_xml = urlopen(files_rss)
             except Exception as err:
                 robo_print("Error occured while inspecting SourceForge RSS "
-                           "feed: %s" % err, LogLevel.WARNING)
+                           "feed: %s" % err.strip(), LogLevel.WARNING)
             doc = parse(raw_xml)
 
             # Get the latest download URL.
@@ -759,7 +757,7 @@ def inspect_bitbucket_url(input_path, args, facts):
             raw_json_release = urlopen(releases_api_url).read()
             parsed_release = json.loads(raw_json_release)
         except Exception as err:
-            robo_print("Error occurred while talking to BitBucket. (%s)" % err, LogLevel.WARNING)
+            robo_print("Error occurred while talking to BitBucket. (%s)" % err.strip(), LogLevel.WARNING)
             return facts
 
         # Get app name.
@@ -863,7 +861,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
                        "encountered the same problem.", LogLevel.WARNING)
             facts["user-agent"] = "Mozilla/5.0"
         except Exception as err:
-            robo_print("Error occured while downloading Sparkle feed (%s)" % err, LogLevel.WARNING)
+            robo_print("Error occured while downloading Sparkle feed (%s)" % err.strip(), LogLevel.WARNING)
             # Remove Sparkle feed if it's not usable.
             facts.pop("sparkle_feed", None)
             return facts
@@ -871,7 +869,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     try:
         doc = parse(raw_xml)
     except ParseError as err:
-        robo_print("Error occured while parsing Sparkle feed (%s)" % err, LogLevel.WARNING)
+        robo_print("Error occured while parsing Sparkle feed (%s)" % err.strip(), LogLevel.WARNING)
         return facts
 
     # Get the latest download URL.
@@ -961,14 +959,14 @@ def inspect_download_url(input_path, args, facts):
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
                 robo_print("Error encountered during file download. "
-                           "(%s)" % err, LogLevel.WARNING)
+                           "(%s)" % err.strip(), LogLevel.WARNING)
                 return facts
         if err.code == 404:
-            robo_print("Download URL not found. (%s)" % err, LogLevel.WARNING)
+            robo_print("Download URL not found. (%s)" % err.strip(), LogLevel.WARNING)
             return facts
         else:
             robo_print("Error encountered during file download. "
-                       "(%s)" % err, LogLevel.WARNING)
+                       "(%s)" % err.strip(), LogLevel.WARNING)
             return facts
     except URLError as err:
         if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
@@ -981,14 +979,14 @@ def inspect_download_url(input_path, args, facts):
             # else:
             #     print "It didn't work."
             #     robo_print("Error encountered during file download. "
-            #                "(%s)" % err, LogLevel.WARNING)
+            #                "(%s)" % err.strip(), LogLevel.WARNING)
             #     return facts
             robo_print("I got an SSLv3 handshake error, and I don't yet know "
-                       "what to do with that. (%s)" % err, LogLevel.WARNING)
+                       "what to do with that. (%s)" % err.strip(), LogLevel.WARNING)
             return facts
         else:
             robo_print("Error encountered during file download. "
-                       "(%s)" % err.reason, LogLevel.WARNING)
+                       "(%s)" % err.reason.strip(), LogLevel.WARNING)
             return facts
 
     # Get the actual filename from the server, if it exists.
@@ -1179,7 +1177,7 @@ def inspect_pkg(input_path, args, facts):
             robo_print("Developer is: %s" % developer, LogLevel.VERBOSE, 4)
             facts["developer"] = developer
         else:
-            robo_print("Developer is unknown or pkg is unsigned.", LogLevel.VERBOSE, 4)
+            robo_print("Developer is unknown or pkg is unsigned", LogLevel.VERBOSE, 4)
 
     # Expand the flat package and look for more facts.
     expand_path = os.path.join(cache_dir, "expanded")
