@@ -959,14 +959,14 @@ def inspect_download_url(input_path, args, facts):
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
                 robo_print("Error encountered during file download. "
-                           "(%s)" % err.strip(), LogLevel.WARNING)
+                           "(%s)" % err, LogLevel.WARNING)
                 return facts
         if err.code == 404:
-            robo_print("Download URL not found. (%s)" % err.strip(), LogLevel.WARNING)
+            robo_print("Download URL not found. (%s)" % err, LogLevel.WARNING)
             return facts
         else:
             robo_print("Error encountered during file download. "
-                       "(%s)" % err.strip(), LogLevel.WARNING)
+                       "(%s)" % err, LogLevel.WARNING)
             return facts
     except URLError as err:
         if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
