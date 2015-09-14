@@ -740,6 +740,9 @@ def generate_jss_recipe(facts, prefs, recipe):
         prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
     # TODO(Elliot): How can we set the category automatically?
+    # Good luck! I suppose we could do some kind of fuzzy decision tree
+    # with the category as found on an App Store page or something...
+    # When in doubt, use Productivity!
     keys["Input"]["CATEGORY"] = ""
     robo_print("Remember to manually set the category "
                 "in the jss recipe.", LogLevel.REMINDER)
@@ -751,7 +754,7 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
     robo_print("Please make sure %s.png is in your AutoPkg search "
                 "path." % facts["app_name"], LogLevel.REMINDER)
-    keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts["description"]
+    keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
     if facts["version_key"] == "CFBundleVersion":
