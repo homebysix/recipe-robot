@@ -62,7 +62,7 @@ import random
 import re
 import shutil
 import sys
-from urllib2 import urlopen, build_opener
+from urllib2 import urlopen, build_opener, URLError, HTTPError
 from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
 
@@ -411,7 +411,7 @@ def get_app_description(app_name):
     # MacUpdate search results page.
     description_marker = "-shortdescrip\">"
 
-    cmd = "curl -s \"http://www.macupdate.com/find/mac/%s\"" % app_name
+    cmd = "curl --silent \"http://www.macupdate.com/find/mac/%s\"" % app_name
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
 
     # For each line in the resulting text, look for the description marker.
@@ -947,21 +947,49 @@ def inspect_download_url(input_path, args, facts):
     # Actually download the file.
     try:
         raw_download = urlopen(input_path)
-    except Exception as err:
-        # Try again, this time with a user-agent.
-        try:
-            opener = build_opener()
-            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-            raw_download = opener.open(input_path)
-            robo_print("I had to use a different user-agent in order to "
-                       "download this file. If you run the recipes and get a "
-                       "\"Can't open URL\" error, it means AutoPkg "
-                       "encountered the same problem.", LogLevel.WARNING)
-            facts["user-agent"] = "Mozilla/5.0"
-        except Exception as err:
+    except HTTPError as err:
+        if err.code == 403:
+            # Try again, this time with a user-agent.
+            try:
+                opener = build_opener()
+                opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+                raw_download = opener.open(input_path)
+                robo_print("I had to use a different user-agent in order to "
+                           "download this file. If you run the recipes and get a "
+                           "\"Can't open URL\" error, it means AutoPkg "
+                           "encountered the same problem.", LogLevel.WARNING)
+                facts["user-agent"] = "Mozilla/5.0"
+            except Exception as err:
+                robo_print("Error encountered during file download. "
+                           "(%s)" % err, LogLevel.WARNING)
+                return facts
+        if err.code == 404:
+            robo_print("Download URL not found. (%s)" % err, LogLevel.WARNING)
+            return facts
+        else:
             robo_print("Error encountered during file download. "
                        "(%s)" % err, LogLevel.WARNING)
-            return facts  # Might still be able to recover from this.
+            return facts
+    except URLError as err:
+        if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
+            # TODO(Elliot): Try again, this time with curl.
+            # cmd = "/usr/bin/curl --silent \"%s\" --output \"%s/%s\"" % (cache_dir, filename, input_path)
+            # exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+            # if exitcode == 0:
+            #     print "It worked!"
+            #     # Do things.
+            # else:
+            #     print "It didn't work."
+            #     robo_print("Error encountered during file download. "
+            #                "(%s)" % err, LogLevel.WARNING)
+            #     return facts
+            robo_print("I got an SSLv3 handshake error, and I don't yet know "
+                       "what to do with that. (%s)" % err, LogLevel.WARNING)
+            return facts
+        else:
+            robo_print("Error encountered during file download. "
+                       "(%s)" % err.reason, LogLevel.WARNING)
+            return facts
 
     # Get the actual filename from the server, if it exists.
     if "Content-Disposition" in raw_download.info():
