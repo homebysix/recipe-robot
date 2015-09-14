@@ -460,6 +460,8 @@ def generate_munki_recipe(facts, prefs, recipe):
         keys["Input"]["pkginfo"]["blocking_applications"] = "%s.app" % facts["app_name_key"]
         robo_print("Sorry, I don't yet know how to create "
                     "munki recipes from pkg downloads.", LogLevel.WARNING)
+        # TODO(Shea): Prevent recipe path from being written to disk/output by
+        # the parent function, if the recipe wasn't actually generated.
         return
 
     if facts["version_key"] != "CFBundleShortVersionString":
