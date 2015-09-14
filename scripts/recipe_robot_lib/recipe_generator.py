@@ -115,7 +115,7 @@ def generate_recipes(facts, prefs, recipes):
         keys = recipe["keys"]
 
         # Set the recipe filename (no spaces, except JSS recipes).
-        filename = "%s.%s.recipe" % (
+        recipe["filename"] = "%s.%s.recipe" % (
             facts["app_name"].replace(" ", ""), recipe["type"])
 
         # Set the recipe identifier.
@@ -173,10 +173,10 @@ def generate_recipes(facts, prefs, recipes):
         create_dest_dirs(dest_dir)
         # TODO(Elliot): Warning if a file already exists here.
         # TODO(Elliot): Create subfolders automatically.
-        dest_path = "%s/%s" % (dest_dir, filename)
+        dest_path = "%s/%s" % (dest_dir, recipe["filename"])
         FoundationPlist.writePlist(recipe["keys"], dest_path)
-        robo_print("%s/%s" %
-                    (prefs["RecipeCreateLocation"], filename), LogLevel.LOG, 4)
+        robo_print("%s/%s" % (prefs["RecipeCreateLocation"],
+                              recipe["filename"]), LogLevel.LOG, 4)
 
         # Keep track of the total number of recipes we've created.
         # TODO(Elliot): Don't count do-over recipes.
@@ -360,7 +360,7 @@ def generate_app_store_munki_recipe(facts, recipe):
                             "Munki." % facts["app_name"])
     keys["ParentRecipe"] = "com.github.nmcspadden.munki.appstore"
     keys["Input"]["PATH"] = facts["app_path"]
-    filename = "MAS-" + filename
+    recipe["filename"] = "MAS-" + recipe["filename"]
 
     keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
     keys["Input"]["pkginfo"] = {
@@ -513,7 +513,7 @@ def generate_app_store_pkg_recipe(facts, recipe):
                             "creates a package." % facts["app_name"])
     keys["ParentRecipe"] = "com.github.nmcspadden.pkg.appstore"
     keys["Input"]["PATH"] = facts["app_path"]
-    filename = "MAS-" + filename
+    recipe["filename"] = "MAS-" + recipe["filename"]
 
     warn_about_appstoreapp_pyasn()
 
