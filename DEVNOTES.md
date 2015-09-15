@@ -168,45 +168,98 @@ __ds__
 ## Interesting examples and edge cases to use for testing:
 
 Zip download reveals an installer in .app format:
-`recipe-robot -v http://download.bjango.com/skalacolor/`
+```
+recipe-robot -v http://download.bjango.com/skalacolor/
+```
 
 Sparkle feed blocks Python user-agent:
-`recipe-robot -v http://bohemiancoding.com/static/download/sketch.zip`
+```
+recipe-robot -v http://bohemiancoding.com/static/download/sketch.zip
+```
 
 Downloaded disk image requires agreement to license before mounting:
-`recipe-robot -v https://www.revisionsapp.com/downloads/revisions-2.1.1.dmg`
+```
+recipe-robot -v https://www.revisionsapp.com/downloads/revisions-2.1.1.dmg
+```
 
 Sparkle feed lists the most recent items last, instead of first:
-`recipe-robot -v http://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml`
+```
+recipe-robot -v http://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml
+```
 
 Zip download reveals a pkg installer:
-`recipe-robot -v http://download.bjango.com/istatserver/`
+```
+recipe-robot -v http://download.bjango.com/istatserver/
+```
+
+In addition, attempting to expand the iStat Server pkg results in an interesting error:
+```
+$ pkgutil --expand iStat\ Server.pkg expanded
+
+pkgutil(489,0x7fff74f5e300) malloc: *** mach_vm_map(size=277076930199552) failed (error code=3)
+*** error: can't allocate region
+*** set a breakpoint in malloc_error_break to debug
+Abort trap: 6
+```
+
+Dmg download reveals a pkg installer (and an uninstaller too):
+```
+recipe-robot --verbose http://downloads.econtechnologies.com/CS4_Download.dmg
+```
+
+Dmg download reveals a pkg installer, which contains an app:
+```
+recipe-robot --verbose --include-existing https://pqrs.org/osx/karabiner/files/Karabiner-10.9.0.dmg
+recipe-robot --verbose https://github.com/integralpro/nosleep/releases
+```
+
+In addition, attempting to extract the app from the Karabiner or NoSleep pkg results in many errors like this:
+```
+pax: End of archive volume 1 reached
+pax: Sorry, unable to determine archive format
+```
 
 App that uses a version 1 (obsolete) code signature:
-`recipe-robot -v http://mrrsoftware.com/Downloads/NameChanger/Updates/NameChanger-2_3_3.zip`
+```
+recipe-robot -v http://mrrsoftware.com/Downloads/NameChanger/Updates/NameChanger-2_3_3.zip
+```
 
 App that uses a LooseVersion (3.1.4.0) for CFBundleShortVersionString (also, specifies download format in URL parameters):
-`recipe-robot -v https://srv3.airdroid.com/p14/web/getbinaryredirect?type=dmg`
+```
+recipe-robot -v https://srv3.airdroid.com/p14/web/getbinaryredirect?type=dmg
+```
 
 Direct download doesn't work because of "SSLV3_ALERT_HANDSHAKE_FAILURE":
-`recipe-robot -v http://www.macroplant.com/latest-binaries/adapter-mac.dmg`
+```
+recipe-robot -v http://www.macroplant.com/latest-binaries/adapter-mac.dmg
+```
 
 The app we want is not at the root level of the downloaded file:
-`recipe-robot -v https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip`
-`recipe-robot -v http://www.softobe.com/download/kinemac.dmg`
-`recipe-robot -v http://www.softobe.com/download/flsy.dmg`
+```
+recipe-robot -v https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
+recipe-robot -v http://www.softobe.com/download/kinemac.dmg
+recipe-robot -v http://www.softobe.com/download/flsy.dmg
+```
 
 Download URL has `&` which doesn't parse in Terminal:
-`recipe-robot -v http://www.dejal.com/download/?prod=simon&vers=4.1&lang=en&op=getnow&ref=footer`
+```
+recipe-robot -v http://www.dejal.com/download/?prod=simon&vers=4.1&lang=en&op=getnow&ref=footer
+```
 
 The download produces a `CERTIFICATE_VERIFY_FAILED` error:
-`recipe-robot -v https://updates.aviatorbrowser.com/Aviator.dmg`
+```
+recipe-robot -v https://updates.aviatorbrowser.com/Aviator.dmg
+```
 
 Direct download URL (dmg) is a different format than the Sparkle download URL (zip):
-`recipe-robot -v https://tunnelblick.net/release/Tunnelblick_3.5.3_build_4270.4371.dmg --include-existing`
+```
+recipe-robot -v https://tunnelblick.net/release/Tunnelblick_3.5.3_build_4270.4371.dmg --include-existing
+```
 
 An app installer at the root level of the DMG (Can we have some kind of warning about this?):
-`recipe-robot -v http://cdn01.downloads.smartbear.com/soapui/5.2.0/SoapUI-5.2.0.dmg`
+```
+recipe-robot -v http://cdn01.downloads.smartbear.com/soapui/5.2.0/SoapUI-5.2.0.dmg
+```
 
 
 ## App interface
