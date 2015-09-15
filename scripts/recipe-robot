@@ -1180,6 +1180,8 @@ def inspect_pkg(input_path, args, facts):
     # Expand the flat package and look for more facts.
     robo_print("Expanding package to look for clues...", LogLevel.VERBOSE)
     expand_path = os.path.join(cache_dir, "expanded")
+    if os.path.exists(expand_path):
+        shutil.rmtree(expand_path)
     cmd = "/usr/sbin/pkgutil --expand \"%s\" \"%s\"" % (input_path, expand_path)
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
@@ -1211,6 +1213,8 @@ def inspect_pkg(input_path, args, facts):
                     payload_path = os.path.join(cache_dir, "expanded", dirpath, filename)
                     if install_filename.endswith(".app"):
                         extracted_app_path = os.path.join(cache_dir, "extracted_apps", install_filename)
+                        if os.path.exists(extracted_app_path):
+                            shutil.rmtree(extracted_app_path)
                         cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",./,%s/,\"" % (payload_path, extracted_app_path)
                         # TODO(Elliot): This doesn't work because it's outside the working directory.
                         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
