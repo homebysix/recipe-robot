@@ -647,7 +647,36 @@ def inspect_sourceforge_url(input_path, args, facts):
 
         # Use SourceForge API to obtain project information.
         project_api_url = "https://sourceforge.net/rest/p/" + proj_name
-        raw_json = urlopen(project_api_url).read()
+        try:
+            raw_json = urlopen(project_api_url).read()
+        except HTTPError as err:
+            if err.code == 403:
+                robo_print("Error occurred while getting information "
+                           "from the SourceForge API. If you've been creating a "
+                           "lot of recipes quickly, you may have hit the "
+                           "rate limit. Give it a few minutes, then try "
+                           "again. (%s)" % err, LogLevel.WARNING)
+                return facts
+            if err.code == 404:
+                robo_print("SourceForge API URL not found. "
+                           "(%s)" % err, LogLevel.WARNING)
+                return facts
+            else:
+                robo_print("Error occurred while getting information "
+                           "from the SourceForge API. (%s)" % err, LogLevel.WARNING)
+                return facts
+        except URLError as err:
+            if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
+                # TODO(Elliot): Try again using curl?
+                robo_print("I got an SSLv3 handshake error while getting "
+                           "information from the SourceForge API, and I "
+                           "don't yet know what to do with that. "
+                           "(%s)" % err, LogLevel.WARNING)
+                return facts
+            else:
+                robo_print("Error encountered while getting information "
+                           "from the SourceForge API. (%s)" % err, LogLevel.WARNING)
+                return facts
         parsed_json = json.loads(raw_json)
 
         # Get app name.
@@ -765,9 +794,34 @@ def inspect_bitbucket_url(input_path, args, facts):
             parsed_repo = json.loads(raw_json_repo)
             raw_json_release = urlopen(releases_api_url).read()
             parsed_release = json.loads(raw_json_release)
-        except Exception as err:
-            robo_print("Error occurred while talking to BitBucket. (%s)" % err, LogLevel.WARNING)
-            return facts
+        except HTTPError as err:
+            if err.code == 403:
+                robo_print("Error occurred while getting information "
+                           "from the BitBucket API. If you've been creating a "
+                           "lot of recipes quickly, you may have hit the "
+                           "rate limit. Give it a few minutes, then try "
+                           "again. (%s)" % err, LogLevel.WARNING)
+                return facts
+            if err.code == 404:
+                robo_print("BitBucket API URL not found. "
+                           "(%s)" % err, LogLevel.WARNING)
+                return facts
+            else:
+                robo_print("Error occurred while getting information "
+                           "from the BitBucket API. (%s)" % err, LogLevel.WARNING)
+                return facts
+        except URLError as err:
+            if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
+                # TODO(Elliot): Try again using curl?
+                robo_print("I got an SSLv3 handshake error while getting "
+                           "information from the BitBucket API, and I "
+                           "don't yet know what to do with that. "
+                           "(%s)" % err, LogLevel.WARNING)
+                return facts
+            else:
+                robo_print("Error encountered while getting information "
+                           "from the BitBucket API. (%s)" % err, LogLevel.WARNING)
+                return facts
 
         # Get app name.
         if "app_name" not in facts:
