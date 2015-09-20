@@ -909,30 +909,57 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     robo_print("Sparkle feed is: %s" % input_path, LogLevel.VERBOSE, 4)
     facts["sparkle_feed"] = input_path
 
-    # Download the Sparkle feed and parse it.
+    # Download the Sparkle feed.
     try:
         raw_xml = urlopen(input_path)
-    except Exception as err:
-        # Try again, this time with a user-agent.
-        try:
-            opener = build_opener()
-            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-            raw_xml = opener.open(input_path)
-            robo_print("I had to use a different user-agent in order to "
-                       "read this Sparkle feed. If you run the recipes and "
-                       "get a \"Can't open URL\" error, it means AutoPkg "
-                       "encountered the same problem.", LogLevel.WARNING)
-            facts["user-agent"] = "Mozilla/5.0"
-        except Exception as err:
-            robo_print("Error occured while downloading Sparkle feed (%s)" % err, LogLevel.WARNING)
-            # Remove Sparkle feed if it's not usable.
+    except HTTPError as err:
+        if err.code == 403:
+            # Try again, this time with a user-agent.
+            try:
+                opener = build_opener()
+                opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+                raw_xml = opener.open(input_path)
+                robo_print("I had to use a different user-agent in order to "
+                           "read this Sparkle feed. If you run the recipes and "
+                           "get a \"Can't open URL\" error, it means AutoPkg "
+                           "encountered the same problem.", LogLevel.WARNING)
+                facts["user-agent"] = "Mozilla/5.0"
+            except Exception as err:
+                robo_print("Error occured while downloading Sparkle feed (%s)" % err, LogLevel.WARNING)
+                # Remove Sparkle feed if it's not usable.
+                facts.pop("sparkle_feed", None)
+                return facts
+        if err.code == 404:
+            robo_print("Sparkle feed not found. "
+                       "(%s)" % err, LogLevel.WARNING)
+            facts.pop("sparkle_feed", None)
+            return facts
+        else:
+            robo_print("Error occurred while getting information "
+                       "from the Sparkle feed. (%s)" % err, LogLevel.WARNING)
+            facts.pop("sparkle_feed", None)
+            return facts
+    except URLError as err:
+        if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
+            # TODO(Elliot): Try again using curl?
+            robo_print("I got an SSLv3 handshake error while getting "
+                       "information from the Sparkle feed, and I "
+                       "don't yet know what to do with that. "
+                       "(%s)" % err, LogLevel.WARNING)
+            facts.pop("sparkle_feed", None)
+            return facts
+        else:
+            robo_print("Error encountered while getting information "
+                       "from the Sparkle feed. (%s)" % err, LogLevel.WARNING)
             facts.pop("sparkle_feed", None)
             return facts
 
+    # Parse the Sparkle feed.
     try:
         doc = parse(raw_xml)
     except ParseError as err:
         robo_print("Error occured while parsing Sparkle feed (%s)" % err, LogLevel.WARNING)
+        facts.pop("sparkle_feed", None)
         return facts
 
     # Get the latest download URL.
