@@ -472,46 +472,43 @@ def inspect_github_url(input_path, args, facts):
         # TODO(Elliot): How can we use GitHub tokens to prevent rate limiting?
 
         # Use GitHub API to obtain information about the repo and releases.
-        # TODO(Shea): From here to line 490 can probably be simplified.
         repo_api_url = "https://api.github.com/repos/%s" % github_repo
         releases_api_url = "https://api.github.com/repos/%s/releases/latest" % github_repo
         user_api_url = "https://api.github.com/users/%s" % github_repo.split("/")[0]
 
-        # Download the repo information from the GitHub API.
+        # Download the information from the GitHub API.
         try:
             raw_json_repo = urlopen(repo_api_url).read()
-        except Exception as err:
-            # TODO(Elliot): Differentiate 404 not found vs 403 forbidden.
-            robo_print("Error occurred while getting repo information from "
-                       "the GitHub API. If you've been creating a lot of "
-                       "recipes quickly, you may have hit the rate limit. "
-                       "Give it a few minutes, then try "
-                       "again. (%s)" % err.strip(), LogLevel.WARNING)
-            return facts
-
-        # Download the release information from the GitHub API.
-        try:
             raw_json_release = urlopen(releases_api_url).read()
-        except Exception as err:
-            # TODO(Elliot): Differentiate 404 not found vs 403 forbidden.
-            robo_print("Error occurred while getting release information from "
-                       "the GitHub API. If you've been creating a lot of "
-                       "recipes quickly, you may have hit the rate limit. "
-                       "Give it a few minutes, then try "
-                       "again. (%s)" % err.strip(), LogLevel.WARNING)
-            return facts
-
-        # Download the owner/developer information from the GitHub API.
-        try:
             raw_json_user = urlopen(user_api_url).read()
-        except Exception as err:
-            # TODO(Elliot): Differentiate 404 not found vs 403 forbidden.
-            robo_print("Error occurred while getting owner information from "
-                       "the GitHub API. If you've been creating a lot of "
-                       "recipes quickly, you may have hit the rate limit. "
-                       "Give it a few minutes, then try "
-                       "again. (%s)" % err.strip(), LogLevel.WARNING)
-            return facts
+        except HTTPError as err:
+            if err.code == 403:
+                robo_print("Error occurred while getting information "
+                           "from the GitHub API. If you've been creating a "
+                           "lot of recipes quickly, you may have hit the "
+                           "rate limit. Give it a few minutes, then try "
+                           "again. (%s)" % err, LogLevel.WARNING)
+                return facts
+            if err.code == 404:
+                robo_print("GitHub API URL not found. "
+                           "(%s)" % err, LogLevel.WARNING)
+                return facts
+            else:
+                robo_print("Error occurred while getting information "
+                           "from the GitHub API. (%s)" % err, LogLevel.WARNING)
+                return facts
+        except URLError as err:
+            if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
+                # TODO(Elliot): Try again using curl?
+                robo_print("I got an SSLv3 handshake error while getting "
+                           "information from the GitHub API, and I "
+                           "don't yet know what to do with that. "
+                           "(%s)" % err, LogLevel.WARNING)
+                return facts
+            else:
+                robo_print("Error encountered while getting information "
+                           "from the GitHub API. (%s)" % err, LogLevel.WARNING)
+                return facts
 
         # Parse the downloaded JSON.
         parsed_repo = json.loads(raw_json_repo)
@@ -979,17 +976,7 @@ def inspect_download_url(input_path, args, facts):
             return facts
     except URLError as err:
         if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-            # TODO(Elliot): Try again, this time with curl.
-            # cmd = "/usr/bin/curl --silent \"%s\" --output \"%s/%s\"" % (cache_dir, filename, input_path)
-            # exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-            # if exitcode == 0:
-            #     print "It worked!"
-            #     # Do things.
-            # else:
-            #     print "It didn't work."
-            #     robo_print("Error encountered during file download. "
-            #                "(%s)" % err.strip(), LogLevel.WARNING)
-            #     return facts
+            # TODO(Elliot): Try again using curl?
             robo_print("I got an SSLv3 handshake error, and I don't yet know "
                        "what to do with that. (%s)" % err, LogLevel.WARNING)
             return facts
