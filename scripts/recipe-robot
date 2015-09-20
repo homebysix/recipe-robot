@@ -358,7 +358,8 @@ def process_input_path(input_path, args, facts):
                        LogLevel.VERBOSE)
             facts = inspect_sparkle_feed_url(input_path, args, facts)
         elif ("github.com" in input_path or
-              "githubusercontent.com" in input_path):
+              "githubusercontent.com" in input_path or
+              "github.io" in input_path):
             robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
             facts = inspect_github_url(input_path, args, facts)
         elif "sourceforge.net" in input_path:
