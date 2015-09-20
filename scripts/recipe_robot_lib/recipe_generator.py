@@ -97,6 +97,10 @@ def generate_recipes(facts, prefs, recipes):
                    "if necessary.", LogLevel.REMINDER)
         facts["version_key"] = "CFBundleShortVersionString"
 
+    # Prepare the destination directory.
+    recipe_dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
+    create_dest_dirs(recipe_dest_dir)
+
     # Create a recipe for each buildable type we know about.
     for recipe in buildable:
 
@@ -169,11 +173,9 @@ def generate_recipes(facts, prefs, recipes):
                         "that." % recipe["type"], LogLevel.WARNING)
 
         # Write the recipe to disk.
-        dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
-        create_dest_dirs(dest_dir)
         # TODO(Elliot): Warning if a file already exists here.
         # TODO(Elliot): Create subfolders automatically.
-        dest_path = "%s/%s" % (dest_dir, recipe["filename"])
+        dest_path = "%s/%s" % (recipe_dest_dir, recipe["filename"])
         FoundationPlist.writePlist(recipe["keys"], dest_path)
         robo_print("%s/%s" % (prefs["RecipeCreateLocation"],
                               recipe["filename"]), LogLevel.LOG, 4)
@@ -749,19 +751,22 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     keys["Input"]["POLICY_CATEGORY"] = "Testing"
     keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
-    robo_print("Please make sure PolicyTemplate.xml is in your "
-                "AutoPkg search path.", LogLevel.REMINDER)
+    if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "PolicyTemplate.xml")):
+        robo_print("Please make sure PolicyTemplate.xml is in your "
+                    "AutoPkg search path.", LogLevel.REMINDER)
     keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
-    robo_print("Please make sure %s.png is in your AutoPkg search "
-                "path." % facts["app_name"], LogLevel.REMINDER)
+    if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "%s.png" % facts["app_name"])):
+        robo_print("Please make sure %s.png is in your AutoPkg search "
+                    "path." % facts["app_name"], LogLevel.REMINDER)
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
     if facts["version_key"] == "CFBundleVersion":
         keys["Input"]["GROUP_TEMPLATE"] = "CFBundleVersionSmartGroupTemplate.xml"
-        robo_print("Please make sure "
-                    "CFBundleVersionSmartGroupTemplate.xml is in "
-                    "your AutoPkg search path.", LogLevel.REMINDER)
+        if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "CFBundleVersionSmartGroupTemplate.xml")):
+            robo_print("Please make sure "
+                        "CFBundleVersionSmartGroupTemplate.xml is in "
+                        "your AutoPkg search path.", LogLevel.REMINDER)
         keys["Process"].append({
             "Processor": "JSSImporter",
             "Arguments": {
@@ -783,8 +788,9 @@ def generate_jss_recipe(facts, prefs, recipe):
         })
     else:
         keys["Input"]["GROUP_TEMPLATE"] = "SmartGroupTemplate.xml"
-        robo_print("Please make sure SmartGroupTemplate.xml is in "
-                    "your AutoPkg search path.", LogLevel.REMINDER)
+        if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "SmartGroupTemplate.xml")):
+            robo_print("Please make sure SmartGroupTemplate.xml is in "
+                        "your AutoPkg search path.", LogLevel.REMINDER)
         keys["Process"].append({
             "Processor": "JSSImporter",
             "Arguments": {
