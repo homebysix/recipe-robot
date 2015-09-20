@@ -1793,8 +1793,12 @@ def main():
         facts = {}
         process_input_path(input_path, args, facts)
 
-        # Look up existing recipes.
-        create_existing_recipe_list(facts["app_name"], recipes, args)
+        # Look up existing recipes. (App name is required to proceed.)
+        if "app_name" in facts:
+            create_existing_recipe_list(facts["app_name"], recipes, args)
+        else:
+            robo_print("I wasn't able to determine the name of this app, "
+                       "so I can't make any recipes.", LogLevel.ERROR)
 
         # Determine which recipes we can build.
         create_buildable_recipe_list(facts["app_name"], recipes, args, facts)
