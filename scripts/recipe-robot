@@ -353,7 +353,7 @@ def process_input_path(input_path, args, facts):
     facts["inspections"] = []
 
     if input_path.startswith("http"):
-        if input_path.endswith(".xml") or input_path.endswith(".php"):
+        if input_path.endswith(".xml") or input_path.endswith(".php") or "appcast" in input_path:
             robo_print("Input path looks like a Sparkle feed.",
                        LogLevel.VERBOSE)
             facts = inspect_sparkle_feed_url(input_path, args, facts)
@@ -899,6 +899,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     recipe.
     """
 
+    # TODO(Elliot): Can we use the actual SparkleUpdateProvider for this?
+
     # Only proceed if we haven't inspected this Sparkle feed yet.
     if "sparkle_feed_url" in facts["inspections"]:
         return facts
@@ -961,6 +963,29 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         robo_print("Error occured while parsing Sparkle feed (%s)" % err, LogLevel.WARNING)
         facts.pop("sparkle_feed", None)
         return facts
+
+    # TODO(Elliot): Handle custom namespaces. Example code:
+    # https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/SparkleUpdateInfoProvider.py#L115-L119
+    xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
+
+    # Determine whether the Sparkle feed provides a version number.
+    sparkle_provides_version = False
+    robo_print("Determine whether the Sparkle feed provides a version number...", LogLevel.VERBOSE)
+    for item in doc.iterfind('channel/item/enclosure'):
+        if item.get("{%s}shortVersionString" % xmlns) is not None:
+            sparkle_provides_version = True
+        if item.get("{%s}version" % xmlns) is not None:
+            sparkle_provides_version = True
+        break  # should stop after the most recent (first) enclosure item
+        # TODO(Elliot): Not all Sparkle feeds list the most recent item first.
+        # Example: http://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml
+    if sparkle_provides_version is True:
+        robo_print("The Sparkle feed provides a version "
+                   "number", LogLevel.VERBOSE, 4)
+    else:
+        robo_print("The Sparkle feed does not provide a version "
+                   "number", LogLevel.VERBOSE, 4)
+    facts["sparkle_provides_version"] = sparkle_provides_version
 
     # Get the latest download URL.
     download_url = ""

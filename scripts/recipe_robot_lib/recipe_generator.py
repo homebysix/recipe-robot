@@ -326,6 +326,12 @@ def generate_download_recipe(facts, recipe):
                     "requirement": facts.get("codesign_reqs", "")
                 }
             })
+        elif facts["download_format"] in supported_install_formats:
+            # TODO(Elliot): Check for signed .pkg files.
+            robo_print("Sorry, I don't yet know how to use "
+                        "CodeSignatureVerifier with pkg downloads.", LogLevel.WARNING)
+            return
+        if "sparkle_feed" in facts and facts["sparkle_provides_version"] is False:
             keys["Process"].append({
                 "Processor": "Versioner",
                 "Arguments": {
@@ -333,12 +339,6 @@ def generate_download_recipe(facts, recipe):
                     "plist_version_key": facts["version_key"]
                 }
             })
-
-        elif facts["download_format"] in supported_install_formats:
-            # TODO(Elliot): Check for signed .pkg files.
-            robo_print("Sorry, I don't yet know how to use "
-                        "CodeSignatureVerifier with pkg downloads.", LogLevel.WARNING)
-            return
 
 
 def generate_app_store_munki_recipe(facts, recipe):
