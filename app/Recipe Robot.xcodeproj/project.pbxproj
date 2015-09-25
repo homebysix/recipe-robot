@@ -10,14 +10,9 @@
 		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
+		BE1A41CF1BB4C374008173FB /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
 		BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */; };
 		BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE34C8351B7EC5DF00E0822E /* Main.storyboard */; };
-		BE6F6B9A1B800DFB0082011D /* __init__.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B961B800DFB0082011D /* __init__.py */; };
-		BE6F6B9B1B800DFB0082011D /* __init__.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B961B800DFB0082011D /* __init__.py */; };
-		BE6F6B9C1B800DFB0082011D /* FoundationPlist.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B971B800DFB0082011D /* FoundationPlist.py */; };
-		BE6F6B9D1B800DFB0082011D /* FoundationPlist.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B971B800DFB0082011D /* FoundationPlist.py */; };
-		BE6F6B9F1B800DFB0082011D /* macupdate_scraper.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B981B800DFB0082011D /* macupdate_scraper.py */; };
-		BE6F6BA11B800DFB0082011D /* recipe-robot.py in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6B991B800DFB0082011D /* recipe-robot.py */; };
 		BE6F6BA31B800E270082011D /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
 		BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */; };
 /* End PBXBuildFile section */
@@ -227,9 +222,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE6F6BA31B800E270082011D /* scripts in Resources */,
-				BE6F6B9C1B800DFB0082011D /* FoundationPlist.py in Resources */,
 				BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */,
-				BE6F6B9A1B800DFB0082011D /* __init__.py in Resources */,
 				8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -238,10 +231,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BE6F6B9D1B800DFB0082011D /* FoundationPlist.py in Resources */,
-				BE6F6BA11B800DFB0082011D /* recipe-robot.py in Resources */,
-				BE6F6B9B1B800DFB0082011D /* __init__.py in Resources */,
-				BE6F6B9F1B800DFB0082011D /* macupdate_scraper.py in Resources */,
+				BE1A41CF1BB4C374008173FB /* scripts in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,8 +8,22 @@
 
 import Cocoa
 import AudioToolbox
+import Quartz
 
-import AVFoundation
+let BGColor = NSColor(SRGBRed: 245/255, green: 245/255, blue: 220/255, alpha: 1).CGColor
+
+extension CAGradientLayer {
+    func baseGradient() -> CAGradientLayer {
+        let gradientColors: [CGColor] = [BGColor, NSColor.grayColor().CGColor ]
+
+        let gradientLocations: [Float] = [0.0, 1.0]
+
+        let layer = CAGradientLayer()
+        layer.colors = gradientColors
+        layer.locations = gradientLocations
+        return layer
+    }
+}
 
 // MARK: Subclases
 // MARK: -- Segue --
@@ -26,25 +40,7 @@ class ReplaceSegue: NSStoryboardSegue {
 }
 
 // MARK: -- Views --
-class feedMeDropView: NSView, NSDraggingDestination {
-    override init(frame: NSRect) {
-        super.init(frame: frame)
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        registerForDraggedTypes([NSFilenamesPboardType])
-    }
-
-    override func drawRect(dirtyRect: NSRect)  {
-        super.drawRect(dirtyRect)
-        NSColor.gridColor().set()
-        NSRectFill(dirtyRect)
-    }
-
-    override func prepareForDragOperation(sender: NSDraggingInfo) -> Bool {
-        return true
-    }
+class feedMeDropImageView: NSImageView, NSDraggingDestination {
 
     override func performDragOperation(sender: NSDraggingInfo) -> Bool {
         if let feedMeViewController = sender.draggingDestinationWindow().contentViewController as? FeedMeViewController,
@@ -57,13 +53,22 @@ class feedMeDropView: NSView, NSDraggingDestination {
         return true
     }
 
+    override func prepareForDragOperation(sender: NSDraggingInfo) -> Bool {
+        return true
+    }
+
     override func concludeDragOperation(sender: NSDraggingInfo?) {
         // All done.
     }
 
     override func draggingEntered(sender: NSDraggingInfo) -> NSDragOperation  {
+        if let vc = sender.draggingDestinationWindow().contentViewController as? FeedMeViewController {
+            vc.animateGears()
+        }
+
         return NSDragOperation.Copy
     }
+
 }
 
 // MARK: -- TableCellView --
@@ -75,12 +80,24 @@ class recipeTypeCellView: NSTableCellView {
 /// Base view Controller for Recipe-Robot story board.
 class RecipeRobotViewController: NSViewController {
 
+    deinit {
+        println("deiniting")
+    }
+
     var task: RecipeRobotTask = RecipeRobotTask()
     @IBOutlet var segueButton: NSButton?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.wantsLayer = true
         // Do any additional setup after loading the view.
+    }
+
+    override func awakeFromNib() {
+        if let layer = self.view.layer {
+            view.layer = CAGradientLayer().baseGradient()
+            view.layer?.needsDisplay()
+        }
     }
 
     override var representedObject: AnyObject? {
@@ -101,6 +118,11 @@ class RecipeRobotViewController: NSViewController {
 }
 
 class FeedMeViewController: RecipeRobotViewController {
+    @IBOutlet var Gear1: NSImageView!
+
+    func animateGears(){
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.task = RecipeRobotTask()
@@ -113,7 +135,16 @@ class RecipeChoiceViewController: RecipeRobotViewController, NSTableViewDataSour
     @IBOutlet var appIconImageView: NSImageView?
 
 
-    private let recipeTypes = ["download", "munki", "pkg", "install", "jss", "absolute", "sccm", "ds"]
+    private let recipeTypes = [
+        "download",
+        "munki",
+        "pkg",
+        "install",
+        "jss",
+        "absolute",
+        "sccm",
+        "ds"]
+    
     private var enabledRecipeTypes = NSUserDefaults.standardUserDefaults().objectForKey("RecipeTypes") as? [String]
 
 
