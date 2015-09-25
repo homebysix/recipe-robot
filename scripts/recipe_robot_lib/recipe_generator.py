@@ -166,6 +166,9 @@ def generate_recipes(facts, prefs, recipes):
         # Set keys specific to ds recipes.
         elif recipe["type"] == "ds":
             generate_ds_recipe(facts, prefs, recipe)
+        # Set keys specific to filewave recipes.
+        elif recipe["type"] == "filewave":
+            generate_filewave_recipe(facts, prefs, recipe)
         else:
             # This shouldn't happen, if all the right recipe types are
             # specified in init_recipes() and also specified above.
@@ -651,7 +654,6 @@ def generate_install_recipe(facts, prefs, recipe):
     keys["Description"] = ("Installs the latest version "
                             "of %s." % facts["app_name"])
 
-    # Make the download recipe the parent of the Munki recipe.
     # TODO(Elliot): What if it's somebody else's download recipe?
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
@@ -705,7 +707,7 @@ def generate_install_recipe(facts, prefs, recipe):
 
 
 def generate_jss_recipe(facts, prefs, recipe):
-    """Generate a jss recipe on passed recipe dict.
+    """Generate a JSS recipe on passed recipe dict.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -735,9 +737,6 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into your JSS." %
                             facts["app_name"])
-
-    # Set the parent recipe to the pkg recipe.
-    # Make the download recipe the parent of the Munki recipe.
     # TODO(Elliot): What if it's somebody else's pkg recipe?
     keys["ParentRecipe"] = "%s.pkg.%s" % (
         prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
@@ -819,7 +818,7 @@ def generate_jss_recipe(facts, prefs, recipe):
 
 
 def generate_absolute_recipe(facts, prefs, recipe):
-    """Generate an absolute manage recipe on passed recipe dict.
+    """Generate an Absolute Manage recipe on passed recipe dict.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -846,9 +845,6 @@ def generate_absolute_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your Absolute Manage "
                             "Server." % facts["app_name"])
-
-    # Set the parent recipe to the pkg recipe.
-    # Make the download recipe the parent of the Munki recipe.
     # TODO(Elliot): What if it's somebody else's pkg recipe?
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
@@ -865,7 +861,7 @@ def generate_absolute_recipe(facts, prefs, recipe):
 
 
 def generate_sccm_recipe(facts, prefs, recipe):
-    """Generate an absolute manage recipe on passed recipe dict.
+    """Generate an SCCM recipe on passed recipe dict.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -892,9 +888,6 @@ def generate_sccm_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your SCCM "
                             "Server." % facts["app_name"])
-
-    # Set the parent recipe to the pkg recipe.
-    # Make the download recipe the parent of the Munki recipe.
     # TODO(Elliot): What if it's somebody else's pkg recipe?
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
@@ -908,8 +901,78 @@ def generate_sccm_recipe(facts, prefs, recipe):
     })
 
 
+def generate_filewave_recipe(facts, prefs, recipe):
+    """Generate a FileWave recipe on passed recipe dict.
+
+    Args:
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs: The dictionary containing a key/value pair for each
+            preference.
+        recipe: The recipe to operate on. This recipe will be mutated
+            by this function!
+    """
+    keys = recipe["keys"]
+    # Can't make this recipe without a bundle identifier.
+    if "bundle_id" not in facts:
+        robo_print("Skipping %s recipe, because I wasn't able to "
+                    "determine the bundle identifier of this app. "
+                    "You may want to actually download the app and "
+                    "try again, using the .app file itself as "
+                    "input." % recipe["type"], LogLevel.VERBOSE)
+        return
+
+    robo_print("Generating %s recipe..." % recipe["type"])
+
+    # Save a description that explains what this recipe does.
+    keys["Description"] = ("Downloads the latest version of %s, creates a "
+                           "fileset, and copies it into your FileWave "
+                           "Server." % facts["app_name"])
+    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
+
+    if facts["download_format"] in supported_image_formats and "sparkle_feed" not in facts:
+        # It's a dmg download, but not from Sparkle, so we need to version it.
+        keys["Process"].append({
+            "Processor": "Versioner",
+            "Arguments": {
+                "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                "plist_version_key": facts["version_key"]
+            }
+        })
+    elif facts["download_format"] in supported_archive_formats:
+        if facts["codesign_status"] != "signed":
+            # If unsigned, that means the download recipe hasn't
+            # unarchived the zip yet.
+            keys["Process"].append({
+                "Processor": "Unarchiver",
+                "Arguments": {
+                    "archive_path": "%pathname%",
+                    "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                    "purge_destination": True
+                }
+            })
+    elif facts["download_format"] in supported_install_formats:
+        # TODO(Elliot): Fix this.
+        robo_print("Sorry, I don't yet know how to create "
+                    "filewave recipes from pkg downloads.", LogLevel.WARNING)
+
+    keys["Process"].append({
+        "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
+        "Arguments": {
+            "fw_app_bundle_id": facts["bundle_id"],
+            "fw_app_version": "%version%",
+            "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app",
+            "fw_fileset_name": "%NAME% - %version%",
+            # TODO(Elliot): Is it always "Mac Desktop"?
+            "fw_fileset_group": "Mac Desktop",
+            "fw_destination_root": "/Applications/%NAME%.app"
+        }
+    })
+
+
 def generate_ds_recipe(facts, prefs, recipe):
-    """Generate a deploystudio recipe on passed recipe dict.
+    """Generate a DeployStudio recipe on passed recipe dict.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -936,9 +999,6 @@ def generate_ds_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it to your DeployStudio "
                             "packages." % facts["app_name"])
-
-    # Set the parent recipe to the pkg recipe.
-    # Make the download recipe the parent of the Munki recipe.
     # TODO(Elliot): What if it's somebody else's pkg recipe?
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
     keys["Input"]["DS_PKGS_PATH"] = prefs["DSPackagesPath"]

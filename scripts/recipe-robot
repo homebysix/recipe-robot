@@ -171,6 +171,9 @@ def init_recipes():
         }, {
             "type": "ds",
             "description": "Imports into your DeployStudio Packages folder."
+        }, {
+            "type": "filewave",
+            "description": "Imports a fileset into your FileWave server."
         })
 
     # Set default values for all recipe types.
