@@ -124,8 +124,8 @@ def build_argument_parser():
              "run.")
     parser.add_argument(
         "--github-token",
-        action="store",
-        help="A GitHub API token to use when searching for existing recipes.")
+        action="store_true",
+        help="Use a GitHub API token when searching for existing recipes.")
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
@@ -1692,7 +1692,16 @@ def create_existing_recipe_list(app_name, recipes, args):
 
     for this_search in recipe_searches:
         robo_print("Searching for existing AutoPkg recipes for \"%s\"..." % this_search, LogLevel.VERBOSE)
-        cmd = "/usr/local/bin/autopkg search -p \"%s\"" % this_search
+        if args.github_token is True:
+            if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
+                robo_print("I couldn't find a GitHub token to use.", LogLevel.WARNING)
+                cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
+            else:
+                # TODO(Elliot): Learn how to use the GitHub token. https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
+                robo_print("I found a GitHub token, but I'm still learning how to use it.", LogLevel.WARNING)
+                cmd = "/usr/local/bin/autopkg search --path-only --use-token \"%s\"" % this_search
+        else:
+            cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
         if exitcode == 0:
