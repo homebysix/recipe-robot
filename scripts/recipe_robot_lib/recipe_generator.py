@@ -334,7 +334,9 @@ def generate_download_recipe(facts, recipe):
             robo_print("Sorry, I don't yet know how to use "
                         "CodeSignatureVerifier with pkg downloads.", LogLevel.WARNING)
             return
-        if "sparkle_feed" in facts and facts["sparkle_provides_version"] is False:
+        if facts.get("sparkle_provides_version", False) is False:
+            # Either the Sparkle feed doesn't provide version, or there's no
+            # Sparkle feed.
             keys["Process"].append({
                 "Processor": "Versioner",
                 "Arguments": {
@@ -558,15 +560,17 @@ def generate_pkg_recipe(facts, prefs, recipe):
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
     if facts["download_format"] in supported_image_formats:
-        # TODO(Elliot): We only need Versioner in certain cases.
         # (e.g. if direct download only, no Sparkle feed)
-        keys["Process"].append({
-            "Processor": "Versioner",
-            "Arguments": {
-                "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
-                "plist_version_key": facts["version_key"]
-            }
-        })
+        if facts.get("sparkle_provides_version", False) is False:
+            # Either the Sparkle feed doesn't provide version, or there's no
+            # Sparkle feed.
+            keys["Process"].append({
+                "Processor": "Versioner",
+                "Arguments": {
+                    "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                    "plist_version_key": facts["version_key"]
+                }
+            })
         keys["Process"].append({
             "Processor": "PkgRootCreator",
             "Arguments": {
@@ -596,13 +600,16 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "purge_destination": True
                 }
             })
-            keys["Process"].append({
-                "Processor": "Versioner",
-                "Arguments": {
-                    "input_plist_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app/Contents/Info.plist" % facts["app_name_key"],
-                    "plist_version_key": facts["version_key"]
-                }
-            })
+            if facts.get("sparkle_provides_version", False) is False:
+                # Either the Sparkle feed doesn't provide version, or there's
+                # no Sparkle feed.
+                keys["Process"].append({
+                    "Processor": "Versioner",
+                    "Arguments": {
+                        "input_plist_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                        "plist_version_key": facts["version_key"]
+                    }
+                })
 
     elif facts["download_format"] in supported_install_formats:
         robo_print("Skipping pkg recipe, since the download "
