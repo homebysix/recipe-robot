@@ -313,6 +313,15 @@ def generate_download_recipe(facts, recipe):
                     "requirement": facts.get("codesign_reqs", "")
                 }
             })
+            if facts.get("sparkle_provides_version", False) is False:
+                # Either the Sparkle feed doesn't provide version, or there's no
+                # Sparkle feed.
+                keys["Process"].append({
+                    "Processor": "AppDmgVersioner",
+                    "Arguments": {
+                        "dmg_path": "%pathname%"
+                    }
+                })
         elif facts["download_format"] in supported_archive_formats:
             keys["Process"].append({
                 "Processor": "Unarchiver",
@@ -329,21 +338,21 @@ def generate_download_recipe(facts, recipe):
                     "requirement": facts.get("codesign_reqs", "")
                 }
             })
+            if facts.get("sparkle_provides_version", False) is False:
+                # Either the Sparkle feed doesn't provide version, or there's no
+                # Sparkle feed.
+                keys["Process"].append({
+                    "Processor": "Versioner",
+                    "Arguments": {
+                        "input_plist_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                        "plist_version_key": facts["version_key"]
+                    }
+                })
         elif facts["download_format"] in supported_install_formats:
             # TODO(Elliot): Check for signed .pkg files.
             robo_print("Sorry, I don't yet know how to use "
                         "CodeSignatureVerifier with pkg downloads.", LogLevel.WARNING)
             return
-        if facts.get("sparkle_provides_version", False) is False:
-            # Either the Sparkle feed doesn't provide version, or there's no
-            # Sparkle feed.
-            keys["Process"].append({
-                "Processor": "Versioner",
-                "Arguments": {
-                    "input_plist_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app/Contents/Info.plist" % facts["app_name_key"],
-                    "plist_version_key": facts["version_key"]
-                }
-            })
 
 
 def generate_app_store_munki_recipe(facts, recipe):
@@ -432,15 +441,14 @@ def generate_munki_recipe(facts, prefs, recipe):
     # Set default variable to use for substitution.
     import_file_var = "%pathname%"
 
-    if facts["download_format"] in supported_image_formats and "sparkle_feed" not in facts:
-        # It's a dmg download, but not from Sparkle, so we need to version it.
-        keys["Process"].append({
-            "Processor": "Versioner",
-            "Arguments": {
-                "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
-                "plist_version_key": facts["version_key"]
-            }
-        })
+    if facts["download_format"] in supported_image_formats:
+        if facts["codesign_status"] != "signed":
+            keys["Process"].append({
+                "Processor": "AppDmgVersioner",
+                "Arguments": {
+                    "dmg_path": "%pathname%"
+                }
+            })
 
     elif facts["download_format"] in supported_archive_formats:
         if facts["codesign_status"] != "signed":
@@ -560,15 +568,11 @@ def generate_pkg_recipe(facts, prefs, recipe):
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
     if facts["download_format"] in supported_image_formats:
-        # (e.g. if direct download only, no Sparkle feed)
-        if facts.get("sparkle_provides_version", False) is False:
-            # Either the Sparkle feed doesn't provide version, or there's no
-            # Sparkle feed.
+        if facts["codesign_status"] != "signed":
             keys["Process"].append({
-                "Processor": "Versioner",
+                "Processor": "AppDmgVersioner",
                 "Arguments": {
-                    "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
-                    "plist_version_key": facts["version_key"]
+                    "dmg_path": "%pathname%"
                 }
             })
         keys["Process"].append({
