@@ -108,17 +108,9 @@ def build_argument_parser():
              "the following: existing app, existing AutoPkg recipe, Sparkle "
              "feed, GitHub or SourceForge URL, or direct download URL.")
     parser.add_argument(
-        "-v", "--verbose",
+        "--config",
         action="store_true",
-        help="Generate additional output about the process.")
-    parser.add_argument(
-        "-o", "--output-dir",
-        action="store",
-        help="Path to a folder you'd like to save your generated recipes in.")
-    parser.add_argument(
-        "-t", "--recipe-types",
-        action="store",
-        help="The types of recipe you'd like to generate.")
+        help="Adjust Recipe Robot preferences prior to generating recipes.")
     parser.add_argument(
         "--include-existing",
         action="store_true",
@@ -131,9 +123,13 @@ def build_argument_parser():
              "Robot downloaded. The cache will be cleared again upon next "
              "run.")
     parser.add_argument(
-        "--config",
+        "--github-token",
+        action="store",
+        help="A GitHub API token to use when searching for existing recipes.")
+    parser.add_argument(
+        "-v", "--verbose",
         action="store_true",
-        help="Adjust Recipe Robot preferences prior to generating recipes.")
+        help="Generate additional output about the process.")
     return parser
 
 
