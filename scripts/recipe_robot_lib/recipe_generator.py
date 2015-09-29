@@ -577,8 +577,9 @@ def generate_pkg_recipe(facts, prefs, recipe):
     """
     keys = recipe["keys"]
     # Can't make this recipe without a bundle identifier.
-    # TODO(Elliot): Bundle id is also provided by AppDmgVersioner. Does that
-    # help us?
+    # TODO(Elliot): Bundle id is also provided by AppDmgVersioner and some
+    # Sparkle feeds. When those are present, can we proceed even though we
+    # don't have bundle_id in facts?
     if "bundle_id" not in facts:
         robo_print("Skipping %s recipe, because I wasn't able to "
                     "determine the bundle identifier of this app. "
