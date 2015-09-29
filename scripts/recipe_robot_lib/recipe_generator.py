@@ -320,12 +320,21 @@ def generate_download_recipe(facts, prefs, recipe):
             if facts.get("sparkle_provides_version", False) is False:
                 # Either the Sparkle feed doesn't provide version, or there's no
                 # Sparkle feed.
-                keys["Process"].append({
-                    "Processor": "AppDmgVersioner",
-                    "Arguments": {
-                        "dmg_path": "%pathname%"
-                    }
-                })
+                if facts["version_key"] == "CFBundleShortVersionString":
+                    keys["Process"].append({
+                        "Processor": "AppDmgVersioner",
+                        "Arguments": {
+                            "dmg_path": "%pathname%"
+                        }
+                    })
+                else:
+                    keys["Process"].append({
+                        "Processor": "Versioner",
+                        "Arguments": {
+                            "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                            "plist_version_key": facts["version_key"]
+                        }
+                    })
         elif facts["download_format"] in supported_archive_formats:
             keys["Process"].append({
                 "Processor": "Unarchiver",
@@ -447,12 +456,21 @@ def generate_munki_recipe(facts, prefs, recipe):
 
     if facts["download_format"] in supported_image_formats:
         if facts["codesign_status"] != "signed":
-            keys["Process"].append({
-                "Processor": "AppDmgVersioner",
-                "Arguments": {
-                    "dmg_path": "%pathname%"
-                }
-            })
+            if facts["version_key"] == "CFBundleShortVersionString":
+                keys["Process"].append({
+                    "Processor": "AppDmgVersioner",
+                    "Arguments": {
+                        "dmg_path": "%pathname%"
+                    }
+                })
+            else:
+                keys["Process"].append({
+                    "Processor": "Versioner",
+                    "Arguments": {
+                        "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                        "plist_version_key": facts["version_key"]
+                    }
+                })
 
     elif facts["download_format"] in supported_archive_formats:
         if facts["codesign_status"] != "signed":
@@ -559,6 +577,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
     """
     keys = recipe["keys"]
     # Can't make this recipe without a bundle identifier.
+    # TODO(Elliot): Bundle id is also provided by AppDmgVersioner. Does that
+    # help us?
     if "bundle_id" not in facts:
         robo_print("Skipping %s recipe, because I wasn't able to "
                     "determine the bundle identifier of this app. "
@@ -580,12 +600,21 @@ def generate_pkg_recipe(facts, prefs, recipe):
 
     if facts["download_format"] in supported_image_formats:
         if facts["codesign_status"] != "signed":
-            keys["Process"].append({
-                "Processor": "AppDmgVersioner",
-                "Arguments": {
-                    "dmg_path": "%pathname%"
-                }
-            })
+            if facts["version_key"] == "CFBundleShortVersionString":
+                keys["Process"].append({
+                    "Processor": "AppDmgVersioner",
+                    "Arguments": {
+                        "dmg_path": "%pathname%"
+                    }
+                })
+            else:
+                keys["Process"].append({
+                    "Processor": "Versioner",
+                    "Arguments": {
+                        "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                        "plist_version_key": facts["version_key"]
+                    }
+                })
         keys["Process"].append({
             "Processor": "PkgRootCreator",
             "Arguments": {
