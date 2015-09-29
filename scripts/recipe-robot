@@ -699,7 +699,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 proj_id = this_dict["sourceforge_group_id"]
         if proj_id != "":
             robo_print("SourceForge project ID is: %s" % proj_id, LogLevel.VERBOSE, 4)
-            facts["sourceforge_proj_id"] = proj_id
+            facts["sourceforge_id"] = proj_id
         else:
             robo_print("Could not detect SourceForge project ID.", LogLevel.WARNING)
 
