@@ -285,6 +285,8 @@ def generate_download_recipe(facts, recipe):
                 "Processor": "URLDownloader",
                 "Arguments": {
                     "url": "%DOWNLOAD_URL%",
+                    # TODO(Elliot): Explicit filename may not be necessary.
+                    # Example: http://www.sonnysoftware.com/Bookends.dmg
                     "filename": facts["download_filename"],
                     "request_headers": {
                         "user-agent": facts["user-agent"]
