@@ -493,15 +493,22 @@ def generate_munki_recipe(facts, prefs, recipe):
                 }
             }
         })
-
-    keys["Process"].append({
-        "Processor": "MunkiImporter",
-        "Arguments": {
-            "pkg_path": import_file_var,
-            "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
-            "version_comparison_key": facts["version_key"]
-        }
-    })
+        keys["Process"].append({
+            "Processor": "MunkiImporter",
+            "Arguments": {
+                "pkg_path": import_file_var,
+                "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
+                "version_comparison_key": facts["version_key"]
+            }
+        })
+    else:
+        keys["Process"].append({
+            "Processor": "MunkiImporter",
+            "Arguments": {
+                "pkg_path": import_file_var,
+                "repo_subdirectory": "%MUNKI_REPO_SUBDIR%"
+            }
+        })
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
