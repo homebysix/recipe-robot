@@ -1040,7 +1040,9 @@ def inspect_download_url(input_path, args, facts):
                                       "github_url" not in facts["inspections"] and
                                       "sourceforge_url" not in facts["inspections"] and
                                       "bitbucket_url" not in facts["inspections"]):
-        robo_print("Careful, this might be a version-specific URL.", LogLevel.WARNING)
+        robo_print("Careful, this might be a version-specific URL. Better to "
+                   "give me a \"-latest\" URL or a Sparkle "
+                   "feed.", LogLevel.WARNING)
 
     # Determine filename from input URL (will be overridden later if a better
     # candidate is found.)
