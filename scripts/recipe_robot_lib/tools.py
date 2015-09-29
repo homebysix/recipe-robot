@@ -27,6 +27,7 @@ import os
 import shlex
 from subprocess import Popen, PIPE
 import sys
+from urllib2 import urlopen, build_opener, URLError, HTTPError
 
 
 __version__ = '0.0.4'
@@ -118,6 +119,21 @@ def create_dest_dirs(path):
             os.makedirs(dest_dir)
         except OSError:
             robo_print("Unable to create directory at %s." % dest_dir, LogLevel.ERROR)
+
+
+def create_SourceForgeURLProvider(dest_dir):
+    """Copies the latest version of Jesse Peterson's SourceForgeURLProvider to
+    the recipe output directory, because it's referenced by one of the recipes
+    being created.
+    """
+    base_url = ("https://raw.githubusercontent.com/autopkg/"
+                "jessepeterson-recipes/master/GrandPerspective/"
+                "SourceForgeURLProvider.py")
+    dest_dir_absolute = os.path.expanduser(dest_dir)
+    raw_download = urlopen(base_url)
+    with open(os.path.join(dest_dir_absolute, "SourceForgeURLProvider.py"), "wb") as download_file:
+        download_file.write(raw_download.read())
+        robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"), LogLevel.VERBOSE, 4)
 
 
 def extract_app_icon(icon_path, png_path):
