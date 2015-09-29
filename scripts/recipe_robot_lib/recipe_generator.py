@@ -138,16 +138,16 @@ def generate_recipes(facts, prefs, recipes):
 
         # Set keys specific to download recipes.
         if recipe["type"] == "download":
-            generate_download_recipe(facts, recipe)
+            generate_download_recipe(facts, prefs, recipe)
         # Set keys specific to App Store munki overrides.
         elif recipe["type"] == "munki" and facts["is_from_app_store"] is True:
-            generate_app_store_munki_recipe(facts, recipe)
+            generate_app_store_munki_recipe(facts, prefs, recipe)
         # Set keys specific to non-App Store munki recipes.
         elif recipe["type"] == "munki" and facts["is_from_app_store"] is False:
             generate_munki_recipe(facts, prefs, recipe)
         # Set keys specific to App Store pkg overrides.
         elif recipe["type"] == "pkg" and facts["is_from_app_store"] is True:
-            generate_app_store_pkg_recipe(facts, recipe)
+            generate_app_store_pkg_recipe(facts, prefs, recipe)
         # Set keys specific to non-App Store pkg recipes.
         elif recipe["type"] == "pkg" and facts["is_from_app_store"] is False:
             generate_pkg_recipe(facts, prefs, recipe)
@@ -192,7 +192,7 @@ def generate_recipes(facts, prefs, recipes):
     FoundationPlist.writePlist(prefs, prefs_file)
 
 
-def generate_download_recipe(facts, recipe):
+def generate_download_recipe(facts, prefs, recipe):
     """Generate a download recipe on passed recipe dict.
 
     Args:
@@ -357,7 +357,7 @@ def generate_download_recipe(facts, recipe):
             return
 
 
-def generate_app_store_munki_recipe(facts, recipe):
+def generate_app_store_munki_recipe(facts, prefs, recipe):
     """Generate a munki recipe on passed recipe dict.
 
     This function is for app-store apps.
@@ -510,7 +510,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                     "PNG icon for this app.", LogLevel.WARNING)
 
 
-def generate_app_store_pkg_recipe(facts, recipe):
+def generate_app_store_pkg_recipe(facts, prefs, recipe):
     """Generate a pkg recipe on passed recipe dict.
 
     This function is for app-store apps.
