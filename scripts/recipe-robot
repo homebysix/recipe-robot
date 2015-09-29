@@ -352,7 +352,10 @@ def process_input_path(input_path, args, facts):
     facts["inspections"] = []
 
     if input_path.startswith("http"):
-        if input_path.endswith(".xml") or input_path.endswith(".php") or "appcast" in input_path:
+        if (input_path.endswith(".xml") or
+            input_path.endswith(".rss") or
+            input_path.endswith(".php") or
+            "appcast" in input_path):
             robo_print("Input path looks like a Sparkle feed.",
                        LogLevel.VERBOSE)
             facts = inspect_sparkle_feed_url(input_path, args, facts)
