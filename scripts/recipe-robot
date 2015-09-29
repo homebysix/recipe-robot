@@ -352,6 +352,11 @@ def process_input_path(input_path, args, facts):
     facts["inspections"] = []
 
     if input_path.startswith("http"):
+        # TODO(Elliot): Some Sparkle feeds look like download URLs, and the
+        # best way to determine that they're not is to look at the first
+        # line. If it's a Sparkle feed, the first line will start with this:
+        # <?xml version="1.0"
+        # Can we download just the first line and take a peek?
         if (input_path.endswith(".xml") or
             input_path.endswith(".rss") or
             input_path.endswith(".php") or
@@ -1025,6 +1030,9 @@ def inspect_download_url(input_path, args, facts):
     # a download URL during this run. This handles rare situations in which
     # the download URL is in a different format than the Sparkle download.
     # Example: http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
+
+    # Change spaces to "%20"
+    input_path = input_path.replace(" ", "%20")
 
     # Save the download URL to the dictionary of facts.
     robo_print("Download URL is: %s" % input_path, LogLevel.VERBOSE, 4)
