@@ -27,7 +27,7 @@ import sys
 # Or not use it at all (i.e. use the preferences system correctly).
 try:
     from recipe_robot_lib import FoundationPlist
-    from .tools import create_dest_dirs, extract_app_icon
+    from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon
     from .tools import robo_print, LogLevel, __version__
 except ImportError:
     print '[WARNING] importing plistlib as FoundationPlist'
@@ -266,18 +266,20 @@ def generate_download_recipe(facts, prefs, recipe):
             }
         })
     elif "sourceforge_id" in facts:
-        keys["Input"]["SOURCEFORGE_PROJECT_ID"] = facts["sourceforge_id"]
+        create_SourceForgeURLProvider(prefs["RecipeCreateLocation"])
         recipe["keys"]["Process"].append({
-            "Processor": "SourceForgeURLProvider"
+            "Processor": "SourceForgeURLProvider",
+            "Arguments": {
+                "SOURCEFORGE_FILE_PATTERN": "\\.%s" % facts["download_format"],
+                "SOURCEFORGE_PROJECT_ID": facts["sourceforge_id"]
+            }
         })
         keys["Process"].append({
             "Processor": "URLDownloader",
             "Arguments": {
-                "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
+                "filename": "%%NAME%%.%s" % facts["download_format"]
             }
         })
-        # TODO(Elliot): Copy SourceForgeURLProvider.py to recipe
-        # output directory.
     elif "download_url" in facts:
         if "user-agent" in facts:
             keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
