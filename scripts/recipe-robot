@@ -1346,14 +1346,23 @@ def inspect_pkg(input_path, args, facts):
             for filename in filenames:
 
                 if filename == "PackageInfo":
-                    robo_print("Determining install location and filename from PackageInfo file...", LogLevel.VERBOSE)
+                    robo_print("Getting information from PackageInfo file...", LogLevel.VERBOSE)
                     pkginfo_file = open(os.path.join(cache_dir, "expanded", dirpath, filename), "r")
                     pkginfo_parsed = parse(pkginfo_file)
+
+                    bundle_id = ""
+                    if "bundle_id" not in facts:
+                        bundle_id = pkginfo_parsed.getroot().attrib["identifier"]
+                    if bundle_id != "":
+                        robo_print("Bundle identifier: %s" % bundle_id, LogLevel.VERBOSE, 4)
+                        facts["bundle_id"] = bundle_id
+
                     install_loc = pkginfo_parsed.getroot().attrib["install-location"]
                     robo_print("Install location: %s" % install_loc, LogLevel.VERBOSE, 4)
+
                     install_filename = os.path.basename(install_loc)
                     robo_print("Install filename: %s" % install_filename, LogLevel.VERBOSE, 4)
-                    continue
+                    continue  # TODO(Elliot): Or should we stop after the first?
 
                 if filename == "Payload":
                     # We found a payload. Let's peek inside and see if there's an
