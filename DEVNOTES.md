@@ -266,6 +266,11 @@ Sparkle feed points to a 404 download URL, but based on the URL we should be abl
 recipe-robot -v /Applications/Screens.app
 ```
 
+SUFeedURL is "NULL":
+```
+recipe-robot -v http://www.git-tower.com/download
+```
+
 ## App interface
 
 Here's what we're thinking about for the app interface, for now:
