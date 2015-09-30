@@ -261,6 +261,10 @@ An app installer at the root level of the DMG (Can we have some kind of warning 
 recipe-robot -v http://cdn01.downloads.smartbear.com/soapui/5.2.0/SoapUI-5.2.0.dmg
 ```
 
+Sparkle feed points to a 404 download URL, but based on the URL we should be able to build recipes anyway. (Assume it's an unsigned zip.)
+```
+recipe-robot -v /Applications/Screens.app
+```
 
 ## App interface
 
