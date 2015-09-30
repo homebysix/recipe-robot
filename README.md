@@ -6,7 +6,6 @@ __Table of contents__
 
 - [Overview](#overview)
 - [Python Script Usage](#python-script-usage)
-- [Mac App Usage](#mac-app-usage)
 - [Tips](#tips)
 - [Troubleshooting](#troubleshooting)
 - [Feedback](#feedback)
@@ -41,7 +40,6 @@ For `<input>`, you can use one of several types of information:
 - The path to an app's Sparkle feed.
 - The direct download URL for an app (which usually ends with .zip or .dmg).
 - The GitHub, BitBucket, or SourceForge project URL for an app.
-- Soon: the path to an existing recipe associated with an app.
 
 The first time Recipe Robot runs, you'll be prompted for some information. On subsequent runs, you can use the `--config` argument to force this prompt to return.
 
@@ -131,9 +129,7 @@ You've now created 8 recipes with Recipe Robot. Round of applause for you!
 It's fun to see the details, and very useful in case anything goes wrong.
 
 
-## Mac App Usage
-
-The Mac app is still being built. Stay tuned!
+<!-- ## Mac App Usage -->
 
 
 ## Tips
