@@ -309,6 +309,8 @@ def generate_download_recipe(facts, prefs, recipe):
     })
 
     if facts["codesign_status"] == "signed":
+        # We encountered a signed app, and will use CodeSignatureVerifier on
+        # the app. We are assuming the app is at the base level of the dmg/zip.
         if facts["download_format"] in supported_image_formats:
             keys["Process"].append({
                 "Processor": "CodeSignatureVerifier",
@@ -363,9 +365,46 @@ def generate_download_recipe(facts, prefs, recipe):
                 })
         elif facts["download_format"] in supported_install_formats:
             # TODO(Elliot): Check for signed .pkg files.
-            robo_print("Sorry, I don't yet know how to use "
-                        "CodeSignatureVerifier with pkg downloads.", LogLevel.WARNING)
+            robo_print("I'm not quite sure how I ended up here. Looks like I "
+                       "found a signed pkg download, but also a signed app "
+                       "somewhere along the way. My boss is going to need to "
+                       "put his thinking cap on.", LogLevel.WARNING)
             return
+    elif facts.get("pkgsign_reqs", "unsigned") == "signed":
+        # We encountered a signed pkg, and will use CodeSignatureVerifier on
+        # the pkg. We are assuming the pkg is at the base level of the dmg/zip.
+        if facts["download_format"] in supported_image_formats:
+            keys["Process"].append({
+                "Processor": "CodeSignatureVerifier",
+                "Arguments": {
+                    "input_path": "%pathname%/*.pkg",
+                    "expected_authority_names": facts["pkgsign_reqs"]
+                }
+            })
+        elif facts["download_format"] in supported_archive_formats:
+            keys["Process"].append({
+                "Processor": "Unarchiver",
+                "Arguments": {
+                    "archive_path": "%pathname%",
+                    "destination_path": "%RECIPE_CACHE_DIR%/%NAME%",
+                    "purge_destination": True
+                }
+            })
+            keys["Process"].append({
+                "Processor": "CodeSignatureVerifier",
+                "Arguments": {
+                    "input_path": "%RECIPE_CACHE_DIR%/%NAME%/*.pkg",
+                    "expected_authority_names": facts["pkgsign_reqs"]
+                }
+            })
+        elif facts["download_format"] in supported_install_formats:
+            keys["Process"].append({
+                "Processor": "CodeSignatureVerifier",
+                "Arguments": {
+                    "input_path": "%pathname%",
+                    "expected_authority_names": facts["pkgsign_reqs"]
+                }
+            })
 
 
 def generate_app_store_munki_recipe(facts, prefs, recipe):
