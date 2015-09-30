@@ -1107,7 +1107,7 @@ def inspect_download_url(input_path, args, facts):
             return facts
         else:
             robo_print("Error encountered during file download. "
-                       "(%s)" % err.reason.strip(), LogLevel.WARNING)
+                       "(%s)" % err.reason, LogLevel.WARNING)
             return facts
 
     # Get the actual filename from the server, if it exists.
