@@ -533,9 +533,15 @@ def generate_munki_recipe(facts, prefs, recipe):
         import_file_var = "%dmg_path%"
 
     elif facts["download_format"] in supported_install_formats:
+
+        # TODO(Elliot): If it's a flat package, Munki can import that directly.
+        # No need to wrap it in a dmg.
+
         # TODO(Elliot): %NAME%.app might not be the right blocking app.
         # Can we use the information we learned when inspect_pkg unpacked it?
-        keys["Input"]["pkginfo"]["blocking_applications"] = "%s.app" % facts["app_name_key"]
+        keys["Input"]["pkginfo"]["blocking_applications"] = [
+            "%s.app" % facts["app_name_key"]
+        ]
         keys["Process"].append({
             "Processor": "PkgRootCreator",
             "Arguments": {
