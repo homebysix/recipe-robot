@@ -533,13 +533,32 @@ def generate_munki_recipe(facts, prefs, recipe):
         import_file_var = "%dmg_path%"
 
     elif facts["download_format"] in supported_install_formats:
-        # TODO(Elliot): Put pkg in dmg?
+        # TODO(Elliot): %NAME%.app might not be the right blocking app.
+        # Can we use the information we learned when inspect_pkg unpacked it?
         keys["Input"]["pkginfo"]["blocking_applications"] = "%s.app" % facts["app_name_key"]
-        robo_print("Sorry, I don't yet know how to create "
-                    "munki recipes from pkg downloads.", LogLevel.WARNING)
-        # TODO(Shea): Prevent recipe path from being written to disk/output by
-        # the parent function, if the recipe wasn't actually generated.
-        return
+        keys["Process"].append({
+            "Processor": "PkgRootCreator",
+            "Arguments": {
+                "pkgdirs": {},
+                "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%"
+            }
+        })
+        keys["Process"].append({
+            "Processor": "FileMover",
+            "Arguments": {
+                "source": "%pathname%",
+                # TODO(Elliot): Do we always have %version% at this point?
+                "target": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%-%version%.pkg"
+            }
+        })
+        keys["Process"].append({
+            "Processor": "DmgCreator",
+            "Arguments": {
+                "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.dmg",
+                "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%"
+            }
+        })
+        import_file_var = "%dmg_path%"
 
     if facts["version_key"] != "CFBundleShortVersionString":
         keys["Process"].append({
@@ -696,8 +715,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 })
 
     elif facts["download_format"] in supported_install_formats:
-        robo_print("Skipping pkg recipe, since the download "
-                    "format is already pkg.", LogLevel.VERBOSE)
+        robo_print("Skipping pkg process, since the download format is "
+                   "already pkg.", LogLevel.WARNING)
         return
 
     keys["Process"].append({
