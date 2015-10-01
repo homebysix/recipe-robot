@@ -1115,6 +1115,18 @@ def inspect_download_url(input_path, args, facts):
         download_file.write(raw_download.read())
         robo_print("Downloaded to %s/%s" % (cache_dir, filename), LogLevel.VERBOSE, 4)
 
+    # Just in case the "download" was actually a Sparkle feed.
+    hidden_sparkle = False
+    with open("%s/%s" % (cache_dir, filename), "r") as download_file:
+        if download_file.read()[:6] == "<?xml ":
+            robo_print("This download is actually a Sparkle "
+                       "feed", LogLevel.VERBOSE, 4)
+            hidden_sparkle = True
+    if hidden_sparkle is True:
+        os.remove(os.path.join(cache_dir, filename))
+        inspect_sparkle_feed_url(input_path, args, facts)
+        return facts
+
     # Try to determine the type of file downloaded. (Overwrites any previous
     # download_type, because the download URL is the most reliable source.)
     download_format = ""
@@ -1135,9 +1147,27 @@ def inspect_download_url(input_path, args, facts):
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
 
+        # Determine whether the dmg has a software license agreement.
+        # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
+        dmg_has_sla = False
+        cmd = "/usr/bin/hdiutil imageinfo -plist \"%s/%s\"" % (cache_dir, filename)
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            with open("%s/dmg_info.plist" % cache_dir, "wb") as dmg_plist:
+                dmg_plist.write(out)
+            try:
+                dmg_info = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_info.plist"))
+                if dmg_info.get("Properties").get("Software License Agreement") == True:
+                    dmg_has_sla = True
+            except FoundationPlist.NSPropertyListSerializationException:
+                pass
+        if dmg_has_sla is True:
+            robo_print("Please type Y and press Enter to accept the software license agreement.", LogLevel.WARNING)
+
+        # TODO(Elliot): Make the SLA non-interactive.
+        # Example: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L108-L110
+
         # Mount the dmg and look for an app.
-        # TODO(Elliot): Handle dmgs with license agreements:
-        # https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
         cmd = "/usr/bin/hdiutil attach -plist \"%s/%s\"" % (cache_dir, filename)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
