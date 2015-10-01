@@ -979,11 +979,15 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     for item in doc.iterfind('channel/item/enclosure'):
         if item.get("{%s}shortVersionString" % xmlns) is not None:
             sparkle_provides_version = True
+            # TODO(Elliot): BUG: Version string "999" is greater than "1000".
+            # Convert to Strict/Loose Version for comparison?
             if item.get("{%s}shortVersionString" % xmlns) > latest_version:
                 latest_version = item.get("{%s}shortVersionString" % xmlns)
                 latest_url = item.attrib["url"]
         if item.get("{%s}version" % xmlns) is not None:
             sparkle_provides_version = True
+            # TODO(Elliot): BUG: Version string "999" is greater than "1000".
+            # Convert to Strict/Loose Version for comparison?
             if item.get("{%s}version" % xmlns) > latest_version:
                 latest_version = item.get("{%s}version" % xmlns)
                 latest_url = item.attrib["url"]
