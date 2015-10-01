@@ -1111,13 +1111,13 @@ def inspect_download_url(input_path, args, facts):
     facts["download_filename"] = filename
 
     # Write the downloaded file to the cache folder.
-    with open("%s/%s" % (cache_dir, filename), "wb") as download_file:
+    with open(os.path.join(cache_dir, filename), "wb") as download_file:
         download_file.write(raw_download.read())
-        robo_print("Downloaded to %s/%s" % (cache_dir, filename), LogLevel.VERBOSE, 4)
+        robo_print("Downloaded to %s" % os.path.join(cache_dir, filename), LogLevel.VERBOSE, 4)
 
     # Just in case the "download" was actually a Sparkle feed.
     hidden_sparkle = False
-    with open("%s/%s" % (cache_dir, filename), "r") as download_file:
+    with open(os.path.join(cache_dir, filename), "r") as download_file:
         if download_file.read()[:6] == "<?xml ":
             robo_print("This download is actually a Sparkle "
                        "feed", LogLevel.VERBOSE, 4)
@@ -1150,10 +1150,10 @@ def inspect_download_url(input_path, args, facts):
         # Determine whether the dmg has a software license agreement.
         # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
         dmg_has_sla = False
-        cmd = "/usr/bin/hdiutil imageinfo -plist \"%s/%s\"" % (cache_dir, filename)
+        cmd = "/usr/bin/hdiutil imageinfo -plist \"%s\"" % os.path.join(cache_dir, filename)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            with open("%s/dmg_info.plist" % cache_dir, "wb") as dmg_plist:
+            with open(os.path.join(cache_dir, "dmg_info.plist"), "wb") as dmg_plist:
                 dmg_plist.write(out)
             try:
                 dmg_info = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_info.plist"))
@@ -1168,7 +1168,7 @@ def inspect_download_url(input_path, args, facts):
         # Example: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L108-L110
 
         # Mount the dmg and look for an app.
-        cmd = "/usr/bin/hdiutil attach -plist \"%s/%s\"" % (cache_dir, filename)
+        cmd = "/usr/bin/hdiutil attach -plist \"%s\"" % os.path.join(cache_dir, filename)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
 
@@ -1186,10 +1186,10 @@ def inspect_download_url(input_path, args, facts):
             out_clean = out[out.find("<?xml"):]
 
             # Locate and inspect the app.
-            with open("%s/dmg_attach.plist" % cache_dir, "wb") as dmg_plist:
+            with open(os.path.join(cache_dir, "dmg_attach.plist"), "wb") as dmg_plist:
                 dmg_plist.write(out_clean)
             try:
-                dmg_dict = FoundationPlist.readPlist("%s/dmg_attach.plist" % cache_dir)
+                dmg_dict = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_attach.plist"))
             except Exception:
                 robo_print("Shoot, I had trouble parsing the output of "
                            "hdiutil while mounting the downloaded dmg. Sorry "
@@ -1199,8 +1199,8 @@ def inspect_download_url(input_path, args, facts):
                 if this_file.endswith(".app"):
                     # Copy app to cache folder.
                     # TODO(Elliot): What if .app isn't on root of dmg mount?
-                    attached_app_path = "%s/%s" % (dmg_mount, this_file)
-                    cached_app_path = "%s/unpacked/%s" % (cache_dir, this_file)
+                    attached_app_path = os.path.join(dmg_mount, this_file)
+                    cached_app_path = os.path.join(cache_dir, "unpacked", this_file)
                     if not os.path.exists(cached_app_path):
                         try:
                             shutil.copytree(attached_app_path, cached_app_path)
@@ -1219,7 +1219,7 @@ def inspect_download_url(input_path, args, facts):
     if download_format == "" or download_format in supported_archive_formats:
 
         # Unzip the zip and look for an app.
-        cmd = "/usr/bin/unzip \"%s/%s\" -d \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
+        cmd = "/usr/bin/unzip \"%s\" -d \"%s\"" % (os.path.join(cache_dir, filename), os.path.join(cache_dir, "unpacked"))
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
 
@@ -1234,7 +1234,7 @@ def inspect_download_url(input_path, args, facts):
                 facts["download_filename"] = facts["download_filename"] + ".zip"
 
             # Locate and inspect the app.
-            for this_file in os.listdir("%s/unpacked" % cache_dir):
+            for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
                 if this_file.endswith(".app"):
                     # TODO(Elliot): What if .app isn't on root of zip?
                     # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
@@ -1248,7 +1248,7 @@ def inspect_download_url(input_path, args, facts):
     if download_format == "" or download_format in supported_archive_formats:
 
         # Unzip the tgz and look for an app.
-        cmd = "/usr/bin/tar -zxvf \"%s/%s\" -C \"%s/unpacked\"" % (cache_dir, filename, cache_dir)
+        cmd = "/usr/bin/tar -zxvf \"%s\" -C \"%s\"" % (os.path.join(cache_dir, filename), os.path.join(cache_dir, "unpacked"))
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
 
@@ -1263,7 +1263,7 @@ def inspect_download_url(input_path, args, facts):
                 facts["download_filename"] = facts["download_filename"] + ".tgz"
 
             # Locate and inspect the app.
-            for this_file in os.listdir("%s/unpacked" % cache_dir):
+            for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
                 if this_file.endswith(".app"):
                     # TODO(Elliot): What if .app isn't on root of tgz?
                     facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
@@ -1354,9 +1354,9 @@ def inspect_pkg(input_path, args, facts):
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
         # Locate and inspect the app.
-        robo_print("Package expanded to: %s/expanded" % cache_dir, LogLevel.VERBOSE, 4)
+        robo_print("Package expanded to: %s" % os.path.join(cache_dir, "expanded"), LogLevel.VERBOSE, 4)
         install_filename = ""
-        for dirpath, dirnames, filenames in os.walk("%s/expanded" % cache_dir):
+        for dirpath, dirnames, filenames in os.walk("%s" % os.path.join(cache_dir, "expanded")):
             for dirname in dirnames:
                 if dirname.startswith("."):
                     dirnames.remove(dirname)
@@ -1415,7 +1415,7 @@ def inspect_pkg(input_path, args, facts):
                                     app_found = True
                                     robo_print("Found app: %s" % line, LogLevel.VERBOSE, 4)
                                     extracted_app_path = os.path.join(cache_dir, "extracted_apps", os.path.split(line)[1])
-                                    cmd = "/usr/bin/gunzip -c \"%s/expanded/%s\" | pax -r -s \",%s,%s,\"" % (cache_dir, filename, line, extracted_app_path)
+                                    cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",%s,%s,\"" % (os.path.join(cache_dir, "expanded", filename), line, extracted_app_path)
                                     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                                     if exitcode == 0:
                                         inspect_app(extracted_app_path, args, facts)
@@ -1579,8 +1579,7 @@ def inspect_app(input_path, args, facts):
         icon_path = ""
         robo_print("Looking for app icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:
-            icon_path = "%s/Contents/Resources/%s" % (
-                input_path, info_plist["CFBundleIconFile"])
+            icon_path = os.path.join(input_path, "Contents", "Resources", info_plist["CFBundleIconFile"])
         else:
             robo_print("Can't determine app icon.", LogLevel.WARNING)
         if icon_path != "":
