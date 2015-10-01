@@ -352,11 +352,6 @@ def process_input_path(input_path, args, facts):
     facts["inspections"] = []
 
     if input_path.startswith("http"):
-        # TODO(Elliot): Some Sparkle feeds look like download URLs, and the
-        # best way to determine that they're not is to look at the first
-        # line. If it's a Sparkle feed, the first line will start with this:
-        # <?xml version="1.0"
-        # Can we download just the first line and take a peek?
         if (input_path.endswith(".xml") or
             input_path.endswith(".rss") or
             input_path.endswith(".php") or
@@ -626,7 +621,6 @@ def inspect_sourceforge_url(input_path, args, facts):
 
     # Determine the name of the SourceForge project.
     proj_name = ""
-    # TODO(Elliot): Is it better to do this with re.search()?
     if  "/projects/" in input_path:
         # Example: http://sourceforge.net/projects/adium/?source=recommended
         # Example: http://sourceforge.net/projects/grandperspectiv
@@ -751,6 +745,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             for item in doc.iterfind('channel/item'):
                 # TODO(Elliot): The extra-info tag is not a reliable indicator
                 # of which item should actually be downloaded.
+                # Example: http://sourceforge.net/projects/grandperspectiv/rss
                 search = "{https://sourceforge.net/api/files.rdf#}extra-info"
                 if item.find(search).text.startswith("data"):
                     download_url = item.find("link").text.rstrip("/download")
@@ -908,8 +903,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     """Process a Sparkle feed URL, gathering required information to create a
     recipe.
     """
-
-    # TODO(Elliot): Can we use the actual SparkleUpdateProvider for this?
 
     # Only proceed if we haven't inspected this Sparkle feed yet.
     if "sparkle_feed_url" in facts["inspections"]:
