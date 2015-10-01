@@ -980,17 +980,20 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # Determine whether the Sparkle feed provides a version number.
     sparkle_provides_version = False
-    robo_print("Determine whether the Sparkle feed provides a version number...", LogLevel.VERBOSE)
+    latest_version = ""
+    latest_url = ""
+    robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
     for item in doc.iterfind('channel/item/enclosure'):
         if item.get("{%s}shortVersionString" % xmlns) is not None:
             sparkle_provides_version = True
+            if item.get("{%s}shortVersionString" % xmlns) > latest_version:
+                latest_version = item.get("{%s}shortVersionString" % xmlns)
+                latest_url = item.attrib["url"]
         if item.get("{%s}version" % xmlns) is not None:
             sparkle_provides_version = True
-        break  # should stop after the most recent (first) enclosure item
-        # TODO(Elliot): Not all Sparkle feeds list the most recent item first.
-        # Examples: http://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml
-        # http://updates.coconut-flavour.com/coconutBatteryIntel.xml
-        # This can cause incorrect code signature evaluation.
+            if item.get("{%s}version" % xmlns) > latest_version:
+                latest_version = item.get("{%s}version" % xmlns)
+                latest_url = item.attrib["url"]
     if sparkle_provides_version is True:
         robo_print("The Sparkle feed provides a version "
                    "number", LogLevel.VERBOSE, 4)
@@ -998,19 +1001,10 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         robo_print("The Sparkle feed does not provide a version "
                    "number", LogLevel.VERBOSE, 4)
     facts["sparkle_provides_version"] = sparkle_provides_version
-
-    # Get the latest download URL.
-    download_url = ""
-    robo_print("Determining download URL from Sparkle feed...", LogLevel.VERBOSE)
-    for item in doc.iterfind('channel/item/enclosure'):
-        download_url = item.attrib["url"]
-        break  # should stop after the most recent (first) enclosure item
-        # TODO(Elliot): Not all Sparkle feeds list the most recent item first.
-        # Examples: http://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml
-        # http://updates.coconut-flavour.com/coconutBatteryIntel.xml
-        # This can cause incorrect code signature evaluation.
-    if download_url != "":
-        facts = inspect_download_url(download_url, args, facts)
+    if latest_version != "":
+        robo_print("The latest version is %s" % latest_version, LogLevel.VERBOSE, 4)
+    if latest_url != "":
+        facts = inspect_download_url(latest_url, args, facts)
 
     # If Sparkle feed is hosted on GitHub or SourceForge, we can gather more
     # information.
