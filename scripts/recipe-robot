@@ -72,7 +72,7 @@ from recipe_robot_lib.tools import (create_dest_dirs,
                                     LogLevel, OutputMode, print_welcome_text,
                                     __version__)
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
-# Or not use it at all (i.e. use the preferences system correctly).
+# Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
     from recipe_robot_lib import FoundationPlist
 except:
@@ -278,7 +278,7 @@ def build_prefs(prefs, recipes):
     prefs["RecipeTypes"] = []
     robo_print("\nPreferred recipe types")
     robo_print("Choose which recipe types will be offered to you by default.\n")
-    # TODO(Elliot): Make this interactive while retaining scrollback.
+    # TODO(Elliot): Make this interactive while retaining scrollback. (#17)
     # Maybe with curses module?
     while True:
         i = 0
@@ -474,7 +474,7 @@ def inspect_github_url(input_path, args, facts):
         robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
         facts["github_repo"] = github_repo
 
-        # TODO(Elliot): How can we use GitHub tokens to prevent rate limiting?
+        # TODO(Elliot): How can we use GitHub tokens to prevent rate limiting? (#18)
 
         # Use GitHub API to obtain information about the repo and releases.
         repo_api_url = "https://api.github.com/repos/%s" % github_repo
