@@ -62,7 +62,7 @@ def generate_recipes(facts, prefs, recipes):
     if not buildable:
         robo_print("Sorry, no recipes available to generate.", LogLevel.ERROR)
 
-    # TODO(Shea) Move to some kind of fact-validator function.
+    # TODO(Shea) Move to some kind of fact-validator function. (#30)
     # We don't have enough information to create a recipe set.
     if (facts["is_from_app_store"] is False and
             "sparkle_feed" not in facts and
@@ -177,15 +177,15 @@ def generate_recipes(facts, prefs, recipes):
                         "that." % recipe["type"], LogLevel.WARNING)
 
         # Write the recipe to disk.
-        # TODO(Elliot): Warning if a file already exists here.
-        # TODO(Elliot): Create subfolders automatically.
+        # TODO(Elliot): Warning if a file already exists here. (#32)
+        # TODO(Elliot): Create subfolders automatically. (#31)
         dest_path = "%s/%s" % (recipe_dest_dir, recipe["filename"])
         FoundationPlist.writePlist(recipe["keys"], dest_path)
         robo_print("%s/%s" % (prefs["RecipeCreateLocation"],
                               recipe["filename"]), LogLevel.LOG, 4)
 
         # Keep track of the total number of recipes we've created.
-        # TODO(Elliot): Don't count do-over recipes.
+        # TODO(Elliot): Don't count do-over recipes. (#33)
         prefs["RecipeCreateCount"] += 1
 
     # Save preferences to disk for next time.
@@ -287,7 +287,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Processor": "URLDownloader",
                 "Arguments": {
                     "url": "%DOWNLOAD_URL%",
-                    # TODO(Elliot): Explicit filename may not be necessary.
+                    # TODO(Elliot): Explicit filename may not be necessary. (#35)
                     # Example: http://www.sonnysoftware.com/Bookends.dmg
                     "filename": facts["download_filename"],
                     "request_headers": {
@@ -364,7 +364,7 @@ def generate_download_recipe(facts, prefs, recipe):
                     }
                 })
         elif facts["download_format"] in supported_install_formats:
-            # TODO(Elliot): Check for signed .pkg files.
+            # TODO(Elliot): Check for signed .pkg files. (#36)
             robo_print("I'm not quite sure how I ended up here. Looks like I "
                        "found a signed pkg download, but also a signed app "
                        "somewhere along the way. My boss is going to need to "
@@ -470,7 +470,7 @@ def generate_munki_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into "
                             "Munki." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's download recipe?
+    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
@@ -535,9 +535,9 @@ def generate_munki_recipe(facts, prefs, recipe):
     elif facts["download_format"] in supported_install_formats:
 
         # TODO(Elliot): If it's a flat package, Munki can import that directly.
-        # No need to wrap it in a dmg.
+        # No need to wrap it in a dmg. (#38)
 
-        # TODO(Elliot): %NAME%.app might not be the right blocking app.
+        # TODO(Elliot): %NAME%.app might not be the right blocking app. (#39)
         # Can we use the information we learned when inspect_pkg unpacked it?
         keys["Input"]["pkginfo"]["blocking_applications"] = [
             "%s.app" % facts["app_name_key"]
@@ -554,6 +554,7 @@ def generate_munki_recipe(facts, prefs, recipe):
             "Arguments": {
                 "source": "%pathname%",
                 # TODO(Elliot): Do we always have %version% at this point?
+                # (Might be rendered moot by #38)
                 "target": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%-%version%.pkg"
             }
         })
@@ -643,7 +644,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # Can't make this recipe without a bundle identifier.
     # TODO(Elliot): Bundle id is also provided by AppDmgVersioner and some
     # Sparkle feeds. When those are present, can we proceed even though we
-    # don't have bundle_id in facts?
+    # don't have bundle_id in facts? (#40)
     if "bundle_id" not in facts:
         robo_print("Skipping %s recipe, because I wasn't able to "
                     "determine the bundle identifier of this app. "
@@ -657,7 +658,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s and "
                             "creates a package." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's download recipe?
+    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     # Save bundle identifier.
@@ -770,7 +771,7 @@ def generate_install_recipe(facts, prefs, recipe):
     keys["Description"] = ("Installs the latest version "
                             "of %s." % facts["app_name"])
 
-    # TODO(Elliot): What if it's somebody else's download recipe?
+    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     if facts["download_format"] in supported_image_formats:
@@ -853,17 +854,14 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into your JSS." %
                             facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe?
+    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (
         prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
-    # TODO(Elliot): How can we set the category automatically?
-    # Good luck! I suppose we could do some kind of fuzzy decision tree
-    # with the category as found on an App Store page or something...
-    # When in doubt, use Productivity!
-    keys["Input"]["CATEGORY"] = ""
-    robo_print("Remember to manually set the category "
-                "in the jss recipe.", LogLevel.REMINDER)
+    keys["Input"]["CATEGORY"] = "Productivity"
+    robo_print("Remember to manually set the category in the jss "
+               "recipe. I've set it to \"Productivity\" by "
+               "default.", LogLevel.REMINDER)
 
     keys["Input"]["POLICY_CATEGORY"] = "Testing"
     keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
@@ -961,9 +959,10 @@ def generate_absolute_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your Absolute Manage "
                             "Server." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe?
+    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
+    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
     keys["Process"].append({
         "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
         "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
@@ -1004,9 +1003,10 @@ def generate_sccm_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your SCCM "
                             "Server." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe?
+    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
+    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
     keys["Process"].append({
         "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
         "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
@@ -1069,10 +1069,11 @@ def generate_filewave_recipe(facts, prefs, recipe):
                 }
             })
     elif facts["download_format"] in supported_install_formats:
-        # TODO(Elliot): Fix this.
+        # TODO(Elliot): Fix this. (#41)
         robo_print("Sorry, I don't yet know how to create "
                     "filewave recipes from pkg downloads.", LogLevel.WARNING)
 
+    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
     keys["Process"].append({
         "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
         "Arguments": {
@@ -1115,7 +1116,7 @@ def generate_ds_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it to your DeployStudio "
                             "packages." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe?
+    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
     keys["Input"]["DS_PKGS_PATH"] = prefs["DSPackagesPath"]
     keys["Input"]["DS_NAME"] = "%NAME%"

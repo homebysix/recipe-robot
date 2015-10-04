@@ -504,7 +504,7 @@ def inspect_github_url(input_path, args, facts):
                 return facts
         except URLError as err:
             if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-                # TODO(Elliot): Try again using curl?
+                # TODO(Elliot): Try again using curl? (#19)
                 robo_print("I got an SSLv3 handshake error while getting "
                            "information from the GitHub API, and I "
                            "don't yet know what to do with that. "
@@ -671,7 +671,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 return facts
         except URLError as err:
             if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-                # TODO(Elliot): Try again using curl?
+                # TODO(Elliot): Try again using curl? (#19)
                 robo_print("I got an SSLv3 handshake error while getting "
                            "information from the SourceForge API, and I "
                            "don't yet know what to do with that. "
@@ -730,7 +730,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             # Example: http://sourceforge.net/projects/grandperspectiv/rss
             # Example: http://sourceforge.net/projects/cord/rss
             # TODO(Elliot): Per SourceForge TOS we should limit RSS
-            # requests to one hit per 30 minute period per feed.
+            # requests to one hit per 30 minute period per feed. (#20)
             files_rss = "http://sourceforge.net/projects/%s/rss" % proj_name
             try:
                 raw_xml = urlopen(files_rss)
@@ -744,7 +744,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             robo_print("Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE)
             for item in doc.iterfind('channel/item'):
                 # TODO(Elliot): The extra-info tag is not a reliable indicator
-                # of which item should actually be downloaded.
+                # of which item should actually be downloaded. (#21)
                 # Example: http://sourceforge.net/projects/grandperspectiv/rss
                 search = "{https://sourceforge.net/api/files.rdf#}extra-info"
                 if item.find(search).text.startswith("data"):
@@ -760,9 +760,6 @@ def inspect_sourceforge_url(input_path, args, facts):
             if parsed_json["private"] is True:
                 robo_print("This SourceForge project is marked \"private\" "
                            "and recipes you generate may not work for others.", LogLevel.WARNING)
-
-        # TODO(Elliot): Can we make use of parsed_json["icon"]?
-        # Example: https://sourceforge.net/p/adium/icon
 
     else:
         robo_print("Could not detect SourceForge project name.", LogLevel.WARNING)
@@ -817,7 +814,7 @@ def inspect_bitbucket_url(input_path, args, facts):
                 return facts
         except URLError as err:
             if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-                # TODO(Elliot): Try again using curl?
+                # TODO(Elliot): Try again using curl? (#19)
                 robo_print("I got an SSLv3 handshake error while getting "
                            "information from the BitBucket API, and I "
                            "don't yet know what to do with that. "
@@ -946,7 +943,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             return facts
     except URLError as err:
         if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-            # TODO(Elliot): Try again using curl?
+            # TODO(Elliot): Try again using curl? (#19)
             robo_print("I got an SSLv3 handshake error while getting "
                        "information from the Sparkle feed, and I "
                        "don't yet know what to do with that. "
@@ -967,7 +964,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts.pop("sparkle_feed", None)
         return facts
 
-    # TODO(Elliot): Handle custom namespaces. Example code:
+    # TODO(Elliot): Handle custom namespaces. (#22) Example code:
     # https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/SparkleUpdateInfoProvider.py#L115-L119
     xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
 
@@ -980,14 +977,14 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         if item.get("{%s}shortVersionString" % xmlns) is not None:
             sparkle_provides_version = True
             # TODO(Elliot): BUG: Version string "999" is greater than "1000".
-            # Convert to Strict/Loose Version for comparison?
+            # Convert to Strict/Loose Version for comparison? (#23)
             if item.get("{%s}shortVersionString" % xmlns) > latest_version:
                 latest_version = item.get("{%s}shortVersionString" % xmlns)
                 latest_url = item.attrib["url"]
         if item.get("{%s}version" % xmlns) is not None:
             sparkle_provides_version = True
             # TODO(Elliot): BUG: Version string "999" is greater than "1000".
-            # Convert to Strict/Loose Version for comparison?
+            # Convert to Strict/Loose Version for comparison? (#23
             if item.get("{%s}version" % xmlns) > latest_version:
                 latest_version = item.get("{%s}version" % xmlns)
                 latest_url = item.attrib["url"]
@@ -1060,7 +1057,7 @@ def inspect_download_url(input_path, args, facts):
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
-    # files? https://gist.github.com/gourneau/1430932
+    # files? https://gist.github.com/gourneau/1430932 (#24)
     robo_print("Downloading file for further inspection...", LogLevel.VERBOSE)
     create_dest_dirs(cache_dir)
 
@@ -1092,7 +1089,7 @@ def inspect_download_url(input_path, args, facts):
             return facts
     except URLError as err:
         if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-            # TODO(Elliot): Try again using curl?
+            # TODO(Elliot): Try again using curl? (#19)
             robo_print("I got an SSLv3 handshake error, and I don't yet know "
                        "what to do with that. (%s)" % err, LogLevel.WARNING)
             return facts
@@ -1168,7 +1165,7 @@ def inspect_download_url(input_path, args, facts):
         if dmg_has_sla is True:
             robo_print("Please type Y and press Enter to accept the software license agreement.", LogLevel.WARNING)
 
-        # TODO(Elliot): Make the SLA non-interactive.
+        # TODO(Elliot): Make the SLA non-interactive. (#25)
         # Example: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L108-L110
 
         # Mount the dmg and look for an app.
@@ -1205,7 +1202,7 @@ def inspect_download_url(input_path, args, facts):
             for this_file in os.listdir(dmg_mount):
                 if this_file.endswith(".app"):
                     # Copy app to cache folder.
-                    # TODO(Elliot): What if .app isn't on root of dmg mount?
+                    # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
                     attached_app_path = os.path.join(dmg_mount, this_file)
                     cached_app_path = os.path.join(cache_dir, "unpacked", this_file)
                     if not os.path.exists(cached_app_path):
@@ -1243,7 +1240,7 @@ def inspect_download_url(input_path, args, facts):
             # Locate and inspect the app.
             for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
                 if this_file.endswith(".app"):
-                    # TODO(Elliot): What if .app isn't on root of zip?
+                    # TODO(Elliot): What if .app isn't on root of zip? (#26)
                     # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
                     facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
                     break
@@ -1272,7 +1269,7 @@ def inspect_download_url(input_path, args, facts):
             # Locate and inspect the app.
             for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
                 if this_file.endswith(".app"):
-                    # TODO(Elliot): What if .app isn't on root of tgz?
+                    # TODO(Elliot): What if .app isn't on root of tgz? (#26)
                     facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
                     break
                 if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
@@ -1386,7 +1383,7 @@ def inspect_pkg(input_path, args, facts):
 
                     install_filename = os.path.basename(install_loc)
                     robo_print("Install filename: %s" % install_filename, LogLevel.VERBOSE, 4)
-                    continue  # TODO(Elliot): Or should we stop after the first?
+                    continue  # TODO(Elliot): Or should we stop after the first? (#27)
 
                 if filename == "Payload":
                     # We found a payload. Let's peek inside and see if there's an
@@ -1400,7 +1397,7 @@ def inspect_pkg(input_path, args, facts):
                         if os.path.exists(extracted_app_path):
                             shutil.rmtree(extracted_app_path)
                         cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",./,%s/,\"" % (payload_path, extracted_app_path)
-                        # TODO(Elliot): This doesn't work because it's outside the working directory.
+                        # TODO(Elliot): This doesn't work because it's outside the working directory. (#27)
                         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                         if exitcode == 0:
                             app_found = True
@@ -1428,7 +1425,7 @@ def inspect_pkg(input_path, args, facts):
                                         inspect_app(extracted_app_path, args, facts)
                                         break  # Struck pay dirt, so stop iterating
                                                # through apps in the payload
-                                        # TODO(Elliot): Should we stop at the first app?
+                                        # TODO(Elliot): Should we stop at the first app? (#27)
                                         # Find multiple, but use the one with the shortest path?
                                         # Find multiple, but use the largest file size?
                                         # Inspect all of them, use only the one with a Sparkle feed?
@@ -1453,7 +1450,7 @@ def inspect_pkg(input_path, args, facts):
     else:
         robo_print("Unable to expand package", LogLevel.VERBOSE, 4)
 
-    # TODO(Elliot): What info do we need to gather to produce recipes here?
+    # TODO(Elliot): What info do we need to gather to produce recipes here? (#27)
 
     return facts
 
@@ -1529,7 +1526,7 @@ def inspect_app(input_path, args, facts):
             robo_print("No Sparkle feed", LogLevel.VERBOSE, 4)
 
     # TODO(Elliot): Are there ways to download other than Sparkle that are
-    # exposed in the app's Info.plist?
+    # exposed in the app's Info.plist? (#28)
 
     if "is_from_app_store" not in facts:
         robo_print("Determining whether app was downloaded from the Mac App "
@@ -1752,7 +1749,7 @@ def create_existing_recipe_list(app_name, recipes, args):
         args: The command line arguments.
     """
 
-    # TODO(Elliot): Suggest users create GitHub API token to prevent limiting.
+    # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
 
     # If --include-existing is specified, no need to search at all.
     if args.include_existing is True:
@@ -1776,7 +1773,7 @@ def create_existing_recipe_list(app_name, recipes, args):
                 robo_print("I couldn't find a GitHub token to use.", LogLevel.WARNING)
                 cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
             else:
-                # TODO(Elliot): Learn how to use the GitHub token. https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
+                # TODO(Elliot): Learn how to use the GitHub token. (#18) https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
                 robo_print("I found a GitHub token, but I'm still learning how to use it.", LogLevel.WARNING)
                 cmd = "/usr/local/bin/autopkg search --path-only --use-token \"%s\"" % this_search
         else:
@@ -1824,11 +1821,6 @@ def create_buildable_recipe_list(app_name, recipes, args, facts):
             if recipe["preferred"] is True:
                 recipe["buildable"] = True
 
-    # TODO(Elliot):  Do we also need to consider which facts we have collected
-    # at this point? For example, if we didn't find a Sparkle URL or any other
-    # way to download the app, it's unlikely that we can produce a download
-    # recipe.
-
 
 def debug_dump(items):
     """Dump all the variables we know about to output.
@@ -1873,7 +1865,6 @@ def congratulate(prefs):
                              random.choice(congrats_msg)))
 
 
-# TODO(Elliot): Make main() shorter. Just a flowchart for the logic.
 def main():
     """Make the magic happen."""
 
