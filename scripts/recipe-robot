@@ -1198,7 +1198,10 @@ def inspect_download_url(input_path, args, facts):
                 robo_print("Shoot, I had trouble parsing the output of "
                            "hdiutil while mounting the downloaded dmg. Sorry "
                            "about that.", LogLevel.ERROR)
-            dmg_mount = dmg_dict["system-entities"][-1]["mount-point"]
+            for entity in dmg_dict["system-entities"]:
+                if "mount-point" in entity:
+                    dmg_mount = entity["mount-point"]
+                    break
             for this_file in os.listdir(dmg_mount):
                 if this_file.endswith(".app"):
                     # Copy app to cache folder.
