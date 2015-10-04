@@ -30,3 +30,4 @@ mailcore2/unittest/data
 *.pyc
 
 TODO.md
+.idea
