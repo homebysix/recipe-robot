@@ -12,9 +12,10 @@ import Quartz
 
 let BGColor = NSColor(SRGBRed: 245/255, green: 245/255, blue: 220/255, alpha: 1).CGColor
 
+
 extension CAGradientLayer {
     func baseGradient() -> CAGradientLayer {
-        let gradientColors: [CGColor] = [BGColor, NSColor.grayColor().CGColor ]
+        let gradientColors: [CGColor] = [BGColor, NSColor.whiteColor().CGColor ]
 
         let gradientLocations: [Float] = [0.0, 1.0]
 
@@ -27,21 +28,10 @@ extension CAGradientLayer {
 
 // MARK: Subclases
 // MARK: -- Segue --
-class ReplaceSegue: NSStoryboardSegue {
-    override func perform() {
-        if let fromViewController = sourceController as? RecipeRobotViewController {
-            if let toViewController = destinationController as? RecipeRobotViewController {
-                // no animation.
-                toViewController.task = fromViewController.task;
-                fromViewController.view.window?.contentViewController = toViewController
-            }
-        }
-    }
-}
+
 
 // MARK: -- Views --
 class feedMeDropImageView: NSImageView, NSDraggingDestination {
-
     override func performDragOperation(sender: NSDraggingInfo) -> Bool {
         if let feedMeViewController = sender.draggingDestinationWindow().contentViewController as? FeedMeViewController,
             files = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? NSArray,
@@ -62,13 +52,11 @@ class feedMeDropImageView: NSImageView, NSDraggingDestination {
     }
 
     override func draggingEntered(sender: NSDraggingInfo) -> NSDragOperation  {
-        if let vc = sender.draggingDestinationWindow().contentViewController as? FeedMeViewController {
-            vc.animateGears()
-        }
-
         return NSDragOperation.Copy
     }
 
+    override func draggingExited(sender: NSDraggingInfo?) {
+    }
 }
 
 // MARK: -- TableCellView --
@@ -76,13 +64,10 @@ class recipeTypeCellView: NSTableCellView {
     @IBOutlet var checkBox: NSButton?
 }
 
-// MARK: View Controllers
-/// Base view Controller for Recipe-Robot story board.
+// MARK: - View Controllers
+// MARK: -
+// MARK: Base view Controller for Recipe-Robot story board.
 class RecipeRobotViewController: NSViewController {
-
-    deinit {
-        println("deiniting")
-    }
 
     var task: RecipeRobotTask = RecipeRobotTask()
     @IBOutlet var segueButton: NSButton?
@@ -90,10 +75,10 @@ class RecipeRobotViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.wantsLayer = true
-        // Do any additional setup after loading the view.
     }
 
     override func awakeFromNib() {
+        super.awakeFromNib()
         if let layer = self.view.layer {
             view.layer = CAGradientLayer().baseGradient()
             view.layer?.needsDisplay()
@@ -107,33 +92,46 @@ class RecipeRobotViewController: NSViewController {
     }
 
     override func prepareForSegue(segue: NSStoryboardSegue, sender: AnyObject?) {
-        if let x = segue.sourceController as? RecipeRobotViewController,
-            y = segue.destinationController as? RecipeRobotViewController {
+        if let source = segue.sourceController as? RecipeRobotViewController,
+            dest = segue.destinationController as? RecipeRobotViewController {
                 // Here we pass off the task object during the seague transition.
                 // So in the future make sure to call super.prepareForSegue() on any
                 // additional viewControllers.
-                y.task = x.task
+                dest.task = source.task
+                if let dest = dest as? RecipeChoiceViewController {
+                    dest.configure()
+                } else if let dest = dest as? ProcessingViewController {
+                    dest.processRecipes()
+                } else if let dest = dest as? FeedMeViewController {
+                    dest.task = RecipeRobotTask()
+                }
         }
     }
 }
 
+// MARK: - FeedMe
 class FeedMeViewController: RecipeRobotViewController {
     @IBOutlet var Gear1: NSImageView!
 
-    func animateGears(){
+    override func awakeFromNib() {
+        super.awakeFromNib()
     }
-
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+
+    override func viewDidAppear() {
+        super.viewDidAppear()
         self.task = RecipeRobotTask()
     }
+
 }
 
+// MARK: - Recipe Choice
 class RecipeChoiceViewController: RecipeRobotViewController, NSTableViewDataSource, NSTableViewDelegate {
 
     // MARK: IBOutlets
     @IBOutlet var appIconImageView: NSImageView?
-
 
     private let recipeTypes = [
         "download",
@@ -143,7 +141,8 @@ class RecipeChoiceViewController: RecipeRobotViewController, NSTableViewDataSour
         "jss",
         "absolute",
         "sccm",
-        "ds"]
+        "ds"
+    ]
     
     private var enabledRecipeTypes = NSUserDefaults.standardUserDefaults().objectForKey("RecipeTypes") as? [String]
 
@@ -152,8 +151,10 @@ class RecipeChoiceViewController: RecipeRobotViewController, NSTableViewDataSour
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
-        let appOrRecipe = self.task.appOrRecipe as NSString
+    }
 
+    func configure(){
+        let appOrRecipe = self.task.appOrRecipe as NSString
         switch appOrRecipe.pathExtension {
         case "app":
             let icon = NSWorkspace.sharedWorkspace().iconForFile(appOrRecipe as String)
@@ -215,28 +216,67 @@ class RecipeChoiceViewController: RecipeRobotViewController, NSTableViewDataSour
     }
 }
 
+// MARK: - Processing
 class ProcessingViewController: RecipeRobotViewController {
 
     @IBOutlet private var progressView: NSTextView?
     @IBOutlet private var cancelButton: NSButton?
 
+    @IBOutlet var gearContainerView: NSView!
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
-        self.task.createRecipes({ (progress) -> Void in
-            let attrStr = NSAttributedString(string: progress)
-            self.progressView?.textStorage?.appendAttributedString(attrStr)
-        }, completion: {(error) -> Void in
-            if let sound = NSSound(named: "Glass"){
-                sound.play()
-            }
-
-            if let button = self.cancelButton {
-                button.title = "Let's Do Another!"
-            }
-        })
     }
 
+    override func awakeFromNib() {
+        super.awakeFromNib()
+    }
+
+    func gearsShouldRotate(start: Bool){
+        for view in gearContainerView.subviews {
+            if let view = view as? NSImageView {
+                if start {
+                    view.rotate()
+                    view.colorize()
+                }  else {
+                    view.stopRotation()
+                    view.stopColorize()
+                }
+            }
+        }
+    }
+
+    func processRecipes() {
+
+        gearsShouldRotate(true)
+
+        // Do view setup here.
+        self.task.createRecipes({[weak self] (progress) -> Void in
+            let attrStr = NSAttributedString(string: progress)
+
+            if let pView = self?.progressView {
+                pView.textStorage?.appendAttributedString(attrStr)
+            }
+
+            }, completion: {[weak self](error) ->
+                Void in
+
+                if let pView = self?.progressView, error = error {
+                    let attrString = NSAttributedString(string: error.localizedDescription)
+                    pView.textStorage?.appendAttributedString(attrString)
+                }
+
+                if let sound = NSSound(named: "Glass"){
+                    sound.play()
+                }
+
+                self!.gearsShouldRotate(false)
+                if let button = self!.cancelButton {
+                    button.title = "Let's Do Another!"
+                }
+        })
+    }
     // MARK: IBActions
     @IBAction private func cancelTask(sender: NSButton){
         if self.task.isProcessing {

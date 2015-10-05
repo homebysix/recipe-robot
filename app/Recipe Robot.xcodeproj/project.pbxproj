@@ -10,11 +10,14 @@
 		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
+		BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */ = {isa = PBXBuildFile; fileRef = BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */; };
+		BE09DAB01BBA1D95007F8FF4 /* ImageViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09DAAF1BBA1D94007F8FF4 /* ImageViewExtensions.swift */; };
 		BE1A41CF1BB4C374008173FB /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
 		BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */; };
 		BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE34C8351B7EC5DF00E0822E /* Main.storyboard */; };
 		BE6F6BA31B800E270082011D /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
 		BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */; };
+		BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE6A1B81BB88A080050653A /* CustomSegues.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +38,8 @@
 		8B42AC8E1B5C5BEC0058A814 /* Recipe RobotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Recipe RobotTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B42AC931B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe_RobotTests.swift; sourceTree = "<group>"; };
+		BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_128x128.png; path = Images.xcassets/AppIcon.appiconset/icon_128x128.png; sourceTree = "<group>"; };
+		BE09DAAF1BBA1D94007F8FF4 /* ImageViewExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewExtensions.swift; sourceTree = "<group>"; };
 		BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotViewController.swift; sourceTree = "<group>"; };
 		BE34C8361B7EC5DF00E0822E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BE6F6B961B800DFB0082011D /* __init__.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = __init__.py; sourceTree = "<group>"; };
@@ -43,6 +48,8 @@
 		BE6F6B991B800DFB0082011D /* recipe-robot.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "recipe-robot.py"; sourceTree = "<group>"; };
 		BE6F6BA21B800E270082011D /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotTask.swift; sourceTree = "<group>"; };
+		BEE6A1B81BB88A080050653A /* CustomSegues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSegues.swift; sourceTree = "<group>"; };
+		BEE6A1BA1BB89FCA0050653A /* Recipe Robot-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Recipe Robot-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,9 +95,12 @@
 				BE34C8351B7EC5DF00E0822E /* Main.storyboard */,
 				8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */,
 				BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */,
+				BE09DAAF1BBA1D94007F8FF4 /* ImageViewExtensions.swift */,
+				BEE6A1B81BB88A080050653A /* CustomSegues.swift */,
 				BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */,
 				8B42AC851B5C5BEC0058A814 /* Images.xcassets */,
 				8B42AC811B5C5BEC0058A814 /* Supporting Files */,
+				BEE6A1BA1BB89FCA0050653A /* Recipe Robot-Bridging-Header.h */,
 			);
 			path = "Recipe Robot";
 			sourceTree = "<group>";
@@ -98,6 +108,7 @@
 		8B42AC811B5C5BEC0058A814 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */,
 				8B42AC821B5C5BEC0058A814 /* Info.plist */,
 				BE6F6B941B800DFB0082011D /* scripts */,
 			);
@@ -222,6 +233,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE6F6BA31B800E270082011D /* scripts in Resources */,
+				BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */,
 				BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */,
 				8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */,
 			);
@@ -242,6 +254,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE09DAB01BBA1D95007F8FF4 /* ImageViewExtensions.swift in Sources */,
+				BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */,
 				8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */,
 				BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */,
 				BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */,
@@ -362,10 +376,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "Recipe Robot/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Recipe Robot/Recipe Robot-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -373,10 +390,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "Recipe Robot/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Recipe Robot/Recipe Robot-Bridging-Header.h";
 			};
 			name = Release;
 		};
