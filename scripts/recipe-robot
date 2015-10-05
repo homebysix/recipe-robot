@@ -1525,9 +1525,6 @@ def inspect_app(input_path, args, facts):
         else:
             robo_print("No Sparkle feed", LogLevel.VERBOSE, 4)
 
-    # TODO(Elliot): Are there ways to download other than Sparkle that are
-    # exposed in the app's Info.plist? (#28)
-
     if "is_from_app_store" not in facts:
         robo_print("Determining whether app was downloaded from the Mac App "
                    "Store...", LogLevel.VERBOSE)
