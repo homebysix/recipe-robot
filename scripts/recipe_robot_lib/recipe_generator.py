@@ -179,14 +179,13 @@ def generate_recipes(facts, prefs, recipes):
         # Write the recipe to disk.
         # TODO(Elliot): Warning if a file already exists here. (#32)
         # TODO(Elliot): Create subfolders automatically. (#31)
-        dest_path = "%s/%s" % (recipe_dest_dir, recipe["filename"])
+        dest_path = os.path.join(recipe_dest_dir, recipe["filename"])
+        if not os.path.exists(dest_path):
+            # Keep track of the total number of unique recipes we've created.
+            prefs["RecipeCreateCount"] += 1
         FoundationPlist.writePlist(recipe["keys"], dest_path)
         robo_print("%s/%s" % (prefs["RecipeCreateLocation"],
                               recipe["filename"]), LogLevel.LOG, 4)
-
-        # Keep track of the total number of recipes we've created.
-        # TODO(Elliot): Don't count do-over recipes. (#33)
-        prefs["RecipeCreateCount"] += 1
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, prefs_file)
