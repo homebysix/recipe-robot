@@ -1499,17 +1499,17 @@ def inspect_app(input_path, args, facts):
         robo_print("Actual app filename: %s.app" % app_file, LogLevel.VERBOSE, 4)
         facts["app_file"] = app_file
 
-    # Determine the bundle identifier of the app.
-    if "bundle_id" not in facts:
-        bundle_id = ""
-        robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
-        if "CFBundleIdentifier" in info_plist:
-            bundle_id = info_plist["CFBundleIdentifier"]
-        else:
-            robo_print("This app doesn't have a bundle identifier.", LogLevel.WARNING)
-        if bundle_id != "":
-            robo_print("Bundle idenfitier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
-            facts["bundle_id"] = bundle_id
+    # Determine the bundle identifier of the app. (Overwrites any previous
+    # bundle_id, because the app itself is the most reliable source.)
+    bundle_id = ""
+    robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
+    if "CFBundleIdentifier" in info_plist:
+        bundle_id = info_plist["CFBundleIdentifier"]
+    else:
+        robo_print("Strange, this app doesn't have a bundle "
+                   "identifier.", LogLevel.ERROR)
+    robo_print("Bundle idenfitier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
+    facts["bundle_id"] = bundle_id
 
     # Attempt to determine how to download this app.
     if "sparkle_feed" not in facts:
