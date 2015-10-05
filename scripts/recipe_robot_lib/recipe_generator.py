@@ -1081,8 +1081,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "fw_app_version": "%version%",
             "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app",
             "fw_fileset_name": "%NAME% - %version%",
-            # TODO(Elliot): Is it always "Mac Desktop"?
-            "fw_fileset_group": "Mac Desktop",
+            "fw_fileset_group": "Testing",
             "fw_destination_root": "/Applications/%NAME%.app"
         }
     })
