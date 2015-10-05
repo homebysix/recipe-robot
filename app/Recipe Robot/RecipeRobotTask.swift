@@ -37,34 +37,43 @@ class RecipeRobotTask: NSObject {
         let err = NSPipe()
         task.standardError = err
 
-        out.fileHandleForReading.readabilityHandler = { handle in
-            let data = handle.availableData
-            if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as? String {
-                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                    progress(progress: str)
-                })
-            }
+        out.fileHandleForReading.readabilityHandler = {
+            handle in
+                let data = handle.availableData
+                if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as? String {
+                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                        progress(progress: str)
+                    })
+                }
         }
 
         var errData = NSMutableData()
-        err.fileHandleForReading.readabilityHandler = { handle in
-            errData.appendData(handle.availableData)
+        err.fileHandleForReading.readabilityHandler = {
+            handle in
+                let data = handle.availableData
+                errData.appendData(data)
+                if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as? String {
+                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                        progress(progress: str)
+                    })
+                }
         }
 
 
-        task.terminationHandler = { aTask in
-            // nil out the readabilityHandlers to prevent retension.
-            out.fileHandleForReading.readabilityHandler = nil
-            err.fileHandleForReading.readabilityHandler = nil
+        task.terminationHandler = {
+            aTask in
+                // nil out the readabilityHandlers to prevent retension.
+                out.fileHandleForReading.readabilityHandler = nil
+                err.fileHandleForReading.readabilityHandler = nil
 
-            var error: NSError?
-            if let dataString = NSString(data: errData, encoding:NSUTF8StringEncoding) as? String {
-                let error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
-            }
+                var error: NSError?
+                if let dataString = NSString(data: errData, encoding:NSUTF8StringEncoding) as? String {
+                    let error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
+                }
 
-            NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                completion(error: error)
-            })
+                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                    completion(error: error)
+                })
         }
         
         task.launch()
@@ -83,14 +92,7 @@ class RecipeRobotTask: NSObject {
 
         if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
             args.append(recipeRobotPy)
-            args.extend(["-o", self.output])
-
-            if (self.recipeTypes.count > 0) {
-                for t in recipeTypes {
-                    args.extend(["-t", t])
-                }
-            }
-            args.append(self.appOrRecipe)
+            args.extend(["-v", self.appOrRecipe])
         }
 
         return args

@@ -37,7 +37,8 @@ class feedMeDropImageView: NSImageView, NSDraggingDestination {
             files = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? NSArray,
             file = files.firstObject as? String {
                 feedMeViewController.task.appOrRecipe = file
-                feedMeViewController.segueButton?.performClick(self)
+                feedMeViewController.performSegueWithIdentifier("feedMeSegue", sender: self)
+
                 let item = sender.draggingPasteboard().pasteboardItems
         }
         return true
@@ -70,7 +71,6 @@ class recipeTypeCellView: NSTableCellView {
 class RecipeRobotViewController: NSViewController {
 
     var task: RecipeRobotTask = RecipeRobotTask()
-    @IBOutlet var segueButton: NSButton?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -227,6 +227,13 @@ class ProcessingViewController: RecipeRobotViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.progressView?.backgroundColor = NSColor.clearColor()
+        self.progressView?.drawsBackground = false
+        if let clipView = self.progressView?.superview as? NSClipView,
+                scrollView = clipView.superview as? NSScrollView {
+            scrollView.backgroundColor = NSColor.clearColor()
+            scrollView.drawsBackground = false
+        }
     }
 
     override func awakeFromNib() {
@@ -283,7 +290,7 @@ class ProcessingViewController: RecipeRobotViewController {
             cancelButton = sender
             self.task.cancel()
         } else {
-            self.segueButton?.performClick(self)
+            self.performSegueWithIdentifier("allDoneSegue", sender: self)
         }
     }
 }
