@@ -1623,7 +1623,8 @@ def inspect_app(input_path, args, facts):
             facts["codesign_reqs"] = codesign_reqs
 
     # Attempt to determine name of developer and code signature version.
-    if "developer" not in facts and codesign_status != "unsigned":
+    # This overwrites existing developer names, because the app is canonical.
+    if codesign_status != "unsigned":
         developer = ""
         codesign_version = ""
         robo_print("Determining application developer and codesign version...", LogLevel.VERBOSE)
