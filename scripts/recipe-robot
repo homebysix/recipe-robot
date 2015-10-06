@@ -1136,15 +1136,19 @@ def inspect_download_url(input_path, args, facts):
     for this_format in all_supported_formats:
         if filename.lower().endswith(this_format):
             download_format = this_format
+            robo_print("File extension is %s" % this_format, LogLevel.VERBOSE, 4)
             break  # should stop after the first format match
         if this_format in parsed_url.query:
             download_format = this_format
+            robo_print("File extension is %s" % this_format, LogLevel.VERBOSE, 4)
             break  # should stop after the first format match
 
     # If we've already seen the app and the download format, there's no need
     # to unpack the downloaded file.
     if "download_format" in facts and "app" in facts["inspections"]:
         return facts
+
+    robo_print("Opening downloaded file...", LogLevel.VERBOSE)
 
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
@@ -1177,7 +1181,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was a disk image. Make a note of that.
             if download_format == "":
                 download_format = "dmg"  # most common disk image format
-            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
+            robo_print("Successfully mounted %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
 
             # If the download filename was ambiguous, change it.
@@ -1231,7 +1235,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "zip"  # most common archive format
-            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
+            robo_print("Successfully unzipped %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
 
             # If the download filename was ambiguous, change it.
@@ -1260,7 +1264,7 @@ def inspect_download_url(input_path, args, facts):
             # Confirmed; the download was an archive. Make a note of that.
             if download_format == "":
                 download_format = "tgz"
-            robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
+            robo_print("Successfully unzipped %s" % download_format, LogLevel.VERBOSE, 4)
             facts["download_format"] = download_format
 
             # If the download filename was ambiguous, change it.
