@@ -267,7 +267,7 @@ def build_prefs(prefs, recipes):
         prefs["RecipeIdentifierPrefix"] = str(choice).rstrip(". ")
 
     # Prompt for recipe creation location.
-    prefs["RecipeCreateLocation"] = "~/Library/AutoPkg/RecipeOverrides"
+    prefs["RecipeCreateLocation"] = "~/Library/AutoPkg/Recipe Robot output"
     robo_print("\nLocation to save new recipes")
     robo_print("This is where on disk your newly created recipes will be saved.\n")
     choice = raw_input(
