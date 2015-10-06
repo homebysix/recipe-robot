@@ -1416,6 +1416,7 @@ def inspect_pkg(input_path, args, facts):
                         if exitcode == 0:
                             out = out.split("\n")
                             for line in out:
+                                if line.endswith(".app") and ".app/Contents/" not in line:
                                     app_found = True
                                     robo_print("Found app: %s" % line, LogLevel.VERBOSE, 4)
                                     extracted_app_path = os.path.join(cache_dir, "extracted_apps", os.path.split(line)[1])
