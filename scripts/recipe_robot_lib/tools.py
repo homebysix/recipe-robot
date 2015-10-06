@@ -30,7 +30,7 @@ import sys
 from urllib2 import urlopen, build_opener, URLError, HTTPError
 
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 ENDC = "\033[0m"
 
 
