@@ -177,15 +177,20 @@ def generate_recipes(facts, prefs, recipes):
                         "that." % recipe["type"], LogLevel.WARNING)
 
         # Write the recipe to disk.
-        # TODO(Elliot): Warning if a file already exists here. (#32)
-        # TODO(Elliot): Create subfolders automatically. (#31)
-        dest_path = os.path.join(recipe_dest_dir, recipe["filename"])
-        if not os.path.exists(dest_path):
-            # Keep track of the total number of unique recipes we've created.
-            prefs["RecipeCreateCount"] += 1
-        FoundationPlist.writePlist(recipe["keys"], dest_path)
-        robo_print("%s/%s" % (prefs["RecipeCreateLocation"],
-                              recipe["filename"]), LogLevel.LOG, 4)
+        if len(recipe["keys"]["Process"]) > 0:
+            dest_path = os.path.join(recipe_dest_dir, recipe["filename"])
+            if not os.path.exists(dest_path):
+                # Keep track of the total number of unique recipes we've created.
+                prefs["RecipeCreateCount"] += 1
+            # TODO(Elliot): Warning if a file already exists here. (#32)
+            # TODO(Elliot): Create subfolders automatically. (#31)
+            FoundationPlist.writePlist(recipe["keys"], dest_path)
+            robo_print("%s/%s" % (prefs["RecipeCreateLocation"],
+                                  recipe["filename"]), LogLevel.LOG, 4)
+        else:
+            # If the Process array is empty, it means we lacked information.
+            robo_print("I don't have enough information to build a %s recipe."
+                       % recipe["type"], LogLevel.VERBOSE)
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, prefs_file)
