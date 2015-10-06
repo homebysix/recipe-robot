@@ -101,7 +101,7 @@ def generate_recipes(facts, prefs, recipes):
     if "developer" in facts:
         recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"])
     else:
-        recipe_dest_dir = os.path.expanduser(prefs["RecipeCreateLocation"])
+        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"])
     create_dest_dirs(recipe_dest_dir)
 
     # Create a recipe for each buildable type we know about.
@@ -276,7 +276,7 @@ def generate_download_recipe(facts, prefs, recipe):
         if "developer" in facts:
             create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"]))
         else:
-            create_SourceForgeURLProvider(os.path.expanduser(prefs["RecipeCreateLocation"]))
+            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"]))
         recipe["keys"]["Process"].append({
             "Processor": "SourceForgeURLProvider",
             "Arguments": {
@@ -608,7 +608,7 @@ def generate_munki_recipe(facts, prefs, recipe):
         if "developer" in facts:
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"], facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"], facts["app_name"] + ".png")
         extract_app_icon(facts["icon_path"], extracted_icon)
     else:
         robo_print("I don't have enough information to create a "
