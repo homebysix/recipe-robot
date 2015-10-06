@@ -21,20 +21,32 @@ class ReplaceSegue: NSStoryboardSegue {
     }
 }
 
+class FadeSegue: NSStoryboardSegue {
+    override func perform() {
+        self.sourceController.presentViewController(
+            self.destinationController as! NSViewController, animator: FadeTransitionAnimator())
+    }
+}
+
 class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
 
     func animatePresentationOfViewController(toViewController: NSViewController, fromViewController: NSViewController) {
 
-        toViewController.view.wantsLayer = true
-        toViewController.view.layerContentsRedrawPolicy = .OnSetNeedsDisplay
-        toViewController.view.alphaValue = 0
-        fromViewController.view.addSubview(toViewController.view)
-        toViewController.view.frame = fromViewController.view.frame
-
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 2
-            toViewController.view.animator().alphaValue = 1
-            }, completionHandler: nil)
+        if let tvc = toViewController as? RecipeRobotViewController,
+            fvc = fromViewController as? RecipeRobotViewController {
+            tvc.view.wantsLayer = true
+            tvc.view.layerContentsRedrawPolicy = .OnSetNeedsDisplay
+            tvc.view.alphaValue = 0
+            fvc.view.addSubview(tvc.view)
+            tvc.view.frame = fvc.view.frame
+            NSAnimationContext.runAnimationGroup({ context in
+                context.duration = 2
+                tvc.view.animator().alphaValue = 1
+                }, completionHandler: {
+//                    tvc.task = fvc.task;
+//                    fvc.view.window?.contentViewController = tvc
+            })
+        }
     }
 
     func animateDismissalOfViewController(viewController: NSViewController, fromViewController: NSViewController) {

@@ -9,13 +9,24 @@
 import AppKit
 
 extension NSImageView {
-    public func stopRotation(){
+    public func stopRobotRotate(){
+
+        let timer = NSTimer.scheduledTimerWithTimeInterval(2.0, target: self, selector: "removeAnimations:", userInfo: nil, repeats: false)
+
         if self.layer != nil {
-            self.layer!.removeAnimationForKey("transform.rotation.z")
+            let colorize = CABasicAnimation(keyPath: "opacity")
+            colorize.duration = 2.0
+            colorize.fromValue = 0.2
+            colorize.toValue = 0.0
+            colorize.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+            colorize.repeatCount = 0
+            colorize.autoreverses = false
+            self.layer!.addAnimation(colorize, forKey: "alpha0")
+            self.layer!.removeAnimationForKey("colorize")
         }
     }
 
-    public func rotate(){
+    public func robotRotate(){
         if self.layer != nil {
             self.wantsLayer = true
             self.layer!.anchorPoint = CGPointMake(0.5, 0.5)
@@ -30,11 +41,7 @@ extension NSImageView {
             rotation.valueFunction = CAValueFunction(name:kCAValueFunctionRotateZ);
 
             self.layer!.addAnimation(rotation, forKey: "transform.rotation.z")
-        }
-    }
 
-    public func colorize(){
-        if self.layer != nil {
             let colorize = CABasicAnimation(keyPath: "opacity")
             colorize.duration = 1
             colorize.fromValue = 0.2
@@ -46,9 +53,10 @@ extension NSImageView {
         }
     }
 
-    public func stopColorize(){
-        if self.layer != nil {
-            self.layer!.removeAnimationForKey("colorize")
-        }
+
+    internal func removeAnimations(timer: NSTimer){
+        timer.invalidate()
+        self.layer!.removeAnimationForKey("alpha0")
+        self.layer!.removeAnimationForKey("transform.rotation.z")
     }
 }

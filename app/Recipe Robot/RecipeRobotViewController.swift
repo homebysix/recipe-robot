@@ -10,14 +10,16 @@ import Cocoa
 import AudioToolbox
 import Quartz
 
-let BGColor = NSColor(SRGBRed: 245/255, green: 245/255, blue: 220/255, alpha: 1).CGColor
+let BGColor = NSColor(SRGBRed: 248/255, green: 235/255, blue: 190/255, alpha: 1).CGColor
+let MGColor = NSColor.whiteColor().CGColor
 
+let sound = NSSound(named: "Glass")
 
 extension CAGradientLayer {
     func baseGradient() -> CAGradientLayer {
-        let gradientColors: [CGColor] = [BGColor, NSColor.whiteColor().CGColor ]
+        let gradientColors: [CGColor] = [BGColor, MGColor, BGColor ]
 
-        let gradientLocations: [Float] = [0.0, 1.0]
+        let gradientLocations: [Float] = [0.0, 0.5, 1.0]
 
         let layer = CAGradientLayer()
         layer.colors = gradientColors
@@ -70,6 +72,10 @@ class recipeTypeCellView: NSTableCellView {
 // MARK: Base view Controller for Recipe-Robot story board.
 class RecipeRobotViewController: NSViewController {
 
+    deinit {
+        println("dealoc \(self.className)")
+    }
+    
     var task: RecipeRobotTask = RecipeRobotTask()
 
     override func viewDidLoad() {
@@ -244,11 +250,9 @@ class ProcessingViewController: RecipeRobotViewController {
         for view in gearContainerView.subviews {
             if let view = view as? NSImageView {
                 if start {
-                    view.rotate()
-                    view.colorize()
+                    view.robotRotate()
                 }  else {
-                    view.stopRotation()
-                    view.stopColorize()
+                    view.stopRobotRotate()
                 }
             }
         }
@@ -274,7 +278,7 @@ class ProcessingViewController: RecipeRobotViewController {
                     pView.textStorage?.appendAttributedString(attrString)
                 }
 
-                if let sound = NSSound(named: "Glass"){
+                if let sound = sound{
                     sound.play()
                 }
 
