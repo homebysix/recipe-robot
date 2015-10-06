@@ -271,6 +271,10 @@ SUFeedURL is "NULL":
 recipe-robot -v http://www.git-tower.com/download
 ```
 
+A prefpane within a dmg:
+```
+recipe-robot --verbose https://bahoom.com/hyperdock/HyperDock.dmg
+```
 
 ## App interface
 
