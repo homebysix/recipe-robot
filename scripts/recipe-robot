@@ -52,7 +52,7 @@ optional arguments:
 
 
 import argparse
-from distutils.version import StrictVersion
+from distutils.version import StrictVersion, LooseVersion
 import json
 import os
 #TODO: Remove for release
@@ -971,22 +971,18 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # Determine whether the Sparkle feed provides a version number.
     sparkle_provides_version = False
-    latest_version = ""
+    latest_version = "0"
     latest_url = ""
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
     for item in doc.iterfind('channel/item/enclosure'):
         if item.get("{%s}shortVersionString" % xmlns) is not None:
             sparkle_provides_version = True
-            # TODO(Elliot): BUG: Version string "999" is greater than "1000".
-            # Convert to Strict/Loose Version for comparison? (#23)
-            if item.get("{%s}shortVersionString" % xmlns) > latest_version:
+            if LooseVersion(item.get("{%s}shortVersionString" % xmlns)) > LooseVersion(latest_version):
                 latest_version = item.get("{%s}shortVersionString" % xmlns)
                 latest_url = item.attrib["url"]
         if item.get("{%s}version" % xmlns) is not None:
             sparkle_provides_version = True
-            # TODO(Elliot): BUG: Version string "999" is greater than "1000".
-            # Convert to Strict/Loose Version for comparison? (#23
-            if item.get("{%s}version" % xmlns) > latest_version:
+            if LooseVersion(item.get("{%s}version" % xmlns)) > LooseVersion(latest_version):
                 latest_version = item.get("{%s}version" % xmlns)
                 latest_url = item.attrib["url"]
     if sparkle_provides_version is True:
