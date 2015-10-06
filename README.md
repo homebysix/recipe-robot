@@ -47,7 +47,7 @@ Here's what Recipe Robot looks like when it's working properly. The command I us
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.0.3.  |
+                     |  Welcome to Recipe Robot v0.0.5.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]
@@ -57,13 +57,14 @@ Here's what Recipe Robot looks like when it's working properly. The command I us
 
 Processing http://delicious-monster.com/downloads/DeliciousLibrary3.zip ...
 Generating download recipe...
-    ~/Library/AutoPkg/RecipeOverrides/DeliciousLibrary3.download.recipe
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/DeliciousLibrary3.download.recipe
 Generating munki recipe...
-    ~/Library/AutoPkg/RecipeOverrides/DeliciousLibrary3.munki.recipe
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/Delicious Library 3.png
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/DeliciousLibrary3.munki.recipe
 Generating pkg recipe...
-    ~/Library/AutoPkg/RecipeOverrides/DeliciousLibrary3.pkg.recipe
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/DeliciousLibrary3.pkg.recipe
 Generating install recipe...
-    ~/Library/AutoPkg/RecipeOverrides/DeliciousLibrary3.install.recipe
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/DeliciousLibrary3.install.recipe
 
 You've now created 4 recipes with Recipe Robot. Well done!
 ```
@@ -72,7 +73,7 @@ If you use the `--verbose` argument, you'll get a little more information about 
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.0.3.  |
+                     |  Welcome to Recipe Robot v0.0.5.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]
@@ -83,13 +84,9 @@ If you use the `--verbose` argument, you'll get a little more information about 
 Processing http://delicious-monster.com/downloads/DeliciousLibrary3.zip ...
 Input path looks like a download URL.
     Download URL is: http://delicious-monster.com/downloads/DeliciousLibrary3.zip
-Getting download filename...
-    Download filename is: DeliciousLibrary3.zip
-Determining download format...
-    Download format is zip
 Downloading file for further inspection...
-    Downloaded to /Users/elliot/Library/Caches/Recipe Robot/DeliciousLibrary3.zip
-Verifying downloaded file format...
+    Downloaded to ~/Library/Caches/Recipe Robot/DeliciousLibrary3.zip
+Determining download format...
     Download format is zip
 Validating app...
     App seems valid
@@ -99,12 +96,10 @@ Getting bundle identifier...
     Bundle idenfitier is: com.delicious-monster.library3
 Checking for a Sparkle feed...
     No Sparkle feed
-Determining whether app was downloaded from the Mac App Store...
-    App did not come from the App Store
 Looking for version key...
     Version key is: CFBundleShortVersionString (3.3.5)
 Looking for app icon...
-    App icon is: /Users/elliot/Library/Caches/Recipe Robot/unpacked/Delicious Library 3.app/Contents/Resources/Delicious Library.icns
+    App icon is: ~/Library/Caches/Recipe Robot/unpacked/Delicious Library 3.app/Contents/Resources/Delicious Library.icns
 Getting app description from MacUpdate...
     Description: Import, browse and share your media.
 Determining whether app is codesigned...
@@ -114,16 +109,21 @@ Searching for existing AutoPkg recipes for "Delicious Library 3"...
     No results
 Searching for existing AutoPkg recipes for "DeliciousLibrary3"...
     No results
+Determining application developer and codesign version...
+    Developer: Delicious Monster Software, LLC
+    Codesign version: 2
+    Download format is zip
 Generating download recipe...
-    ~/Library/AutoPkg/RecipeOverrides/DeliciousLibrary3.download.recipe
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/DeliciousLibrary3.download.recipe
 Generating munki recipe...
-    ~/Library/AutoPkg/RecipeOverrides/DeliciousLibrary3.munki.recipe
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/Delicious Library 3.png
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/DeliciousLibrary3.munki.recipe
 Generating pkg recipe...
-    ~/Library/AutoPkg/RecipeOverrides/DeliciousLibrary3.pkg.recipe
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/DeliciousLibrary3.pkg.recipe
 Generating install recipe...
-    ~/Library/AutoPkg/RecipeOverrides/DeliciousLibrary3.install.recipe
+    ~/Library/AutoPkg/RecipeOverrides/Delicious Monster Software, LLC/DeliciousLibrary3.install.recipe
 
-You've now created 8 recipes with Recipe Robot. Round of applause for you!
+You've now created 4 recipes with Recipe Robot. Round of applause for you!
 ```
 
 It's fun to see the details, and very useful in case anything goes wrong.
