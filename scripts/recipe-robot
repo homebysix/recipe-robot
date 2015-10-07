@@ -354,7 +354,7 @@ def process_input_path(input_path, args, facts):
     # Initialize facts that are lists.
     facts["inspections"] = []
     facts["blocking_applications"] = []
-    facts["pkgsign_reqs"] = []
+    facts["codesign_authorities"] = []
 
     # Determine what kind of input path we are working with, then inspect it.
     if input_path.startswith("http"):
@@ -1329,17 +1329,18 @@ def inspect_pkg(input_path, args, facts):
             else:
                 robo_print("Developer is unknown", LogLevel.VERBOSE, 4)
 
-        # Get code signature verification requirements from pkg signature.
-        if len(facts["pkgsign_reqs"]) == 0:
-            robo_print("Getting package signature verification requirements...", LogLevel.VERBOSE)
+        # Get code signature verification authority names from pkg signature.
+        if len(facts["codesign_authorities"]) == 0:
+            codesign_authorities = []
+            robo_print("Getting package signature authority names...", LogLevel.VERBOSE)
             for line in out.split("\n"):
                 if re.match("^    [\d]\. ", line):
-                    pkgsign_reqs.append(line[7:])
-            if pkgsign_reqs != []:
-                robo_print("%s requirements recorded" % len(pkgsign_reqs), LogLevel.VERBOSE, 4)
-                facts["pkgsign_reqs"] = pkgsign_reqs
+                    codesign_authorities.append(line[7:])
+            if codesign_authorities != []:
+                robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
+                facts["codesign_authorities"] = codesign_authorities
             else:
-                robo_print("Requirements unknown", LogLevel.VERBOSE, 4)
+                robo_print("Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4)
                 # Better to treat the package as unsigned, then.
                 facts["pkgsign_status"] = "unsigned"
 

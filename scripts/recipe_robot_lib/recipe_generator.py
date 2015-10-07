@@ -375,7 +375,7 @@ def generate_download_recipe(facts, prefs, recipe):
                        "somewhere along the way. My boss is going to need to "
                        "put his thinking cap on.", LogLevel.WARNING)
             return
-    elif facts.get("pkgsign_reqs", "unsigned") == "signed":
+    elif facts.get("codesign_authorities", "unsigned") == "signed":
         # We encountered a signed pkg, and will use CodeSignatureVerifier on
         # the pkg. We are assuming the pkg is at the base level of the dmg/zip.
         if facts["download_format"] in supported_image_formats:
@@ -383,7 +383,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": {
                     "input_path": "%pathname%/*.pkg",
-                    "expected_authority_names": facts["pkgsign_reqs"]
+                    "expected_authority_names": facts["codesign_authorities"]
                 }
             })
         elif facts["download_format"] in supported_archive_formats:
@@ -399,7 +399,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": {
                     "input_path": "%RECIPE_CACHE_DIR%/%NAME%/*.pkg",
-                    "expected_authority_names": facts["pkgsign_reqs"]
+                    "expected_authority_names": facts["codesign_authorities"]
                 }
             })
         elif facts["download_format"] in supported_install_formats:
@@ -407,7 +407,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": {
                     "input_path": "%pathname%",
-                    "expected_authority_names": facts["pkgsign_reqs"]
+                    "expected_authority_names": facts["codesign_authorities"]
                 }
             })
 
