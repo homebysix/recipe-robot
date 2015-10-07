@@ -22,15 +22,15 @@ recipe-robot
 
 Easily and automatically create AutoPkg recipes.
 
-usage: recipe-robot [-h] [-v] [-o OUTPUT_DIR] [-t RECIPE_TYPES]
-                    [--ignore-existing] [--keep-cache] [--config]
-                    input_path
+usage: recipe-robot [-h] [--config] [--ignore-existing] [--keep-cache]
+                    [--github-token] [-v]
+                    [input_path]
 
 positional arguments:
-  input_path            Path from which to derive AutoPkg recipes. This can be
-                        one of the following: existing app, existing AutoPkg
-                        recipe, Sparkle feed, GitHub or SourceForge URL, or
-                        direct download URL.
+  input_path         Path from which to derive AutoPkg recipes. This can be
+                     one of the following: existing app, Sparkle feed, GitHub
+                     URL, BitBucket URL, SourceForge URL, or direct download
+                     URL.
 
 optional arguments:
   -h, --help            show this help message and exit
