@@ -23,7 +23,7 @@
 import os
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
-# Or not use it at all (i.e. use the preferences system correctly).
+# Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
     from recipe_robot_lib import FoundationPlist
     from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon
