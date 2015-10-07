@@ -190,10 +190,6 @@ def generate_recipes(facts, prefs, recipes):
             FoundationPlist.writePlist(recipe["keys"], dest_path)
             robo_print("%s/%s" % (recipe_dest_dir,
                                   recipe["filename"]), LogLevel.LOG, 4)
-        else:
-            # If the Process array is empty, it means we lacked information.
-            robo_print("I don't have enough information to build a %s recipe."
-                       % recipe["type"], LogLevel.VERBOSE)
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, prefs_file)
@@ -214,7 +210,7 @@ def generate_download_recipe(facts, prefs, recipe):
     if facts["is_from_app_store"] is True:
         robo_print("Skipping %s recipe, because this app "
                     "was downloaded from the "
-                    "App Store." % recipe["type"], LogLevel.VERBOSE)
+                    "App Store." % recipe["type"], LogLevel.WARNING)
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -663,7 +659,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "determine the bundle identifier of this app. "
                     "You may want to actually download the app and "
                     "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.VERBOSE)
+                    "input." % recipe["type"], LogLevel.WARNING)
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -775,7 +771,7 @@ def generate_install_recipe(facts, prefs, recipe):
     if facts["is_from_app_store"] is True:
         robo_print("Skipping %s recipe, because this app "
                     "was downloaded from the "
-                    "App Store." % recipe["type"], LogLevel.VERBOSE)
+                    "App Store." % recipe["type"], LogLevel.WARNING)
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -855,7 +851,7 @@ def generate_jss_recipe(facts, prefs, recipe):
                     "determine the bundle identifier of this app. "
                     "You may want to actually download the app and "
                     "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.VERBOSE)
+                    "input." % recipe["type"], LogLevel.WARNING)
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -963,7 +959,7 @@ def generate_absolute_recipe(facts, prefs, recipe):
                     "determine the bundle identifier of this app. "
                     "You may want to actually download the app and "
                     "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.VERBOSE)
+                    "input." % recipe["type"], LogLevel.WARNING)
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -1007,7 +1003,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
                     "determine the bundle identifier of this app. "
                     "You may want to actually download the app and "
                     "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.VERBOSE)
+                    "input." % recipe["type"], LogLevel.WARNING)
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -1049,7 +1045,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                     "determine the bundle identifier of this app. "
                     "You may want to actually download the app and "
                     "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.VERBOSE)
+                    "input." % recipe["type"], LogLevel.WARNING)
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -1119,7 +1115,7 @@ def generate_ds_recipe(facts, prefs, recipe):
                     "determine the bundle identifier of this app. "
                     "You may want to actually download the app and "
                     "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.VERBOSE)
+                    "input." % recipe["type"], LogLevel.WARNING)
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
