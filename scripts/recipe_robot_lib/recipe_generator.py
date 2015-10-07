@@ -540,38 +540,11 @@ def generate_munki_recipe(facts, prefs, recipe):
 
     elif facts["download_format"] in supported_install_formats:
 
-        # TODO(Elliot): If it's a flat package, Munki can import that directly.
-        # No need to wrap it in a dmg. (#38)
-
         # TODO(Elliot): %NAME%.app might not be the right blocking app. (#39)
         # Can we use the information we learned when inspect_pkg unpacked it?
         keys["Input"]["pkginfo"]["blocking_applications"] = [
             "%s.app" % facts["app_name_key"]
         ]
-        keys["Process"].append({
-            "Processor": "PkgRootCreator",
-            "Arguments": {
-                "pkgdirs": {},
-                "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%"
-            }
-        })
-        keys["Process"].append({
-            "Processor": "FileMover",
-            "Arguments": {
-                "source": "%pathname%",
-                # TODO(Elliot): Do we always have %version% at this point?
-                # (Might be rendered moot by #38)
-                "target": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%-%version%.pkg"
-            }
-        })
-        keys["Process"].append({
-            "Processor": "DmgCreator",
-            "Arguments": {
-                "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.dmg",
-                "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%"
-            }
-        })
-        import_file_var = "%dmg_path%"
 
     if facts["version_key"] != "CFBundleShortVersionString":
         keys["Process"].append({
@@ -731,7 +704,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 })
 
     elif facts["download_format"] in supported_install_formats:
-        robo_print("Skipping pkg process, since the download format is "
+        robo_print("Skipping pkg recipe, since the download format is "
                    "already pkg.", LogLevel.WARNING)
         return
 
