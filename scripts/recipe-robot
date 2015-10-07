@@ -1158,17 +1158,15 @@ def inspect_download_url(input_path, args, facts):
                     dmg_has_sla = True
             except FoundationPlist.NSPropertyListSerializationException:
                 pass
-        if dmg_has_sla is True:
-            robo_print("Please type Y and press Enter to accept the software license agreement.", LogLevel.WARNING)
-
-        # TODO(Elliot): Make the SLA non-interactive. (#25)
-        # Example: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L108-L110
 
         # Mount the dmg and look for an app.
-        cmd = "/usr/bin/hdiutil attach -plist \"%s\"" % os.path.join(cache_dir, filename)
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        if exitcode == 0:
+        cmd = "/usr/bin/hdiutil attach -nobrowse -plist \"%s\"" % os.path.join(cache_dir, filename)
+        if dmg_has_sla is True:
+            exitcode, out, err = get_exitcode_stdout_stderr(cmd, "Y\n")
+        else:
+            exitcode, out, err = get_exitcode_stdout_stderr(cmd)
 
+        if exitcode == 0:
             # Confirmed; the download was a disk image. Make a note of that.
             if download_format == "":
                 download_format = "dmg"  # most common disk image format
