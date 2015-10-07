@@ -1377,8 +1377,11 @@ def inspect_pkg(input_path, args, facts):
                         robo_print("Bundle identifier: %s" % bundle_id, LogLevel.VERBOSE, 4)
                         facts["bundle_id"] = bundle_id
 
-                    install_loc = pkginfo_parsed.getroot().attrib["install-location"]
-                    robo_print("Install location: %s" % install_loc, LogLevel.VERBOSE, 4)
+                    install_loc = pkginfo_parsed.getroot().attrib.get("install-location", "")
+                    if install_loc != "":
+                        robo_print("Install location: %s" % install_loc, LogLevel.VERBOSE, 4)
+                    else:
+                        robo_print("No install location specified", LogLevel.VERBOSE, 4)
 
                     install_filename = os.path.basename(install_loc)
                     robo_print("Install filename: %s" % install_filename, LogLevel.VERBOSE, 4)
