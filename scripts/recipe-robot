@@ -33,21 +33,18 @@ positional arguments:
                      URL.
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -v, --verbose         Generate additional output about the process.
-  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
-                        Path to a folder you'd like to save your generated
-                        recipes in.
-  -t RECIPE_TYPES, --recipe-types RECIPE_TYPES
-                        The types of recipe you'd like to generate.
-  --ignore-existing    Offer to generate recipes even if one already exists
-                        on GitHub.
-  --keep-cache          Keep the Recipe Robot cache, instead of performing the
-                        usual cleanup. This allows you to manually inspect the
-                        files Recipe Robot downloaded. The cache will be
-                        cleared again upon next run.
-  --config              Adjust Recipe Robot preferences prior to generating
-                        recipes.
+  -h, --help         show this help message and exit
+  --config           Adjust Recipe Robot preferences prior to generating
+                     recipes.
+  --ignore-existing  Creates recipes even if "autopkg search" results show
+                     that recipes already exist for this app.
+  --keep-cache       Keep the Recipe Robot cache, instead of performing the
+                     usual cleanup. This allows you to manually inspect the
+                     files Recipe Robot downloaded. The cache will be cleared
+                     again upon next run.
+  --github-token     Use a GitHub API token when searching for existing
+                     recipes.
+  -v, --verbose      Generate additional output about the process.
 """
 
 
