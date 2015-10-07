@@ -349,9 +349,12 @@ def process_input_path(input_path, args, facts):
             we know so far about the app associated with the input path.
     """
 
-    # Keep track of the inspections we perform, to make sure we don't loop.
+    # Initialize facts that are lists.
     facts["inspections"] = []
+    facts["blocking_applications"] = []
+    facts["pkgsign_reqs"] = []
 
+    # Determine what kind of input path we are working with, then inspect it.
     if input_path.startswith("http"):
         if (input_path.endswith(".xml") or
             input_path.endswith(".rss") or
@@ -1332,8 +1335,7 @@ def inspect_pkg(input_path, args, facts):
                 robo_print("Developer is unknown", LogLevel.VERBOSE, 4)
 
         # Get code signature verification requirements from pkg signature.
-        if "pkgsign_reqs" not in facts:
-            pkgsign_reqs = []
+        if len(facts["pkgsign_reqs"]) == 0:
             robo_print("Getting package signature verification requirements...", LogLevel.VERBOSE)
             for line in out.split("\n"):
                 if re.match("^    [\d]\. ", line):
@@ -1416,26 +1418,25 @@ def inspect_pkg(input_path, args, facts):
                         if exitcode == 0:
                             out = out.split("\n")
                             for line in out:
-                                # TODO(Elliot): Record all apps, even helpers,
-                                # so we can use them in blocking_applications
-                                # later. (#39)
-                                if line.endswith(".app") and ".app/Contents/" not in line:
-                                    app_found = True
-                                    robo_print("Found app: %s" % line, LogLevel.VERBOSE, 4)
-                                    extracted_app_path = os.path.join(cache_dir, "extracted_apps", os.path.split(line)[1])
-                                    cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",%s,%s,\"" % (os.path.join(cache_dir, "expanded", filename), line, extracted_app_path)
-                                    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                                    if exitcode == 0:
-                                        inspect_app(extracted_app_path, args, facts)
-                                        break  # Struck pay dirt, so stop iterating
-                                               # through apps in the payload
-                                        # TODO(Elliot): Should we stop at the first app? (#27)
-                                        # Find multiple, but use the one with the shortest path?
-                                        # Find multiple, but use the largest file size?
-                                        # Inspect all of them, use only the one with a Sparkle feed?
-                                    else:
-                                        robo_print("Error while extracting the package payload. "
-                                                   "(%s)" % err, LogLevel.VERBOSE, 4)
+                                if line.endswith(".app"):
+                                    facts["blocking_applications"].append(os.path.basename(line))
+                                    if ".app/Contents/" not in line:
+                                        app_found = True
+                                        robo_print("Found app: %s" % line, LogLevel.VERBOSE, 4)
+                                        extracted_app_path = os.path.join(cache_dir, "extracted_apps", os.path.split(line)[1])
+                                        cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",%s,%s,\"" % (os.path.join(cache_dir, "expanded", filename), line, extracted_app_path)
+                                        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+                                        if exitcode == 0:
+                                            inspect_app(extracted_app_path, args, facts)
+                                            break  # Struck pay dirt, so stop iterating
+                                                   # through apps in the payload
+                                            # TODO(Elliot): Should we stop at the first app? (#27)
+                                            # Find multiple, but use the one with the shortest path?
+                                            # Find multiple, but use the largest file size?
+                                            # Inspect all of them, use only the one with a Sparkle feed?
+                                        else:
+                                            robo_print("Error while extracting the package payload. "
+                                                       "(%s)" % err, LogLevel.VERBOSE, 4)
                         else:
                             robo_print("Error while examining the package payload. "
                                        "(%s)" % err, LogLevel.VERBOSE, 4)
@@ -1472,7 +1473,8 @@ def inspect_app(input_path, args, facts):
     # Save the path of the app. (Used when overriding AppStoreApp recipes.)
     facts["app_path"] = input_path
 
-    # TODO(Elliot): Record this app as a blocking_application. (#39)
+    # Record this app as a blocking application (for munki recipe based on pkg).
+    facts["blocking_applications"].append(os.path.basename(input_path))
 
     # Read the app's Info.plist.
     robo_print("Validating app...", LogLevel.VERBOSE)

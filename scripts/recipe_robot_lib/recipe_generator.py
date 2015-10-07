@@ -539,12 +539,11 @@ def generate_munki_recipe(facts, prefs, recipe):
         import_file_var = "%dmg_path%"
 
     elif facts["download_format"] in supported_install_formats:
-
-        # TODO(Elliot): %NAME%.app might not be the right blocking app. (#39)
-        # Can we use the information we learned when inspect_pkg unpacked it?
-        keys["Input"]["pkginfo"]["blocking_applications"] = [
-            "%s.app" % facts["app_name_key"]
-        ]
+        # Blocking applications are determined automatically by Munki except
+        # when the software is distributed inside a pkg. In this case, the
+        # blocking applications must be set manually in the recipe.
+        if len(facts["blocking_applications"]) > 0:
+            keys["Input"]["pkginfo"]["blocking_applications"] = facts["blocking_applications"]
 
     if facts["version_key"] != "CFBundleShortVersionString":
         keys["Process"].append({
