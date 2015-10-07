@@ -27,7 +27,7 @@ import os
 import shlex
 from subprocess import Popen, PIPE
 import sys
-from urllib2 import urlopen, build_opener, URLError, HTTPError
+from urllib2 import urlopen
 
 
 __version__ = '0.0.6'

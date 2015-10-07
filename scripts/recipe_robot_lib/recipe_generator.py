@@ -21,7 +21,6 @@
 
 
 import os
-import sys
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly).
