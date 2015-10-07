@@ -52,6 +52,7 @@ optional arguments:
 
 
 import argparse
+from datetime import datetime
 from distutils.version import StrictVersion, LooseVersion
 import json
 import os
@@ -83,7 +84,8 @@ except:
 # Global variables.
 prefs_file = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
-cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
+cache_dir = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
+                         datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
 
 # Build the list of download formats we know about.
 supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
