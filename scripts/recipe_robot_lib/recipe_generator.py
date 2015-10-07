@@ -56,10 +56,10 @@ def generate_recipes(facts, prefs, recipes):
         prefs: The dictionary containing a key/value pair for each preference.
         recipes: The list of known recipe types, created by init_recipes().
     """
-    buildable = [recipe for recipe in recipes if recipe["buildable"]]
+    preferred = [recipe for recipe in recipes if recipe["preferred"]]
 
-    # All known recipe types already appear in "autopkg search" results.
-    if not buildable:
+    # No recipe types are preferred.
+    if not preferred:
         robo_print("Sorry, no recipes available to generate.", LogLevel.ERROR)
 
     # TODO(Shea) Move to some kind of fact-validator function. (#30)
@@ -104,8 +104,8 @@ def generate_recipes(facts, prefs, recipes):
         recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"])
     create_dest_dirs(recipe_dest_dir)
 
-    # Create a recipe for each buildable type we know about.
-    for recipe in buildable:
+    # Create a recipe for each preferred type we know about.
+    for recipe in preferred:
 
         # TODO (Shea): This could be a global constant. Well, maybe.
         # Construct the default keys common to all recipes.

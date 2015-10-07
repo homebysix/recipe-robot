@@ -23,7 +23,7 @@ recipe-robot
 Easily and automatically create AutoPkg recipes.
 
 usage: recipe-robot [-h] [-v] [-o OUTPUT_DIR] [-t RECIPE_TYPES]
-                    [--include-existing] [--keep-cache] [--config]
+                    [--ignore-existing] [--keep-cache] [--config]
                     input_path
 
 positional arguments:
@@ -40,7 +40,7 @@ optional arguments:
                         recipes in.
   -t RECIPE_TYPES, --recipe-types RECIPE_TYPES
                         The types of recipe you'd like to generate.
-  --include-existing    Offer to generate recipes even if one already exists
+  --ignore-existing    Offer to generate recipes even if one already exists
                         on GitHub.
   --keep-cache          Keep the Recipe Robot cache, instead of performing the
                         usual cleanup. This allows you to manually inspect the
@@ -106,16 +106,17 @@ def build_argument_parser():
         "input_path",
         nargs='?',
         help="Path from which to derive AutoPkg recipes. This can be one of "
-             "the following: existing app, existing AutoPkg recipe, Sparkle "
-             "feed, GitHub or SourceForge URL, or direct download URL.")
+             "the following: existing app, Sparkle feed, GitHub URL, "
+             "BitBucket URL, SourceForge URL, or direct download URL.")
     parser.add_argument(
         "--config",
         action="store_true",
         help="Adjust Recipe Robot preferences prior to generating recipes.")
     parser.add_argument(
-        "--include-existing",
+        "--ignore-existing",
         action="store_true",
-        help="Offer to generate recipes even if one already exists on GitHub.")
+        help="Creates recipes even if \"autopkg search\" results show that "
+             "recipes already exist for this app.")
     parser.add_argument(
         "--keep-cache",
         action="store_true",
@@ -177,7 +178,6 @@ def init_recipes():
     for recipe in recipes:
         recipe["preferred"] = True
         recipe["existing"] = False
-        recipe["buildable"] = False
 
     return recipes
 
@@ -388,8 +388,8 @@ def process_input_path(input_path, args, facts):
             robo_print("Input path looks like an app.", LogLevel.VERBOSE)
             facts = inspect_app(input_path, args, facts)
         elif input_path.endswith(".recipe"):
-            robo_print("Input path looks like a recipe.", LogLevel.VERBOSE)
-            facts = inspect_recipe(input_path, args, facts)
+            robo_print("Sorry, I can't use existing AutoPkg recipes as "
+                       "input.", LogLevel.ERROR)
         elif input_path.endswith(".pkg"):
             robo_print("Input path looks like a pkg.", LogLevel.VERBOSE)
             facts = inspect_pkg(input_path, args, facts)
@@ -528,9 +528,8 @@ def inspect_github_url(input_path, args, facts):
         if "app_name" not in facts:
             app_name = ""
             robo_print("Getting app name...", LogLevel.VERBOSE)
-            if "name" in parsed_repo:
-                if parsed_repo["name"] is not None:
-                    app_name = parsed_repo["name"]
+            if parsed_repo.get("name", None) is not None:
+                app_name = parsed_repo["name"]
             if app_name != "":
                 robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
                 facts["app_name"] = app_name
@@ -539,9 +538,8 @@ def inspect_github_url(input_path, args, facts):
         if "description" not in facts:
             description = ""
             robo_print("Getting GitHub description...", LogLevel.VERBOSE)
-            if "description" in parsed_repo:
-                if parsed_repo["description"] is not None:
-                    description = parsed_repo["description"]
+            if parsed_repo.get("description", None) is not None:
+                description = parsed_repo["description"]
             if description != "":
                 robo_print("GitHub description is: %s" % description,
                            LogLevel.VERBOSE, 4)
@@ -596,16 +594,14 @@ def inspect_github_url(input_path, args, facts):
                            LogLevel.WARNING)
 
         # Warn user if the GitHub project is private.
-        if "private" in parsed_repo:
-            if parsed_repo["private"] is True:
-                robo_print("This GitHub project is marked \"private\" "
-                           "and recipes you generate may not work for others.", LogLevel.WARNING)
+        if parsed_repo.get("private", False) is not False:
+            robo_print("This GitHub project is marked \"private\" "
+                       "and recipes you generate may not work for others.", LogLevel.WARNING)
 
         # Warn user if the GitHub project is a fork.
-        if "private" in parsed_repo:
-            if parsed_repo["fork"] is True:
-                robo_print("This GitHub project is a fork. You may want to "
-                           "try again with the original repo URL instead.", LogLevel.WARNING)
+        if parsed_repo.get("fork", False) is not False:
+            robo_print("This GitHub project is a fork. You may want to "
+                       "try again with the original repo URL instead.", LogLevel.WARNING)
     else:
         robo_print("Could not detect GitHub repo.", LogLevel.WARNING)
 
@@ -833,9 +829,8 @@ def inspect_bitbucket_url(input_path, args, facts):
         if "app_name" not in facts:
             app_name = ""
             robo_print("Getting app name...", LogLevel.VERBOSE)
-            if "name" in parsed_repo:
-                if parsed_repo["name"] != "":
-                    app_name = parsed_repo["name"]
+            if parsed_repo.get("name", "") != "":
+                app_name = parsed_repo["name"]
             if app_name != "":
                 robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
                 facts["app_name"] = app_name
@@ -853,9 +848,8 @@ def inspect_bitbucket_url(input_path, args, facts):
         if "description" not in facts:
             description = ""
             robo_print("Getting BitBucket description...", LogLevel.VERBOSE)
-            if "description" in parsed_repo:
-                if parsed_repo["description"] != "":
-                    description = parsed_repo["description"]
+            if parsed_repo.get("description", "") != "":
+                description = parsed_repo["description"]
             if description != "":
                 robo_print("BitBucket description is: %s" % description, LogLevel.VERBOSE, 4)
                 facts["description"] = description
@@ -889,10 +883,9 @@ def inspect_bitbucket_url(input_path, args, facts):
                 robo_print("Could not detect BitBucket release download URL.", LogLevel.WARNING)
 
         # Warn user if the BitBucket project is private.
-        if "is_private" in parsed_repo:
-            if parsed_repo["is_private"] is True:
-                robo_print("This BitBucket project is marked \"private\" "
-                           "and recipes you generate may not work for others.", LogLevel.WARNING)
+        if parsed_repo.get("is_private", False) is not False:
+            robo_print("This BitBucket project is marked \"private\" "
+                       "and recipes you generate may not work for others.", LogLevel.WARNING)
 
     else:
         robo_print("Could not detect BitBucket repo.", LogLevel.WARNING)
@@ -1656,96 +1649,6 @@ def inspect_app(input_path, args, facts):
     return facts
 
 
-def inspect_recipe(input_path, args, facts):
-    """Process a recipe, gathering information useful for building other types
-    of recipes.
-    """
-
-    # Read the recipe as a plist.
-    robo_print("Validating recipe...", LogLevel.VERBOSE)
-    try:
-        input_recipe = FoundationPlist.readPlist(input_path)
-        robo_print("Recipe is a valid plist", LogLevel.VERBOSE, 4)
-    except Exception:
-        robo_print("Could not parse recipe as a plist.", LogLevel.WARNING)
-
-    # Run autopkg info on the recipe and save the output.
-    cmd = "autopkg info \"%s\"" % input_path
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if exitcode == 0:
-        out = out.split("\n")
-    else:
-        robo_print("Could not run \"autopkg info\" on recipe.", LogLevel.WARNING)
-
-    # Determine the name of the app.
-    if "app_name" not in facts:
-        app_name = ""
-        robo_print("Getting name of app...", LogLevel.VERBOSE)
-        if "Input" in input_recipe:
-            if "NAME" in input_recipe["Input"]:
-                app_name = input_recipe["Input"]["NAME"]
-        if app_name != "":
-            robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
-            facts["app_name"] = app_name
-            # If the app exists on disk, we can cheat by using it as input.
-            if os.path.exists("/Applications/%s.app" % app_name):
-                inspect_app("/Applications/%s.app" % app_name, args, facts)
-
-    # Determine parent recipe, and get more facts from it.
-    marker = "Parent recipe(s):"
-    parent_recipe_path = ""
-    robo_print("Looking for a parent recipe...", LogLevel.VERBOSE)
-    for line in out:
-        if marker in line:
-            parent_recipe_path = line[len(marker):].lstrip()
-    if parent_recipe_path != "":
-        robo_print("Parent recipe is: %s" % parent_recipe_path, LogLevel.VERBOSE, 4)
-        facts = inspect_recipe(parent_recipe_path, args, facts)
-    else:
-        robo_print("No parent recipe found", LogLevel.VERBOSE, 4)
-
-    # Determine whether there's a Sparkle feed.
-    if "sparkle_feed" not in facts:
-        marker = "SPARKLE"
-        robo_print("Looking for a Sparkle feed...", LogLevel.VERBOSE)
-        for line in out:
-            if marker in line:
-                sparkle_feed = line.split("\"")[-2]
-                facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
-
-    # Determine whether there's a download URL.
-    if "download_url" not in facts:
-        marker = "DOWNLOAD_URL"
-        robo_print("Looking for a direct download URL...", LogLevel.VERBOSE)
-        for line in out:
-            if marker in line:
-                download_url = line[len(marker):].lstrip()
-                facts = inspect_download_url(download_url, args, facts)
-
-    # Get the download file format.
-    if "download_format" not in facts:
-        download_format = ""
-        robo_print("Trying to determine download format...", LogLevel.VERBOSE)
-        for test_format in all_supported_formats:
-            cmd = "grep '.%s</string>' '%s'" % (test_format, input_path)
-            exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-            if exitcode == 0:
-                download_format = test_format
-                break
-        if download_format != "":
-            robo_print("Download format (from recipe) is: %s" % download_format, LogLevel.VERBOSE, 4)
-            facts["download_format"] = download_format
-
-    # Run the recipe and inspect the resulting app.
-    # robo_print("Running recipe to see what we get...", LogLevel.VERBOSE)
-    # cmd = "autopkg run \"%s\"" % input_path
-    # exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    # if exitcode == 0:
-    #     pass
-
-    return facts
-
-
 def create_existing_recipe_list(app_name, recipes, args):
     """Use autopkg search results to build existing recipe list.
 
@@ -1757,8 +1660,8 @@ def create_existing_recipe_list(app_name, recipes, args):
 
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
 
-    # If --include-existing is specified, no need to search at all.
-    if args.include_existing is True:
+    # If --ignore-existing is specified, no need to search at all.
+    if args.ignore_existing is True:
         return
 
     recipe_searches = []
@@ -1796,36 +1699,23 @@ def create_existing_recipe_list(app_name, recipes, args):
                     if line.lower().startswith(recipe_name.lower()):
                         # Set to False by default. If found, set to True.
                         recipe["existing"] = True
-                        robo_print("Found existing %s" % recipe_name, LogLevel.VERBOSE, 4)
+                        robo_print("Found existing %s" % recipe_name, LogLevel.LOG, 4)
                         is_existing = True
                         break
+            if is_existing is True:
+                robo_print("Sorry, AutoPkg recipes already exist for this "
+                           "app, and I can't blend new recipes with existing "
+                           "recipes. Here are my suggestions:"
+                           "\n    - See if one of the above recipes meets "
+                           "your needs, either as-is or using an override."
+                           "\n    - Write your own recipe using one of the "
+                           "above as the ParentRecipe."
+                           "\n    - Or if you must, write your own recipe "
+                           "from scratch.", LogLevel.ERROR)
             if not is_existing:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
             robo_print(err, LogLevel.ERROR)
-
-
-def create_buildable_recipe_list(app_name, recipes, args, facts):
-    """Add any preferred recipe types that don't already exist to the buildable
-    list.
-
-    Args:
-        app_name: The name of the app for which we're searching for recipes.
-        recipes: The list of known recipe types, created by init_recipes().
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the information
-            we know so far about the app associated with the input path.
-    """
-
-    # Determine which recipes are buildable based on "preferred" preference
-    # values and the --include-existing argument.
-    for recipe in recipes:
-        if args.include_existing is False:
-            if recipe["preferred"] is True and recipe["existing"] is False:
-                recipe["buildable"] = True
-        else:
-            if recipe["preferred"] is True:
-                recipe["buildable"] = True
 
 
 def debug_dump(items):
@@ -1890,8 +1780,8 @@ def main():
             argparser.print_help()
             sys.exit(0)
 
-        # If --include-existing was specified, print a warning.
-        if args.include_existing is True:
+        # If --ignore-existing was specified, print a warning.
+        if args.ignore_existing is True:
             robo_print("Will build recipes even if they already exist in "
                        "\"autopkg search\" results. Please don't upload "
                        "duplicate recipes.", LogLevel.WARNING)
@@ -1929,9 +1819,6 @@ def main():
         else:
             robo_print("I wasn't able to determine the name of this app, "
                        "so I can't make any recipes.", LogLevel.ERROR)
-
-        # Determine which recipes we can build.
-        create_buildable_recipe_list(facts["app_name"], recipes, args, facts)
 
         # Create recipes for the recipe types that were selected above.
         recipe_robot_lib.generate_recipes(facts, prefs, recipes)
