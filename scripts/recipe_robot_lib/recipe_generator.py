@@ -120,9 +120,8 @@ def generate_recipes(facts, prefs, recipes):
         }
         keys = recipe["keys"]
 
-        # Set the recipe filename (no spaces, except JSS recipes).
-        recipe["filename"] = "%s.%s.recipe" % (
-            facts["app_name"].replace(" ", ""), recipe["type"])
+        # Set the recipe filename (spaces are OK).
+        recipe["filename"] = "%s.%s.recipe" % (facts["app_name"], recipe["type"])
 
         # Set the recipe identifier.
         keys["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"],
@@ -825,9 +824,6 @@ def generate_jss_recipe(facts, prefs, recipe):
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
-
-    # Authors of jss recipes are encouraged to use spaces.
-    filename = "%s.%s.recipe" % (facts["app_name"], recipe["type"])
 
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s "
