@@ -5,11 +5,13 @@ Some scattered notes to assist in the design and development of Recipe Robot.
 <!-- MarkdownTOC autolink=true depth=4 bracket=round -->
 
 - [Planned script workflow](#planned-script-workflow)
-- [Facts necessary to produce recipe types](#facts-necessary-to-produce-recipe-types)
+- [Facts](#facts)
 - [Interesting examples and edge cases to use for testing:](#interesting-examples-and-edge-cases-to-use-for-testing)
 - [App interface](#app-interface)
 
 <!-- /MarkdownTOC -->
+
+---
 
 ## Planned script workflow
 
@@ -17,12 +19,11 @@ Script takes the following as input:
 
 - Input path, which can be one of the following
     - Path to an app
-    - Path to an existing AutoPkg recipe
     - GitHub URL
+    - BitBucket URL
     - SourceForge URL
     - Sparkle feed URL
     - Direct download URL
-    - Others?
 - Desired recipe identifier (e.g. com.github.homebysix)
 - Desired recipe types (e.g. download, munki, pkg, etc.)
 - Desired recipe save location
@@ -33,137 +34,85 @@ And produces the following as output:
 - One recipe for each selected recipe type that doesn't already exist
 - A plist with meta-information about the recipe creation process, including errors
 
-## Facts necessary to produce recipe types
+---
 
-These are the pieces of information we'll need to collect from app and recipe input in order to create the corresponding recipe types.
+## Facts
 
-This may be useful when we create the various Recipe classes and subclasses.
+These are the pieces of information we collect from app and recipe input in order to create the corresponding recipe types.
 
-- app_name
-- bundle_id
-- description
-- developer
-- download_format
-- download_url
-- github_repo
-- max_os_vers
-- min_os_vers
-- codesign_status
-- codesign_reqs
-- sourceforge_id
-- sparkle_feed
-- version_key
+- __app_file__
+    The filename of the application bundle, if it differs from app_name.
 
-__Any recipe type__
+- __app_name__
+    The name of the app, as determined by `CFBundleName` in the app's Info.plist file.
 
-- Required:
-    - Recipe identifier (string)
-    - Input (dict)
-    - Input -> NAME (string)
-    - Process (list)
+- __app_path__
+    The path to the app. Used when overriding [AppStoreApp recipes](https://github.com/autopkg/nmcspadden-recipes/blob/master/AppStoreApp/AppStoreApp.check.recipe#L13-L14).
 
-- Optional or conditional:
-    - MinimumVersion (string, probably "0.5.0", or whatever is contemporaneous with recipe-rebot's development.
+- __bitbucket_repo__
+    For a BitBucket URL, this is the path to the specified project. (For example, the bitbucket_repo for the input URL `https://bitbucket.org/tperfitt/path-launcher` would be `tperfitt/path-launcher`.)
 
-__download__
+- __blocking_applications__
+    An array of strings corresponding to the applications that should not be running in order to safely install this app. Necessary to specify when deploying a pkg installer via Munki.
 
-- Required:
-    - Process -> URLDownloader processor
-    - Process -> EndOfCheckPhase processor, after the actual download occurs but before unarchiving or veriying code sig.
+- __bundle_id__
+    The bundle identifier of the app, as determined by `CFBundleIdentifier` in the app's Info.plist file.
 
-- Optional or conditional:
-    - Input -> SPARKLE_FEED_URL (string), if using Sparkle
-    - Input -> DOWNLOAD_URL (string), if using predictable URL
-    - Process -> GitHubReleasesInfoProvider processor, if using GitHub releases
-    - Input -> SOURCEFORGE_FILE_PATTERN (string), if using SourceForge releases
-    - Input -> SOURCEFORGE_PROJECT_ID (string), if using SourceForge releases
-    - Process > SourceForgeURLProvider processor, if using SourceForge releases
+- __codesign_authorities__
+    The "expected authorities" that must be present (and in specified order) for [CodeSignatureVerifier](https://github.com/autopkg/autopkg/wiki/Processor-CodeSignatureVerifier) to pass.
 
-__munki__
+- __codesign_reqs__
+    The "requirements" that must be met in order for [CodeSignatureVerifier](https://github.com/autopkg/autopkg/wiki/Processor-CodeSignatureVerifier) to pass.
 
-- Required:
-    - ParentRecipe (string, probably download or pkg recipe)
-    - Input -> MUNKI_REPO_SUBDIR (string)
-    - Input -> pkginfo (dict)
-        - catalogs (array of strings)
-        - description (string)
-        - display_name (string)
-        - name (string)
-        - unattended_install (bool)
-    - Process -> MunkiImporter processor
+- __codesign_status__
+    If an app is signed with v2 enclosure, this is "signed". Otherwise, it's "unsigned".
 
-- Optional or conditional:
-- Process -> MunkiPkginfoMerger processor, if there is additional pkginfo
-    - Process -> DmgCreator processor, if parent recipe produces a zip
-    - Copy process to get the icon file into the repo?
-    - Path to icon in pkginfo?
+- __description__
+    A brief and understandable description of what the app does. If the input URL is from GitHub, SourceForge, or BitBucket, the description is obtained from that service's API. Otherwise, the description is obtained by searching MacUpdate for the top result matching app_name.
 
-__pkg__
+- __developer__
+    The name of the developer or organization that makes the app.
 
-- Required:
-    - ParentRecipe (string, probably download recipe)
-    - Input -> PKG_ID (string)
-    - Process -> PkgRootCreator processor
-    - Process -> Versioner processor
-    - Process -> PkgCreator processor
+- __download_filename__
+    The name of the file downloaded from a specified input URL. (For example, `AutoPkgr-1.3.2.dmg`.)
 
-- Optional or conditional:
-    - Process -> Unarchiver processor, if parent recipe produces a zip
-    - Process -> AppDmgVersioner processor, if parent recipe produces a dmg
-    - Process -> Copier, if parent recipe doesn't produce the desired root file tree (e.g. app needs to be moved to /Applications)
+- __download_format__
+    The format of the file downloaded from a specified input URL. (For example, `dmg`)
 
-__install__
+- __download_url__
+    The URL that points to the latest version of the app. Used in download recipes by the URLDownloader processor.
 
-- Required:
-    - ParentRecipe (string, probably download or pkg recipe)
+- __github_repo__
+    For a GitHub URL, this is the path to the specified project. (For example, the github_repo for the input URL `https://github.com/lindegroup/autopkgr` would be `lindegroup/autopkgr`.)
 
-- Optional or conditional:
-    - Process -> Unarchiver processor, if parent recipe produces a zip
-    - Process -> DmgCreator processor, if parent recipe produces a zip
-    - Process -> InstallFromDMG processor, if parent recipe produces a zip or a dmg
-    - Process -> Installer processor, if parent recipe produces a pkg
+- __icon_path__
+    The path to the icns file used to display the app's primary icon. If munki or jss recipes are selected, this file will be converted to a 300px by 300px png file and saved in the output folder along with the recipes.
 
-__jss__
+- __inspections__
+    An array of strings that act as a breadcrumb trail during fact-gathering and prevent us from covering the same ground twice. This increases the speed of Recipe Robot and prevents getting trapped in loops.
 
-- Required:
-    - ParentRecipe (string, pkg recipe)
-    - Input -> prod_name (string), usually identical to NAME
-    - Input -> category (string), limited to 8 choices by default
-    - Input -> policy_category (string), usually "Testing"
-    - Input -> policy_template (string), usually "PolicyTemplate.xml"
-    - Input -> self_service_icon (string), usually ${NAME}.png
-    - Input -> self_service_description (string), can be same as Munki recipe description
-    - Input -> groups (array)
-    - Input -> GROUP_NAME (string)
-    - Input -> GROUP_TEMPLATE (string), usually "SmartGroupTemplate.xml"
-    - Process -> JSSImporter processor
-    - The jss-recipes repo must be added (for use of xml templates)
-    - Icon png copied to same folder as recipe
+- __is_from_app_store__
+    Is "true" if the app contains an _MASReceipt file, indicating it was downloaded from the App Store. This results in the creation of AppStoreApp overrides instead of standalone recipes.
 
-- Optional or conditional:
-    - Input -> jss_inventory_name (string), if prod_name and NAME differ
-    - Input -> extension_attribute (string), if smart group requires the use of an extension attribute
+- __pkgsign_status__
+    Is "signed" if the pkg file is signed, "unsigned" otherwise.
 
-__absolute__
+- __sourceforge_id__
+    For a SourceForge URL, this is the path to the specified project. (For example, the bitbucket_repo for the input URL `https://bitbucket.org/tperfitt/path-launcher` would be `tperfitt/path-launcher`.)
 
-- Required:
-    - ParentRecipe (string, probably pkg recipe)
-    - Process -> com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport processor
+- __sparkle_feed__
+    The URL to the Sparkle feed (appcast) of the app, often used to create a download recipe that leverages [SparkleUpdateInfoProvider](https://github.com/autopkg/autopkg/wiki/Processor-SparkleUpdateInfoProvider).
 
-__sccm__
+- __sparkle_provides_version__
+    Is True if a usable version number was found in the Sparkle feed, is False otherwise.
 
-- Required:
-    - ParentRecipe (string, probably pkg recipe)
-    - Process -> com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator processor
+- __user-agent__
+    If accessing a download URL or Sparkle feed fails using the standard Python user-agent, an alternative user-agent is attempted. If that attempt succeeds, the user-agent fact is set, which causes the corresponding `request_headers` to be used in the resulting recipe.
 
-__ds__
+- __version_key__
+    Most apps use `CFBundleShortVersionString` to indicate the version, but some use `CFBundleVersion`. The version_key fact indicates which to use for the purpose of building recipes.
 
-- Required:
-    - ParentRecipe (string, probably download or pkg recipe)
-    - Input -> DS_PKGS_PATH (string)
-    - Input -> DS_NAME (string)
-    - Process -> StopProcessingIf processor
-    - Process -> Copier processor
+---
 
 ## Interesting examples and edge cases to use for testing:
 
@@ -305,6 +254,8 @@ A prefpane within a dmg:
 ```
 recipe-robot --verbose https://bahoom.com/hyperdock/HyperDock.dmg
 ```
+
+---
 
 ## App interface
 
