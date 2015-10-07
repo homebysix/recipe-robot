@@ -130,10 +130,14 @@ def create_SourceForgeURLProvider(dest_dir):
                 "jessepeterson-recipes/master/GrandPerspective/"
                 "SourceForgeURLProvider.py")
     dest_dir_absolute = os.path.expanduser(dest_dir)
-    raw_download = urlopen(base_url)
-    with open(os.path.join(dest_dir_absolute, "SourceForgeURLProvider.py"), "wb") as download_file:
-        download_file.write(raw_download.read())
-        robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"), LogLevel.VERBOSE, 4)
+    try:
+        raw_download = urlopen(base_url)
+        with open(os.path.join(dest_dir_absolute, "SourceForgeURLProvider.py"), "wb") as download_file:
+            download_file.write(raw_download.read())
+            robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"), LogLevel.VERBOSE, 4)
+    except:
+        robo_print("Unable to download SourceForgeURLProvider from GitHub.", LogLevel.WARNING)
+        # TODO(Elliot):  Copy SourceForgeURLProvider from local file. (#46)
 
 
 def extract_app_icon(icon_path, png_path):
