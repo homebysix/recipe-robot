@@ -167,6 +167,36 @@ __ds__
 
 ## Interesting examples and edge cases to use for testing:
 
+Basic example of a signed app in a dmg (works as of 2015-10-07):
+```
+recipe-robot --verbose https://www.dropbox.com/s/skwpwgwqmlta5hd/signed-app-in-dmg.dmg?dl=1
+```
+
+Basic example of a signed app in a pkg (doesn't quite work as of 2015-10-07):
+```
+recipe-robot --verbose https://www.dropbox.com/s/3n9qraniog7vzrs/signed-app-in-pkg.pkg?dl=1
+```
+
+Basic example of a signed app in a zip (works as of 2015-10-07):
+```
+recipe-robot --verbose https://www.dropbox.com/s/482p3tai0v8uvky/signed-app-in-zip.zip?dl=1
+```
+
+Basic example of an unsigned app in a dmg (works as of 2015-10-07):
+```
+recipe-robot --verbose https://www.dropbox.com/s/g7wke2p32ejibtt/unsigned-app-in-dmg.dmg?dl=1
+```
+
+Basic example of an unsigned app in a pkg (works as of 2015-10-07):
+```
+recipe-robot --verbose https://www.dropbox.com/s/6pawuykelhdvwq3/unsigned-app-in-pkg.pkg?dl=1
+```
+
+Basic example of an unsigned app in a zip (works as of 2015-10-07):
+```
+recipe-robot --verbose https://www.dropbox.com/s/uyhkiir6jpm0t79/unsigned-app-in-zip.zip?dl=1
+```
+
 Zip download reveals an installer in .app format:
 ```
 recipe-robot --verbose http://download.bjango.com/skalacolor/
