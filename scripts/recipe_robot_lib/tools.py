@@ -166,7 +166,7 @@ def extract_app_icon(icon_path, png_path):
             robo_print("An error occurred during icon extraction: %s" % err, LogLevel.WARNING)
 
 
-def get_exitcode_stdout_stderr(cmd):
+def get_exitcode_stdout_stderr(cmd, stdin=""):
     """Execute the external command and get its exitcode, stdout and stderr.
 
     Args:
@@ -188,12 +188,12 @@ def get_exitcode_stdout_stderr(cmd):
     for cmd_part in cmd_parts:
         cmd_part = cmd_part.strip()
         if i == 0:
-            p[i]=Popen(shlex.split(cmd_part), stdin=None, stdout=PIPE, stderr=PIPE)
+            p[i]=Popen(shlex.split(cmd_part), stdin=PIPE, stdout=PIPE, stderr=PIPE)
         else:
             p[i]=Popen(shlex.split(cmd_part), stdin=p[i-1].stdout, stdout=PIPE, stderr=PIPE)
         i = i + 1
 
-    out, err = p[i-1].communicate()
+    out, err = p[i-1].communicate(stdin)
     exitcode = p[i-1].returncode
 
     return exitcode, out, err
