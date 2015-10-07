@@ -328,7 +328,7 @@ def build_prefs(prefs, recipes):
                 prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
                 robo_print("\nLocation of your DeployStudio packages:")
                 robo_print("This where packages will be copied in order to "
-                                  "appear in DeployStudio.\n")
+                           "appear in DeployStudio.\n")
                 choice = raw_input(
                     "[%s]: " % prefs["DSPackagesPath"])
                 if choice != "":
@@ -1764,6 +1764,9 @@ def congratulate(prefs):
 
 def main():
     """Make the magic happen."""
+
+    if  sys.platform != "darwin":
+        robo_print("Recipe Robot requires Mac OS X.", LogLevel.ERROR)
 
     try:
         # Reset terminal colors, in case the last run aborted uncleanly.
