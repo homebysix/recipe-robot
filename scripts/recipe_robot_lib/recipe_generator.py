@@ -903,7 +903,10 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
-        extracted_icon = "%s/%s.png" % (prefs["RecipeCreateLocation"], facts["app_name"])
+        if "developer" in facts:
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"], facts["app_name"] + ".png")
+        else:
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"], facts["app_name"] + ".png")
         extract_app_icon(facts["icon_path"], extracted_icon)
     else:
         robo_print("I don't have enough information to create a "
