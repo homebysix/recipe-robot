@@ -61,7 +61,6 @@ def generate_recipes(facts, prefs, recipes):
     if not preferred:
         robo_print("Sorry, no recipes available to generate.", LogLevel.ERROR)
 
-    # TODO(Shea) Move to some kind of fact-validator function. (#30)
     # We don't have enough information to create a recipe set.
     if (facts["is_from_app_store"] is False and
             "sparkle_feed" not in facts and
