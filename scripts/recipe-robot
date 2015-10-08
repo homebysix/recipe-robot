@@ -87,7 +87,7 @@ cache_dir = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
 # Build the list of download formats we know about.
 supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
 supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
-supported_install_formats = ("pkg", "mpkg")  # downloading mpkg unlikely
+supported_install_formats = ("pkg",)
 all_supported_formats = (supported_image_formats + supported_archive_formats +
                          supported_install_formats)
 
@@ -389,9 +389,15 @@ def process_input_path(input_path, args, facts):
         elif input_path.endswith(".recipe"):
             robo_print("Sorry, I can't use existing AutoPkg recipes as "
                        "input.", LogLevel.ERROR)
-        elif input_path.endswith(".pkg"):
-            robo_print("Input path looks like a pkg.", LogLevel.VERBOSE)
+        elif input_path.endswith(supported_install_formats):
+            robo_print("Input path looks like an installer.", LogLevel.VERBOSE)
             facts = inspect_pkg(input_path, args, facts)
+        elif input_path.endswith(supported_image_formats):
+            robo_print("Input path looks like a disk image.", LogLevel.VERBOSE)
+            facts = inspect_disk_image(input_path, args, facts)
+        elif input_path.endswith(supported_archive_formats):
+            robo_print("Input path looks like an archive.", LogLevel.VERBOSE)
+            facts = inspect_archive(input_path, args, facts)
         else:
             robo_print("I haven't been trained on how to handle this "
                        "input path:\n    %s" % input_path, LogLevel.ERROR)
@@ -572,7 +578,7 @@ def inspect_github_url(input_path, args, facts):
                 robo_print("GitHub release download URL "
                            "is: %s" % download_url, LogLevel.VERBOSE, 4)
                 facts["download_url"] = download_url
-                inspect_download_url(download_url, args, facts)
+                facts = inspect_download_url(download_url, args, facts)
             else:
                 robo_print("Could not detect GitHub release download URL.",
                            LogLevel.WARNING)
@@ -877,7 +883,7 @@ def inspect_bitbucket_url(input_path, args, facts):
                 robo_print("BitBucket release download URL "
                            "is: %s" % download_url, LogLevel.VERBOSE, 4)
                 facts["download_url"] = download_url
-                inspect_download_url(download_url, args, facts)
+                facts = inspect_download_url(download_url, args, facts)
             else:
                 robo_print("Could not detect BitBucket release download URL.", LogLevel.WARNING)
 
@@ -1051,7 +1057,6 @@ def inspect_download_url(input_path, args, facts):
     # TODO(Elliot): Maybe something like this is better for downloading big
     # files? https://gist.github.com/gourneau/1430932 (#24)
     robo_print("Downloading file for further inspection...", LogLevel.VERBOSE)
-    create_dest_dirs(cache_dir)
 
     # Actually download the file.
     try:
@@ -1117,7 +1122,7 @@ def inspect_download_url(input_path, args, facts):
             hidden_sparkle = True
     if hidden_sparkle is True:
         os.remove(os.path.join(cache_dir, filename))
-        inspect_sparkle_feed_url(input_path, args, facts)
+        facts = inspect_sparkle_feed_url(input_path, args, facts)
         return facts
 
     # Try to determine the type of file downloaded. (Overwrites any previous
@@ -1141,134 +1146,17 @@ def inspect_download_url(input_path, args, facts):
 
     robo_print("Opening downloaded file...", LogLevel.VERBOSE)
 
+    # TODO(Elliot): If download format is unknown, try each of the following
+    # in turn and record which one succeeds. (Logic should already be in place,
+    # but we'll need a var to pass back to this function.)
+
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
-
-        # Determine whether the dmg has a software license agreement.
-        # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
-        dmg_has_sla = False
-        cmd = "/usr/bin/hdiutil imageinfo -plist \"%s\"" % os.path.join(cache_dir, filename)
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        if exitcode == 0:
-            with open(os.path.join(cache_dir, "dmg_info.plist"), "wb") as dmg_plist:
-                dmg_plist.write(out)
-            try:
-                dmg_info = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_info.plist"))
-                if dmg_info.get("Properties").get("Software License Agreement") == True:
-                    dmg_has_sla = True
-            except FoundationPlist.NSPropertyListSerializationException:
-                pass
-
-        # Mount the dmg and look for an app.
-        cmd = "/usr/bin/hdiutil attach -nobrowse -plist \"%s\"" % os.path.join(cache_dir, filename)
-        if dmg_has_sla is True:
-            exitcode, out, err = get_exitcode_stdout_stderr(cmd, "Y\n")
-        else:
-            exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-
-        if exitcode == 0:
-            # Confirmed; the download was a disk image. Make a note of that.
-            if download_format == "":
-                download_format = "dmg"  # most common disk image format
-            robo_print("Successfully mounted %s" % download_format, LogLevel.VERBOSE, 4)
-            facts["download_format"] = download_format
-
-            # If the download filename was ambiguous, change it.
-            if not facts["download_filename"].endswith(supported_image_formats):
-                facts["download_filename"] = facts["download_filename"] + ".dmg"
-
-            # Clean the output for cases where the dmg has a license agreement.
-            out_clean = out[out.find("<?xml"):]
-
-            # Locate and inspect the app.
-            with open(os.path.join(cache_dir, "dmg_attach.plist"), "wb") as dmg_plist:
-                dmg_plist.write(out_clean)
-            try:
-                dmg_dict = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_attach.plist"))
-            except Exception:
-                robo_print("Shoot, I had trouble parsing the output of "
-                           "hdiutil while mounting the downloaded dmg. Sorry "
-                           "about that.", LogLevel.ERROR)
-            for entity in dmg_dict["system-entities"]:
-                if "mount-point" in entity:
-                    dmg_mount = entity["mount-point"]
-                    break
-            for this_file in os.listdir(dmg_mount):
-                if this_file.endswith(".app"):
-                    # Copy app to cache folder.
-                    # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
-                    attached_app_path = os.path.join(dmg_mount, this_file)
-                    cached_app_path = os.path.join(cache_dir, "unpacked", this_file)
-                    if not os.path.exists(cached_app_path):
-                        try:
-                            shutil.copytree(attached_app_path, cached_app_path)
-                        except shutil.Error:
-                            pass
-                    # Unmount attached volume when done.
-                    cmd = "/usr/bin/hdiutil detach \"%s\"" % dmg_mount
-                    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                    facts = inspect_app(cached_app_path, args, facts)
-                    break
-                if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
-                    break
+        facts = inspect_disk_image(os.path.join(cache_dir, filename), args, facts)
 
     # Open the zip archive (or test to see whether the download is one).
     if download_format == "" or download_format in supported_archive_formats:
-
-        # Unzip the zip and look for an app.
-        cmd = "/usr/bin/unzip \"%s\" -d \"%s\"" % (os.path.join(cache_dir, filename), os.path.join(cache_dir, "unpacked"))
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        if exitcode == 0:
-
-            # Confirmed; the download was an archive. Make a note of that.
-            if download_format == "":
-                download_format = "zip"  # most common archive format
-            robo_print("Successfully unzipped %s" % download_format, LogLevel.VERBOSE, 4)
-            facts["download_format"] = download_format
-
-            # If the download filename was ambiguous, change it.
-            if not facts["download_filename"].endswith(supported_archive_formats):
-                facts["download_filename"] = facts["download_filename"] + ".zip"
-
-            # Locate and inspect the app.
-            for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
-                if this_file.endswith(".app"):
-                    # TODO(Elliot): What if .app isn't on root of zip? (#26)
-                    # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
-                    facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
-                    break
-                if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    inspect_pkg(os.path.join(cache_dir, "unpacked", this_file), args, facts)
-                    break
-
-    # Open the tar archive (or test to see whether the download is one).
-    if download_format == "" or download_format in supported_archive_formats:
-
-        # Unzip the tgz and look for an app.
-        cmd = "/usr/bin/tar -zxvf \"%s\" -C \"%s\"" % (os.path.join(cache_dir, filename), os.path.join(cache_dir, "unpacked"))
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        if exitcode == 0:
-
-            # Confirmed; the download was an archive. Make a note of that.
-            if download_format == "":
-                download_format = "tgz"
-            robo_print("Successfully unzipped %s" % download_format, LogLevel.VERBOSE, 4)
-            facts["download_format"] = download_format
-
-            # If the download filename was ambiguous, change it.
-            if not facts["download_filename"].endswith(supported_archive_formats):
-                facts["download_filename"] = facts["download_filename"] + ".tgz"
-
-            # Locate and inspect the app.
-            for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
-                if this_file.endswith(".app"):
-                    # TODO(Elliot): What if .app isn't on root of tgz? (#26)
-                    facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
-                    break
-                if this_file.endswith(".pkg") or this_file.endswith(".mpkg"):
-                    inspect_pkg(os.path.join(cache_dir, "unpacked", this_file), args, facts)
-                    break
+        facts = inspect_archive(os.path.join(cache_dir, filename), args, facts)
 
     # Inspect the installer (or test to see whether the download is one).
     if download_format in supported_install_formats:
@@ -1277,12 +1165,141 @@ def inspect_download_url(input_path, args, facts):
         facts["download_format"] = download_format
 
         # Inspect the package.
-        inspect_pkg(os.path.join(cache_dir, filename), args, facts)
+        facts = inspect_pkg(os.path.join(cache_dir, filename), args, facts)
 
     if download_format == "":
         robo_print("I've investigated pretty thoroughly, and I'm still not "
                    "sure what the download format is. This could cause "
                    "problems later.", LogLevel.WARNING)
+
+    return facts
+
+
+def inspect_archive(input_path, args, facts):
+    """Process an archive, gathering required information to create a recipe.
+    """
+
+    # Only proceed if we haven't inspected this pkg yet.
+    if "archive" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("archive")
+
+    # Unzip the zip and look for an app. (If this fails, we try tgz next.)
+    archive_cmds = ({
+        "format": "zip",
+        "cmd": "/usr/bin/unzip \"%s\" -d \"%s\"" % (input_path, os.path.join(cache_dir, "unpacked"))
+    },{
+        "format": "tgz",
+        "cmd": "/usr/bin/tar -zxvf \"%s\" -C \"%s\"" % (input_path, os.path.join(cache_dir, "unpacked"))
+    })
+    for this_format in archive_cmds:
+        exitcode, out, err = get_exitcode_stdout_stderr(this_format["cmd"])
+        if exitcode == 0:
+
+            # Confirmed; the download was a disk image. Make a note of that.
+            robo_print("Successfully unarchived %s" % this_format["format"], LogLevel.VERBOSE, 4)
+            facts["download_format"] = this_format["format"]
+
+            # If the download filename was ambiguous, change it.
+            if not facts.get("download_filename", input_path).endswith(supported_archive_formats):
+                facts["download_filename"] = "%s.%s" % (facts.get("download_filename", os.path.basename(input_path)), this_format["format"])
+
+            # Locate and inspect any enclosed apps or pkgs.
+            for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
+                if this_file.endswith(".app"):
+                    # TODO(Elliot): What if .app isn't on root of zip? (#26)
+                    # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
+                    facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
+                    break
+                if this_file.endswith(supported_install_formats):
+                    facts = inspect_pkg(os.path.join(cache_dir, "unpacked", this_file), args, facts)
+                    break
+
+            return facts
+
+    robo_print("Unable to unpack this archive: %s" % input_path, LogLevel.WARNING)
+    return facts
+
+
+def inspect_disk_image(input_path, args, facts):
+    """Process an image, gathering required information to create a recipe.
+    """
+
+    # Only proceed if we haven't inspected this pkg yet.
+    if "disk_image" in facts["inspections"]:
+        return facts
+    else:
+        facts["inspections"].append("disk_image")
+
+    # Determine whether the dmg has a software license agreement.
+    # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
+    dmg_has_sla = False
+    cmd = "/usr/bin/hdiutil imageinfo -plist \"%s\"" % input_path
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        with open(os.path.join(cache_dir, "dmg_info.plist"), "wb") as dmg_plist:
+            dmg_plist.write(out)
+        try:
+            dmg_info = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_info.plist"))
+            if dmg_info.get("Properties").get("Software License Agreement") == True:
+                dmg_has_sla = True
+        except FoundationPlist.NSPropertyListSerializationException:
+            pass
+
+    # Mount the dmg and look for an app.
+    cmd = "/usr/bin/hdiutil attach -nobrowse -plist \"%s\"" % input_path
+    if dmg_has_sla is True:
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd, "Y\n")
+    else:
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+
+        # Confirmed; the download was a disk image. Make a note of that.
+        robo_print("Successfully mounted disk image", LogLevel.VERBOSE, 4)
+        facts["download_format"] = "dmg"  # most common disk image format
+
+        # If the download filename was ambiguous, change it.
+        if not facts.get("download_filename", input_path).endswith(supported_image_formats):
+            facts["download_filename"] = facts.get("download_filename", input_path) + ".dmg"
+
+        # Clean the output for cases where the dmg has a license agreement.
+        out_clean = out[out.find("<?xml"):]
+
+        # Locate and inspect the app.
+        with open(os.path.join(cache_dir, "dmg_attach.plist"), "wb") as dmg_plist:
+            dmg_plist.write(out_clean)
+        try:
+            dmg_dict = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_attach.plist"))
+        except Exception:
+            robo_print("Shoot, I had trouble parsing the output of "
+                       "hdiutil while mounting the downloaded dmg. Sorry "
+                       "about that.", LogLevel.ERROR)
+        for entity in dmg_dict["system-entities"]:
+            if "mount-point" in entity:
+                dmg_mount = entity["mount-point"]
+                break
+        for this_file in os.listdir(dmg_mount):
+            if this_file.endswith(".app"):
+                # Copy app to cache folder.
+                # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
+                attached_app_path = os.path.join(dmg_mount, this_file)
+                cached_app_path = os.path.join(cache_dir, "unpacked", this_file)
+                if not os.path.exists(cached_app_path):
+                    try:
+                        shutil.copytree(attached_app_path, cached_app_path)
+                    except shutil.Error:
+                        pass
+                # Unmount attached volume when done.
+                cmd = "/usr/bin/hdiutil detach \"%s\"" % dmg_mount
+                exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+                facts = inspect_app(cached_app_path, args, facts)
+                break
+            if this_file.endswith(supported_install_formats):
+                facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
+                break
+    else:
+        robo_print("Unable to mount %s. (%s)" % (input_path, err), LogLevel.WARNING)
 
     return facts
 
@@ -1399,7 +1416,7 @@ def inspect_pkg(input_path, args, facts):
                         if exitcode == 0:
                             app_found = True
                             robo_print("Found app: %s" % extracted_app_path, LogLevel.VERBOSE, 4)
-                            inspect_app(extracted_app_path, args, facts)
+                            facts = inspect_app(extracted_app_path, args, facts)
                             break  # Struck pay dirt, so stop iterating
                                    # through apps in the payload
                         else:
@@ -1421,7 +1438,7 @@ def inspect_pkg(input_path, args, facts):
                                         cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",%s,%s,\"" % (os.path.join(cache_dir, "expanded", filename), line, extracted_app_path)
                                         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                                         if exitcode == 0:
-                                            inspect_app(extracted_app_path, args, facts)
+                                            facts = inspect_app(extracted_app_path, args, facts)
                                             break  # Struck pay dirt, so stop iterating
                                                    # through apps in the payload
                                             # TODO(Elliot): Should we stop at the first app? (#27)
@@ -1442,7 +1459,7 @@ def inspect_pkg(input_path, args, facts):
                            # much else we can examine.
 
                 if filename.endswith(".app"):
-                    inspect_app(filename, args, facts)
+                    facts = inspect_app(filename, args, facts)
                     break  # Struck pay dirt, so stop iterating through files
                            # in the package
 
@@ -1811,10 +1828,10 @@ def main():
         if "http" not in input_path:
             input_path = input_path.rstrip("/ ")
 
-        robo_print("Processing %s ..." % input_path)
-
         # Collect facts from the input path, based on the type of path given.
         facts = {}
+        create_dest_dirs(cache_dir)
+        robo_print("Processing %s ..." % input_path)
         process_input_path(input_path, args, facts)
 
         # Look up existing recipes. (App name is required to proceed.)
