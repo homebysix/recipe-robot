@@ -37,6 +37,7 @@ recipe-robot <input>
 For `<input>`, you can use one of several types of information:
 
 - The path to a Mac app.
+- The path to a zip, dmg, or pkg installer for a Mac app.
 - The path to an app's Sparkle feed.
 - The direct download URL for an app (which usually ends with .zip or .dmg).
 - The GitHub, BitBucket, or SourceForge project URL for an app.
@@ -47,7 +48,7 @@ Here's what Recipe Robot looks like when it's working properly. The command I us
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.0.5.  |
+                     |  Welcome to Recipe Robot v0.0.6.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]

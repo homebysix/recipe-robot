@@ -19,6 +19,9 @@ Script takes the following as input:
 
 - Input path, which can be one of the following
     - Path to an app
+    - Path to a zip containing an app
+    - Path to a dmg containing an app
+    - Path to a pkg installer
     - GitHub URL
     - BitBucket URL
     - SourceForge URL
