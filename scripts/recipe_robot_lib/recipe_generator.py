@@ -825,6 +825,10 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
+    if prefs["FollowOfficialJSSRecipesFormat"] is True:
+        # TODO: Use official jss-recipes style. (#49)
+        keys["Identifier"] = "com.github.jss-recipes.jss.%s" % facts["app_name"].replace(" ", "")
+
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into your JSS." %
@@ -849,6 +853,8 @@ def generate_jss_recipe(facts, prefs, recipe):
                     "path." % facts["app_name"], LogLevel.REMINDER)
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
+
+    # TODO(Elliot): Set jss_inventory_name argument if facts["app_file"] exists. (#50)
 
     if facts["version_key"] == "CFBundleVersion":
         keys["Input"]["GROUP_TEMPLATE"] = "CFBundleVersionSmartGroupTemplate.xml"
