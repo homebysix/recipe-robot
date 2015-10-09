@@ -17,7 +17,7 @@
 # limitations under the License.
 
 
-"""recipe-generator"""
+"""recipe_generator.py"""
 
 
 import os
@@ -29,7 +29,7 @@ try:
     from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon
     from .tools import robo_print, LogLevel, __version__
 except ImportError:
-    print '[WARNING] importing plistlib as FoundationPlist'
+    print "[WARNING] importing plistlib as FoundationPlist"
     import plistlib as FoundationPlist
 
 

@@ -74,7 +74,7 @@ from recipe_robot_lib.tools import (create_dest_dirs,
 try:
     from recipe_robot_lib import FoundationPlist
 except:
-    print '[WARNING] importing plistlib as FoundationPlist'
+    print "[WARNING] importing plistlib as FoundationPlist"
     import plistlib as FoundationPlist
 
 
@@ -757,7 +757,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             # Get the latest download URL.
             download_url = ""
             robo_print("Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE)
-            for item in doc.iterfind('channel/item'):
+            for item in doc.iterfind("channel/item"):
                 # TODO(Elliot): The extra-info tag is not a reliable indicator
                 # of which item should actually be downloaded. (#21)
                 # Example: http://sourceforge.net/projects/grandperspectiv/rss
@@ -931,7 +931,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             # Try again, this time with a user-agent.
             try:
                 opener = build_opener()
-                opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+                opener.addheaders = [("User-agent", "Mozilla/5.0")]
                 raw_xml = opener.open(input_path)
                 robo_print("I had to use a different user-agent in order to "
                            "read this Sparkle feed. If you run the recipes and "
@@ -985,7 +985,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     latest_version = "0"
     latest_url = ""
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
-    for item in doc.iterfind('channel/item/enclosure'):
+    for item in doc.iterfind("channel/item/enclosure"):
         if item.get("{%s}shortVersionString" % xmlns) is not None:
             sparkle_provides_version = True
             if LooseVersion(item.get("{%s}shortVersionString" % xmlns)) > LooseVersion(latest_version):
@@ -1076,7 +1076,7 @@ def inspect_download_url(input_path, args, facts):
             # Try again, this time with a user-agent.
             try:
                 opener = build_opener()
-                opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+                opener.addheaders = [("User-agent", "Mozilla/5.0")]
                 raw_download = opener.open(input_path)
                 robo_print("I had to use a different user-agent in order to "
                            "download this file. If you run the recipes and get a "
