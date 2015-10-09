@@ -844,9 +844,6 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     keys["Input"]["POLICY_CATEGORY"] = "Testing"
     keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
-    if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "PolicyTemplate.xml")):
-        robo_print("Please make sure PolicyTemplate.xml is in your "
-                    "AutoPkg search path.", LogLevel.REMINDER)
     keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
     if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "%s.png" % facts["app_name"])):
         robo_print("Please make sure %s.png is in your AutoPkg search "
@@ -855,53 +852,32 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
     # TODO(Elliot): Set jss_inventory_name argument if facts["app_file"] exists. (#50)
+    jssimporter_arguments = {
+        "prod_name": "%NAME%",
+        "category": "%CATEGORY%",
+        "policy_category": "%POLICY_CATEGORY%",
+        "policy_template": "%POLICY_TEMPLATE%",
+        "self_service_icon": "%SELF_SERVICE_ICON%",
+        "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
+        "groups": [{
+            "name": "%GROUP_NAME%",
+            "smart": True,
+            "template_path": "%GROUP_TEMPLATE%"
+        }]
+    }
 
+    # Set variables and arguments as necessary depending on version key.
     if facts["version_key"] == "CFBundleVersion":
         keys["Input"]["GROUP_TEMPLATE"] = "CFBundleVersionSmartGroupTemplate.xml"
-        if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "CFBundleVersionSmartGroupTemplate.xml")):
-            robo_print("Please make sure "
-                        "CFBundleVersionSmartGroupTemplate.xml is in "
-                        "your AutoPkg search path.", LogLevel.REMINDER)
-        keys["Process"].append({
-            "Processor": "JSSImporter",
-            "Arguments": {
-                "prod_name": "%NAME%",
-                "category": "%CATEGORY%",
-                "policy_category": "%POLICY_CATEGORY%",
-                "policy_template": "%POLICY_TEMPLATE%",
-                "self_service_icon": "%SELF_SERVICE_ICON%",
-                "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
-                "groups": [{
-                    "name": "%GROUP_NAME%",
-                    "smart": True,
-                    "template_path": "%GROUP_TEMPLATE%"
-                }],
-                "extension_attributes": [{
-                    "ext_attribute_path": "CFBundleVersionExtensionAttribute.xml"
-                }]
-            }
-        })
+        jssimporter_arguments["extension_attributes"] = [{
+            "ext_attribute_path": "CFBundleVersionExtensionAttribute.xml"
+        }]
     else:
         keys["Input"]["GROUP_TEMPLATE"] = "SmartGroupTemplate.xml"
-        if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "SmartGroupTemplate.xml")):
-            robo_print("Please make sure SmartGroupTemplate.xml is in "
-                        "your AutoPkg search path.", LogLevel.REMINDER)
-        keys["Process"].append({
-            "Processor": "JSSImporter",
-            "Arguments": {
-                "prod_name": "%NAME%",
-                "category": "%CATEGORY%",
-                "policy_category": "%POLICY_CATEGORY%",
-                "policy_template": "%POLICY_TEMPLATE%",
-                "self_service_icon": "%SELF_SERVICE_ICON%",
-                "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
-                "groups": [{
-                    "name": "%GROUP_NAME%",
-                    "smart": True,
-                    "template_path": "%GROUP_TEMPLATE%"
-                }]
-            }
-        })
+
+    # If the app's name differs from its filename, set jss_inventory_name.
+    if "app_file" in facts:
+        jssimporter_arguments["jss_inventory_name"] = facts["app_file"]
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
@@ -913,6 +889,12 @@ def generate_jss_recipe(facts, prefs, recipe):
     else:
         robo_print("I don't have enough information to create a "
                     "PNG icon for this app.", LogLevel.WARNING)
+
+    # Put fully constructed JSSImporter arguments into the process list.
+    keys["Process"].append({
+        "Processor": "JSSImporter",
+        "Arguments": jssimporter_arguments
+    })
 
 
 def generate_absolute_recipe(facts, prefs, recipe):
