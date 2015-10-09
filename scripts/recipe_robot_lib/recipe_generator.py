@@ -96,7 +96,7 @@ def generate_recipes(facts, prefs, recipes):
         facts["version_key"] = "CFBundleShortVersionString"
 
     # Prepare the destination directory.
-    if "developer" in facts:
+    if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
         recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"])
     else:
         recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"])
@@ -266,7 +266,7 @@ def generate_download_recipe(facts, prefs, recipe):
             }
         })
     elif "sourceforge_id" in facts:
-        if "developer" in facts:
+        if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
             create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"]))
         else:
             create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"]))
@@ -570,7 +570,7 @@ def generate_munki_recipe(facts, prefs, recipe):
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
-        if "developer" in facts:
+        if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"], facts["app_name"] + ".png")
         else:
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"], facts["app_name"] + ".png")
@@ -905,7 +905,7 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
-        if "developer" in facts:
+        if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"], facts["app_name"] + ".png")
         else:
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"], facts["app_name"] + ".png")
