@@ -16,7 +16,7 @@ extension NSImageView {
         if self.layer != nil {
             let colorize = CABasicAnimation(keyPath: "opacity")
             colorize.duration = 2.0
-            colorize.fromValue = 0.2
+            colorize.fromValue = self.layer!.opacity
             colorize.toValue = 0.0
             colorize.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
             colorize.repeatCount = 0
@@ -32,7 +32,7 @@ extension NSImageView {
             self.layer!.anchorPoint = CGPointMake(0.5, 0.5)
 
             let rotation = CABasicAnimation(keyPath:"transform")
-            rotation.duration = 100.0
+            rotation.duration = 50.0
 
             let angle = CGFloat(4*M_PI)
             rotation.toValue = angle
@@ -42,14 +42,14 @@ extension NSImageView {
 
             self.layer!.addAnimation(rotation, forKey: "transform.rotation.z")
 
-            let colorize = CABasicAnimation(keyPath: "opacity")
-            colorize.duration = 1
-            colorize.fromValue = 0.2
-            colorize.toValue = 0.4
-            colorize.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-            colorize.autoreverses = true
-            colorize.repeatCount = FLT_MAX
-            self.layer!.addAnimation(colorize, forKey: "colorize")
+            let alphaPulse = CABasicAnimation(keyPath: "opacity")
+            alphaPulse.duration = 1
+            alphaPulse.fromValue = 0.0
+            alphaPulse.toValue = 0.4
+            alphaPulse.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+            alphaPulse.autoreverses = true
+            alphaPulse.repeatCount = FLT_MAX
+            self.layer!.addAnimation(alphaPulse, forKey: "colorize")
         }
     }
 

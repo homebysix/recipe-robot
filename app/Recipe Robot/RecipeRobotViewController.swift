@@ -10,14 +10,14 @@ import Cocoa
 import AudioToolbox
 import Quartz
 
-let BGColor = NSColor(SRGBRed: 248/255, green: 235/255, blue: 190/255, alpha: 1).CGColor
+let BGColor = NSColor(SRGBRed: 52/255, green: 211/255, blue: 211/255, alpha: 1).CGColor
 let MGColor = NSColor.whiteColor().CGColor
 
 let sound = NSSound(named: "Glass")
 
 extension CAGradientLayer {
     func baseGradient() -> CAGradientLayer {
-        let gradientColors: [CGColor] = [BGColor, MGColor, BGColor ]
+        let gradientColors: [CGColor] = [BGColor, BGColor, BGColor ]
 
         let gradientLocations: [Float] = [0.0, 0.5, 1.0]
 
@@ -34,12 +34,15 @@ extension CAGradientLayer {
 
 // MARK: -- Views --
 class feedMeDropImageView: NSImageView, NSDraggingDestination {
+
     override func performDragOperation(sender: NSDraggingInfo) -> Bool {
-        if let feedMeViewController = sender.draggingDestinationWindow().contentViewController as? FeedMeViewController,
+        if let controller = sender.draggingDestinationWindow().contentViewController as? FeedMeViewController,
             files = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? NSArray,
             file = files.firstObject as? String {
-                feedMeViewController.task.appOrRecipe = file
-                feedMeViewController.performSegueWithIdentifier("feedMeSegue", sender: self)
+
+                controller.task = RecipeRobotTask()
+                controller.task.appOrRecipe = file
+                controller.performSegueWithIdentifier("feedMeSegue", sender: self)
 
                 let item = sender.draggingPasteboard().pasteboardItems
         }
@@ -104,9 +107,7 @@ class RecipeRobotViewController: NSViewController {
                 // So in the future make sure to call super.prepareForSegue() on any
                 // additional viewControllers.
                 dest.task = source.task
-                if let dest = dest as? RecipeChoiceViewController {
-                    dest.configure()
-                } else if let dest = dest as? ProcessingViewController {
+                if let dest = dest as? ProcessingViewController {
                     dest.processRecipes()
                 } else if let dest = dest as? FeedMeViewController {
                     dest.task = RecipeRobotTask()
@@ -130,27 +131,36 @@ class FeedMeViewController: RecipeRobotViewController {
         super.viewDidAppear()
         self.task = RecipeRobotTask()
     }
-
 }
 
 // MARK: - Recipe Choice
-class RecipeChoiceViewController: RecipeRobotViewController, NSTableViewDataSource, NSTableViewDelegate {
+class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource, NSTableViewDelegate {
 
     // MARK: IBOutlets
     @IBOutlet var appIconImageView: NSImageView?
 
-    private let recipeTypes = [
-        "download",
-        "munki",
-        "pkg",
-        "install",
-        "jss",
-        "absolute",
-        "sccm",
-        "ds"
-    ]
+    @IBOutlet var downloadButton: NSButton!
+    @IBOutlet var munkiButton: NSButton!
+    @IBOutlet var pkgButton: NSButton!
+    @IBOutlet var installButton: NSButton!
+    @IBOutlet var jssButton: NSButton!
+    @IBOutlet var absoluteButton: NSButton!
+    @IBOutlet var sccmButton: NSButton!
+    @IBOutlet var dsButton: NSButton!
+
+    var buttons: [String: NSButton] { return [
+        "download": downloadButton!,
+        "munki": munkiButton!,
+        "pkg": pkgButton!,
+        "install": installButton!,
+        "jss": jssButton!,
+        "absolute": absoluteButton!,
+        "sccm": sccmButton!,
+        "ds": dsButton!
+        ]
+    }
     
-    private var enabledRecipeTypes = NSUserDefaults.standardUserDefaults().objectForKey("RecipeTypes") as? [String]
+    private var enabledRecipeTypes = NSUserDefaults.standardUserDefaults().objectForKey("RecipeTypes") as? [String] ?? [String]()
 
 
     // MARK: Overrides
@@ -159,66 +169,42 @@ class RecipeChoiceViewController: RecipeRobotViewController, NSTableViewDataSour
         // Do view setup here.
     }
 
-    func configure(){
-        let appOrRecipe = self.task.appOrRecipe as NSString
-        switch appOrRecipe.pathExtension {
-        case "app":
-            let icon = NSWorkspace.sharedWorkspace().iconForFile(appOrRecipe as String)
-            self.appIconImageView?.image = icon
-        case "recipe":
-            let icon = NSWorkspace.sharedWorkspace().iconForFile(appOrRecipe as String)
-        default :
-            self.appIconImageView?.image = NSImage()
-        }
+    override func viewWillAppear() {
+        configure()
     }
 
-    override func prepareForSegue(segue: NSStoryboardSegue, sender: AnyObject?) {
-        super.prepareForSegue(segue, sender: sender)
-        if let currentTypes = self.enabledRecipeTypes {
-            NSUserDefaults.standardUserDefaults().setObject(currentTypes, forKey:"RecipeTypes")
-            self.task.recipeTypes = currentTypes
+    override func viewWillDisappear() {
+        NSUserDefaults.standardUserDefaults().setObject(self.enabledRecipeTypes, forKey:"RecipeTypes")
+    }
+
+    func configure(){
+        for (k, b) in buttons {
+            b.target = self
+            b.action = "recipeTypeClicked:"
+            b.identifier = k
+            b.title = k
+            if let idx = find(enabledRecipeTypes, k){
+                b.state = NSOnState
+            }
         }
+
     }
 
     // MARK: IBActions
     @IBAction func recipeTypeClicked(sender: AnyObject){
         if let obj = sender as? NSButton {
-                if let t = obj.identifier {
-                    if (obj.state == NSOnState){
-                        enabledRecipeTypes?.append(t)
-                    } else {
-                        if enabledRecipeTypes?.count > 0 {
-                            if let idx = find(enabledRecipeTypes!, t){
-                                enabledRecipeTypes?.removeAtIndex(idx)
-                            }
+            if let t = obj.identifier {
+                if (obj.state == NSOnState){
+                    enabledRecipeTypes.append(t)
+                } else {
+                    if enabledRecipeTypes.count > 0 {
+                        if let idx = find(enabledRecipeTypes, t){
+                            enabledRecipeTypes.removeAtIndex(idx)
                         }
                     }
                 }
-        }
-    }
-
-    // MARK: TableView Data & Delegate
-    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
-        return recipeTypes.count
-    }
-
-    func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
-
-        let cell = tableView.makeViewWithIdentifier("recipeCell", owner: self) as? recipeTypeCellView
-
-        let recipeType = recipeTypes[row]
-
-        if let checkBox = cell?.checkBox {
-            checkBox.title = recipeType
-            checkBox.identifier = recipeType
-
-            if let types = self.enabledRecipeTypes,
-                idx = find(types , recipeType)
-            {
-                checkBox.state = NSOnState
             }
         }
-        return cell
     }
 }
 
@@ -250,7 +236,8 @@ class ProcessingViewController: RecipeRobotViewController {
         for view in gearContainerView.subviews {
             if let view = view as? NSImageView {
                 if start {
-                    view.robotRotate()
+                    let delay = NSTimeInterval(arc4random_uniform(2000)+500) / 1000
+                    let timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: view, selector: "robotRotate", userInfo: nil, repeats: false)
                 }  else {
                     view.stopRobotRotate()
                 }
@@ -294,7 +281,7 @@ class ProcessingViewController: RecipeRobotViewController {
             cancelButton = sender
             self.task.cancel()
         } else {
-            self.performSegueWithIdentifier("allDoneSegue", sender: self)
+            self.dismissController(sender)
         }
     }
 }

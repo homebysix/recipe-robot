@@ -21,10 +21,17 @@ class ReplaceSegue: NSStoryboardSegue {
     }
 }
 
+class PushSegue: NSStoryboardSegue {
+    override func perform() {
+        self.sourceController.presentViewController(
+            self.destinationController as! NSViewController, animator: PushTransitionAnimator())
+    }
+}
+
 class FadeSegue: NSStoryboardSegue {
     override func perform() {
         self.sourceController.presentViewController(
-            self.destinationController as! NSViewController, animator: FadeTransitionAnimator())
+            self.destinationController as! NSViewController, animator: PushTransitionAnimator())
     }
 }
 
@@ -43,8 +50,6 @@ class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
                 context.duration = 2
                 tvc.view.animator().alphaValue = 1
                 }, completionHandler: {
-//                    tvc.task = fvc.task;
-//                    fvc.view.window?.contentViewController = tvc
             })
         }
     }
@@ -74,23 +79,21 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
         viewController.view.autoresizingMask = .ViewWidthSizable | .ViewHeightSizable
         fromViewController.view.addSubview(viewController.view)
         let dRect = fromViewController.view.frame
-        let pRect = NSMakeRect(-dRect.size.width, 0, dRect.size.width, dRect.size.height)
 
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5;
             context.timingFunction = CAMediaTimingFunction(name:kCAMediaTimingFunctionEaseOut)
             viewController.view.animator().frame = dRect
-            fromViewController.view.animator().frame = pRect
-        }, completionHandler: { () -> Void in
+            }, completionHandler: { () -> Void in
         })
     }
 
-    
+
     func animateDismissalOfViewController(viewController: NSViewController, fromViewController: NSViewController) {
         let destinationRect = NSMakeRect(NSWidth(fromViewController.view.frame), // x
-                                         0, // y
-                                         NSWidth(fromViewController.view.frame), // width
-                                         NSHeight(fromViewController.view.frame)); // height
+            0, // y
+            NSWidth(fromViewController.view.frame), // width
+            NSHeight(fromViewController.view.frame)); // height
 
         let dRect = fromViewController.view.frame
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
