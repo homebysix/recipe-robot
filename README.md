@@ -7,6 +7,9 @@ __Table of contents__
 - [Overview](#overview)
 - [Python Script Usage](#python-script-usage)
 - [Tips](#tips)
+    - [Compatibility](#compatibility)
+    - [Apps with existing AutoPkg recipes](#apps-with-existing-autopkg-recipes)
+    - [App Store Apps](#app-store-apps)
 - [Troubleshooting](#troubleshooting)
 - [Feedback](#feedback)
 
@@ -21,12 +24,12 @@ Recipe Robot will soon become the easiest way to create basic AutoPkg recipes. I
 
 - A __native Mac app__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
 
-This two-pronged approach will allow AutoPkg novices to easily create recipes that follow community-accepted guidelines with the minimum amount of effort, and will still provide a command-line tool for more advanced AutoPkg users. Also, ensuring that all program logic is done in Python should hopefully foster community contribution to this project.
+This two-pronged approach will allow AutoPkg novices to easily create recipes that follow community-accepted guidelines, and will still provide a command-line tool for more advanced AutoPkg users. Also, ensuring that all program logic is written in Python should hopefully encourage community contribution to this project.
 
 
 ## Python Script Usage
 
-The Python script is under heavy development right now and is super rough, but you're welcome to try it out if you want a preview of what Recipe Robot will do. __Use at your own risk.__ I don't think Recipe Robot will delete all your files, but you are accepting that possibility.
+The Python script is under heavy development right now, but you're welcome to try it out if you want a preview of what Recipe Robot will do. __Use at your own risk,__ and always manually review the recipes that are created before running them.
 
 Just open Terminal, `cd` to the scripts folder, then type:
 
@@ -74,7 +77,7 @@ If you use the `--verbose` argument, you'll get a little more information about 
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.0.5.  |
+                     |  Welcome to Recipe Robot v0.0.6.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]
@@ -135,25 +138,25 @@ It's fun to see the details, and very useful in case anything goes wrong.
 
 ## Tips
 
-__A note about compatibility__
+### Compatibility
 
 My goal is _not_ to make Recipe Robot generate perfect recipes 100% of the time. There will certainly be apps that Recipe Robot chokes on, and some recipe types are more complex to build than others. I hope Recipe Robot will make the process of writing _standard_ recipes for _simple_ apps much faster and more consistent. The recipes created by Recipe Robot should serve as a platform that you can customize before using and sharing.
 
 You may still need to make a recipe the old fashioned way, if the Robot comes up empty.
 
-__App Store Apps__
+### Apps with existing AutoPkg recipes
 
-If you provide Recipe Robot with the path to an app that came from the Mac App Store, it will create an override for use with Nick McSpadden's [AppStoreApp recipes](https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe). Please see the details in his README for requirements necessary to use these overrides.
+By default, Recipe Robot does not generate recipes for an app if any AutoPkg recipes already exist for that app. This is a design choice we made after careful consideration, for two reasons:
 
-__A note about existing recipes__
+1. It's difficult to parse a ParentRecipe and determine exactly which processors will be needed and which file paths we can rely on. Your brain is still the best tool for that, for now.
 
-AutoPkg recipe authors put a lot of work into the recipes they write, and it's important that we respect that by refraining from uploading duplicate recipes to GitHub.
+2. Many AutoPkg recipe authors put a lot of work into the recipes they write, and it's important that we respect that by refraining from uploading duplicate recipes to GitHub.
 
-To that end, Recipe Robot will not create recipes that already exist in the wild. You can override this etiquette, but please only post a duplicate recipe to GitHub if it meets these guidelines:
+You can override this etiquette, but please only post a duplicate set of recipes to GitHub if they meet these guidelines:
 
-- It's applicable to a wide audience
-- It's better than the original in at least one significant way
-- You add notes to the description clarifying how your recipe differs from the existing recipe.
+- applicable to a wide audience
+- better than the original in at least one significant way
+- a note in the description clarifies how your recipe differs from the existing recipe (see [this example](https://github.com/autopkg/homebysix-recipes/blob/b3e30cf859e983ff1cf6ad6a053917d17434567f/ObjectiveDevelopment/LaunchBar.download.recipe#L10-L13))
 
 Thank you!
 
@@ -161,15 +164,19 @@ __Things to tweak in Recipe Robot-produced recipes__
 
 Each time Recipe Robot produces a batch of recipes for you, I suggest you check a few things before letting the recipes loose in the wild:
 
-- The filename of the recipe and the NAME input variable are determined by the name of the app itself. Many apps are suffixed with a version number (e.g. "Delicious Library 3"), and that version number may not be desirable in all cases. You may need to remove the version number from the filename, recipe identifier(s), and description.
+- The filename of the recipe and the `NAME` input variable are determined by the name of the app itself. Many apps are suffixed with a version number (e.g. "Delicious Library 3"), and that version number may not be desirable in all cases. You may need to remove the version number from the filename, recipe identifiers, and `ParentRecipe` keys.
 
-- Recipe Robot does its best at determining an app's description for use in Munki and JSS recipes. But it's far from perfect, and it will surprise you with false positives! Always double-check the description before running Munki and JSS recipes.
-
-- You'll want to check the code signature verification included in download recipes created by Recipe Robot. Although it works great most of the time, occasionally you'll need to adjust it.
+- Recipe Robot does its best at determining an app's description for use in Munki and JSS recipes. But it's far from perfect, and it will surprise you with false positives! Always double-check the description before running Munki and JSS recipes or uploading them to GitHub.
 
 - It's fine to use a version-specific URL as input, but be careful that it doesn't result in download recipes that depend upon it. Such recipes will not serve the purpose of downloading the latest version using AutoPkg.
 
-    You may need to try again with a different URL (preferably one like `http://foo-app.com/latest` or `http://downloads.pretendco.com/Foo.zip` which doesn't point to a specific version). Or you may want to explore using [URLTextSearcher](https://github.com/autopkg/autopkg/wiki/Processor-URLTextSearcher) to determine the latest URL by inspecting the source of the developer's download page.
+    You may need to try again with a different URL (preferably one like `http://foo-app.com/latest` or `http://downloads.pretendco.com/Foo.zip` which doesn't point to a specific version).
+
+    Or you may want to explore using [URLTextSearcher](https://github.com/autopkg/autopkg/wiki/Processor-URLTextSearcher) to determine the latest URL by inspecting the source of the developer's download page.
+
+### App Store Apps
+
+If you provide Recipe Robot with the path to an app that came from the Mac App Store, it will create an override for use with Nick McSpadden's [AppStoreApp recipes](https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe). Please see the details in his README for requirements necessary to use these overrides.
 
 
 ## Troubleshooting
