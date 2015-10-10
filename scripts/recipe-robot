@@ -68,7 +68,7 @@ import recipe_robot_lib
 from recipe_robot_lib.tools import (create_dest_dirs,
                                     get_exitcode_stdout_stderr, robo_print,
                                     LogLevel, OutputMode, print_welcome_text,
-                                    __version__)
+                                    __version__, report, write_report, timer)
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
@@ -1796,6 +1796,9 @@ def main():
         robo_print("Recipe Robot requires Mac OS X.", LogLevel.ERROR)
 
     try:
+        # Start the timer that tracks the execution time.
+        timer("start")
+
         # Reset terminal colors, in case the last run aborted uncleanly.
         recipe_robot_lib.tools.reset_term_colors()
 
@@ -1866,6 +1869,12 @@ def main():
 
         # Pat on the back!
         congratulate(prefs)
+
+        # Stop the timer that tracks the execution time.
+        timer("stop")
+
+        # Save a report for the Mac app to read.
+        write_report(report, os.path.join("/tmp", "report.plist"))
 
         # Clean up cache folder.
         if os.path.exists(cache_dir) and args.keep_cache is not True:

@@ -21,13 +21,12 @@
 
 
 import os
+from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon, robo_print, LogLevel, __version__, report
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
     from recipe_robot_lib import FoundationPlist
-    from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon
-    from .tools import robo_print, LogLevel, __version__
 except ImportError:
     print "[WARNING] importing plistlib as FoundationPlist"
     import plistlib as FoundationPlist
@@ -185,8 +184,9 @@ def generate_recipes(facts, prefs, recipes):
             # TODO(Elliot): Warning if a file already exists here. (#32)
             # TODO(Elliot): Create subfolders automatically. (#31)
             FoundationPlist.writePlist(recipe["keys"], dest_path)
-            robo_print("%s/%s" % (recipe_dest_dir,
+            robo_print("%s" % os.path.join(recipe_dest_dir,
                                   recipe["filename"]), LogLevel.LOG, 4)
+            report["recipes"].append(dest_path)
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, prefs_file)
