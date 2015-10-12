@@ -75,7 +75,7 @@ class recipeTypeCellView: NSTableCellView {
 class RecipeRobotViewController: NSViewController {
 
     deinit {
-        println("dealoc \(self.className)")
+        print("dealoc \(self.className)")
     }
     
     var task: RecipeRobotTask = RecipeRobotTask()
@@ -186,7 +186,7 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
             b.attributedTitle = NSAttributedString(string: k, attributes: [NSForegroundColorAttributeName: NSColor.whiteColor()])
 
             var color: NSColor!
-            if let idx = find(enabledRecipeTypes, k){
+            if let idx = enabledRecipeTypes.indexOf(k){
                 b.state = NSOnState
                 color = rrYellowColor
             } else {
@@ -213,7 +213,7 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
                 } else {
                     color = rrGreenColor
                     if enabledRecipeTypes.count > 0 {
-                        if let idx = find(enabledRecipeTypes, t){
+                        if let idx = enabledRecipeTypes.indexOf(t){
                             enabledRecipeTypes.removeAtIndex(idx)
                         }
                     }

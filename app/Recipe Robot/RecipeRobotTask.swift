@@ -47,7 +47,7 @@ class RecipeRobotTask: NSObject {
                 }
         }
 
-        var errData = NSMutableData()
+        let errData = NSMutableData()
         err.fileHandleForReading.readabilityHandler = {
             handle in
                 let data = handle.availableData
@@ -66,7 +66,7 @@ class RecipeRobotTask: NSObject {
                 out.fileHandleForReading.readabilityHandler = nil
                 err.fileHandleForReading.readabilityHandler = nil
 
-                var error: NSError?
+                let error: NSError?
                 if let dataString = NSString(data: errData, encoding:NSUTF8StringEncoding) as? String {
                     let error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
                 }
@@ -83,7 +83,7 @@ class RecipeRobotTask: NSObject {
     private var task = NSTask()
 
     private func constructTaskEnvironment() -> Dictionary<String, AnyObject> {
-        var dict = Dictionary<String, AnyObject>()
+        let dict = Dictionary<String, AnyObject>()
         return dict
     }
 
@@ -91,14 +91,14 @@ class RecipeRobotTask: NSObject {
         var args = [AnyObject]()
 
         if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
-            args.extend([recipeRobotPy, "-v", self.appOrRecipe])
+            args.appendContentsOf([recipeRobotPy, "-v", self.appOrRecipe])
         }
 
         return args
     }
 
     private class func taskError(string: String, exitCode: Int32) -> NSError {
-        println(string)
+        print(string)
         let error = NSError(domain: "recipe-robot", code: Int(exitCode), userInfo: [NSLocalizedDescriptionKey: string])
         return error
     }

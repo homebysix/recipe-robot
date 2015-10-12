@@ -12,7 +12,7 @@ extension NSImageView {
     public func stopRobotRotate(){
 
         if self.layer != nil {
-            var opacity: Float = 0.20 //presentationLayer.opacity
+            let opacity: Float = 0.20 //presentationLayer.opacity
 
             let colorize = CABasicAnimation(keyPath: "opacity")
             colorize.duration = CFTimeInterval(round(opacity * 10.00))

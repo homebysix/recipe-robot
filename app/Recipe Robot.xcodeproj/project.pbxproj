@@ -10,6 +10,7 @@
 		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
+		8BD5A1CD1BCB6E3F00D16D0A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 8BD5A1CC1BCB6E3F00D16D0A /* scripts */; settings = {ASSET_TAGS = (); }; };
 		BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */ = {isa = PBXBuildFile; fileRef = BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */; };
 		BE09DAB01BBA1D95007F8FF4 /* ImageViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09DAAF1BBA1D94007F8FF4 /* ImageViewExtensions.swift */; };
 		BE1A41CF1BB4C374008173FB /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
@@ -40,14 +41,11 @@
 		8B42AC8E1B5C5BEC0058A814 /* Recipe RobotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Recipe RobotTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B42AC931B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe_RobotTests.swift; sourceTree = "<group>"; };
+		8BD5A1CC1BCB6E3F00D16D0A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../scripts; sourceTree = "<group>"; };
 		BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_128x128.png; path = Images.xcassets/AppIcon.appiconset/icon_128x128.png; sourceTree = "<group>"; };
 		BE09DAAF1BBA1D94007F8FF4 /* ImageViewExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewExtensions.swift; sourceTree = "<group>"; };
 		BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotViewController.swift; sourceTree = "<group>"; };
 		BE34C8361B7EC5DF00E0822E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		BE6F6B961B800DFB0082011D /* __init__.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = __init__.py; sourceTree = "<group>"; };
-		BE6F6B971B800DFB0082011D /* FoundationPlist.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FoundationPlist.py; sourceTree = "<group>"; };
-		BE6F6B981B800DFB0082011D /* macupdate_scraper.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = macupdate_scraper.py; sourceTree = "<group>"; };
-		BE6F6B991B800DFB0082011D /* recipe-robot.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "recipe-robot.py"; sourceTree = "<group>"; };
 		BE6F6BA21B800E270082011D /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		BE76397B1BCB42EC00589695 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
 		BE76397D1BCB602A00589695 /* Colors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
@@ -116,7 +114,7 @@
 			children = (
 				BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */,
 				8B42AC821B5C5BEC0058A814 /* Info.plist */,
-				BE6F6B941B800DFB0082011D /* scripts */,
+				8BD5A1CC1BCB6E3F00D16D0A /* scripts */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -136,26 +134,6 @@
 				8B42AC931B5C5BEC0058A814 /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		BE6F6B941B800DFB0082011D /* scripts */ = {
-			isa = PBXGroup;
-			children = (
-				BE6F6B951B800DFB0082011D /* FoundationPlist */,
-				BE6F6B981B800DFB0082011D /* macupdate_scraper.py */,
-				BE6F6B991B800DFB0082011D /* recipe-robot.py */,
-			);
-			name = scripts;
-			path = ../../scripts;
-			sourceTree = "<group>";
-		};
-		BE6F6B951B800DFB0082011D /* FoundationPlist */ = {
-			isa = PBXGroup;
-			children = (
-				BE6F6B961B800DFB0082011D /* __init__.py */,
-				BE6F6B971B800DFB0082011D /* FoundationPlist.py */,
-			);
-			path = FoundationPlist;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -202,6 +180,8 @@
 		8B42AC761B5C5BEC0058A814 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftMigration = 0700;
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = "Linde Group";
 				TargetAttributes = {
@@ -241,6 +221,7 @@
 				BE6F6BA31B800E270082011D /* scripts in Resources */,
 				BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */,
 				BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */,
+				8BD5A1CD1BCB6E3F00D16D0A /* scripts in Resources */,
 				8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -672,8 +672,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="500" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
                                 <rect key="frame" x="208" y="254" width="85" height="21"/>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="fMo-Ix-2ju">
                                     <font key="font" metaFont="systemBold" size="17"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -685,8 +686,11 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="223" id="g1H-uu-hAk"/>
                                 </constraints>
-                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="You can drag an app or an existing AutoPkg recipe to start processing" id="A3b-Bf-P3c">
+                                <animations/>
+                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" id="A3b-Bf-P3c">
                                     <font key="font" metaFont="system"/>
+                                    <string key="title">Drag in an app or paste a
+URL to start processing</string>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -696,10 +700,12 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="194" id="OBr-n0-7d1"/>
                                 </constraints>
+                                <animations/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSFlowViewTemplate" id="LKr-o1-PkU"/>
                             </imageView>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nkw-ja-oeC">
                                 <rect key="frame" x="410" y="259" width="71" height="32"/>
+                                <animations/>
                                 <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EaX-Yk-4WT">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -727,6 +733,7 @@
                                 </configuration>
                             </ciFilter>
                         </backgroundFilters>
+                        <animations/>
                     </view>
                     <connections>
                         <segue destination="DLx-gp-7HF" kind="custom" identifier="feedMeSegue" customClass="FadeSegue" customModule="Recipe_Robot" customModuleProvider="target" id="uhZ-iq-Ne8"/>
@@ -747,6 +754,7 @@
                         <subviews>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5WK-Bj-mck">
                                 <rect key="frame" x="26" y="151" width="104" height="64"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="5" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OBc-wc-QuV">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
@@ -754,6 +762,7 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vo4-jr-rdS">
                                 <rect key="frame" x="26" y="218" width="104" height="64"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="1" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OcR-04-X4G">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
@@ -761,6 +770,7 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XLl-6j-J8Q">
                                 <rect key="frame" x="350" y="151" width="104" height="64"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="8" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6yg-8R-5D3">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
@@ -768,6 +778,7 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6iZ-LN-3HT">
                                 <rect key="frame" x="350" y="218" width="104" height="64"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="4" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GtB-aI-RW3">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
@@ -775,6 +786,7 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZK3-x4-eSR">
                                 <rect key="frame" x="134" y="218" width="104" height="64"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="2" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dhO-rF-dc6">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
@@ -782,6 +794,7 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bp3-ds-YSC">
                                 <rect key="frame" x="134" y="151" width="104" height="64"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="3" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bRw-3b-U1b">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
@@ -789,6 +802,7 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4f8-f1-q4n">
                                 <rect key="frame" x="242" y="151" width="104" height="64"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="7" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5qA-jX-vDA">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
@@ -796,6 +810,7 @@
                             </button>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S4H-0C-FOJ">
                                 <rect key="frame" x="117" y="57" width="258" height="22"/>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="ifo-O3-ptj">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -804,6 +819,7 @@
                             </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UHv-7e-9EL">
                                 <rect key="frame" x="377" y="51" width="88" height="32"/>
+                                <animations/>
                                 <buttonCell key="cell" type="push" title="Choose" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="wih-Xg-iFz">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -811,6 +827,7 @@
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wD1-ts-SfA">
                                 <rect key="frame" x="28" y="58" width="83" height="17"/>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Recipe Path:" id="5z8-Cp-QHp">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -819,6 +836,7 @@
                             </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="skc-tx-x1M">
                                 <rect key="frame" x="222" y="13" width="57" height="29"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="Done" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ub6-dU-vbX">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -832,12 +850,14 @@ DQ
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CfN-P5-LHx">
                                 <rect key="frame" x="242" y="218" width="104" height="64"/>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="6" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yw7-zB-eim">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
                                 </buttonCell>
                             </button>
                         </subviews>
+                        <animations/>
                     </view>
                     <connections>
                         <outlet property="absoluteButton" destination="Vo4-jr-rdS" id="N4L-aV-f1A"/>
@@ -870,6 +890,7 @@ DQ
                                         <textView editable="NO" selectable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="XPn-uP-tNF">
                                             <rect key="frame" x="0.0" y="0.0" width="223" height="239"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <animations/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <size key="minSize" width="470" height="218"/>
                                             <size key="maxSize" width="500" height="10000000"/>
@@ -878,15 +899,19 @@ DQ
                                             <size key="maxSize" width="500" height="10000000"/>
                                         </textView>
                                     </subviews>
+                                    <animations/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </clipView>
+                                <animations/>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="9VJ-PL-Sdd">
                                     <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="FjS-KZ-miw">
                                     <rect key="frame" x="224" y="1" width="15" height="133"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                             </scrollView>
                             <customView misplaced="YES" alphaValue="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wpZ-ia-RPf" userLabel="Gears View">
@@ -897,10 +922,12 @@ DQ
                                         <constraints>
                                             <constraint firstAttribute="width" constant="29" id="M7S-Ep-hHP"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="2J8-P3-n8f"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="zt7-fw-Qw6">
                                         <rect key="frame" x="96" y="185" width="48" height="55"/>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="S5H-dD-6Om"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="f6b-5g-3dy">
@@ -908,6 +935,7 @@ DQ
                                         <constraints>
                                             <constraint firstAttribute="width" constant="29" id="jR2-gg-AjK"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IHB-cO-sMS"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Ldu-tF-onM">
@@ -915,14 +943,17 @@ DQ
                                         <constraints>
                                             <constraint firstAttribute="width" constant="46" id="14e-V0-tJJ"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oP9-jh-oF7"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="gn5-51-pkj">
                                         <rect key="frame" x="72" y="51" width="55" height="55"/>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oi0-FE-bEc"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="igg-4Y-ndW">
                                         <rect key="frame" x="303" y="115" width="55" height="55"/>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="vcY-2Q-9Jv"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="GSh-FL-Sh6">
@@ -931,6 +962,7 @@ DQ
                                             <constraint firstAttribute="height" constant="32" id="QEW-Lu-1qr"/>
                                             <constraint firstAttribute="width" constant="45" id="qZS-IV-n4V"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IvW-qr-Zlh"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Sbd-5F-qdT">
@@ -939,6 +971,7 @@ DQ
                                             <constraint firstAttribute="height" constant="32" id="K8y-BP-etH"/>
                                             <constraint firstAttribute="width" constant="45" id="smz-JE-51c"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="Wp3-Cv-F7H"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="8os-nw-rgn">
@@ -947,6 +980,7 @@ DQ
                                             <constraint firstAttribute="width" constant="35" id="SUk-r3-6B0"/>
                                             <constraint firstAttribute="height" constant="20" id="dTb-LV-wuQ"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="wIm-a0-6Pv"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="dvk-2x-EOV">
@@ -955,6 +989,7 @@ DQ
                                             <constraint firstAttribute="width" constant="29" id="YXf-Sc-BJt"/>
                                             <constraint firstAttribute="height" constant="35" id="eH8-nn-CPY"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="fD4-pL-GdL"/>
                                     </imageView>
                                     <imageView misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Dy6-LB-UAX">
@@ -963,6 +998,7 @@ DQ
                                             <constraint firstAttribute="width" constant="14" id="A83-4i-7Ck"/>
                                             <constraint firstAttribute="height" constant="14" id="tkH-VD-C73"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="NSActionTemplate" id="9lH-bv-WRD"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="pOy-P2-jOb">
@@ -971,6 +1007,7 @@ DQ
                                             <constraint firstAttribute="width" constant="45" id="HBT-0z-565"/>
                                             <constraint firstAttribute="height" constant="42" id="Ycy-Nd-udb"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="G5Y-F7-aax"/>
                                     </imageView>
                                     <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="g0O-SY-tfW">
@@ -979,6 +1016,7 @@ DQ
                                             <constraint firstAttribute="height" constant="35" id="3Tj-wi-Xge"/>
                                             <constraint firstAttribute="width" constant="29" id="ItW-pX-h7b"/>
                                         </constraints>
+                                        <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="KSI-bE-DeQ"/>
                                     </imageView>
                                 </subviews>
@@ -1020,6 +1058,7 @@ DQ
                                     <constraint firstItem="f6b-5g-3dy" firstAttribute="leading" secondItem="Dy6-LB-UAX" secondAttribute="trailing" constant="70" id="vOv-Si-iFq"/>
                                     <constraint firstItem="Sbd-5F-qdT" firstAttribute="leading" secondItem="igg-4Y-ndW" secondAttribute="trailing" constant="26" id="xnd-cN-yk5"/>
                                 </constraints>
+                                <animations/>
                             </customView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Y2T-7f-hL6">
                                 <rect key="frame" x="157" y="3" width="187" height="29"/>
@@ -1027,6 +1066,7 @@ DQ
                                     <constraint firstAttribute="height" constant="24" id="BCg-Rd-78q"/>
                                     <constraint firstAttribute="width" constant="183" id="p0n-qf-tVG"/>
                                 </constraints>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="Oops, take it off the stove!" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="txZ-oL-LTI">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1053,6 +1093,7 @@ DQ
                             <constraint firstItem="Y2T-7f-hL6" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="bottom" constant="-30" id="yJ3-go-xQK"/>
                             <constraint firstItem="NIe-rq-iQn" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="15" id="yjr-HO-GK2"/>
                         </constraints>
+                        <animations/>
                     </view>
                     <connections>
                         <outlet property="cancelButton" destination="Y2T-7f-hL6" id="9Ai-r3-9H5"/>

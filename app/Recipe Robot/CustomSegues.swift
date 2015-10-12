@@ -76,7 +76,7 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
             NSWidth(fromViewController.view.frame), // width
             NSHeight(fromViewController.view.frame)); // height
 
-        viewController.view.autoresizingMask = .ViewWidthSizable | .ViewHeightSizable
+        viewController.view.autoresizingMask = [.ViewWidthSizable, .ViewHeightSizable]
         fromViewController.view.addSubview(viewController.view)
         let dRect = fromViewController.view.frame
 

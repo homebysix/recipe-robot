@@ -13,7 +13,7 @@ extension String {
         var matchFound = false
         var color = NSColor.whiteColor()
 
-        var string = NSMutableString(string: self)
+        let string = NSMutableString(string: self)
         string.replaceCharactersInRange(NSMakeRange(0, 1), withString: "")
 
         let colorDict = ANSIColors()
