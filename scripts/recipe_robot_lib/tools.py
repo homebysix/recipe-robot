@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # This Python file uses the following encoding: utf-8
 
-# Recipe Robot Tools
+# Recipe Robot
 # Copyright 2015 Elliot Jordan, Shea G. Craig
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,7 @@
 # limitations under the License.
 
 
-"""
-recipe-robot Tools
-TODO: Module Docstring
-"""
+"""tools.py"""
 
 
 import os
