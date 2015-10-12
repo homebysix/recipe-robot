@@ -97,9 +97,9 @@ def generate_recipes(facts, prefs, recipes):
 
     # Prepare the destination directory.
     if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"])
+        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"))
     else:
-        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"])
+        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"))
     create_dest_dirs(recipe_dest_dir)
 
     # Create a recipe for each preferred type we know about.
@@ -267,9 +267,9 @@ def generate_download_recipe(facts, prefs, recipe):
         })
     elif "sourceforge_id" in facts:
         if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"]))
+            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"]).replace("/", "-"))
         else:
-            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"]))
+            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"]).replace("/", "-"))
         recipe["keys"]["Process"].append({
             "Processor": "SourceForgeURLProvider",
             "Arguments": {
@@ -571,9 +571,9 @@ def generate_munki_recipe(facts, prefs, recipe):
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
         if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"], facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"), facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"], facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
         extract_app_icon(facts["icon_path"], extracted_icon)
     else:
         robo_print("I don't have enough information to create a "
@@ -882,9 +882,9 @@ def generate_jss_recipe(facts, prefs, recipe):
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
         if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"], facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"), facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"], facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
         extract_app_icon(facts["icon_path"], extracted_icon)
     else:
         robo_print("I don't have enough information to create a "
