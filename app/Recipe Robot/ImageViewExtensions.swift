@@ -3,7 +3,7 @@
 //  Recipe Robot
 //
 //  Created by Eldon on 9/28/15.
-//  Copyright (c) 2015 Linde Group. All rights reserved.
+//  Copyright (c) 2015 Eldon Ahrold. All rights reserved.
 //
 
 import AppKit
@@ -11,19 +11,24 @@ import AppKit
 extension NSImageView {
     public func stopRobotRotate(){
 
-        let timer = NSTimer.scheduledTimerWithTimeInterval(2.0, target: self, selector: "removeAnimations:", userInfo: nil, repeats: false)
-
         if self.layer != nil {
+            var opacity: Float = 0.20 //presentationLayer.opacity
+
             let colorize = CABasicAnimation(keyPath: "opacity")
-            colorize.duration = 2.0
-            colorize.fromValue = self.layer!.opacity
+            colorize.duration = CFTimeInterval(round(opacity * 10.00))
+            colorize.fromValue = opacity
             colorize.toValue = 0.0
-            colorize.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+            colorize.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionDefault)
+
             colorize.repeatCount = 0
             colorize.autoreverses = false
+
             self.layer!.addAnimation(colorize, forKey: "alpha0")
             self.layer!.removeAnimationForKey("colorize")
+
         }
+        let timer = NSTimer.scheduledTimerWithTimeInterval(5.0, target: self, selector: "removeAnimations:", userInfo: nil, repeats: false)
+
     }
 
     public func robotRotate(){

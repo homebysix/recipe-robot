@@ -16,6 +16,8 @@
 		BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */; };
 		BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE34C8351B7EC5DF00E0822E /* Main.storyboard */; };
 		BE6F6BA31B800E270082011D /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
+		BE76397C1BCB42EC00589695 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE76397B1BCB42EC00589695 /* StringExtensions.swift */; };
+		BE76397E1BCB602A00589695 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE76397D1BCB602A00589695 /* Colors.swift */; };
 		BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */; };
 		BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE6A1B81BB88A080050653A /* CustomSegues.swift */; };
 /* End PBXBuildFile section */
@@ -47,6 +49,8 @@
 		BE6F6B981B800DFB0082011D /* macupdate_scraper.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = macupdate_scraper.py; sourceTree = "<group>"; };
 		BE6F6B991B800DFB0082011D /* recipe-robot.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "recipe-robot.py"; sourceTree = "<group>"; };
 		BE6F6BA21B800E270082011D /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
+		BE76397B1BCB42EC00589695 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
+		BE76397D1BCB602A00589695 /* Colors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotTask.swift; sourceTree = "<group>"; };
 		BEE6A1B81BB88A080050653A /* CustomSegues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSegues.swift; sourceTree = "<group>"; };
 		BEE6A1BA1BB89FCA0050653A /* Recipe Robot-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Recipe Robot-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -95,6 +99,8 @@
 				BE34C8351B7EC5DF00E0822E /* Main.storyboard */,
 				8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */,
 				BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */,
+				BE76397D1BCB602A00589695 /* Colors.swift */,
+				BE76397B1BCB42EC00589695 /* StringExtensions.swift */,
 				BE09DAAF1BBA1D94007F8FF4 /* ImageViewExtensions.swift */,
 				BEE6A1B81BB88A080050653A /* CustomSegues.swift */,
 				BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */,
@@ -254,8 +260,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE76397C1BCB42EC00589695 /* StringExtensions.swift in Sources */,
 				BE09DAB01BBA1D95007F8FF4 /* ImageViewExtensions.swift in Sources */,
 				BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */,
+				BE76397E1BCB602A00589695 /* Colors.swift in Sources */,
 				8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */,
 				BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */,
 				BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */,

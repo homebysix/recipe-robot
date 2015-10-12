@@ -10,14 +10,13 @@ import Cocoa
 import AudioToolbox
 import Quartz
 
-let BGColor = NSColor(SRGBRed: 52/255, green: 211/255, blue: 211/255, alpha: 1).CGColor
-let MGColor = NSColor.whiteColor().CGColor
 
 let sound = NSSound(named: "Glass")
 
+
 extension CAGradientLayer {
     func baseGradient() -> CAGradientLayer {
-        let gradientColors: [CGColor] = [BGColor, BGColor, BGColor ]
+        let gradientColors: [CGColor] = [rrBlueColor.CGColor, rrLtBlueColor.CGColor, rrBlueColor.CGColor ]
 
         let gradientLocations: [Float] = [0.0, 0.5, 1.0]
 
@@ -180,12 +179,25 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
     func configure(){
         for (k, b) in buttons {
             b.target = self
+
             b.action = "recipeTypeClicked:"
             b.identifier = k
-            b.title = k
+
+            b.attributedTitle = NSAttributedString(string: k, attributes: [NSForegroundColorAttributeName: NSColor.whiteColor()])
+
+            var color: NSColor!
             if let idx = find(enabledRecipeTypes, k){
                 b.state = NSOnState
+                color = rrYellowColor
+            } else {
+                color = rrGreenColor
             }
+
+            let image = NSImage(size: b.bounds.size)
+            image.lockFocus()
+            color.drawSwatchInRect(b.bounds)
+            image.unlockFocus()
+            b.image = image
         }
 
     }
@@ -194,15 +206,23 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
     @IBAction func recipeTypeClicked(sender: AnyObject){
         if let obj = sender as? NSButton {
             if let t = obj.identifier {
+                var color: NSColor!
                 if (obj.state == NSOnState){
                     enabledRecipeTypes.append(t)
+                    color = rrYellowColor
                 } else {
+                    color = rrGreenColor
                     if enabledRecipeTypes.count > 0 {
                         if let idx = find(enabledRecipeTypes, t){
                             enabledRecipeTypes.removeAtIndex(idx)
                         }
                     }
                 }
+                let image = NSImage(size: obj.bounds.size)
+                image.lockFocus()
+                color.drawSwatchInRect(obj.bounds)
+                image.unlockFocus()
+                obj.image = image
             }
         }
     }
@@ -251,10 +271,10 @@ class ProcessingViewController: RecipeRobotViewController {
 
         // Do view setup here.
         self.task.createRecipes({[weak self] (progress) -> Void in
-            let attrStr = NSAttributedString(string: progress)
 
             if let pView = self?.progressView {
-                pView.textStorage?.appendAttributedString(attrStr)
+                pView.textStorage?.appendAttributedString(progress.parseANSI())
+                pView.scrollToEndOfDocument(self)
             }
 
             }, completion: {[weak self](error) ->
@@ -263,6 +283,8 @@ class ProcessingViewController: RecipeRobotViewController {
                 if let pView = self?.progressView, error = error {
                     let attrString = NSAttributedString(string: error.localizedDescription)
                     pView.textStorage?.appendAttributedString(attrString)
+                    pView.scrollToEndOfDocument(self)
+
                 }
 
                 if let sound = sound{
@@ -285,4 +307,6 @@ class ProcessingViewController: RecipeRobotViewController {
         }
     }
 }
+
+
 

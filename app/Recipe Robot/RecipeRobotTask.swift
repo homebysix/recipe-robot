@@ -91,8 +91,7 @@ class RecipeRobotTask: NSObject {
         var args = [AnyObject]()
 
         if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
-            args.append(recipeRobotPy)
-            args.extend(["-v", self.appOrRecipe])
+            args.extend([recipeRobotPy, "-v", self.appOrRecipe])
         }
 
         return args

@@ -696,7 +696,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="194" id="OBr-n0-7d1"/>
                                 </constraints>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="icon_128x128" id="LKr-o1-PkU"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSFlowViewTemplate" id="LKr-o1-PkU"/>
                             </imageView>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nkw-ja-oeC">
                                 <rect key="frame" x="410" y="259" width="71" height="32"/>
@@ -718,6 +718,15 @@
                             <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="Jyu-oi-lVv" secondAttribute="centerX" id="lPX-uG-zjI"/>
                             <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="zqf-OF-vHq"/>
                         </constraints>
+                        <backgroundFilters>
+                            <ciFilter name="CIFalseColor">
+                                <configuration>
+                                    <ciColor key="inputColor0" red="0.74901960779999999" green="0.070588235289999995" blue="1" alpha="1"/>
+                                    <ciColor key="inputColor1" red="1" green="0.90000000000000002" blue="0.80000000000000004" alpha="1"/>
+                                    <null key="inputImage"/>
+                                </configuration>
+                            </ciFilter>
+                        </backgroundFilters>
                     </view>
                     <connections>
                         <segue destination="DLx-gp-7HF" kind="custom" identifier="feedMeSegue" customClass="FadeSegue" customModule="Recipe_Robot" customModuleProvider="target" id="uhZ-iq-Ne8"/>
@@ -736,96 +745,51 @@
                         <rect key="frame" x="0.0" y="0.0" width="500" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="5WK-Bj-mck">
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5WK-Bj-mck">
                                 <rect key="frame" x="26" y="151" width="104" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="59" id="GBg-lN-f9I"/>
-                                    <constraint firstAttribute="width" constant="100" id="UX5-rA-VC3"/>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="59" id="nOv-GC-jUK"/>
-                                </constraints>
-                                <buttonCell key="cell" type="bevel" title="asdf" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OBc-wc-QuV">
+                                <buttonCell key="cell" type="bevel" title="5" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OBc-wc-QuV">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
                                 </buttonCell>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="Vo4-jr-rdS">
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vo4-jr-rdS">
                                 <rect key="frame" x="26" y="218" width="104" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="Fui-7y-eJy"/>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="59" id="LHq-Sn-OHz"/>
-                                    <constraint firstAttribute="width" constant="100" id="Ojv-Xr-p2T"/>
-                                    <constraint firstAttribute="height" constant="59" id="fs5-vD-red"/>
-                                </constraints>
-                                <buttonCell key="cell" type="bevel" title="asdf" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OcR-04-X4G">
+                                <buttonCell key="cell" type="bevel" title="1" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OcR-04-X4G">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
                                 </buttonCell>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="XLl-6j-J8Q">
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XLl-6j-J8Q">
                                 <rect key="frame" x="350" y="151" width="104" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="59" id="d4e-tl-Qou"/>
-                                    <constraint firstAttribute="width" constant="100" id="giO-vv-6LX"/>
-                                </constraints>
-                                <buttonCell key="cell" type="bevel" title="asdf" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6yg-8R-5D3">
+                                <buttonCell key="cell" type="bevel" title="8" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6yg-8R-5D3">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
                                 </buttonCell>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="6iZ-LN-3HT">
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6iZ-LN-3HT">
                                 <rect key="frame" x="350" y="218" width="104" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="59" id="0B4-gN-7ik"/>
-                                    <constraint firstAttribute="width" constant="100" id="9K9-5Y-VHF"/>
-                                </constraints>
-                                <buttonCell key="cell" type="bevel" title="asdf" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GtB-aI-RW3">
+                                <buttonCell key="cell" type="bevel" title="4" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GtB-aI-RW3">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
                                 </buttonCell>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="ZK3-x4-eSR">
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZK3-x4-eSR">
                                 <rect key="frame" x="134" y="218" width="104" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="100" id="8Q7-XW-TDP"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="9bU-md-Wwm"/>
-                                    <constraint firstAttribute="height" constant="59" id="v7I-dP-U5N"/>
-                                </constraints>
-                                <buttonCell key="cell" type="bevel" title="asdf" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dhO-rF-dc6">
+                                <buttonCell key="cell" type="bevel" title="2" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dhO-rF-dc6">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
                                 </buttonCell>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="bp3-ds-YSC">
-                                <rect key="frame" x="242" y="218" width="104" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="100" id="ifQ-hx-ubK"/>
-                                    <constraint firstAttribute="height" constant="59" id="sK8-rj-53C"/>
-                                </constraints>
-                                <buttonCell key="cell" type="bevel" title="asdf" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bRw-3b-U1b">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
-                                </buttonCell>
-                            </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="CfN-P5-LHx">
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bp3-ds-YSC">
                                 <rect key="frame" x="134" y="151" width="104" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="225-LT-yDB"/>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="59" id="MPN-JQ-9SX"/>
-                                    <constraint firstAttribute="width" constant="100" id="WiL-S4-4Y9"/>
-                                    <constraint firstAttribute="height" constant="59" id="jVz-YG-Hbt"/>
-                                </constraints>
-                                <buttonCell key="cell" type="bevel" title="asdf" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yw7-zB-eim">
+                                <buttonCell key="cell" type="bevel" title="3" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bRw-3b-U1b">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
                                 </buttonCell>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="4f8-f1-q4n">
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4f8-f1-q4n">
                                 <rect key="frame" x="242" y="151" width="104" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="100" id="V66-aX-6hJ"/>
-                                    <constraint firstAttribute="height" constant="59" id="zgx-XY-wVI"/>
-                                </constraints>
-                                <buttonCell key="cell" type="bevel" title="asdf" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5qA-jX-vDA">
+                                <buttonCell key="cell" type="bevel" title="7" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5qA-jX-vDA">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                     <font key="font" metaFont="system" size="10"/>
                                 </buttonCell>
@@ -849,12 +813,12 @@
                                 <rect key="frame" x="28" y="58" width="83" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Recipe Path:" id="5z8-Cp-QHp">
                                     <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="textColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="skc-tx-x1M">
-                                <rect key="frame" x="222" y="7" width="57" height="29"/>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="skc-tx-x1M">
+                                <rect key="frame" x="222" y="13" width="57" height="29"/>
                                 <buttonCell key="cell" type="bevel" title="Done" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ub6-dU-vbX">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -866,37 +830,14 @@ DQ
                                     <action selector="dismissController:" target="ESu-qZ-Dbn" id="JOW-Xv-w9e"/>
                                 </connections>
                             </button>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CfN-P5-LHx">
+                                <rect key="frame" x="242" y="218" width="104" height="64"/>
+                                <buttonCell key="cell" type="bevel" title="6" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yw7-zB-eim">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                    <font key="font" metaFont="system" size="10"/>
+                                </buttonCell>
+                            </button>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="CfN-P5-LHx" firstAttribute="trailing" secondItem="6iZ-LN-3HT" secondAttribute="trailing" constant="-216" id="0eC-y6-tOo"/>
-                            <constraint firstItem="Vo4-jr-rdS" firstAttribute="leading" secondItem="5WK-Bj-mck" secondAttribute="leading" id="4JP-lV-n2t"/>
-                            <constraint firstItem="Vo4-jr-rdS" firstAttribute="trailing" secondItem="5WK-Bj-mck" secondAttribute="trailing" id="4QR-LC-jOe"/>
-                            <constraint firstItem="CfN-P5-LHx" firstAttribute="top" secondItem="2dJ-2m-pWe" secondAttribute="top" constant="87" id="A65-Cs-tDg"/>
-                            <constraint firstItem="XLl-6j-J8Q" firstAttribute="trailing" secondItem="5WK-Bj-mck" secondAttribute="trailing" constant="324" id="D8V-DH-boX"/>
-                            <constraint firstItem="4f8-f1-q4n" firstAttribute="baseline" secondItem="XLl-6j-J8Q" secondAttribute="baseline" id="E0W-Gc-zUG"/>
-                            <constraint firstItem="ZK3-x4-eSR" firstAttribute="trailing" secondItem="bp3-ds-YSC" secondAttribute="trailing" constant="-108" id="E52-MW-sIJ"/>
-                            <constraint firstItem="5WK-Bj-mck" firstAttribute="baseline" secondItem="bp3-ds-YSC" secondAttribute="baseline" constant="67" id="KzR-sI-hpV"/>
-                            <constraint firstItem="Vo4-jr-rdS" firstAttribute="top" secondItem="2dJ-2m-pWe" secondAttribute="top" constant="20" symbolic="YES" id="LyT-be-O5W"/>
-                            <constraint firstItem="CfN-P5-LHx" firstAttribute="centerX" secondItem="2dJ-2m-pWe" secondAttribute="centerX" constant="-64" id="OPn-bd-Mdq"/>
-                            <constraint firstAttribute="trailing" secondItem="ZK3-x4-eSR" secondAttribute="trailing" constant="264" id="PWe-Ig-8aL"/>
-                            <constraint firstItem="Vo4-jr-rdS" firstAttribute="leading" secondItem="2dJ-2m-pWe" secondAttribute="leading" constant="28" id="QVT-n8-2fp"/>
-                            <constraint firstItem="4f8-f1-q4n" firstAttribute="top" secondItem="XLl-6j-J8Q" secondAttribute="top" id="TvS-ks-ajm"/>
-                            <constraint firstItem="XLl-6j-J8Q" firstAttribute="leading" secondItem="5WK-Bj-mck" secondAttribute="leading" constant="324" id="Ziz-Qy-AbL"/>
-                            <constraint firstItem="bp3-ds-YSC" firstAttribute="leading" secondItem="ZK3-x4-eSR" secondAttribute="leading" constant="108" id="ak8-eq-6Qs"/>
-                            <constraint firstItem="bp3-ds-YSC" firstAttribute="top" secondItem="5WK-Bj-mck" secondAttribute="top" constant="-67" id="f0a-qK-3XA"/>
-                            <constraint firstItem="Vo4-jr-rdS" firstAttribute="top" secondItem="ZK3-x4-eSR" secondAttribute="top" id="f35-UM-Dhv"/>
-                            <constraint firstItem="Vo4-jr-rdS" firstAttribute="baseline" secondItem="ZK3-x4-eSR" secondAttribute="baseline" id="fkg-xd-XJV"/>
-                            <constraint firstItem="XLl-6j-J8Q" firstAttribute="top" secondItem="5WK-Bj-mck" secondAttribute="bottom" constant="-59" id="gZZ-Aq-M7z"/>
-                            <constraint firstItem="5WK-Bj-mck" firstAttribute="top" secondItem="Vo4-jr-rdS" secondAttribute="bottom" constant="8" id="iaF-gf-RKz"/>
-                            <constraint firstItem="bp3-ds-YSC" firstAttribute="leading" secondItem="4f8-f1-q4n" secondAttribute="leading" id="lFH-sm-USg"/>
-                            <constraint firstAttribute="bottom" secondItem="XLl-6j-J8Q" secondAttribute="bottom" constant="154" id="m4i-Uy-ieK"/>
-                            <constraint firstItem="skc-tx-x1M" firstAttribute="centerX" secondItem="6iZ-LN-3HT" secondAttribute="centerX" constant="-151.5" id="rdd-gv-8uC"/>
-                            <constraint firstAttribute="bottom" secondItem="skc-tx-x1M" secondAttribute="bottom" constant="16" id="xD4-2V-Xlw"/>
-                            <constraint firstItem="skc-tx-x1M" firstAttribute="top" secondItem="6iZ-LN-3HT" secondAttribute="bottom" constant="181" id="xSL-Ir-dsK"/>
-                            <constraint firstItem="4f8-f1-q4n" firstAttribute="trailing" secondItem="bp3-ds-YSC" secondAttribute="trailing" id="xgc-12-L8P"/>
-                            <constraint firstItem="6iZ-LN-3HT" firstAttribute="leading" secondItem="CfN-P5-LHx" secondAttribute="leading" constant="216" id="yXR-hN-KoA"/>
-                            <constraint firstItem="6iZ-LN-3HT" firstAttribute="top" secondItem="CfN-P5-LHx" secondAttribute="bottom" constant="-126" id="ycW-XF-3jF"/>
-                        </constraints>
                     </view>
                     <connections>
                         <outlet property="absoluteButton" destination="Vo4-jr-rdS" id="N4L-aV-f1A"/>
@@ -917,149 +858,24 @@ DQ
             <objects>
                 <viewController id="DLx-gp-7HF" customClass="ProcessingViewController" customModule="Recipe_Robot" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="7XC-1Y-g29">
-                        <rect key="frame" x="0.0" y="0.0" width="500" height="300"/>
+                        <rect key="frame" x="0.0" y="0.0" width="500" height="269"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <customView misplaced="YES" alphaValue="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wpZ-ia-RPf" userLabel="Gears View">
-                                <rect key="frame" x="5" y="41" width="490" height="239"/>
-                                <subviews>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Tpb-YN-zJ4">
-                                        <rect key="frame" x="178" y="157" width="29" height="35"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="29" id="M7S-Ep-hHP"/>
-                                        </constraints>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="2J8-P3-n8f"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="zt7-fw-Qw6">
-                                        <rect key="frame" x="96" y="155" width="48" height="55"/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="S5H-dD-6Om"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="f6b-5g-3dy">
-                                        <rect key="frame" x="255" y="41" width="29" height="35"/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IHB-cO-sMS"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Ldu-tF-onM">
-                                        <rect key="frame" x="246" y="178" width="46" height="47"/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oP9-jh-oF7"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="gn5-51-pkj">
-                                        <rect key="frame" x="72" y="21" width="55" height="55"/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oi0-FE-bEc"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="igg-4Y-ndW">
-                                        <rect key="frame" x="303" y="85" width="55" height="55"/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="vcY-2Q-9Jv"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="GSh-FL-Sh6">
-                                        <rect key="frame" x="271" y="127" width="45" height="32"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="32" id="QEW-Lu-1qr"/>
-                                        </constraints>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IvW-qr-Zlh"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Sbd-5F-qdT">
-                                        <rect key="frame" x="384" y="72" width="45" height="32"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="32" id="K8y-BP-etH"/>
-                                        </constraints>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="Wp3-Cv-F7H"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="8os-nw-rgn">
-                                        <rect key="frame" x="379" y="179" width="35" height="20"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="35" id="SUk-r3-6B0"/>
-                                            <constraint firstAttribute="height" constant="20" id="dTb-LV-wuQ"/>
-                                        </constraints>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="wIm-a0-6Pv"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="dvk-2x-EOV">
-                                        <rect key="frame" x="197" y="184" width="29" height="35"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="29" id="YXf-Sc-BJt"/>
-                                        </constraints>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="fD4-pL-GdL"/>
-                                    </imageView>
-                                    <imageView misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Dy6-LB-UAX">
-                                        <rect key="frame" x="171" y="72" width="14" height="14"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="14" id="A83-4i-7Ck"/>
-                                            <constraint firstAttribute="height" constant="14" id="tkH-VD-C73"/>
-                                        </constraints>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="NSActionTemplate" id="9lH-bv-WRD"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="pOy-P2-jOb">
-                                        <rect key="frame" x="96" y="105" width="45" height="42"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="45" id="HBT-0z-565"/>
-                                            <constraint firstAttribute="height" constant="42" id="Ycy-Nd-udb"/>
-                                        </constraints>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="G5Y-F7-aax"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="g0O-SY-tfW">
-                                        <rect key="frame" x="224" y="119" width="29" height="35"/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="KSI-bE-DeQ"/>
-                                    </imageView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="top" secondItem="dvk-2x-EOV" secondAttribute="bottom" constant="-26" id="0rA-wf-N0H"/>
-                                    <constraint firstItem="dvk-2x-EOV" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="20" symbolic="YES" id="1WT-f4-HXH"/>
-                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="29" id="20m-gl-Yuo"/>
-                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="centerX" secondItem="Ldu-tF-onM" secondAttribute="centerX" id="3dt-m4-Du6"/>
-                                    <constraint firstItem="g0O-SY-tfW" firstAttribute="leading" secondItem="pOy-P2-jOb" secondAttribute="trailing" constant="83" id="4YC-01-Rkg"/>
-                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="leading" secondItem="zt7-fw-Qw6" secondAttribute="trailing" constant="159" id="5gd-sn-eCg"/>
-                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="top" secondItem="gn5-51-pkj" secondAttribute="top" id="7NA-DS-muf"/>
-                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="centerY" secondItem="GSh-FL-Sh6" secondAttribute="centerY" constant="-39.5" id="9EZ-4f-uCJ"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="leading" secondItem="Ldu-tF-onM" secondAttribute="trailing" constant="92" id="9ev-u2-RED"/>
-                                    <constraint firstAttribute="trailing" secondItem="Sbd-5F-qdT" secondAttribute="trailing" constant="61" id="A0P-H8-OZA"/>
-                                    <constraint firstAttribute="bottom" secondItem="f6b-5g-3dy" secondAttribute="bottom" constant="41" id="Cz4-b8-IgJ"/>
-                                    <constraint firstItem="Dy6-LB-UAX" firstAttribute="top" secondItem="zt7-fw-Qw6" secondAttribute="bottom" constant="69" id="DOC-hu-s5s"/>
-                                    <constraint firstItem="8os-nw-rgn" firstAttribute="leading" secondItem="g0O-SY-tfW" secondAttribute="trailing" constant="126" id="E5Z-FM-AhG"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="centerY" secondItem="g0O-SY-tfW" secondAttribute="centerY" constant="48.5" id="EUV-5E-Djg"/>
-                                    <constraint firstItem="gn5-51-pkj" firstAttribute="leading" secondItem="wpZ-ia-RPf" secondAttribute="leading" constant="72" id="EkJ-0Y-q2H"/>
-                                    <constraint firstItem="GSh-FL-Sh6" firstAttribute="leading" secondItem="Sbd-5F-qdT" secondAttribute="leading" constant="-113" id="EqB-3w-BYj"/>
-                                    <constraint firstItem="8os-nw-rgn" firstAttribute="leading" secondItem="dvk-2x-EOV" secondAttribute="trailing" constant="153" id="Ges-16-AjW"/>
-                                    <constraint firstItem="Dy6-LB-UAX" firstAttribute="leading" secondItem="gn5-51-pkj" secondAttribute="trailing" constant="44" id="GwM-6h-Ke8"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="leading" secondItem="igg-4Y-ndW" secondAttribute="trailing" constant="26" id="Hxo-Iq-giI"/>
-                                    <constraint firstItem="pOy-P2-jOb" firstAttribute="leading" secondItem="zt7-fw-Qw6" secondAttribute="leading" id="HzR-Yx-ys2"/>
-                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="centerY" secondItem="dvk-2x-EOV" secondAttribute="centerY" id="Im7-CX-WCM"/>
-                                    <constraint firstItem="Tpb-YN-zJ4" firstAttribute="leading" secondItem="zt7-fw-Qw6" secondAttribute="leading" constant="82" id="JHP-hu-U1l"/>
-                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="top" secondItem="Sbd-5F-qdT" secondAttribute="bottom" constant="-68" id="JO8-g9-73H"/>
-                                    <constraint firstItem="GSh-FL-Sh6" firstAttribute="top" secondItem="8os-nw-rgn" secondAttribute="bottom" constant="20" id="LLW-FO-IYN"/>
-                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="leading" secondItem="Tpb-YN-zJ4" secondAttribute="trailing" constant="39" id="SaQ-UW-GTm"/>
-                                    <constraint firstAttribute="bottom" secondItem="gn5-51-pkj" secondAttribute="bottom" constant="21" id="V6y-FH-HU7"/>
-                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="leading" secondItem="Dy6-LB-UAX" secondAttribute="trailing" constant="70" id="auB-Rz-8T4"/>
-                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="top" secondItem="Ldu-tF-onM" secondAttribute="bottom" constant="38" id="dYU-Kq-MuC"/>
-                                    <constraint firstItem="g0O-SY-tfW" firstAttribute="top" secondItem="Ldu-tF-onM" secondAttribute="bottom" constant="24" id="dxJ-0q-ojA"/>
-                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="centerX" secondItem="f6b-5g-3dy" secondAttribute="centerX" constant="-149.5" id="gbp-Kf-vYL"/>
-                                    <constraint firstItem="pOy-P2-jOb" firstAttribute="top" secondItem="zt7-fw-Qw6" secondAttribute="bottom" constant="8" symbolic="YES" id="hlP-9S-kfN"/>
-                                    <constraint firstItem="Tpb-YN-zJ4" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="47" id="iSt-Wb-zJj"/>
-                                    <constraint firstAttribute="bottom" secondItem="igg-4Y-ndW" secondAttribute="bottom" constant="85" id="jMQ-YJ-xgI"/>
-                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="top" secondItem="zt7-fw-Qw6" secondAttribute="bottom" constant="79" id="jhI-nX-exg"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="bottom" secondItem="Dy6-LB-UAX" secondAttribute="bottom" id="oyC-h6-Cu9"/>
-                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="leading" secondItem="f6b-5g-3dy" secondAttribute="trailing" constant="19" id="paL-zw-kiW"/>
-                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="leading" secondItem="dvk-2x-EOV" secondAttribute="trailing" constant="20" id="raD-ue-QDK"/>
-                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="top" secondItem="Tpb-YN-zJ4" secondAttribute="bottom" constant="81" id="sWR-RO-lV7"/>
-                                    <constraint firstItem="gn5-51-pkj" firstAttribute="leading" secondItem="zt7-fw-Qw6" secondAttribute="trailing" constant="-72" id="tJi-eh-dif"/>
-                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="top" secondItem="dvk-2x-EOV" secondAttribute="top" constant="-6" id="vhf-Ka-ULV"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="trailing" secondItem="GSh-FL-Sh6" secondAttribute="trailing" constant="113" id="yrP-N7-LI2"/>
-                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="trailing" secondItem="dvk-2x-EOV" secondAttribute="trailing" constant="-82" id="zhV-GU-5xD"/>
-                                </constraints>
-                            </customView>
-                            <scrollView misplaced="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NIe-rq-iQn" userLabel="Text-Processing">
-                                <rect key="frame" x="5" y="41" width="490" height="239"/>
-                                <clipView key="contentView" misplaced="YES" id="jpg-rj-Gur">
+                            <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NIe-rq-iQn" userLabel="Text-Processing">
+                                <rect key="frame" x="15" y="41" width="470" height="218"/>
+                                <clipView key="contentView" id="jpg-rj-Gur">
                                     <rect key="frame" x="1" y="1" width="223" height="133"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="XPn-uP-tNF">
+                                        <textView editable="NO" selectable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="XPn-uP-tNF">
                                             <rect key="frame" x="0.0" y="0.0" width="223" height="239"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="490" height="239"/>
-                                            <size key="maxSize" width="494" height="10000000"/>
+                                            <size key="minSize" width="470" height="218"/>
+                                            <size key="maxSize" width="500" height="10000000"/>
                                             <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="490" height="239"/>
-                                            <size key="maxSize" width="494" height="10000000"/>
+                                            <size key="minSize" width="470" height="218"/>
+                                            <size key="maxSize" width="500" height="10000000"/>
                                         </textView>
                                     </subviews>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -1068,13 +884,149 @@ DQ
                                     <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="FjS-KZ-miw">
+                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="FjS-KZ-miw">
                                     <rect key="frame" x="224" y="1" width="15" height="133"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
+                            <customView misplaced="YES" alphaValue="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wpZ-ia-RPf" userLabel="Gears View">
+                                <rect key="frame" x="0.0" y="0.0" width="500" height="269"/>
+                                <subviews>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Tpb-YN-zJ4">
+                                        <rect key="frame" x="178" y="187" width="29" height="35"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="29" id="M7S-Ep-hHP"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="2J8-P3-n8f"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="zt7-fw-Qw6">
+                                        <rect key="frame" x="96" y="185" width="48" height="55"/>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="S5H-dD-6Om"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="f6b-5g-3dy">
+                                        <rect key="frame" x="255" y="71" width="29" height="35"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="29" id="jR2-gg-AjK"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IHB-cO-sMS"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Ldu-tF-onM">
+                                        <rect key="frame" x="246" y="208" width="46" height="47"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="46" id="14e-V0-tJJ"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oP9-jh-oF7"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="gn5-51-pkj">
+                                        <rect key="frame" x="72" y="51" width="55" height="55"/>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oi0-FE-bEc"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="igg-4Y-ndW">
+                                        <rect key="frame" x="303" y="115" width="55" height="55"/>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="vcY-2Q-9Jv"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="GSh-FL-Sh6">
+                                        <rect key="frame" x="271" y="157" width="45" height="32"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="32" id="QEW-Lu-1qr"/>
+                                            <constraint firstAttribute="width" constant="45" id="qZS-IV-n4V"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IvW-qr-Zlh"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Sbd-5F-qdT">
+                                        <rect key="frame" x="384" y="102" width="45" height="32"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="32" id="K8y-BP-etH"/>
+                                            <constraint firstAttribute="width" constant="45" id="smz-JE-51c"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="Wp3-Cv-F7H"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="8os-nw-rgn">
+                                        <rect key="frame" x="379" y="209" width="35" height="20"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="35" id="SUk-r3-6B0"/>
+                                            <constraint firstAttribute="height" constant="20" id="dTb-LV-wuQ"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="wIm-a0-6Pv"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="dvk-2x-EOV">
+                                        <rect key="frame" x="197" y="214" width="29" height="35"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="29" id="YXf-Sc-BJt"/>
+                                            <constraint firstAttribute="height" constant="35" id="eH8-nn-CPY"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="fD4-pL-GdL"/>
+                                    </imageView>
+                                    <imageView misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Dy6-LB-UAX">
+                                        <rect key="frame" x="171" y="102" width="14" height="14"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="14" id="A83-4i-7Ck"/>
+                                            <constraint firstAttribute="height" constant="14" id="tkH-VD-C73"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="NSActionTemplate" id="9lH-bv-WRD"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="pOy-P2-jOb">
+                                        <rect key="frame" x="96" y="135" width="45" height="42"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="45" id="HBT-0z-565"/>
+                                            <constraint firstAttribute="height" constant="42" id="Ycy-Nd-udb"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="G5Y-F7-aax"/>
+                                    </imageView>
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="g0O-SY-tfW">
+                                        <rect key="frame" x="441" y="37" width="29" height="35"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="35" id="3Tj-wi-Xge"/>
+                                            <constraint firstAttribute="width" constant="29" id="ItW-pX-h7b"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="KSI-bE-DeQ"/>
+                                    </imageView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="centerX" secondItem="Ldu-tF-onM" secondAttribute="centerX" id="0vO-M3-RDj"/>
+                                    <constraint firstAttribute="bottom" secondItem="igg-4Y-ndW" secondAttribute="bottom" constant="115" id="56l-SS-qcW"/>
+                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="top" secondItem="8os-nw-rgn" secondAttribute="bottom" constant="75" id="6am-8H-hO5"/>
+                                    <constraint firstItem="g0O-SY-tfW" firstAttribute="top" secondItem="Ldu-tF-onM" secondAttribute="bottom" constant="136" id="7gc-4M-ckH"/>
+                                    <constraint firstAttribute="bottom" secondItem="Dy6-LB-UAX" secondAttribute="bottom" constant="102" id="A56-Sv-qPE"/>
+                                    <constraint firstItem="dvk-2x-EOV" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="20" symbolic="YES" id="BuP-ap-iYw"/>
+                                    <constraint firstItem="gn5-51-pkj" firstAttribute="leading" secondItem="wpZ-ia-RPf" secondAttribute="leading" constant="72" id="Gex-Hh-VL3"/>
+                                    <constraint firstItem="Tpb-YN-zJ4" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="47" id="IvK-9p-Zo4"/>
+                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="14" id="O3q-kz-SRa"/>
+                                    <constraint firstItem="pOy-P2-jOb" firstAttribute="top" secondItem="zt7-fw-Qw6" secondAttribute="bottom" constant="8" symbolic="YES" id="PuV-GM-hmO"/>
+                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="leading" secondItem="pOy-P2-jOb" secondAttribute="leading" id="Q2l-hs-KfS"/>
+                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="99" id="Usq-uc-hBx"/>
+                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="leading" secondItem="dvk-2x-EOV" secondAttribute="trailing" constant="20" id="VCK-w7-2J9"/>
+                                    <constraint firstAttribute="trailing" secondItem="Sbd-5F-qdT" secondAttribute="trailing" constant="71" id="VKa-1Y-Hxe"/>
+                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="top" secondItem="gn5-51-pkj" secondAttribute="top" id="VPf-JU-dqb"/>
+                                    <constraint firstAttribute="bottom" secondItem="gn5-51-pkj" secondAttribute="bottom" constant="51" id="VQZ-a5-09k"/>
+                                    <constraint firstItem="8os-nw-rgn" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="40" id="WZe-ch-HpU"/>
+                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="centerY" secondItem="dvk-2x-EOV" secondAttribute="centerY" id="XJg-8K-o0T"/>
+                                    <constraint firstItem="gn5-51-pkj" firstAttribute="top" secondItem="pOy-P2-jOb" secondAttribute="bottom" constant="29" id="Ydc-bp-pTV"/>
+                                    <constraint firstItem="g0O-SY-tfW" firstAttribute="leading" secondItem="pOy-P2-jOb" secondAttribute="trailing" constant="300" id="Z4f-A7-UEI"/>
+                                    <constraint firstItem="Dy6-LB-UAX" firstAttribute="leading" secondItem="gn5-51-pkj" secondAttribute="trailing" constant="44" id="Zsz-kP-Z9G"/>
+                                    <constraint firstItem="GSh-FL-Sh6" firstAttribute="top" secondItem="Ldu-tF-onM" secondAttribute="bottom" constant="19" id="bXs-Nv-1SO"/>
+                                    <constraint firstItem="GSh-FL-Sh6" firstAttribute="leading" secondItem="g0O-SY-tfW" secondAttribute="trailing" constant="-199" id="c3c-qY-Sqf"/>
+                                    <constraint firstItem="Tpb-YN-zJ4" firstAttribute="leading" secondItem="zt7-fw-Qw6" secondAttribute="trailing" constant="34" id="cS5-Tl-7kl"/>
+                                    <constraint firstItem="Dy6-LB-UAX" firstAttribute="bottom" secondItem="Sbd-5F-qdT" secondAttribute="bottom" id="dyo-h1-vwl"/>
+                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="leading" secondItem="g0O-SY-tfW" secondAttribute="trailing" constant="-167" id="gua-hN-cZF"/>
+                                    <constraint firstAttribute="bottom" secondItem="f6b-5g-3dy" secondAttribute="bottom" constant="71" id="h8n-A8-9Ga"/>
+                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="leading" secondItem="Tpb-YN-zJ4" secondAttribute="trailing" constant="39" id="kah-XZ-IUe"/>
+                                    <constraint firstItem="8os-nw-rgn" firstAttribute="leading" secondItem="Ldu-tF-onM" secondAttribute="trailing" constant="87" id="pOa-Dc-hkn"/>
+                                    <constraint firstAttribute="trailing" secondItem="8os-nw-rgn" secondAttribute="trailing" constant="86" id="pTd-bA-GN6"/>
+                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="top" secondItem="GSh-FL-Sh6" secondAttribute="bottom" constant="51" id="skl-qB-c7h"/>
+                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="top" constant="29" id="uWH-wV-Dyf"/>
+                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="leading" secondItem="wpZ-ia-RPf" secondAttribute="leading" constant="96" id="ug3-Tb-eqK"/>
+                                    <constraint firstItem="Dy6-LB-UAX" firstAttribute="top" secondItem="Tpb-YN-zJ4" secondAttribute="bottom" constant="71" id="v4E-iK-lOB"/>
+                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="leading" secondItem="Dy6-LB-UAX" secondAttribute="trailing" constant="70" id="vOv-Si-iFq"/>
+                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="leading" secondItem="igg-4Y-ndW" secondAttribute="trailing" constant="26" id="xnd-cN-yk5"/>
+                                </constraints>
+                            </customView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Y2T-7f-hL6">
                                 <rect key="frame" x="157" y="3" width="187" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="24" id="BCg-Rd-78q"/>
+                                    <constraint firstAttribute="width" constant="183" id="p0n-qf-tVG"/>
+                                </constraints>
                                 <buttonCell key="cell" type="bevel" title="Oops, take it off the stove!" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="txZ-oL-LTI">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1088,15 +1040,18 @@ DQ
                             </button>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="Y2T-7f-hL6" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="bottom" constant="-30" id="3ND-Z7-x7y"/>
                             <constraint firstAttribute="bottom" secondItem="Y2T-7f-hL6" secondAttribute="bottom" constant="6" id="4GN-DV-gF0"/>
-                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="bottom" secondItem="NIe-rq-iQn" secondAttribute="bottom" id="6l3-Gr-0Pn"/>
+                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="4KW-N3-A9o"/>
+                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="84M-Hj-WZN"/>
+                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="8Nc-Ot-98X"/>
                             <constraint firstAttribute="centerX" secondItem="Y2T-7f-hL6" secondAttribute="centerX" id="FlO-dA-wvR"/>
-                            <constraint firstAttribute="trailing" secondItem="wpZ-ia-RPf" secondAttribute="trailing" constant="5" id="JW0-MU-xXk"/>
-                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="NIe-rq-iQn" secondAttribute="top" id="KXw-3r-0bA"/>
-                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="5" id="Sgz-r7-vuf"/>
-                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" constant="20" symbolic="YES" id="eM6-ZO-DTA"/>
-                            <constraint firstAttribute="trailing" secondItem="NIe-rq-iQn" secondAttribute="trailing" constant="5" id="gsp-gY-Byf"/>
-                            <constraint firstItem="NIe-rq-iQn" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="5" id="x7Y-QU-yXk"/>
+                            <constraint firstItem="Y2T-7f-hL6" firstAttribute="top" secondItem="NIe-rq-iQn" secondAttribute="bottom" constant="11" id="JR5-eX-ao5"/>
+                            <constraint firstItem="NIe-rq-iQn" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" constant="10" id="bQg-T7-V65"/>
+                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="dBn-hO-mKF"/>
+                            <constraint firstAttribute="trailing" secondItem="NIe-rq-iQn" secondAttribute="trailing" constant="15" id="dVz-zt-8Yg"/>
+                            <constraint firstItem="Y2T-7f-hL6" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="bottom" constant="-30" id="yJ3-go-xQK"/>
+                            <constraint firstItem="NIe-rq-iQn" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="15" id="yjr-HO-GK2"/>
                         </constraints>
                     </view>
                     <connections>
@@ -1107,11 +1062,11 @@ DQ
                 </viewController>
                 <customObject id="MNt-61-K9k" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1071" y="660"/>
+            <point key="canvasLocation" x="1071" y="659.5"/>
         </scene>
     </scenes>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
-        <image name="icon_128x128" width="128" height="128"/>
+        <image name="NSFlowViewTemplate" width="18" height="10"/>
     </resources>
 </document>
