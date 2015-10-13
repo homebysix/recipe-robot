@@ -21,13 +21,12 @@
 
 
 import os
+from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon, get_exitcode_stdout_stderr, robo_print, LogLevel, __version__
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
     from recipe_robot_lib import FoundationPlist
-    from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon
-    from .tools import robo_print, LogLevel, __version__
 except ImportError:
     print "[WARNING] importing plistlib as FoundationPlist"
     import plistlib as FoundationPlist
@@ -94,6 +93,11 @@ def generate_recipes(facts, prefs, recipes):
                    "use. You may want to verify that and modify the recipes "
                    "if necessary.", LogLevel.REMINDER)
         facts["version_key"] = "CFBundleShortVersionString"
+
+    # TODO(Elliot): Run `autopkg repo-list` once and store the resulting value for
+    # future use when detecting missing required repos, rather than running
+    # `autopkg repo-list` separately during each check. (For example, the
+    # FileWaveImporter repo must be present to run created filewave recipes.)
 
     # Prepare the destination directory.
     if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
@@ -923,7 +927,12 @@ def generate_absolute_recipe(facts, prefs, recipe):
                             "Server." % facts["app_name"])
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
-    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
+    # Print a reminder if the required repo isn't present on disk.
+    cmd = "autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any(line.endswith("(https://github.com/tburgin/AbsoluteManageExport)") for line in out.split("\n")):
+        robo_print("You'll need to add the AbsoluteManageExport repo in order to use this recipe:\n    autopkg repo-add \"https://github.com/tburgin/AbsoluteManageExport\"", LogLevel.REMINDER)
+
     keys["Process"].append({
         "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
         "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
@@ -966,7 +975,12 @@ def generate_sccm_recipe(facts, prefs, recipe):
                             "Server." % facts["app_name"])
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
-    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
+    # Print a reminder if the required repo isn't present on disk.
+    cmd = "autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any(line.endswith("(https://github.com/autopkg/cgerke-recipes)") for line in out.split("\n")):
+        robo_print("You'll need to add the cgerke-recipes repo in order to use this recipe:\n    autopkg repo-add \"https://github.com/autopkg/cgerke-recipes\"", LogLevel.REMINDER)
+
     keys["Process"].append({
         "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
         "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
@@ -1033,7 +1047,12 @@ def generate_filewave_recipe(facts, prefs, recipe):
         robo_print("Sorry, I don't yet know how to create "
                     "filewave recipes from pkg downloads.", LogLevel.WARNING)
 
-    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
+    # Print a reminder if the required repo isn't present on disk.
+    cmd = "autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any(line.endswith("(https://github.com/johncclayton/FileWaveImporter)") for line in out.split("\n")):
+        robo_print("You'll need to add the FileWaveImporter repo in order to use this recipe:\n    autopkg repo-add \"https://github.com/johncclayton/FileWaveImporter\"", LogLevel.REMINDER)
+
     keys["Process"].append({
         "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
         "Arguments": {
