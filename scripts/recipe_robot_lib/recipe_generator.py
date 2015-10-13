@@ -473,7 +473,6 @@ def generate_munki_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into "
                             "Munki." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
@@ -636,7 +635,6 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s and "
                             "creates a package." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     # Save bundle identifier.
@@ -749,7 +747,6 @@ def generate_install_recipe(facts, prefs, recipe):
     keys["Description"] = ("Installs the latest version "
                             "of %s." % facts["app_name"])
 
-    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     if facts["download_format"] in supported_image_formats:
@@ -833,7 +830,6 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into your JSS." %
                             facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (
         prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
@@ -925,7 +921,6 @@ def generate_absolute_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your Absolute Manage "
                             "Server." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
     # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
@@ -969,7 +964,6 @@ def generate_sccm_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your SCCM "
                             "Server." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
     # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
@@ -1081,7 +1075,6 @@ def generate_ds_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it to your DeployStudio "
                             "packages." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
     keys["Input"]["DS_PKGS_PATH"] = prefs["DSPackagesPath"]
     keys["Input"]["DS_NAME"] = "%NAME%"
