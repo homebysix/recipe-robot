@@ -1159,12 +1159,10 @@ def inspect_download_url(input_path, args, facts):
         return facts
 
     robo_print("Opening downloaded file...", LogLevel.VERBOSE)
-
-    # TODO(Elliot): If download format is unknown, try each of the following
-    # in turn and record which one succeeds. (Logic should already be in place,
-    # but we'll need a var to pass back to this function.) Ideally, we should
-    # prevent a /download URL with unknown type from generating an hdiutil
-    # error prior to successfully unzipping (as the type is revealed as zip).
+    robo_print("Download format is unknown, so we're going to try mounting it "
+               "as a disk image first, then unarchiving it. This may produce "
+               "errors, but will hopefully result in a "
+               "success.", LogLevel.DEBUG)
 
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
@@ -1315,7 +1313,7 @@ def inspect_disk_image(input_path, args, facts):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
-        robo_print("Unable to mount %s. (%s)" % (input_path, err), LogLevel.WARNING)
+        robo_print("Unable to mount %s. (%s)" % (input_path, err), LogLevel.DEBUG)
 
     return facts
 
