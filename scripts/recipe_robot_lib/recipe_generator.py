@@ -193,8 +193,6 @@ def generate_recipes(facts, prefs, recipes):
             if not os.path.exists(dest_path):
                 # Keep track of the total number of unique recipes we've created.
                 prefs["RecipeCreateCount"] += 1
-            # TODO(Elliot): Warning if a file already exists here. (#32)
-            # TODO(Elliot): Create subfolders automatically. (#31)
             FoundationPlist.writePlist(recipe["keys"], dest_path)
             robo_print("%s/%s" % (recipe_dest_dir,
                                   recipe["filename"]), LogLevel.LOG, 4)
@@ -822,7 +820,6 @@ def generate_jss_recipe(facts, prefs, recipe):
     robo_print("Generating %s recipe..." % recipe["type"])
 
     if prefs["FollowOfficialJSSRecipesFormat"] is True:
-        # TODO: Use official jss-recipes style. (#49)
         keys["Identifier"] = "com.github.jss-recipes.jss.%s" % facts["app_name"].replace(" ", "")
 
     # Save a description that explains what this recipe does.
@@ -846,7 +843,6 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
-    # TODO(Elliot): Set jss_inventory_name argument if facts["app_file"] exists. (#50)
     jssimporter_arguments = {
         "prod_name": "%NAME%",
         "category": "%CATEGORY%",

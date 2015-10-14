@@ -744,8 +744,6 @@ def inspect_sourceforge_url(input_path, args, facts):
             # Download the RSS feed and parse it.
             # Example: http://sourceforge.net/projects/grandperspectiv/rss
             # Example: http://sourceforge.net/projects/cord/rss
-            # TODO(Elliot): Per SourceForge TOS we should limit RSS
-            # requests to one hit per 30 minute period per feed. (#20)
             files_rss = "http://sourceforge.net/projects/%s/rss" % proj_name
             try:
                 raw_xml = urlopen(files_rss)
@@ -969,6 +967,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             return facts
 
     # Parse the Sparkle feed.
+    xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
     try:
         doc = parse(raw_xml)
     except ParseError as err:
@@ -976,9 +975,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts.pop("sparkle_feed", None)
         return facts
 
-    # TODO(Elliot): Handle custom namespaces. (#22) Example code:
-    # https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/SparkleUpdateInfoProvider.py#L115-L119
-    xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
 
     # Determine whether the Sparkle feed provides a version number.
     sparkle_provides_version = False
