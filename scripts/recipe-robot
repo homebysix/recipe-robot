@@ -1619,24 +1619,44 @@ def inspect_app(input_path, args, facts):
             robo_print("Description: %s" % description, LogLevel.VERBOSE, 4)
             facts["description"] = description
 
-    # Attempt to determine code signing verification/requirements.
+    # Gather info from code signing attributes, including:
+    #    - Code signature verification requirements
+    #    - Expected authority names
+    #    - Name of developer (according to signing certificate)
+    #    - Code signature version (version 1 is obsolete, treated as unsigned)
     if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
         codesign_reqs = ""
         codesign_authorities = []
-        robo_print("Determining whether app is codesigned...", LogLevel.VERBOSE)
+        developer = ""
+        codesign_version = ""
+        robo_print("Gathering code signature information...", LogLevel.VERBOSE)
         cmd = "codesign --display --verbose=2 -r- \"%s\"" % (input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-            # Determine code signing requirements.
+            # From stdout:
             reqs_marker = "designated => "
             for line in out.split("\n"):
                 if line.startswith(reqs_marker):
                     codesign_reqs = line[len(reqs_marker):]
-            # Determine expected authority names.
+            # From stderr:
             authority_marker = "Authority="
+            dev_marker = "Authority=Developer ID Application: "
+            vers_marker = "Sealed Resources version="
             for line in err.split("\n"):  # The info we need is in stderr.
                 if line.startswith(authority_marker):
                     codesign_authorities.append(line[len(authority_marker):])
+                if line.startswith(dev_marker):
+                    if " (" in line:
+                        line = line.split(" (")[0]
+                    developer = line[len(dev_marker):]
+                if line.startswith(vers_marker):
+                    codesign_version = line[len(vers_marker):len(vers_marker) + 1]
+                    if codesign_version == "1":
+                        robo_print("This app uses an obsolete code signature.", LogLevel.WARNING)
+                        # Clear code signature markers, treat app as unsigned.
+                        codesign_reqs = ""
+                        codesign_authorities = []
+                        break
         if codesign_reqs == "" and len(codesign_authorities) == 0:
             robo_print("App is not signed", LogLevel.VERBOSE, 4)
         else:
@@ -1644,35 +1664,9 @@ def inspect_app(input_path, args, facts):
             facts["codesign_reqs"] = codesign_reqs
             robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
             facts["codesign_authorities"] = codesign_authorities
-
-    # Attempt to determine name of developer and code signature version.
-    # This overwrites existing developer names, because the app is canonical.
-    if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
-        developer = ""
-        codesign_version = ""
-        robo_print("Determining application developer and codesign version...", LogLevel.VERBOSE)
-        cmd = "codesign --display -r- --verbose=3 \"%s\"" % (input_path)
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        if exitcode == 0:
-            dev_marker = "Authority=Developer ID Application: "
-            vers_marker = "Sealed Resources version="
-            # For some reason, the information we want is output to stderr.
-            for line in err.split("\n"):
-                if line.startswith(dev_marker):
-                    if " (" in line:
-                        line = line.split(" (")[0]
-                    developer = line[len(dev_marker):]
-                if line.startswith(vers_marker):
-                    codesign_version = line[len(vers_marker):len(vers_marker) + 1]
         if developer != "":
             robo_print("Developer: %s" % developer, LogLevel.VERBOSE, 4)
             facts["developer"] = developer
-        if codesign_version != "":
-            robo_print("Codesign version: %s" % codesign_version, LogLevel.VERBOSE, 4)
-            if codesign_version == "1":
-                robo_print("This app uses an obsolete code signature.", LogLevel.WARNING)
-                facts["codesign_reqs"] = ""
-                facts["codesign_authorities"] = []
 
     return facts
 
