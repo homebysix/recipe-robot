@@ -230,6 +230,7 @@ def generate_download_recipe(facts, prefs, recipe):
     if "sparkle_feed" in facts:
         keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
         if "user-agent" in facts:
+            # Sparkle feed with a special user-agent.
             keys["Process"].append({
                 "Processor": "SparkleUpdateInfoProvider",
                 "Arguments": {
@@ -249,6 +250,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 }
             })
         else:
+            # Sparkle feed with the default user-agent.
             keys["Process"].append({
                 "Processor": "SparkleUpdateInfoProvider",
                 "Arguments": {
@@ -303,6 +305,7 @@ def generate_download_recipe(facts, prefs, recipe):
                     "url": "%DOWNLOAD_URL%",
                     # TODO(Elliot): Explicit filename may not be necessary. (#35)
                     # Example: http://www.sonnysoftware.com/Bookends.dmg
+                    # facts["specify_filename"] is intended to help with #35.
                     "filename": facts["download_filename"],
                     "request_headers": {
                         "user-agent": facts["user-agent"]
