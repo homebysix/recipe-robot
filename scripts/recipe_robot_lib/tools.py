@@ -17,7 +17,12 @@
 # limitations under the License.
 
 
-"""tools.py"""
+"""
+tools.py
+
+This module of Recipe Robot contains various helper and tool functions that
+support the main `recipe-robot` script and the `recipe_generator.py` module.
+"""
 
 
 import os

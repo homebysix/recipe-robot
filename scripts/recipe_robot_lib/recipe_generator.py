@@ -17,7 +17,12 @@
 # limitations under the License.
 
 
-"""recipe_generator.py"""
+"""
+recipe_generator.py
+
+This module of Recipe Robot uses the facts collected by the main script to
+create autopkg recipes for the specified app.
+"""
 
 
 import os
