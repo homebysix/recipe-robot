@@ -7,9 +7,9 @@ __Table of contents__
 - [Overview](#overview)
 - [Python Script Usage](#python-script-usage)
 - [Tips](#tips)
-    - [Compatibility](#compatibility)
-    - [Apps with existing AutoPkg recipes](#apps-with-existing-autopkg-recipes)
-    - [App Store Apps](#app-store-apps)
+  - [Compatibility](#compatibility)
+  - [Apps with existing AutoPkg recipes](#apps-with-existing-autopkg-recipes)
+  - [App Store Apps](#app-store-apps)
 - [Troubleshooting](#troubleshooting)
 - [Feedback](#feedback)
 
@@ -165,6 +165,8 @@ __Things to tweak in Recipe Robot-produced recipes__
 Each time Recipe Robot produces a batch of recipes for you, I suggest you check a few things before letting the recipes loose in the wild:
 
 - The filename of the recipe and the `NAME` input variable are determined by the name of the app itself. Many apps are suffixed with a version number (e.g. "Delicious Library 3"), and that version number may not be desirable in all cases. You may need to remove the version number from the filename, recipe identifiers, and `ParentRecipe` keys.
+
+- Recipe Robot doesn't currently know the difference between an app installer and a bona fide app. Therefore, certain apps may produce recipes that simply install the app's installer instead of the app itself. When this happens, it's usually pretty obvious because you'll end up with a set of recipes called, for example, `ChronoSync Installer.___.recipe` instead of `ChronoSync.___.recipe`. The download recipe is probably usable, but the others will need significant customization.
 
 - Recipe Robot does its best at determining an app's description for use in Munki and JSS recipes. But it's far from perfect, and it will surprise you with false positives! Always double-check the description before running Munki and JSS recipes or uploading them to GitHub.
 
