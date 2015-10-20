@@ -68,7 +68,7 @@ class RecipeRobotTask: NSObject {
 
                 let error: NSError?
                 if let dataString = NSString(data: errData, encoding:NSUTF8StringEncoding) as? String {
-                    error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
+                    let error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
                 }
 
                 NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
