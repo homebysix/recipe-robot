@@ -13,7 +13,7 @@ class RecipeRobotTask: NSObject {
     // MARK: Public
     var appOrRecipe: String = ""
     var recipeTypes = []
-    var output: String = "~/Library/AutoPkg/RecipeOverrides/"
+    var output: String = "~/Library/AutoPkg/Recipe Robot Output/"
     var includeExisting : Bool = false
 
     var isProcessing: Bool {
@@ -29,7 +29,7 @@ class RecipeRobotTask: NSObject {
     func createRecipes(progress: (progress: String) -> Void, completion: (error: NSError? ) -> Void) {
 
         task.launchPath = "/usr/bin/python"
-        task.arguments = self.constructTaskArgs() as? String
+        task.arguments = self.constructTaskArgs() as? [String]
 
         let out = NSPipe()
         task.standardOutput = out
@@ -68,7 +68,7 @@ class RecipeRobotTask: NSObject {
 
                 let error: NSError?
                 if let dataString = NSString(data: errData, encoding:NSUTF8StringEncoding) as? String {
-                    let error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
+                    error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
                 }
 
                 NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in

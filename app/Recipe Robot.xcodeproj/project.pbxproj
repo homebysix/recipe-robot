@@ -10,7 +10,6 @@
 		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
-		8BD5A1CD1BCB6E3F00D16D0A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 8BD5A1CC1BCB6E3F00D16D0A /* scripts */; settings = {ASSET_TAGS = (); }; };
 		BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */ = {isa = PBXBuildFile; fileRef = BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */; };
 		BE09DAB01BBA1D95007F8FF4 /* ImageViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09DAAF1BBA1D94007F8FF4 /* ImageViewExtensions.swift */; };
 		BE1A41CF1BB4C374008173FB /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
@@ -182,7 +181,7 @@
 			attributes = {
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Linde Group";
 				TargetAttributes = {
 					8B42AC7D1B5C5BEC0058A814 = {
@@ -221,7 +220,6 @@
 				BE6F6BA31B800E270082011D /* scripts in Resources */,
 				BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */,
 				BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */,
-				8BD5A1CD1BCB6E3F00D16D0A /* scripts in Resources */,
 				8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -302,6 +300,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -369,6 +368,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "Recipe Robot/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Recipe Robot/Recipe Robot-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -383,6 +383,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "Recipe Robot/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Recipe Robot/Recipe Robot-Bridging-Header.h";
 			};
@@ -403,6 +404,7 @@
 				);
 				INFOPLIST_FILE = "Recipe RobotTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Recipe Robot.app/Contents/MacOS/Recipe Robot";
 			};
@@ -419,6 +421,7 @@
 				);
 				INFOPLIST_FILE = "Recipe RobotTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Recipe Robot.app/Contents/MacOS/Recipe Robot";
 			};
