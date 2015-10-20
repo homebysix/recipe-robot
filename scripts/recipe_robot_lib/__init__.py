@@ -17,7 +17,9 @@
 # limitations under the License.
 
 
-"""recipe_robot_lib"""
+"""
+recipe_robot_lib
+"""
 
 
 from recipe_generator import generate_recipes

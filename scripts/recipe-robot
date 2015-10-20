@@ -744,8 +744,6 @@ def inspect_sourceforge_url(input_path, args, facts):
             # Download the RSS feed and parse it.
             # Example: http://sourceforge.net/projects/grandperspectiv/rss
             # Example: http://sourceforge.net/projects/cord/rss
-            # TODO(Elliot): Per SourceForge TOS we should limit RSS
-            # requests to one hit per 30 minute period per feed. (#20)
             files_rss = "http://sourceforge.net/projects/%s/rss" % proj_name
             try:
                 raw_xml = urlopen(files_rss)
@@ -969,6 +967,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             return facts
 
     # Parse the Sparkle feed.
+    xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
     try:
         doc = parse(raw_xml)
     except ParseError as err:
@@ -976,9 +975,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts.pop("sparkle_feed", None)
         return facts
 
-    # TODO(Elliot): Handle custom namespaces. (#22) Example code:
-    # https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/SparkleUpdateInfoProvider.py#L115-L119
-    xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
 
     # Determine whether the Sparkle feed provides a version number.
     sparkle_provides_version = False
@@ -1063,6 +1059,13 @@ def inspect_download_url(input_path, args, facts):
     parsed_url = urlparse(input_path)
     filename = parsed_url.path.split("/")[-1]
 
+    # If the download URL doesn't already end with the parsed filename, it's
+    # very likely that URLDownloader needs the filename argument specified.
+    if not input_path.endswith(filename):
+        facts["specify_filename"] = True
+    else:
+        facts["specify_filename"] = False
+
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading big
     # files? https://gist.github.com/gourneau/1430932 (#24)
@@ -1140,12 +1143,9 @@ def inspect_download_url(input_path, args, facts):
     download_format = ""
     robo_print("Determining download format...", LogLevel.VERBOSE)
     for this_format in all_supported_formats:
-        if filename.lower().endswith(this_format):
+        if filename.lower().endswith(this_format) or this_format in parsed_url.query:
             download_format = this_format
-            robo_print("File extension is %s" % this_format, LogLevel.VERBOSE, 4)
-            break  # should stop after the first format match
-        if this_format in parsed_url.query:
-            download_format = this_format
+            facts["download_format"] = this_format
             robo_print("File extension is %s" % this_format, LogLevel.VERBOSE, 4)
             break  # should stop after the first format match
 
@@ -1155,10 +1155,10 @@ def inspect_download_url(input_path, args, facts):
         return facts
 
     robo_print("Opening downloaded file...", LogLevel.VERBOSE)
-
-    # TODO(Elliot): If download format is unknown, try each of the following
-    # in turn and record which one succeeds. (Logic should already be in place,
-    # but we'll need a var to pass back to this function.)
+    robo_print("Download format is unknown, so we're going to try mounting it "
+               "as a disk image first, then unarchiving it. This may produce "
+               "errors, but will hopefully result in a "
+               "success.", LogLevel.DEBUG)
 
     # Open the disk image (or test to see whether the download is one).
     if download_format == "" or download_format in supported_image_formats:
@@ -1309,7 +1309,7 @@ def inspect_disk_image(input_path, args, facts):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
-        robo_print("Unable to mount %s. (%s)" % (input_path, err), LogLevel.WARNING)
+        robo_print("Unable to mount %s. (%s)" % (input_path, err), LogLevel.DEBUG)
 
     return facts
 
@@ -1330,10 +1330,8 @@ def inspect_pkg(input_path, args, facts):
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 1:
         robo_print("Package is not signed", LogLevel.VERBOSE, 4)
-        facts["pkgsign_status"] = "unsigned"
     elif exitcode == 0:
         robo_print("Package is signed", LogLevel.VERBOSE, 4)
-        facts["pkgsign_status"] = "signed"
 
         # Get developer name from pkg signature.
         if "developer" not in facts:
@@ -1363,8 +1361,6 @@ def inspect_pkg(input_path, args, facts):
                 facts["codesign_authorities"] = codesign_authorities
             else:
                 robo_print("Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4)
-                # Better to treat the package as unsigned, then.
-                facts["pkgsign_status"] = "unsigned"
 
     else:
         robo_print("I don't know whether the package is signed - probably not "
@@ -1624,55 +1620,54 @@ def inspect_app(input_path, args, facts):
             robo_print("Description: %s" % description, LogLevel.VERBOSE, 4)
             facts["description"] = description
 
-    # Attempt to determine code signing verification/requirements.
-    if "codesign_status" not in facts:
-        codesign_status = ""
+    # Gather info from code signing attributes, including:
+    #    - Code signature verification requirements
+    #    - Expected authority names
+    #    - Name of developer (according to signing certificate)
+    #    - Code signature version (version 1 is obsolete, treated as unsigned)
+    if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
         codesign_reqs = ""
-        robo_print("Determining whether app is codesigned...", LogLevel.VERBOSE)
-        cmd = "codesign --display -r- \"%s\"" % (input_path)
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        if exitcode == 0:
-            codesign_status = "signed"
-            # Determine code signing requirements.
-            marker = "designated => "
-            for line in out.split("\n"):
-                if line.startswith(marker):
-                    codesign_reqs = line[len(marker):]
-        else:
-            codesign_status = "unsigned"
-        robo_print("Codesign status is: %s" % codesign_status, LogLevel.VERBOSE, 4)
-        facts["codesign_status"] = codesign_status
-        if codesign_reqs != "":
-            robo_print("Codesign requirements are: %s" % codesign_reqs, LogLevel.VERBOSE, 4)
-            facts["codesign_reqs"] = codesign_reqs
-
-    # Attempt to determine name of developer and code signature version.
-    # This overwrites existing developer names, because the app is canonical.
-    if codesign_status != "unsigned":
+        codesign_authorities = []
         developer = ""
         codesign_version = ""
-        robo_print("Determining application developer and codesign version...", LogLevel.VERBOSE)
-        cmd = "codesign --display -r- --verbose=3 \"%s\"" % (input_path)
+        robo_print("Gathering code signature information...", LogLevel.VERBOSE)
+        cmd = "codesign --display --verbose=2 -r- \"%s\"" % (input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
+            # From stdout:
+            reqs_marker = "designated => "
+            for line in out.split("\n"):
+                if line.startswith(reqs_marker):
+                    codesign_reqs = line[len(reqs_marker):]
+            # From stderr:
+            authority_marker = "Authority="
             dev_marker = "Authority=Developer ID Application: "
             vers_marker = "Sealed Resources version="
-            # For some reason, the information we want is output to stderr.
-            for line in err.split("\n"):
+            for line in err.split("\n"):  # The info we need is in stderr.
+                if line.startswith(authority_marker):
+                    codesign_authorities.append(line[len(authority_marker):])
                 if line.startswith(dev_marker):
                     if " (" in line:
                         line = line.split(" (")[0]
                     developer = line[len(dev_marker):]
                 if line.startswith(vers_marker):
                     codesign_version = line[len(vers_marker):len(vers_marker) + 1]
+                    if codesign_version == "1":
+                        robo_print("This app uses an obsolete code signature.", LogLevel.WARNING)
+                        # Clear code signature markers, treat app as unsigned.
+                        codesign_reqs = ""
+                        codesign_authorities = []
+                        break
+        if codesign_reqs == "" and len(codesign_authorities) == 0:
+            robo_print("App is not signed", LogLevel.VERBOSE, 4)
+        else:
+            robo_print("Code signature verification requirements recorded", LogLevel.VERBOSE, 4)
+            facts["codesign_reqs"] = codesign_reqs
+            robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
+            facts["codesign_authorities"] = codesign_authorities
         if developer != "":
             robo_print("Developer: %s" % developer, LogLevel.VERBOSE, 4)
             facts["developer"] = developer
-        if codesign_version != "":
-            robo_print("Codesign version: %s" % codesign_version, LogLevel.VERBOSE, 4)
-            if codesign_version == "1":
-                robo_print("This app uses an obsolete code signature.", LogLevel.WARNING)
-                facts["codesign_status"] = "obsolete"
 
     return facts
 

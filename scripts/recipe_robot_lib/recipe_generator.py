@@ -17,17 +17,21 @@
 # limitations under the License.
 
 
-"""recipe_generator.py"""
+"""
+recipe_generator.py
+
+This module of Recipe Robot uses the facts collected by the main script to
+create autopkg recipes for the specified app.
+"""
 
 
 import os
+from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon, get_exitcode_stdout_stderr, robo_print, LogLevel, __version__
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
     from recipe_robot_lib import FoundationPlist
-    from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon
-    from .tools import robo_print, LogLevel, __version__
 except ImportError:
     print "[WARNING] importing plistlib as FoundationPlist"
     import plistlib as FoundationPlist
@@ -81,12 +85,14 @@ def generate_recipes(facts, prefs, recipes):
                    "website.", LogLevel.ERROR)
 
     # We have enough information to create a recipe set, but with assumptions.
-    if "codesign_status" not in facts:
+    # TODO(Elliot): This code may not be necessary if inspections do their job.
+    if "codesign_reqs" not in facts and "codesign_authorities" not in facts:
         robo_print("I can't tell whether this app is codesigned or not, so "
                    "I'm going to assume it's not. You may want to verify that "
                    "yourself and add the CodeSignatureVerifier processor if "
                    "necessary.", LogLevel.REMINDER)
-        facts["codesign_status"] = "unsigned"
+        facts["codesign_reqs"] = ""
+        facts["codesign_authorities"] = []
     if "version_key" not in facts:
         robo_print("I can't tell whether to use CFBundleShortVersionString or "
                    "CFBundleVersion for the version key of this app. Most "
@@ -95,11 +101,16 @@ def generate_recipes(facts, prefs, recipes):
                    "if necessary.", LogLevel.REMINDER)
         facts["version_key"] = "CFBundleShortVersionString"
 
+    # TODO(Elliot): Run `autopkg repo-list` once and store the resulting value for
+    # future use when detecting missing required repos, rather than running
+    # `autopkg repo-list` separately during each check. (For example, the
+    # FileWaveImporter repo must be present to run created filewave recipes.)
+
     # Prepare the destination directory.
     if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"])
+        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"))
     else:
-        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"])
+        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"))
     create_dest_dirs(recipe_dest_dir)
 
     # Create a recipe for each preferred type we know about.
@@ -182,8 +193,6 @@ def generate_recipes(facts, prefs, recipes):
             if not os.path.exists(dest_path):
                 # Keep track of the total number of unique recipes we've created.
                 prefs["RecipeCreateCount"] += 1
-            # TODO(Elliot): Warning if a file already exists here. (#32)
-            # TODO(Elliot): Create subfolders automatically. (#31)
             FoundationPlist.writePlist(recipe["keys"], dest_path)
             robo_print("%s/%s" % (recipe_dest_dir,
                                   recipe["filename"]), LogLevel.LOG, 4)
@@ -219,6 +228,7 @@ def generate_download_recipe(facts, prefs, recipe):
     if "sparkle_feed" in facts:
         keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
         if "user-agent" in facts:
+            # Sparkle feed with a special user-agent.
             keys["Process"].append({
                 "Processor": "SparkleUpdateInfoProvider",
                 "Arguments": {
@@ -238,6 +248,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 }
             })
         else:
+            # Sparkle feed with the default user-agent.
             keys["Process"].append({
                 "Processor": "SparkleUpdateInfoProvider",
                 "Arguments": {
@@ -267,9 +278,9 @@ def generate_download_recipe(facts, prefs, recipe):
         })
     elif "sourceforge_id" in facts:
         if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"]))
+            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"]).replace("/", "-"))
         else:
-            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"]))
+            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"]).replace("/", "-"))
         recipe["keys"]["Process"].append({
             "Processor": "SourceForgeURLProvider",
             "Arguments": {
@@ -292,6 +303,7 @@ def generate_download_recipe(facts, prefs, recipe):
                     "url": "%DOWNLOAD_URL%",
                     # TODO(Elliot): Explicit filename may not be necessary. (#35)
                     # Example: http://www.sonnysoftware.com/Bookends.dmg
+                    # facts["specify_filename"] is intended to help with #35.
                     "filename": facts["download_filename"],
                     "request_headers": {
                         "user-agent": facts["user-agent"]
@@ -311,20 +323,28 @@ def generate_download_recipe(facts, prefs, recipe):
         "Processor": "EndOfCheckPhase"
     })
 
-    if facts["codesign_status"] == "signed":
+    if facts.get("codesign_reqs", "") != "" or len(facts["codesign_authorities"]) > 0:
         # We encountered a signed app, and will use CodeSignatureVerifier on
-        # the app. We are assuming the app is at the base level of the dmg/zip.
+        # the app.
         if facts["download_format"] in supported_image_formats:
+            # We're assuming that the app is at the root level of the dmg.
+            if facts.get("codesign_reqs", "") != "":
+                codesigverifier_args = {
+                        "input_path": "%%pathname%%/%s.app" % facts["app_name_key"],
+                        "requirement": facts["codesign_reqs"]
+                }
+            elif len(facts["codesign_authorities"]) > 0:
+                codesigverifier_args = {
+                        "input_path": "%%pathname%%/%s.app" % facts["app_name_key"],
+                        "expected_authorities": facts["codesign_authorities"]
+                }
             keys["Process"].append({
                 "Processor": "CodeSignatureVerifier",
-                "Arguments": {
-                    "input_path": "%%pathname%%/%s.app" % facts["app_name_key"],
-                    "requirement": facts.get("codesign_reqs", "")
-                }
+                "Arguments": codesigverifier_args
             })
             if facts.get("sparkle_provides_version", False) is False:
-                # Either the Sparkle feed doesn't provide version, or there's no
-                # Sparkle feed.
+                # Either the Sparkle feed doesn't provide version, or there's
+                # no Sparkle feed. We must determine the version manually.
                 if facts["version_key"] == "CFBundleShortVersionString":
                     keys["Process"].append({
                         "Processor": "AppDmgVersioner",
@@ -341,6 +361,7 @@ def generate_download_recipe(facts, prefs, recipe):
                         }
                     })
         elif facts["download_format"] in supported_archive_formats:
+            # We're assuming that the app is at the root level of the zip.
             keys["Process"].append({
                 "Processor": "Unarchiver",
                 "Arguments": {
@@ -349,16 +370,23 @@ def generate_download_recipe(facts, prefs, recipe):
                     "purge_destination": True
                 }
             })
+            if facts["codesign_reqs"] != "":
+                codesigverifier_args = {
+                    "input_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" % facts["app_name_key"],
+                    "requirement": facts["codesign_reqs"]
+                }
+            elif len(facts["codesign_authorities"]) > 0:
+                codesigverifier_args = {
+                    "input_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" % facts["app_name_key"],
+                    "expected_authorities": facts["codesign_authorities"]
+                }
             keys["Process"].append({
                 "Processor": "CodeSignatureVerifier",
-                "Arguments": {
-                    "input_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" % facts["app_name_key"],
-                    "requirement": facts.get("codesign_reqs", "")
-                }
+                "Arguments": codesigverifier_args
             })
             if facts.get("sparkle_provides_version", False) is False:
-                # Either the Sparkle feed doesn't provide version, or there's no
-                # Sparkle feed.
+                # Either the Sparkle feed doesn't provide version, or there's
+                # no Sparkle feed. We must determine the version manually.
                 keys["Process"].append({
                     "Processor": "Versioner",
                     "Arguments": {
@@ -367,47 +395,16 @@ def generate_download_recipe(facts, prefs, recipe):
                     }
                 })
         elif facts["download_format"] in supported_install_formats:
-            # TODO(Elliot): Check for signed .pkg files. (#36)
-            robo_print("I'm not quite sure how I ended up here. Looks like I "
-                       "found a signed pkg download, but also a signed app "
-                       "somewhere along the way. My boss is going to need to "
-                       "put his thinking cap on.", LogLevel.WARNING)
-            return
-    elif facts.get("codesign_authorities", "unsigned") == "signed":
-        # We encountered a signed pkg, and will use CodeSignatureVerifier on
-        # the pkg. We are assuming the pkg is at the base level of the dmg/zip.
-        if facts["download_format"] in supported_image_formats:
-            keys["Process"].append({
-                "Processor": "CodeSignatureVerifier",
-                "Arguments": {
-                    "input_path": "%pathname%/*.pkg",
-                    "expected_authority_names": facts["codesign_authorities"]
-                }
-            })
-        elif facts["download_format"] in supported_archive_formats:
-            keys["Process"].append({
-                "Processor": "Unarchiver",
-                "Arguments": {
-                    "archive_path": "%pathname%",
-                    "destination_path": "%RECIPE_CACHE_DIR%/%NAME%",
-                    "purge_destination": True
-                }
-            })
-            keys["Process"].append({
-                "Processor": "CodeSignatureVerifier",
-                "Arguments": {
-                    "input_path": "%RECIPE_CACHE_DIR%/%NAME%/*.pkg",
-                    "expected_authority_names": facts["codesign_authorities"]
-                }
-            })
-        elif facts["download_format"] in supported_install_formats:
+            # The download is in pkg format, and the pkg is signed.
+            # TODO(Elliot): Need a few test cases to prove this works.
             keys["Process"].append({
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": {
                     "input_path": "%pathname%",
-                    "expected_authority_names": facts["codesign_authorities"]
+                    "expected_authorities": facts["codesign_authorities"]
                 }
             })
+    # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
 
 
 def generate_app_store_munki_recipe(facts, prefs, recipe):
@@ -473,7 +470,6 @@ def generate_munki_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into "
                             "Munki." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
@@ -497,7 +493,7 @@ def generate_munki_recipe(facts, prefs, recipe):
     import_file_var = "%pathname%"
 
     if facts["download_format"] in supported_image_formats:
-        if facts["codesign_status"] != "signed":
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             if facts["version_key"] == "CFBundleShortVersionString":
                 keys["Process"].append({
                     "Processor": "AppDmgVersioner",
@@ -515,7 +511,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                 })
 
     elif facts["download_format"] in supported_archive_formats:
-        if facts["codesign_status"] != "signed":
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
             keys["Process"].append({
@@ -571,9 +567,9 @@ def generate_munki_recipe(facts, prefs, recipe):
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
         if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"], facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"), facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"], facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
         extract_app_icon(facts["icon_path"], extracted_icon)
     else:
         robo_print("I don't have enough information to create a "
@@ -636,14 +632,13 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s and "
                             "creates a package." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     # Save bundle identifier.
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
     if facts["download_format"] in supported_image_formats:
-        if facts["codesign_status"] != "signed":
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             if facts["version_key"] == "CFBundleShortVersionString":
                 keys["Process"].append({
                     "Processor": "AppDmgVersioner",
@@ -677,7 +672,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
         })
 
     elif facts["download_format"] in supported_archive_formats:
-        if facts["codesign_status"] != "signed":
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet. Need to do that and version.
             keys["Process"].append({
@@ -690,7 +685,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             })
             if facts.get("sparkle_provides_version", False) is False:
                 # Either the Sparkle feed doesn't provide version, or there's
-                # no Sparkle feed.
+                # no Sparkle feed. We must determine the version manually.
                 keys["Process"].append({
                     "Processor": "Versioner",
                     "Arguments": {
@@ -749,7 +744,6 @@ def generate_install_recipe(facts, prefs, recipe):
     keys["Description"] = ("Installs the latest version "
                             "of %s." % facts["app_name"])
 
-    # TODO(Elliot): What if it's somebody else's download recipe? (#37)
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     if facts["download_format"] in supported_image_formats:
@@ -765,7 +759,7 @@ def generate_install_recipe(facts, prefs, recipe):
         })
 
     elif facts["download_format"] in supported_archive_formats:
-        if facts["codesign_status"] != "signed":
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             keys["Process"].append({
                 "Processor": "Unarchiver",
                 "Arguments": {
@@ -826,14 +820,12 @@ def generate_jss_recipe(facts, prefs, recipe):
     robo_print("Generating %s recipe..." % recipe["type"])
 
     if prefs["FollowOfficialJSSRecipesFormat"] is True:
-        # TODO: Use official jss-recipes style. (#49)
         keys["Identifier"] = "com.github.jss-recipes.jss.%s" % facts["app_name"].replace(" ", "")
 
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into your JSS." %
                             facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (
         prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
@@ -851,7 +843,6 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
-    # TODO(Elliot): Set jss_inventory_name argument if facts["app_file"] exists. (#50)
     jssimporter_arguments = {
         "prod_name": "%NAME%",
         "category": "%CATEGORY%",
@@ -882,9 +873,9 @@ def generate_jss_recipe(facts, prefs, recipe):
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
         if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"], facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"), facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"], facts["app_name"] + ".png")
+            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
         extract_app_icon(facts["icon_path"], extracted_icon)
     else:
         robo_print("I don't have enough information to create a "
@@ -925,10 +916,14 @@ def generate_absolute_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your Absolute Manage "
                             "Server." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
-    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
+    # Print a reminder if the required repo isn't present on disk.
+    cmd = "autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any(line.endswith("(https://github.com/tburgin/AbsoluteManageExport)") for line in out.split("\n")):
+        robo_print("You'll need to add the AbsoluteManageExport repo in order to use this recipe:\nautopkg repo-add \"https://github.com/tburgin/AbsoluteManageExport\"", LogLevel.REMINDER)
+
     keys["Process"].append({
         "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
         "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
@@ -969,10 +964,14 @@ def generate_sccm_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your SCCM "
                             "Server." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
-    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
+    # Print a reminder if the required repo isn't present on disk.
+    cmd = "autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any(line.endswith("(https://github.com/autopkg/cgerke-recipes)") for line in out.split("\n")):
+        robo_print("You'll need to add the cgerke-recipes repo in order to use this recipe:\nautopkg repo-add \"https://github.com/autopkg/cgerke-recipes\"", LogLevel.REMINDER)
+
     keys["Process"].append({
         "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
         "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
@@ -1023,7 +1022,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             }
         })
     elif facts["download_format"] in supported_archive_formats:
-        if facts["codesign_status"] != "signed":
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
             keys["Process"].append({
@@ -1039,7 +1038,12 @@ def generate_filewave_recipe(facts, prefs, recipe):
         robo_print("Sorry, I don't yet know how to create "
                     "filewave recipes from pkg downloads.", LogLevel.WARNING)
 
-    # TODO(Elliot): Print a reminder if this processor isn't present on disk. (#42)
+    # Print a reminder if the required repo isn't present on disk.
+    cmd = "autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any(line.endswith("(https://github.com/johncclayton/FileWaveImporter)") for line in out.split("\n")):
+        robo_print("You'll need to add the FileWaveImporter repo in order to use this recipe:\nautopkg repo-add \"https://github.com/johncclayton/FileWaveImporter\"", LogLevel.REMINDER)
+
     keys["Process"].append({
         "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
         "Arguments": {
@@ -1081,7 +1085,6 @@ def generate_ds_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it to your DeployStudio "
                             "packages." % facts["app_name"])
-    # TODO(Elliot): What if it's somebody else's pkg recipe? (#37)
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
     keys["Input"]["DS_PKGS_PATH"] = prefs["DSPackagesPath"]
     keys["Input"]["DS_NAME"] = "%NAME%"
