@@ -66,9 +66,9 @@ class RecipeRobotTask: NSObject {
                 out.fileHandleForReading.readabilityHandler = nil
                 err.fileHandleForReading.readabilityHandler = nil
 
-                let error: NSError?
+                var error: NSError?
                 if let dataString = NSString(data: errData, encoding:NSUTF8StringEncoding) as? String {
-                    let error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
+                    error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
                 }
 
                 NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
