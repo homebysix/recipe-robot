@@ -214,6 +214,8 @@ recipe-robot --verbose https://srv3.airdroid.com/p14/web/getbinaryredirect?type=
 Direct download doesn't work because of "SSLV3_ALERT_HANDSHAKE_FAILURE":
 ```
 recipe-robot --verbose http://www.macroplant.com/latest-binaries/adapter-mac.dmg
+recipe-robot --verbose http://cdn.macroplant.com/release/Adapter-2.1.6.dmg
+recipe-robot --verbose http://www.macroplant.com/adapter/adapterAppcast.xml
 ```
 
 The app we want is not at the root level of the downloaded file:
