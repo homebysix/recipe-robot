@@ -52,7 +52,7 @@ Here's what Recipe Robot looks like when it's working properly. The command I us
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.0.6.  |
+                     |  Welcome to Recipe Robot v0.1.0.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]
@@ -78,7 +78,7 @@ If you use the `--verbose` argument, you'll get a little more information about 
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.0.6.  |
+                     |  Welcome to Recipe Robot v0.1.0.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]

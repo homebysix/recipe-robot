@@ -41,7 +41,7 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-__version__ = '0.0.6'
+__version__ = '0.1.0'
 ENDC = "\033[0m"
 
 # Report dict that will be output to a plist when Recipe Robot is done.
