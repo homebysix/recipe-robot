@@ -266,35 +266,35 @@ recipe-robot --verbose https://bahoom.com/hyperdock/HyperDock.dmg
 
 Here's what we're thinking about for the app interface, for now:
 
-1. Upon first launch, the user is prompted for a few pieces of information:
+1. Upon first launch, if the preference file doesn't already exist, the user is prompted for a few pieces of information:
 
     - preferred identifier
     - preferred formats
     - path to save recipes to
-    - (if DS) path to DS packages
+    - (if DS is preferred) path to DS packages
+    - (if JSS is preferred) whether to follow jss-recipes style
 
-    The user can get back to this screen at any time by choosing Preferences from the Recipe Robot menu.
+    The user can get back to this screen at any time by choosing __Preferences__ from the __Recipe Robot__ menu.
+
+    The options in the app also respect changes made by running the Python script (e.g. `recipe-robot --config`) and vice versa. They both reference the same plist file.
 
     ![app00.png](images/app00.png)
 
     &nbsp;
 
-2. Upon saving the preferences (and upon each subsequent launch), main window appears, prompting the user to drag in a recipe or app.
+2. Upon saving the preferences (and upon each subsequent launch), main window appears, prompting the user to drag in an app or paste a URL.
 
     ![app01.png](images/app01.png)
 
     &nbsp;
 
-3. Upon dragging an app on, Recipe Robot starts processing facts about the app:
-
-    1. Are there any existing AutoPkg recipes for this app?
-    2. Does the app have a Sparkle feed? Is it valid?
-    3. Is the app hosted on GitHub or SourceForge?
+3. Upon dragging an app on or pasting a URL, Recipe Robot starts processing facts about the app. It displays the output of `recipe-robot --verbose`.
 
     ![app02.png](images/app02.png)
 
     &nbsp;
 
-4. Recipes for all preferred formats possible are created by calling the Python scripts, and the resulting files are placed into a cache folder, which can be accessed by double-clicking.
+4. Recipes for all preferred formats are created by calling the Python scripts, and the resulting files are placed into a cache folder, which can be accessed by double-clicking the folder icon.
 
-    ![app04.png](images/app04.png)
+    ![app03.png](images/app03.png)
+
