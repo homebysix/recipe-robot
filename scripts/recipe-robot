@@ -365,10 +365,7 @@ def process_input_path(input_path, args, facts):
 
     # Determine what kind of input path we are working with, then inspect it.
     if input_path.startswith("http"):
-        if (input_path.endswith(".xml") or
-            input_path.endswith(".rss") or
-            input_path.endswith(".php") or
-            "appcast" in input_path):
+        if (input_path.endswith(".xml") or input_path.endswith(".rss") or input_path.endswith(".php") or "appcast" in input_path):
             robo_print("Input path looks like a Sparkle feed.",
                        LogLevel.VERBOSE)
             facts = inspect_sparkle_feed_url(input_path, args, facts)
@@ -1161,11 +1158,11 @@ def inspect_download_url(input_path, args, facts):
                "success.", LogLevel.DEBUG)
 
     # Open the disk image (or test to see whether the download is one).
-    if download_format == "" or download_format in supported_image_formats:
+    if (facts.get("download_format", "") == "" or download_format == "") or download_format in supported_image_formats:
         facts = inspect_disk_image(os.path.join(cache_dir, filename), args, facts)
 
     # Open the zip archive (or test to see whether the download is one).
-    if download_format == "" or download_format in supported_archive_formats:
+    if (facts.get("download_format", "") == "" or download_format == "") or download_format in supported_archive_formats:
         facts = inspect_archive(os.path.join(cache_dir, filename), args, facts)
 
     # Inspect the installer (or test to see whether the download is one).
@@ -1177,7 +1174,7 @@ def inspect_download_url(input_path, args, facts):
         # Inspect the package.
         facts = inspect_pkg(os.path.join(cache_dir, filename), args, facts)
 
-    if download_format == "":
+    if facts.get("download_format", "") == "":
         robo_print("I've investigated pretty thoroughly, and I'm still not "
                    "sure what the download format is. This could cause "
                    "problems later.", LogLevel.WARNING)
