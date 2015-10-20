@@ -32,10 +32,10 @@ extension CAGradientLayer {
 
 
 // MARK: -- Views --
-class feedMeDropImageView: NSImageView, NSDraggingDestination {
+class feedMeDropImageView: NSImageView {
 
     override func performDragOperation(sender: NSDraggingInfo) -> Bool {
-        if let controller = sender.draggingDestinationWindow().contentViewController as? FeedMeViewController,
+        if let controller = sender.draggingDestinationWindow()!.contentViewController as? FeedMeViewController,
             files = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? NSArray,
             file = files.firstObject as? String {
 

@@ -29,7 +29,7 @@ class RecipeRobotTask: NSObject {
     func createRecipes(progress: (progress: String) -> Void, completion: (error: NSError? ) -> Void) {
 
         task.launchPath = "/usr/bin/python"
-        task.arguments = self.constructTaskArgs()
+        task.arguments = self.constructTaskArgs() as? String
 
         let out = NSPipe()
         task.standardOutput = out
