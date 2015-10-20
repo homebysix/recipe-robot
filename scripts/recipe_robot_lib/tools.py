@@ -68,8 +68,10 @@ class LogLevel(object):
 
 class OutputMode(object):
     """Manage global output mode state with a singleton."""
-    verbose_mode = False  # set to True for additional user-facing output
-    debug_mode = False  # set to True to output everything all the time
+    verbose_mode = False  # Use --verbose command-line argument, or hard-code
+                          # to "True" here for additional user-facing output.
+    debug_mode = False  # Use --debug command-line argument, or hard-code
+                        # to "True" here for additional development output.
 
     @classmethod
     def set_verbose_mode(cls, value):

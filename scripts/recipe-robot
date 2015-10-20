@@ -34,8 +34,11 @@ positional arguments:
 
 optional arguments:
   -h, --help         show this help message and exit
-  --config           Adjust Recipe Robot preferences prior to generating
+  -c, --config       Adjust Recipe Robot preferences prior to generating
                      recipes.
+  --debug            Generate extremely detailed output. Meant to help trace
+                     issues with Recipe Robot. (Debug mode also enables
+                     verbose output.)
   --ignore-existing  Creates recipes even if "autopkg search" results show
                      that recipes already exist for this app.
   --keep-cache       Keep the Recipe Robot cache, instead of performing the
@@ -108,9 +111,14 @@ def build_argument_parser():
              "the following: existing app, Sparkle feed, GitHub URL, "
              "BitBucket URL, SourceForge URL, or direct download URL.")
     parser.add_argument(
-        "--config",
+        "-c", "--config",
         action="store_true",
         help="Adjust Recipe Robot preferences prior to generating recipes.")
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Generate extremely detailed output. Meant to help trace issues "
+             "with Recipe Robot. (Debug mode also enables verbose output.)")
     parser.add_argument(
         "--ignore-existing",
         action="store_true",
@@ -1225,7 +1233,7 @@ def inspect_archive(input_path, args, facts):
 
             return facts
 
-    robo_print("Unable to unpack this archive: %s" % input_path, LogLevel.WARNING)
+    robo_print("Unable to unpack this archive: %s\n(You can ignore this message if the previous attempt to mount the downloaded file as a disk image succeeded.)" % input_path, LogLevel.DEBUG)
     return facts
 
 
@@ -1306,7 +1314,7 @@ def inspect_disk_image(input_path, args, facts):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
-        robo_print("Unable to mount %s. (%s)" % (input_path, err), LogLevel.DEBUG)
+        robo_print("Unable to mount %s. (%s)\n(You can ignore this message if the upcoming attempt to unzip the downloaded file as an archive succeeds.)" % (input_path, err), LogLevel.DEBUG)
 
     return facts
 
@@ -1467,7 +1475,7 @@ def inspect_pkg(input_path, args, facts):
                            # in the package
 
     else:
-        robo_print("Unable to expand package", LogLevel.VERBOSE, 4)
+        robo_print("Unable to expand package", LogLevel.DEBUG, 4)
 
     # TODO(Elliot): What info do we need to gather to produce recipes here? (#27)
 
@@ -1745,8 +1753,7 @@ def debug_dump(items):
         items: A dict of dicts of all the things to dump to output.
     """
     for key, value in items.iteritems():
-        print "%s\n%s:\n\n%s\n%s" % (BColors.DEBUG, key.upper(),
-                                     pprint.pformat(value), BColors.ENDC)
+        robo_print("%s:\n%s\n" % (key.upper(), pprint.pformat(value)), LogLevel.DEBUG)
 
 
 def congratulate(prefs):
@@ -1815,6 +1822,10 @@ def main():
         # If --verbose was specified, set verbose mode to True.
         if args.verbose is True or OutputMode.verbose_mode is True:
             OutputMode.set_verbose_mode(True)
+
+        # If --debug was specified, set debug mode to True.
+        if args.debug is True or OutputMode.debug_mode is True:
+            OutputMode.set_debug_mode(True)
 
         # Create the master recipe information list.
         recipes = init_recipes()
