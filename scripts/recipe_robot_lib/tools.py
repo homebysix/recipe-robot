@@ -25,15 +25,35 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 """
 
 
+from datetime import datetime
 import os
 import shlex
 from subprocess import Popen, PIPE
 import sys
 from urllib2 import urlopen
 
+# TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
+# Or not use it at all (i.e. use the preferences system correctly). (#16)
+try:
+    from recipe_robot_lib import FoundationPlist
+except ImportError:
+    print "[WARNING] importing plistlib as FoundationPlist"
+    import plistlib as FoundationPlist
+
 
 __version__ = '0.0.6'
 ENDC = "\033[0m"
+
+# Report dict that will be output to a plist when Recipe Robot is done.
+report = {
+    "errors": [],
+    "reminders": [],
+    "warnings": [],
+    "recipes": [],
+    "icons": [],
+    "start_time": 0,
+    "stop_time": 0
+}
 
 
 class LogLevel(object):
@@ -68,6 +88,13 @@ class OutputMode(object):
             raise ValueError
 
 
+def timer(action):
+    if action == "start":
+        report["start_time"] = int(datetime.now().strftime("%s"))
+    if action == "stop":
+        report["stop_time"] = int(datetime.now().strftime("%s"))
+
+
 def robo_print(message, log_level=LogLevel.LOG, indent=0):
     """Print the specified message in an appropriate color, and only print
     debug output if debug_mode is True.
@@ -91,20 +118,24 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
     else:
         print_func = _print_stdout
 
-    # if ((log_level in ("error", "warning", "reminder")) or
-    #     (log_level is "debug" and OutputMode.debug_mode) or
-    #     (log_level is "verbose" and
-    #      (OutputMode.verbose_mode or OutputMode.debug_mode))):
-    #         print_func(line)
-    if ((log_level in (LogLevel.ERROR, LogLevel.WARNING,
-                       LogLevel.REMINDER, LogLevel.LOG)) or
-        (log_level is LogLevel.DEBUG and OutputMode.debug_mode) or
-        (log_level is LogLevel.VERBOSE and
-         (OutputMode.verbose_mode or OutputMode.debug_mode))):
-            print_func(line)
-
     if log_level is LogLevel.ERROR:
+        print_func(line)
+        report["errors"].append(message)
+        timer("stop")
+        write_report(report, os.path.join("/tmp", "report.plist"))
         sys.exit(1)
+    elif log_level is LogLevel.REMINDER:
+        print_func(line)
+        report["reminders"].append(message)
+    elif log_level is LogLevel.WARNING:
+        print_func(line)
+        report["warnings"].append(message)
+    elif log_level is LogLevel.LOG:
+        print_func(line)
+    elif log_level is LogLevel.DEBUG and OutputMode.debug_mode:
+        print_func(line)
+    elif log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or OutputMode.debug_mode):
+        print_func(line)
 
 
 def create_dest_dirs(path):
@@ -164,6 +195,7 @@ def extract_app_icon(icon_path, png_path):
         exitcode, _, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             robo_print("%s" % png_path, LogLevel.VERBOSE, 4)
+            report["icons"].append(png_path)
         else:
             robo_print("An error occurred during icon extraction: %s" % err, LogLevel.WARNING)
 
@@ -230,3 +262,7 @@ def print_welcome_text():
 def reset_term_colors():
     """Ensure terminal colors are normal."""
     sys.stdout.write(ENDC)
+
+
+def write_report(report, report_file):
+    FoundationPlist.writePlist(report, report_file)

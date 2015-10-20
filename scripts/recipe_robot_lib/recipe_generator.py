@@ -26,7 +26,7 @@ create autopkg recipes for the specified app.
 
 
 import os
-from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon, get_exitcode_stdout_stderr, robo_print, LogLevel, __version__
+from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon, robo_print, LogLevel, __version__, report, get_exitcode_stdout_stderr
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
@@ -194,8 +194,9 @@ def generate_recipes(facts, prefs, recipes):
                 # Keep track of the total number of unique recipes we've created.
                 prefs["RecipeCreateCount"] += 1
             FoundationPlist.writePlist(recipe["keys"], dest_path)
-            robo_print("%s/%s" % (recipe_dest_dir,
+            robo_print("%s" % os.path.join(recipe_dest_dir,
                                   recipe["filename"]), LogLevel.LOG, 4)
+            report["recipes"].append(dest_path)
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, prefs_file)
