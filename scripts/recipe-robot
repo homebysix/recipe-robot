@@ -80,7 +80,7 @@ except ImportError:
 
 
 # Global variables.
-prefs_file = os.path.expanduser(
+PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 cache_dir = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
                          datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
@@ -188,32 +188,33 @@ def init_recipes():
 
 
 def init_prefs(prefs, recipes, args):
-    """Read Recipe Robot preferences in the following priority order:
+    """Read Recipe Robot preferences.
+
+    Preferences are handled in the following priority order:
         0. If --config argument is specified, ignore prefs and rebuild.
         3. If preferences plist doesn't exist, rebuild.
         4. If preferences plist does exist, use it.
 
     Args:
-        prefs: A dictionary containing a key/value pair for each preference.
-            When this function is called for the first time, the prefs dict
-            is typically empty.
-        recipes: The list of known recipe types, created by init_recipes().
+        prefs: A dictionary containing a key/value pair for each
+            preference.  When this function is called for the first
+            time, the prefs dict is typically empty.
+        recipes: The list of known recipe types, created by
+            init_recipes().
         args: The command line arguments.
 
     Returns:
         prefs: A fully populated preference dictionary.
     """
-
     prefs = {}
-    global prefs_file
 
     # If prefs file exists, try to read from it.
-    if os.path.isfile(prefs_file):
+    if os.path.isfile(PREFS_FILE):
 
         # Open the file.
         try:
-            prefs = FoundationPlist.readPlist(prefs_file)
-        except Exception:
+            prefs = FoundationPlist.readPlist(PREFS_FILE)
+        except FoundationPlist.NSPropertyListSerializationException:
             robo_print("There was a problem opening the prefs file. Building "
                        "new preferences.", LogLevel.WARNING)
             prefs = build_prefs(prefs, recipes)
@@ -242,7 +243,7 @@ def init_prefs(prefs, recipes, args):
     prefs["LastRecipeRobotVersion"] = __version__
 
     # Save preferences to disk for next time.
-    FoundationPlist.writePlist(prefs, prefs_file)
+    FoundationPlist.writePlist(prefs, PREFS_FILE)
 
     return prefs
 
