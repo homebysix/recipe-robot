@@ -76,7 +76,7 @@ from recipe_robot_lib.tools import (create_dest_dirs,
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
     from recipe_robot_lib import FoundationPlist
-except:
+except ImportError:
     print "[WARNING] importing plistlib as FoundationPlist"
     import plistlib as FoundationPlist
 
