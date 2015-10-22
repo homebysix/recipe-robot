@@ -71,7 +71,7 @@ import recipe_robot_lib
 from recipe_robot_lib.tools import (create_dest_dirs,
                                     get_exitcode_stdout_stderr, robo_print,
                                     LogLevel, OutputMode, print_welcome_text,
-                                    __version__, report, write_report, timer)
+                                    __version__, write_report, timed)
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
@@ -1925,107 +1925,135 @@ def congratulate(prefs):
                              random.choice(congrats_msg)))
 
 
+#TODO (Shea): Refactor this.
+@timed
+def handle_preferences_and_build_facts_and_generate_recipes(args):
+    """This function does too much, and is slated to be refactored."""
+    # TODO: With a finally in place, this should NEVER get executed. Remove.
+    # Reset terminal colors, in case the last run aborted uncleanly.
+    recipe_robot_lib.tools.reset_term_colors()
+
+
+    # Create the master recipe information list.
+    recipes = init_recipes()
+
+    # Read or create the user preferences.
+    prefs = {}
+    prefs = init_prefs(prefs, recipes, args)
+
+    # TODO (Shea): This should be handled by argparser setup.
+    # If --config was specified without an input path, stop here.
+    if not args.input_path:
+        sys.exit(0)
+    # Otherwise, retrieve the input path.
+    input_path = args.input_path
+
+    # Strip trailing slash, but only if input_path is not a URL.
+    if "http" not in input_path:
+        input_path = input_path.rstrip("/ ")
+
+    # Collect facts from the input path, based on the type of path
+    # given.
+    facts = {
+        "errors": [],
+        "reminders": [],
+        "warnings": [],
+        "recipes": [],
+        "icons": [],}
+
+    create_dest_dirs(cache_dir)
+    robo_print("Processing %s ..." % input_path)
+    process_input_path(input_path, args, facts)
+
+    # Look up existing recipes. (App name is required to proceed.)
+    if "app_name" in facts:
+        create_existing_recipe_list(facts["app_name"], recipes, args)
+    else:
+        robo_print("I wasn't able to determine the name of this app, "
+                    "so I can't make any recipes.", LogLevel.ERROR)
+
+    # Create recipes for the recipe types that were selected above.
+    recipe_robot_lib.generate_recipes(facts, prefs, recipes)
+
+    # If debug is on, print all the things.
+    if OutputMode.debug_mode is True:
+        debug_dump({
+            "Command line arguments": args,
+            "Supported file formats": all_supported_formats,
+            "Preferences for this session": prefs,
+            "Recipe information": recipes,
+            "Facts we have collected": facts
+        })
+
+    # Pat on the back!
+    congratulate(prefs)
+    return facts
+
+
+def configure_from_args(args):
+    """Perform validation and reporting on args."""
+    # If no input path nor --config arg was specified, print help
+    # and exit.
+    # TODO (Shea): This can be handled through argparser setup.
+    if not args.input_path and not args.config:
+        argparser.print_help()
+        sys.exit(0)
+
+    # If --ignore-existing was specified, print a warning.
+    if args.ignore_existing is True:
+        robo_print("Will build recipes even if they already exist in "
+                    "\"autopkg search\" results. Please don't upload "
+                    "duplicate recipes.", LogLevel.WARNING)
+
+    # If --verbose was specified, set verbose mode to True.
+    if args.verbose is True or OutputMode.verbose_mode is True:
+        OutputMode.set_verbose_mode(True)
+
+    # If --debug was specified, set debug mode to True.
+    if args.debug is True or OutputMode.debug_mode is True:
+        OutputMode.set_debug_mode(True)
+
+
 def main():
     """Make the magic happen."""
 
     if  sys.platform != "darwin":
         robo_print("Recipe Robot requires Mac OS X.", LogLevel.ERROR)
 
+    # Print welcome and version number.
+    print_welcome_text()
+
+    # Parse command line arguments.
+    argparser = build_argument_parser()
+    args = argparser.parse_args()
+
+    configure_from_args(args)
+
+    facts = None
     try:
-        # Start the timer that tracks the execution time.
-        timer("start")
+        time, facts = handle_preferences_and_build_facts_and_generate_recipes(args)
+        facts["execution_time"] = time
+    except KeyboardInterrupt:
+        robo_print("\nAborting Recipe Robot!")
+    except Exception as error:
+        # TODO (Shea): Test for more appropriate exceptions (May need to create
+        # one).
+        robo_print(
+            "Recipe Robot exploded with error: {}".format(error.message),
+            LogLevel.ERROR)
 
-        # Reset terminal colors, in case the last run aborted uncleanly.
+    finally:
+        # Cleanup tasks.
+
+        # Make sure to reset the terminal color.
         recipe_robot_lib.tools.reset_term_colors()
-
-        # Print welcome and version number.
-        print_welcome_text()
-
-        # Parse command line arguments.
-        argparser = build_argument_parser()
-        args = argparser.parse_args()
-
-        # If no input path nor --config arg was specified, print help
-        # and exit.
-        if not args.input_path and not args.config:
-            argparser.print_help()
-            sys.exit(0)
-
-        # If --ignore-existing was specified, print a warning.
-        if args.ignore_existing is True:
-            robo_print("Will build recipes even if they already exist in "
-                       "\"autopkg search\" results. Please don't upload "
-                       "duplicate recipes.", LogLevel.WARNING)
-
-        # If --verbose was specified, set verbose mode to True.
-        if args.verbose is True or OutputMode.verbose_mode is True:
-            OutputMode.set_verbose_mode(True)
-
-        # If --debug was specified, set debug mode to True.
-        if args.debug is True or OutputMode.debug_mode is True:
-            OutputMode.set_debug_mode(True)
-
-        # Create the master recipe information list.
-        recipes = init_recipes()
-
-        # Read or create the user preferences.
-        prefs = {}
-        prefs = init_prefs(prefs, recipes, args)
-
-        # If --config was specified without an input path, stop here.
-        if not args.input_path:
-            sys.exit(0)
-        # Otherwise, retrieve the input path.
-        input_path = args.input_path
-
-        # Strip trailing slash, but only if input_path is not a URL.
-        if "http" not in input_path:
-            input_path = input_path.rstrip("/ ")
-
-        # Collect facts from the input path, based on the type of path
-        # given.
-        facts = {}
-        create_dest_dirs(cache_dir)
-        robo_print("Processing %s ..." % input_path)
-        process_input_path(input_path, args, facts)
-
-        # Look up existing recipes. (App name is required to proceed.)
-        if "app_name" in facts:
-            create_existing_recipe_list(facts["app_name"], recipes, args)
-        else:
-            robo_print("I wasn't able to determine the name of this app, "
-                       "so I can't make any recipes.", LogLevel.ERROR)
-
-        # Create recipes for the recipe types that were selected above.
-        recipe_robot_lib.generate_recipes(facts, prefs, recipes)
-
-        # If debug is on, print all the things.
-        if OutputMode.debug_mode is True:
-            debug_dump({
-                "Command line arguments": args,
-                "Supported file formats": all_supported_formats,
-                "Preferences for this session": prefs,
-                "Recipe information": recipes,
-                "Facts we have collected": facts
-            })
-
-        # Pat on the back!
-        congratulate(prefs)
-
-        # Stop the timer that tracks the execution time.
-        timer("stop")
-
-        # Save a report for the Mac app to read.
-        write_report(report, os.path.join("/tmp", "report.plist"))
-
         # Clean up cache folder.
         if os.path.exists(cache_dir) and args.keep_cache is not True:
             shutil.rmtree(cache_dir)
 
-    # If killed, make sure to reset the terminal color with our dying
-    # breath.
-    except (KeyboardInterrupt, SystemExit):
-        recipe_robot_lib.tools.reset_term_colors()
+    # Save a report for the Mac app to read.
+    if facts:
+        write_report(facts, os.path.join("/tmp", "report.plist"))
 
 
 if __name__ == '__main__':

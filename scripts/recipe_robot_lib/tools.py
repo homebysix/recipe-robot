@@ -26,10 +26,12 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 
 
 from datetime import datetime
+from functools import wraps
 import os
 import shlex
 from subprocess import Popen, PIPE
 import sys
+import timeit
 from urllib2 import urlopen
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
@@ -43,17 +45,6 @@ except ImportError:
 
 __version__ = '0.1.0'
 ENDC = "\033[0m"
-
-# Report dict that will be output to a plist when Recipe Robot is done.
-report = {
-    "errors": [],
-    "reminders": [],
-    "warnings": [],
-    "recipes": [],
-    "icons": [],
-    "start_time": 0,
-    "stop_time": 0
-}
 
 
 class LogLevel(object):
@@ -90,14 +81,19 @@ class OutputMode(object):
             raise ValueError
 
 
-def timer(action):
-    if action == "start":
-        report["start_time"] = int(datetime.now().strftime("%s"))
-    if action == "stop":
-        report["stop_time"] = int(datetime.now().strftime("%s"))
+def timed(func):
+    """Decorator for timing a function."""
+    @wraps(func)
+    def run_func(*args, **kwargs):
+        """Time a function."""
+        start = timeit.default_timer()
+        result = func(*args, **kwargs)
+        end = timeit.default_timer()
+        return (end - start, result)
+    return run_func
 
 
-def robo_print(message, log_level=LogLevel.LOG, indent=0):
+def robo_print(message, log_level=LogLevel.LOG, indent=0, report=None):
     """Print the specified message in an appropriate color, and only print
     debug output if debug_mode is True.
 
@@ -122,16 +118,21 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
 
     if log_level is LogLevel.ERROR:
         print_func(line)
-        report["errors"].append(message)
-        timer("stop")
-        write_report(report, os.path.join("/tmp", "report.plist"))
+        # TODO (Shea): This is problematic. robo_print should only be printing.
+        if report:
+            report.errors.append(message)
+            write_report(report, os.path.join("/tmp", "report.plist"))
         sys.exit(1)
     elif log_level is LogLevel.REMINDER:
         print_func(line)
-        report["reminders"].append(message)
+        # TODO (Shea): This is problematic. robo_print should only be printing.
+        if report:
+            report.reminders.append(message)
     elif log_level is LogLevel.WARNING:
         print_func(line)
-        report["warnings"].append(message)
+        # TODO (Shea): This is problematic. robo_print should only be printing.
+        if report:
+            report.warnings.append(message)
     elif log_level is LogLevel.LOG:
         print_func(line)
     elif log_level is LogLevel.DEBUG and OutputMode.debug_mode:
@@ -175,15 +176,17 @@ def create_SourceForgeURLProvider(dest_dir):
         # TODO(Elliot):  Copy SourceForgeURLProvider from local file. (#46)
 
 
-def extract_app_icon(icon_path, png_path):
+def extract_app_icon(facts, png_path):
     """Convert the app's icns file to 300x300 png at the specified path.
     300x300 is Munki's preferred size, and 128x128 is Casper's preferred size,
     as of 2015-08-01.
 
     Args:
-        icon_path: The path to the .icns file we're converting to .png.
+        facts: Dictionary with key "icon_path", value: string path to
+            icon.
         png_path: The path to the .png file we're creating.
     """
+    icon_path = facts["icon_path"]
     png_path_absolute = os.path.expanduser(png_path)
     create_dest_dirs(os.path.dirname(png_path_absolute))
 
@@ -197,7 +200,7 @@ def extract_app_icon(icon_path, png_path):
         exitcode, _, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             robo_print("%s" % png_path, LogLevel.VERBOSE, 4)
-            report["icons"].append(png_path)
+            facts["icons"].append(png_path)
         else:
             robo_print("An error occurred during icon extraction: %s" % err, LogLevel.WARNING)
 

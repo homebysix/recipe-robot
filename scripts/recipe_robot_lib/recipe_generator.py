@@ -26,7 +26,7 @@ create autopkg recipes for the specified app.
 
 
 import os
-from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon, robo_print, LogLevel, __version__, report, get_exitcode_stdout_stderr
+from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon, robo_print, LogLevel, __version__, get_exitcode_stdout_stderr
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
@@ -196,7 +196,7 @@ def generate_recipes(facts, prefs, recipes):
             FoundationPlist.writePlist(recipe["keys"], dest_path)
             robo_print("%s" % os.path.join(recipe_dest_dir,
                                   recipe["filename"]), LogLevel.LOG, 4)
-            report["recipes"].append(dest_path)
+            facts["recipes"].append(dest_path)
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, prefs_file)
@@ -571,7 +571,7 @@ def generate_munki_recipe(facts, prefs, recipe):
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"), facts["app_name"] + ".png")
         else:
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
-        extract_app_icon(facts["icon_path"], extracted_icon)
+        extract_app_icon(facts, extracted_icon)
     else:
         robo_print("I don't have enough information to create a "
                     "PNG icon for this app.", LogLevel.WARNING)
@@ -877,7 +877,7 @@ def generate_jss_recipe(facts, prefs, recipe):
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"), facts["app_name"] + ".png")
         else:
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
-        extract_app_icon(facts["icon_path"], extracted_icon)
+        extract_app_icon(facts, extracted_icon)
     else:
         robo_print("I don't have enough information to create a "
                     "PNG icon for this app.", LogLevel.WARNING)
