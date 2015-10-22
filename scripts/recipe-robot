@@ -473,12 +473,15 @@ def inspect_github_url(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # Only proceed if we haven't inspected this GitHub URL yet.
     if "github_url" in facts["inspections"]:
@@ -651,12 +654,15 @@ def inspect_sourceforge_url(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # Only proceed if we haven't inspected this SourceForge URL yet.
     if "sourceforge_url" in facts["inspections"]:
@@ -817,12 +823,15 @@ def inspect_bitbucket_url(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # Only proceed if we haven't inspected this BitBucket URL yet.
     if "bitbucket_url" in facts["inspections"]:
@@ -952,12 +961,15 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # Only proceed if we haven't inspected this Sparkle feed yet.
     if "sparkle_feed_url" in facts["inspections"]:
@@ -1070,12 +1082,15 @@ def inspect_download_url(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # We never skip download URL inspection, even if we've already
     # inspected a download URL during this run. This handles rare
@@ -1254,12 +1269,15 @@ def inspect_archive(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "archive" in facts["inspections"]:
@@ -1313,12 +1331,15 @@ def inspect_disk_image(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "disk_image" in facts["inspections"]:
@@ -1405,12 +1426,15 @@ def inspect_pkg(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "pkg" in facts["inspections"]:
@@ -1578,12 +1602,15 @@ def inspect_app(input_path, args, facts):
     Gather information required to create a recipe.
 
     Args:
-        input_path:
-        args:
-        facts:
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args: The command line arguments.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        facts
+        facts dictionary.
     """
     # Only proceed if we haven't inspected this app yet.
     if "app" in facts["inspections"]:
