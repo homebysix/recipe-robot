@@ -144,7 +144,8 @@ def init_recipes():
     """Store information related to each supported AutoPkg recipe type.
 
     Returns:
-        A tuple of dicts that describe all the AutoPkg recipe types we know about.
+        A tuple of dicts that describe all the AutoPkg recipe types we
+        know about.
     """
 
     recipes = ({
@@ -253,10 +254,12 @@ def build_prefs(prefs, recipes):
 
     Args:
         prefs: The preference dictionary, passed from init_prefs().
-        recipes: The list of known recipe types, created by init_recipes().
+        recipes: The list of known recipe types, created by
+            init_recipes().
 
     Returns:
-        prefs: The preference dictionary, newly populated from user input.
+        prefs: The preference dictionary, newly populated from user
+            input.
     """
 
     # Start recipe count at zero, if no value already exists.
@@ -326,13 +329,14 @@ def build_prefs(prefs, recipes):
                 robo_print("%s is not a valid option. Please try "
                            "again.\n" % choice, LogLevel.WARNING)
 
-    # Set "preferred" status of each recipe type according to preferences.
+    # Set "preferred" status of each recipe type according to
+    # preferences.
     for recipe in recipes:
         if recipe["preferred"] is True:
             prefs["RecipeTypes"].append(recipe["type"])
 
-            # If DeployStudio recipes are among the preferred types, prompt for
-            # the path of the Packages folder.
+            # If DeployStudio recipes are among the preferred types,
+            # prompt for the path of the Packages folder.
             if recipe["type"] == "ds":
                 prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
                 robo_print("\nLocation of your DeployStudio packages:")
@@ -355,14 +359,15 @@ def build_prefs(prefs, recipes):
 
 
 def process_input_path(input_path, args, facts):
-    """Determine which functions to call based on the type of input path.
+    """Determine which functions to call based on type of input path.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use to
-            create recipes.
+        input_path: The path or URL that Recipe Robot was asked to use
+            to create recipes.
         args: The command line arguments.
-        facts: A continually-updated dictionary containing all the information
-            we know so far about the app associated with the input path.
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
     """
 
     # Initialize facts that are lists.
@@ -370,7 +375,8 @@ def process_input_path(input_path, args, facts):
     facts["blocking_applications"] = []
     facts["codesign_authorities"] = []
 
-    # Determine what kind of input path we are working with, then inspect it.
+    # Determine what kind of input path we are working with, then
+    # inspect it.
     if input_path.startswith("http"):
         if (input_path.endswith(".xml") or input_path.endswith(".rss") or input_path.endswith(".php") or "appcast" in input_path):
             robo_print("Input path looks like a Sparkle feed.",
@@ -430,8 +436,8 @@ def get_app_description(app_name):
         description: A string containing a description of the app.
     """
 
-    # Start with an empty string. (If it remains empty, the parent function
-    # will know that no description was available.)
+    # Start with an empty string. (If it remains empty, the parent
+    # function will know that no description was available.)
     description = ""
 
     # This is the HTML immediately preceding the description text on the
@@ -441,7 +447,8 @@ def get_app_description(app_name):
     cmd = "curl --silent \"http://www.macupdate.com/find/mac/%s\"" % app_name
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
 
-    # For each line in the resulting text, look for the description marker.
+    # For each line in the resulting text, look for the description
+    # marker.
     html = out.split("\n")
     if exitcode == 0:
         for line in html:
@@ -450,7 +457,8 @@ def get_app_description(app_name):
                 start = line.find(description_marker) + len(description_marker)
                 # Trim the HTML from the end of the line.
                 description = line[start:].rstrip("</span>")
-                # If we found a description, no need to process further lines.
+                # If we found a description, no need to process further
+                # lines.
                 break
     else:
         robo_print("Error occurred while getting description from "
@@ -460,10 +468,18 @@ def get_app_description(app_name):
 
 
 def inspect_github_url(input_path, args, facts):
-    """Process a GitHub URL, gathering required information to create a
-    recipe.
-    """
+    """Process a GitHub URL
 
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
+    """
     # Only proceed if we haven't inspected this GitHub URL yet.
     if "github_url" in facts["inspections"]:
         return facts
@@ -497,9 +513,11 @@ def inspect_github_url(input_path, args, facts):
         robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
         facts["github_repo"] = github_repo
 
-        # TODO(Elliot): How can we use GitHub tokens to prevent rate limiting? (#18)
+        # TODO(Elliot): How can we use GitHub tokens to prevent rate
+        # limiting? (#18)
 
-        # Use GitHub API to obtain information about the repo and releases.
+        # Use GitHub API to obtain information about the repo and
+        # releases.
         repo_api_url = "https://api.github.com/repos/%s" % github_repo
         releases_api_url = "https://api.github.com/repos/%s/releases/latest" % github_repo
         user_api_url = "https://api.github.com/users/%s" % github_repo.split("/")[0]
@@ -628,10 +646,18 @@ def inspect_github_url(input_path, args, facts):
 
 
 def inspect_sourceforge_url(input_path, args, facts):
-    """Process a SourceForge URL, gathering required information to create a
-    recipe.
-    """
+    """Process a SourceForge URL
 
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
+    """
     # Only proceed if we haven't inspected this SourceForge URL yet.
     if "sourceforge_url" in facts["inspections"]:
         return facts
@@ -708,7 +734,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 # Record the shortname, if shortname isn't blank.
                 if parsed_json["shortname"] != "":
                     app_name = parsed_json["shortname"]
-                # Overwrite the shortname with name, if name isn't blank.
+                # Overwrite shortname with name, if name isn't blank.
                 if parsed_json["name"] != "":
                     app_name = parsed_json["name"]
             if app_name != "":
@@ -760,9 +786,10 @@ def inspect_sourceforge_url(input_path, args, facts):
             download_url = ""
             robo_print("Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE)
             for item in doc.iterfind("channel/item"):
-                # TODO(Elliot): The extra-info tag is not a reliable indicator
-                # of which item should actually be downloaded. (#21)
-                # Example: http://sourceforge.net/projects/grandperspectiv/rss
+                # TODO(Elliot): The extra-info tag is not a reliable
+                # indicator of which item should actually be downloaded.
+                # (#21) Example:
+                # http://sourceforge.net/projects/grandperspectiv/rss
                 search = "{https://sourceforge.net/api/files.rdf#}extra-info"
                 if item.find(search).text.startswith("data"):
                     download_url = item.find("link").text.rstrip("/download")
@@ -785,10 +812,18 @@ def inspect_sourceforge_url(input_path, args, facts):
 
 
 def inspect_bitbucket_url(input_path, args, facts):
-    """Process a BitBucket URL, gathering required information to create a
-    recipe.
-    """
+    """Process a BitBucket URL
 
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
+    """
     # Only proceed if we haven't inspected this BitBucket URL yet.
     if "bitbucket_url" in facts["inspections"]:
         return facts
@@ -805,7 +840,8 @@ def inspect_bitbucket_url(input_path, args, facts):
         robo_print("BitBucket repo is: %s" % bitbucket_repo, LogLevel.VERBOSE, 4)
         facts["bitbucket_repo"] = bitbucket_repo
 
-        # Use GitHub API to obtain information about the repo and releases.
+        # Use GitHub API to obtain information about the repo and
+        # releases.
         repo_api_url = "https://api.bitbucket.org/2.0/repositories/%s" % bitbucket_repo
         releases_api_url = "https://api.bitbucket.org/2.0/repositories/%s/downloads" % bitbucket_repo
         try:
@@ -911,10 +947,18 @@ def inspect_bitbucket_url(input_path, args, facts):
 
 
 def inspect_sparkle_feed_url(input_path, args, facts):
-    """Process a Sparkle feed URL, gathering required information to create a
-    recipe.
-    """
+    """Process a Sparkle feed URL
 
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
+    """
     # Only proceed if we haven't inspected this Sparkle feed yet.
     if "sparkle_feed_url" in facts["inspections"]:
         return facts
@@ -1008,8 +1052,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     if latest_url != "":
         facts = inspect_download_url(latest_url, args, facts)
 
-    # If Sparkle feed is hosted on GitHub or SourceForge, we can gather more
-    # information.
+    # If Sparkle feed is hosted on GitHub or SourceForge, we can gather
+    # more information.
     if "github.com" in input_path or "githubusercontent.com" in input_path:
         if "github_repo" not in facts:
             facts = inspect_github_url(input_path, args, facts)
@@ -1021,16 +1065,27 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
 
 def inspect_download_url(input_path, args, facts):
-    """Process a direct download URL, gathering required information to
-    create a recipe.
+    """Process a direct download URL
+
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
     """
+    # We never skip download URL inspection, even if we've already
+    # inspected a download URL during this run. This handles rare
+    # situations in which the download URL is in a different format than
+    # the Sparkle download.
+    # Example:
+    # http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
 
-    # We never skip download URL inspection, even if we've already inspected
-    # a download URL during this run. This handles rare situations in which
-    # the download URL is in a different format than the Sparkle download.
-    # Example: http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
-
-    # Strip leading and trailing spaces, then change remaining spaces to "%20".
+    # Strip leading and trailing spaces, then change remaining spaces to
+    # "%20".
     input_path = input_path.lstrip(" ").rstrip(" ").replace(" ", "%20")
 
     # Save the download URL to the dictionary of facts.
@@ -1038,8 +1093,8 @@ def inspect_download_url(input_path, args, facts):
     facts["download_url"] = input_path
     facts["is_from_app_store"] = False
 
-    # If download URL is hosted on GitHub or SourceForge, we can gather more
-    # information.
+    # If download URL is hosted on GitHub or SourceForge, we can gather
+    # more information.
     if "github.com" in input_path or "githubusercontent.com" in input_path:
         if "github_repo" not in facts:
             facts = inspect_github_url(input_path, args, facts)
@@ -1047,8 +1102,9 @@ def inspect_download_url(input_path, args, facts):
         if "sourceforge_id" not in facts:
             facts = inspect_sourceforge_url(input_path, args, facts)
 
-    # Warn if it looks like we're using a version-specific download path, but
-    # only if the path was not obtained from a feed of some sort.
+    # Warn if it looks like we're using a version-specific download
+    # path, but only if the path was not obtained from a feed of some
+    # sort.
     version_match = re.search(r"[\d]+\.[\w]+$", input_path)
     if version_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
                                       "github_url" not in facts["inspections"] and
@@ -1058,21 +1114,22 @@ def inspect_download_url(input_path, args, facts):
                    "give me a \"-latest\" URL or a Sparkle "
                    "feed.", LogLevel.WARNING)
 
-    # Determine filename from input URL (will be overridden later if a better
-    # candidate is found.)
+    # Determine filename from input URL (will be overridden later if a
+    # better candidate is found.)
     parsed_url = urlparse(input_path)
     filename = parsed_url.path.split("/")[-1]
 
-    # If the download URL doesn't already end with the parsed filename, it's
-    # very likely that URLDownloader needs the filename argument specified.
+    # If the download URL doesn't already end with the parsed filename,
+    # it's very likely that URLDownloader needs the filename argument
+    # specified.
     if not input_path.endswith(filename):
         facts["specify_filename"] = True
     else:
         facts["specify_filename"] = False
 
     # Download the file for continued inspection.
-    # TODO(Elliot): Maybe something like this is better for downloading big
-    # files? https://gist.github.com/gourneau/1430932 (#24)
+    # TODO(Elliot): Maybe something like this is better for downloading
+    # big files? https://gist.github.com/gourneau/1430932 (#24)
     robo_print("Downloading file for further inspection...", LogLevel.VERBOSE)
 
     # Actually download the file.
@@ -1119,8 +1176,8 @@ def inspect_download_url(input_path, args, facts):
         if r_obj is not None:
             filename = r_obj.group(1)
 
-    # If filename was not detected from either the URL or the headers, use a
-    # safe default name.
+    # If filename was not detected from either the URL or the headers,
+    # use a safe default name.
     if filename == "":
         filename = "download"
     facts["download_filename"] = filename
@@ -1142,8 +1199,9 @@ def inspect_download_url(input_path, args, facts):
         facts = inspect_sparkle_feed_url(input_path, args, facts)
         return facts
 
-    # Try to determine the type of file downloaded. (Overwrites any previous
-    # download_type, because the download URL is the most reliable source.)
+    # Try to determine the type of file downloaded. (Overwrites any
+    # previous download_type, because the download URL is the most
+    # reliable source.)
     download_format = ""
     robo_print("Determining download format...", LogLevel.VERBOSE)
     for this_format in all_supported_formats:
@@ -1153,8 +1211,8 @@ def inspect_download_url(input_path, args, facts):
             robo_print("File extension is %s" % this_format, LogLevel.VERBOSE, 4)
             break  # should stop after the first format match
 
-    # If we've already seen the app and the download format, there's no need
-    # to unpack the downloaded file.
+    # If we've already seen the app and the download format, there's no
+    # need to unpack the downloaded file.
     if "download_format" in facts and "app" in facts["inspections"]:
         return facts
 
@@ -1172,7 +1230,8 @@ def inspect_download_url(input_path, args, facts):
     if (facts.get("download_format", "") == "" or download_format == "") or download_format in supported_archive_formats:
         facts = inspect_archive(os.path.join(cache_dir, filename), args, facts)
 
-    # Inspect the installer (or test to see whether the download is one).
+    # Inspect the installer (or test to see whether the download is
+    # one).
     if download_format in supported_install_formats:
 
         robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
@@ -1190,16 +1249,26 @@ def inspect_download_url(input_path, args, facts):
 
 
 def inspect_archive(input_path, args, facts):
-    """Process an archive, gathering required information to create a recipe.
-    """
+    """Process an archive
 
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
+    """
     # Only proceed if we haven't inspected this pkg yet.
     if "archive" in facts["inspections"]:
         return facts
     else:
         facts["inspections"].append("archive")
 
-    # Unzip the zip and look for an app. (If this fails, we try tgz next.)
+    # Unzip the zip and look for an app. (If this fails, we try tgz
+    # next.)
     archive_cmds = ({
         "format": "zip",
         "cmd": "/usr/bin/unzip \"%s\" -d \"%s\"" % (input_path, os.path.join(cache_dir, "unpacked"))
@@ -1211,7 +1280,8 @@ def inspect_archive(input_path, args, facts):
         exitcode, out, err = get_exitcode_stdout_stderr(this_format["cmd"])
         if exitcode == 0:
 
-            # Confirmed; the download was a disk image. Make a note of that.
+            # Confirmed; the download was a disk image. Make a note of
+            # that.
             robo_print("Successfully unarchived %s" % this_format["format"], LogLevel.VERBOSE, 4)
             facts["download_format"] = this_format["format"]
 
@@ -1222,7 +1292,8 @@ def inspect_archive(input_path, args, facts):
             # Locate and inspect any enclosed apps or pkgs.
             for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
                 if this_file.endswith(".app"):
-                    # TODO(Elliot): What if .app isn't on root of zip? (#26)
+                    # TODO(Elliot): What if .app isn't on root of zip?
+                    # (#26)
                     # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
                     facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
                     break
@@ -1237,9 +1308,18 @@ def inspect_archive(input_path, args, facts):
 
 
 def inspect_disk_image(input_path, args, facts):
-    """Process an image, gathering required information to create a recipe.
-    """
+    """Process an image
 
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
+    """
     # Only proceed if we haven't inspected this pkg yet.
     if "disk_image" in facts["inspections"]:
         return facts
@@ -1277,7 +1357,8 @@ def inspect_disk_image(input_path, args, facts):
         if not facts.get("download_filename", input_path).endswith(supported_image_formats):
             facts["download_filename"] = facts.get("download_filename", input_path) + ".dmg"
 
-        # Clean the output for cases where the dmg has a license agreement.
+        # Clean the output for cases where the dmg has a license
+        # agreement.
         out_clean = out[out.find("<?xml"):]
 
         # Locate and inspect the app.
@@ -1317,11 +1398,20 @@ def inspect_disk_image(input_path, args, facts):
 
     return facts
 
-
+# TODO (Shea): This has too many levels of abstraction.
 def inspect_pkg(input_path, args, facts):
-    """Process a package, gathering required information to create a recipe.
-    """
+    """Process a package
 
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
+    """
     # Only proceed if we haven't inspected this pkg yet.
     if "pkg" in facts["inspections"]:
         return facts
@@ -1353,7 +1443,8 @@ def inspect_pkg(input_path, args, facts):
             else:
                 robo_print("Developer is unknown", LogLevel.VERBOSE, 4)
 
-        # Get code signature verification authority names from pkg signature.
+        # Get code signature verification authority names from pkg
+        # signature.
         if len(facts["codesign_authorities"]) == 0:
             codesign_authorities = []
             robo_print("Getting package signature authority names...", LogLevel.VERBOSE)
@@ -1410,8 +1501,8 @@ def inspect_pkg(input_path, args, facts):
                     continue  # TODO(Elliot): Or should we stop after the first? (#27)
 
                 if filename == "Payload":
-                    # We found a payload. Let's peek inside and see if there's an
-                    # app.
+                    # We found a payload. Let's peek inside and see if
+                    # there's an app.
                     robo_print("Extracting the package payload to see if we "
                                "can find an app...", LogLevel.VERBOSE)
                     app_found = False
@@ -1482,19 +1573,30 @@ def inspect_pkg(input_path, args, facts):
 
 
 def inspect_app(input_path, args, facts):
-    """Process an app, gathering required information to create a recipe.
-    """
+    """Process an app
 
+    Gather information required to create a recipe.
+
+    Args:
+        input_path:
+        args:
+        facts:
+
+    Returns:
+        facts
+    """
     # Only proceed if we haven't inspected this app yet.
     if "app" in facts["inspections"]:
         return facts
     else:
         facts["inspections"].append("app")
 
-    # Save the path of the app. (Used when overriding AppStoreApp recipes.)
+    # Save the path of the app. (Used when overriding AppStoreApp
+    # recipes.)
     facts["app_path"] = input_path
 
-    # Record this app as a blocking application (for munki recipe based on pkg).
+    # Record this app as a blocking application (for munki recipe based
+    # on pkg).
     facts["blocking_applications"].append(os.path.basename(input_path))
 
     # Read the app's Info.plist.
@@ -1505,11 +1607,12 @@ def inspect_app(input_path, args, facts):
     except Exception:
         robo_print("%s doesn't look like a valid app to me." % input_path, LogLevel.ERROR)
 
-    # Get the filename of the app (which is usually the same as the app name.)
+    # Get the filename of the app (which is usually the same as the app
+    # name.)
     app_file = os.path.basename(input_path)[:-4]
 
-    # Determine the name of the app. (Overwrites any previous app_name, because
-    # the app Info.plist itself is the most reliable source.)
+    # Determine the name of the app. (Overwrites any previous app_name,
+    # because the app Info.plist itself is the most reliable source.)
     app_name = ""
     robo_print("Getting app name...", LogLevel.VERBOSE)
     if "CFBundleName" in info_plist:
@@ -1521,15 +1624,17 @@ def inspect_app(input_path, args, facts):
     robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
     facts["app_name"] = app_name
 
-    # If the app's filename is different than the app's name, we need to make
-    # a note of that. Many recipes require another input variable for this.
+    # If the app's filename is different than the app's name, we need to
+    # make a note of that. Many recipes require another input variable
+    # for this.
     if app_name != app_file:
         robo_print("App name differs from the actual app filename.", LogLevel.VERBOSE)
         robo_print("Actual app filename: %s.app" % app_file, LogLevel.VERBOSE, 4)
         facts["app_file"] = app_file
 
-    # Determine the bundle identifier of the app. (Overwrites any previous
-    # bundle_id, because the app itself is the most reliable source.)
+    # Determine the bundle identifier of the app. (Overwrites any
+    # previous bundle_id, because the app itself is the most reliable
+    # source.)
     bundle_id = ""
     robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
     if "CFBundleIdentifier" in info_plist:
@@ -1583,13 +1688,15 @@ def inspect_app(input_path, args, facts):
                             # CFBundleVersion is strict. Use it.
                             version_key = "CFBundleVersion"
                     except ValueError:
-                        # Neither are strict versions. Are they integers?
+                        # Neither are strict versions. Are they
+                        # integers?
                         if info_plist["CFBundleShortVersionString"].isdigit():
                             version_key = "CFBundleShortVersionString"
                         elif info_plist["CFBundleVersion"].isdigit():
                             version_key = "CFBundleVersion"
                         else:
-                            # CFBundleShortVersionString wins by default.
+                            # CFBundleShortVersionString wins by
+                            # default.
                             version_key = "CFBundleShortVersionString"
             else:
                 version_key = "CFBundleShortVersionString"
@@ -1658,7 +1765,8 @@ def inspect_app(input_path, args, facts):
                     codesign_version = line[len(vers_marker):len(vers_marker) + 1]
                     if codesign_version == "1":
                         robo_print("This app uses an obsolete code signature.", LogLevel.WARNING)
-                        # Clear code signature markers, treat app as unsigned.
+                        # Clear code signature markers, treat app as
+                        # unsigned.
                         codesign_reqs = ""
                         codesign_authorities = []
                         break
@@ -1680,11 +1788,12 @@ def create_existing_recipe_list(app_name, recipes, args):
     """Use autopkg search results to build existing recipe list.
 
     Args:
-        app_name: The name of the app for which we're searching for recipes.
-        recipes: The list of known recipe types, created by init_recipes().
+        app_name: The name of the app for which we're searching for
+            recipes.
+        recipes: The list of known recipe types, created by
+            init_recipes().
         args: The command line arguments.
     """
-
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
 
     # If --ignore-existing is specified, no need to search at all.
@@ -1718,13 +1827,14 @@ def create_existing_recipe_list(app_name, recipes, args):
         out = out.split("\n")
         if exitcode == 0:
             # TODO(Elliot): There's probably a more efficient way to do this.
-            # For each recipe type, see if it exists in the search results.
+            # For each recipe type, see if it exists in the search
+            # results.
             is_existing = False
             for recipe in recipes:
                 recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
                 for line in out:
                     if line.lower().startswith(recipe_name.lower()):
-                        # Set to False by default. If found, set to True.
+                        # Set to False by default. If found, set True.
                         recipe["existing"] = True
                         robo_print("Found existing %s" % recipe_name, LogLevel.LOG, 4)
                         is_existing = True
@@ -1759,7 +1869,8 @@ def congratulate(prefs):
     """Display a friendly congratulatory message upon creating recipes.
 
     Args:
-        prefs: A dictionary containing a key/value pair for each preference.
+        prefs: A dictionary containing a key/value pair for each
+            preference.
     """
     congrats_msg = (
         "Amazing.",
@@ -1807,7 +1918,8 @@ def main():
         argparser = build_argument_parser()
         args = argparser.parse_args()
 
-        # If no input path nor --config arg was specified, print help and exit.
+        # If no input path nor --config arg was specified, print help
+        # and exit.
         if not args.input_path and not args.config:
             argparser.print_help()
             sys.exit(0)
@@ -1843,7 +1955,8 @@ def main():
         if "http" not in input_path:
             input_path = input_path.rstrip("/ ")
 
-        # Collect facts from the input path, based on the type of path given.
+        # Collect facts from the input path, based on the type of path
+        # given.
         facts = {}
         create_dest_dirs(cache_dir)
         robo_print("Processing %s ..." % input_path)
@@ -1882,7 +1995,8 @@ def main():
         if os.path.exists(cache_dir) and args.keep_cache is not True:
             shutil.rmtree(cache_dir)
 
-    # If killed, make sure to reset the terminal color with our dying breath.
+    # If killed, make sure to reset the terminal color with our dying
+    # breath.
     except (KeyboardInterrupt, SystemExit):
         recipe_robot_lib.tools.reset_term_colors()
 
