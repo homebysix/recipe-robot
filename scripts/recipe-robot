@@ -82,7 +82,7 @@ except ImportError:
 # Global variables.
 PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
-cache_dir = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
+CACHE_DIR = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
                          datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
 
 # Build the list of download formats we know about.
@@ -1193,19 +1193,19 @@ def inspect_download_url(input_path, args, facts):
     facts["download_filename"] = filename
 
     # Write the downloaded file to the cache folder.
-    with open(os.path.join(cache_dir, filename), "wb") as download_file:
+    with open(os.path.join(CACHE_DIR, filename), "wb") as download_file:
         download_file.write(raw_download.read())
-        robo_print("Downloaded to %s" % os.path.join(cache_dir, filename), LogLevel.VERBOSE, 4)
+        robo_print("Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4)
 
     # Just in case the "download" was actually a Sparkle feed.
     hidden_sparkle = False
-    with open(os.path.join(cache_dir, filename), "r") as download_file:
+    with open(os.path.join(CACHE_DIR, filename), "r") as download_file:
         if download_file.read()[:6] == "<?xml ":
             robo_print("This download is actually a Sparkle "
                        "feed", LogLevel.VERBOSE, 4)
             hidden_sparkle = True
     if hidden_sparkle is True:
-        os.remove(os.path.join(cache_dir, filename))
+        os.remove(os.path.join(CACHE_DIR, filename))
         facts = inspect_sparkle_feed_url(input_path, args, facts)
         return facts
 
@@ -1234,11 +1234,11 @@ def inspect_download_url(input_path, args, facts):
 
     # Open the disk image (or test to see whether the download is one).
     if (facts.get("download_format", "") == "" or download_format == "") or download_format in SUPPORTED_IMAGE_FORMATS:
-        facts = inspect_disk_image(os.path.join(cache_dir, filename), args, facts)
+        facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
 
     # Open the zip archive (or test to see whether the download is one).
     if (facts.get("download_format", "") == "" or download_format == "") or download_format in SUPPORTED_ARCHIVE_FORMATS:
-        facts = inspect_archive(os.path.join(cache_dir, filename), args, facts)
+        facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
 
     # Inspect the installer (or test to see whether the download is
     # one).
@@ -1248,7 +1248,7 @@ def inspect_download_url(input_path, args, facts):
         facts["download_format"] = download_format
 
         # Inspect the package.
-        facts = inspect_pkg(os.path.join(cache_dir, filename), args, facts)
+        facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
 
     if facts.get("download_format", "") == "":
         robo_print("I've investigated pretty thoroughly, and I'm still not "
@@ -1284,10 +1284,10 @@ def inspect_archive(input_path, args, facts):
     # next.)
     archive_cmds = ({
         "format": "zip",
-        "cmd": "/usr/bin/unzip \"%s\" -d \"%s\"" % (input_path, os.path.join(cache_dir, "unpacked"))
+        "cmd": "/usr/bin/unzip \"%s\" -d \"%s\"" % (input_path, os.path.join(CACHE_DIR, "unpacked"))
     },{
         "format": "tgz",
-        "cmd": "/usr/bin/tar -zxvf \"%s\" -C \"%s\"" % (input_path, os.path.join(cache_dir, "unpacked"))
+        "cmd": "/usr/bin/tar -zxvf \"%s\" -C \"%s\"" % (input_path, os.path.join(CACHE_DIR, "unpacked"))
     })
     for this_format in archive_cmds:
         exitcode, out, err = get_exitcode_stdout_stderr(this_format["cmd"])
@@ -1303,15 +1303,15 @@ def inspect_archive(input_path, args, facts):
                 facts["download_filename"] = "%s.%s" % (facts.get("download_filename", os.path.basename(input_path)), this_format["format"])
 
             # Locate and inspect any enclosed apps or pkgs.
-            for this_file in os.listdir(os.path.join(cache_dir, "unpacked")):
+            for this_file in os.listdir(os.path.join(CACHE_DIR, "unpacked")):
                 if this_file.endswith(".app"):
                     # TODO(Elliot): What if .app isn't on root of zip?
                     # (#26)
                     # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
-                    facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
+                    facts = inspect_app(os.path.join(CACHE_DIR, "unpacked", this_file), args, facts)
                     break
                 if this_file.endswith(SUPPORTED_INSTALL_FORMATS):
-                    facts = inspect_pkg(os.path.join(cache_dir, "unpacked", this_file), args, facts)
+                    facts = inspect_pkg(os.path.join(CACHE_DIR, "unpacked", this_file), args, facts)
                     break
 
             return facts
@@ -1348,10 +1348,10 @@ def inspect_disk_image(input_path, args, facts):
     cmd = "/usr/bin/hdiutil imageinfo -plist \"%s\"" % input_path
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-        with open(os.path.join(cache_dir, "dmg_info.plist"), "wb") as dmg_plist:
+        with open(os.path.join(CACHE_DIR, "dmg_info.plist"), "wb") as dmg_plist:
             dmg_plist.write(out)
         try:
-            dmg_info = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_info.plist"))
+            dmg_info = FoundationPlist.readPlist(os.path.join(CACHE_DIR, "dmg_info.plist"))
             if dmg_info.get("Properties").get("Software License Agreement") == True:
                 dmg_has_sla = True
         except FoundationPlist.NSPropertyListSerializationException:
@@ -1378,10 +1378,10 @@ def inspect_disk_image(input_path, args, facts):
         out_clean = out[out.find("<?xml"):]
 
         # Locate and inspect the app.
-        with open(os.path.join(cache_dir, "dmg_attach.plist"), "wb") as dmg_plist:
+        with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), "wb") as dmg_plist:
             dmg_plist.write(out_clean)
         try:
-            dmg_dict = FoundationPlist.readPlist(os.path.join(cache_dir, "dmg_attach.plist"))
+            dmg_dict = FoundationPlist.readPlist(os.path.join(CACHE_DIR, "dmg_attach.plist"))
         except Exception:
             robo_print("Shoot, I had trouble parsing the output of "
                        "hdiutil while mounting the downloaded dmg. Sorry "
@@ -1395,7 +1395,7 @@ def inspect_disk_image(input_path, args, facts):
                 # Copy app to cache folder.
                 # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
                 attached_app_path = os.path.join(dmg_mount, this_file)
-                cached_app_path = os.path.join(cache_dir, "unpacked", this_file)
+                cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
                 if not os.path.exists(cached_app_path):
                     try:
                         shutil.copytree(attached_app_path, cached_app_path)
@@ -1482,16 +1482,16 @@ def inspect_pkg(input_path, args, facts):
 
     # Expand the flat package and look for more facts.
     robo_print("Expanding package to look for clues...", LogLevel.VERBOSE)
-    expand_path = os.path.join(cache_dir, "expanded")
+    expand_path = os.path.join(CACHE_DIR, "expanded")
     if os.path.exists(expand_path):
         shutil.rmtree(expand_path)
     cmd = "/usr/sbin/pkgutil --expand \"%s\" \"%s\"" % (input_path, expand_path)
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
         # Locate and inspect the app.
-        robo_print("Package expanded to: %s" % os.path.join(cache_dir, "expanded"), LogLevel.VERBOSE, 4)
+        robo_print("Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"), LogLevel.VERBOSE, 4)
         install_filename = ""
-        for dirpath, dirnames, filenames in os.walk("%s" % os.path.join(cache_dir, "expanded")):
+        for dirpath, dirnames, filenames in os.walk("%s" % os.path.join(CACHE_DIR, "expanded")):
             for dirname in dirnames:
                 if dirname.startswith("."):
                     dirnames.remove(dirname)
@@ -1499,7 +1499,7 @@ def inspect_pkg(input_path, args, facts):
 
                 if filename == "PackageInfo":
                     robo_print("Getting information from PackageInfo file...", LogLevel.VERBOSE)
-                    pkginfo_file = open(os.path.join(cache_dir, "expanded", dirpath, filename), "r")
+                    pkginfo_file = open(os.path.join(CACHE_DIR, "expanded", dirpath, filename), "r")
                     pkginfo_parsed = parse(pkginfo_file)
 
                     bundle_id = ""
@@ -1525,9 +1525,9 @@ def inspect_pkg(input_path, args, facts):
                     robo_print("Extracting the package payload to see if we "
                                "can find an app...", LogLevel.VERBOSE)
                     app_found = False
-                    payload_path = os.path.join(cache_dir, "expanded", dirpath, filename)
+                    payload_path = os.path.join(CACHE_DIR, "expanded", dirpath, filename)
                     if install_filename.endswith(".app"):
-                        extracted_app_path = os.path.join(cache_dir, "extracted_apps", install_filename)
+                        extracted_app_path = os.path.join(CACHE_DIR, "extracted_apps", install_filename)
                         if os.path.exists(extracted_app_path):
                             shutil.rmtree(extracted_app_path)
                         cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",./,%s/,\"" % (payload_path, extracted_app_path)
@@ -1554,8 +1554,8 @@ def inspect_pkg(input_path, args, facts):
                                     if ".app/Contents/" not in line:
                                         app_found = True
                                         robo_print("Found app: %s" % line, LogLevel.VERBOSE, 4)
-                                        extracted_app_path = os.path.join(cache_dir, "extracted_apps", os.path.split(line)[1])
-                                        cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",%s,%s,\"" % (os.path.join(cache_dir, "expanded", filename), line, extracted_app_path)
+                                        extracted_app_path = os.path.join(CACHE_DIR, "extracted_apps", os.path.split(line)[1])
+                                        cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",%s,%s,\"" % (os.path.join(CACHE_DIR, "expanded", filename), line, extracted_app_path)
                                         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                                         if exitcode == 0:
                                             facts = inspect_app(extracted_app_path, args, facts)
@@ -1931,7 +1931,6 @@ def handle_preferences_and_build_facts_and_generate_recipes(args):
     prefs = {}
     prefs = init_prefs(prefs, recipes, args)
 
-    # TODO (Shea): This should be handled by argparser setup.
     # If --config was specified without an input path, stop here.
     if not args.input_path:
         sys.exit(0)
@@ -1951,7 +1950,7 @@ def handle_preferences_and_build_facts_and_generate_recipes(args):
         "recipes": [],
         "icons": [],}
 
-    create_dest_dirs(cache_dir)
+    create_dest_dirs(CACHE_DIR)
     robo_print("Processing %s ..." % input_path)
     process_input_path(input_path, args, facts)
 
@@ -1984,7 +1983,6 @@ def configure_from_args(args):
     """Perform validation and reporting on args."""
     # If no input path nor --config arg was specified, print help
     # and exit.
-    # TODO (Shea): This can be handled through argparser setup.
     if not args.input_path and not args.config:
         argparser.print_help()
         sys.exit(0)
@@ -2037,8 +2035,8 @@ def main():
         # Make sure to reset the terminal color.
         recipe_robot_lib.tools.reset_term_colors()
         # Clean up cache folder.
-        if os.path.exists(cache_dir) and args.keep_cache is not True:
-            shutil.rmtree(cache_dir)
+        if os.path.exists(CACHE_DIR) and args.keep_cache is not True:
+            shutil.rmtree(CACHE_DIR)
 
     # Save a report for the Mac app to read.
     if facts:

@@ -38,9 +38,8 @@ except ImportError:
 
 
 # Global variables.
-prefs_file = os.path.expanduser(
+PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
-cache_dir = os.path.expanduser("~/Library/Caches/Recipe Robot")
 
 # Build the list of download formats we know about.
 supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
@@ -199,7 +198,7 @@ def generate_recipes(facts, prefs, recipes):
             facts["recipes"].append(dest_path)
 
     # Save preferences to disk for next time.
-    FoundationPlist.writePlist(prefs, prefs_file)
+    FoundationPlist.writePlist(prefs, PREFS_FILE)
 
 
 def generate_download_recipe(facts, prefs, recipe):
