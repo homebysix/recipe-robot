@@ -28,6 +28,7 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 from datetime import datetime
 from functools import wraps
 import os
+import re
 import shlex
 from subprocess import Popen, PIPE
 import sys
@@ -82,7 +83,11 @@ class OutputMode(object):
 
 
 def timed(func):
-    """Decorator for timing a function."""
+    """Decorator for timing a function.
+
+    Modifies func to return a tuple of:
+        (execution time, original func's return value)
+    """
     @wraps(func)
     def run_func(*args, **kwargs):
         """Time a function."""
@@ -122,7 +127,7 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0, report=None):
         if report:
             report.errors.append(message)
             write_report(report, os.path.join("/tmp", "report.plist"))
-        sys.exit(1)
+        # sys.exit(1)
     elif log_level is LogLevel.REMINDER:
         print_func(line)
         # TODO (Shea): This is problematic. robo_print should only be printing.
@@ -274,3 +279,69 @@ def write_report(report, report_file):
 def any_item_in_string(items, test_string):
     """Return true if any item in items is in test_string"""
     return any([True for item in items if item in test_string])
+
+
+def create_existing_recipe_list(app_name, recipes, use_github_token):
+    """Use autopkg search results to build existing recipe list.
+
+    Args:
+        app_name: The name of the app for which we're searching for
+            recipes.
+        recipes: The list of known recipe types, created by
+            init_recipes().
+        args: The command line arguments.
+    """
+    # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
+    recipe_searches = []
+    recipe_searches.append(app_name)
+
+    app_name_no_space = "".join(app_name.split())
+    if app_name_no_space != app_name:
+        recipe_searches.append(app_name_no_space)
+
+    app_name_no_symbol = re.sub(r'[^\w]', '', app_name)
+    if app_name_no_symbol not in (app_name, app_name_no_space):
+        recipe_searches.append(app_name_no_symbol)
+
+    for this_search in recipe_searches:
+        robo_print("Searching for existing AutoPkg recipes for \"%s\"..." % this_search, LogLevel.VERBOSE)
+        if use_github_token:
+            if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
+                robo_print("I couldn't find a GitHub token to use.", LogLevel.WARNING)
+                cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
+            else:
+                # TODO(Elliot): Learn how to use the GitHub token. (#18) https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
+                robo_print("I found a GitHub token, but I'm still learning how to use it.", LogLevel.WARNING)
+                cmd = "/usr/local/bin/autopkg search --path-only --use-token \"%s\"" % this_search
+        else:
+            cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        out = out.split("\n")
+        if exitcode == 0:
+            # TODO(Elliot): There's probably a more efficient way to do this.
+            # For each recipe type, see if it exists in the search
+            # results.
+            is_existing = False
+            for recipe in recipes:
+                recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
+                for line in out:
+                    if line.lower().startswith(recipe_name.lower()):
+                        # Set to False by default. If found, set True.
+                        recipe["existing"] = True
+                        robo_print("Found existing %s" % recipe_name, LogLevel.LOG, 4)
+                        is_existing = True
+                        break
+            if is_existing is True:
+                robo_print("Sorry, AutoPkg recipes already exist for this "
+                           "app, and I can't blend new recipes with existing "
+                           "recipes. Here are my suggestions:"
+                           "\n    - See if one of the above recipes meets "
+                           "your needs, either as-is or using an override."
+                           "\n    - Write your own recipe using one of the "
+                           "above as the ParentRecipe."
+                           "\n    - Or if you must, write your own recipe "
+                           "from scratch.", LogLevel.ERROR)
+            if not is_existing:
+                robo_print("No results", LogLevel.VERBOSE, 4)
+        else:
+            robo_print(err, LogLevel.ERROR)

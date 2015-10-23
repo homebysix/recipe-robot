@@ -26,7 +26,12 @@ create autopkg recipes for the specified app.
 
 
 import os
-from .tools import create_dest_dirs, create_SourceForgeURLProvider, extract_app_icon, robo_print, LogLevel, __version__, get_exitcode_stdout_stderr
+
+from .exceptions import RoboException
+from .tools import (create_dest_dirs, create_existing_recipe_list,
+                    create_SourceForgeURLProvider, extract_app_icon,
+                    robo_print, LogLevel, __version__,
+                    get_exitcode_stdout_stderr, timed)
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
@@ -49,6 +54,7 @@ all_supported_formats = (supported_image_formats + supported_archive_formats +
                          supported_install_formats)
 
 
+@timed
 def generate_recipes(facts, prefs, recipes):
     """Generate the selected types of recipes.
 
@@ -58,6 +64,15 @@ def generate_recipes(facts, prefs, recipes):
         prefs: The dictionary containing a key/value pair for each preference.
         recipes: The list of known recipe types, created by init_recipes().
     """
+    if "app_name" in facts:
+        if not facts["args"].ignore_existing:
+            create_existing_recipe_list(facts["app_name"], recipes,
+                                        facts["args"].github_token)
+    else:
+        robo_print("I wasn't able to determine the name of this app, "
+                    "so I can't make any recipes.", LogLevel.ERROR)
+        raise RoboException
+
     preferred = [recipe for recipe in recipes if recipe["preferred"]]
 
     # No recipe types are preferred.

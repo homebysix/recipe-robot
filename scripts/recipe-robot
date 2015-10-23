@@ -63,11 +63,13 @@ import random
 import re
 import shutil
 import sys
+import traceback
 from urllib2 import urlopen, build_opener, URLError, HTTPError
 from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
 
 import recipe_robot_lib
+from recipe_robot_lib.exceptions import RoboException
 from recipe_robot_lib.tools import (any_item_in_string, create_dest_dirs,
                                     get_exitcode_stdout_stderr, robo_print,
                                     LogLevel, OutputMode, print_welcome_text,
@@ -332,7 +334,7 @@ def build_prefs(prefs, recipes):
     return prefs
 
 
-def process_input_path(args, facts):
+def process_input_path(facts):
     """Determine which functions to call based on type of input path.
 
     Args:
@@ -341,6 +343,7 @@ def process_input_path(args, facts):
             information we know so far about the app associated with the
             input path.
     """
+    args = facts["args"]
     # If --config was specified without an input path, stop here.
     if not args.input_path:
         sys.exit(0)
@@ -1800,77 +1803,6 @@ def inspect_app(input_path, args, facts):
     return facts
 
 
-def create_existing_recipe_list(app_name, recipes, args):
-    """Use autopkg search results to build existing recipe list.
-
-    Args:
-        app_name: The name of the app for which we're searching for
-            recipes.
-        recipes: The list of known recipe types, created by
-            init_recipes().
-        args: The command line arguments.
-    """
-    # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
-
-    # If --ignore-existing is specified, no need to search at all.
-    if args.ignore_existing is True:
-        return
-
-    recipe_searches = []
-    recipe_searches.append(app_name)
-
-    app_name_no_space = "".join(app_name.split())
-    if app_name_no_space != app_name:
-        recipe_searches.append(app_name_no_space)
-
-    app_name_no_symbol = re.sub(r'[^\w]', '', app_name)
-    if app_name_no_symbol != app_name and app_name_no_symbol != app_name_no_space:
-        recipe_searches.append(app_name_no_symbol)
-
-    for this_search in recipe_searches:
-        robo_print("Searching for existing AutoPkg recipes for \"%s\"..." % this_search, LogLevel.VERBOSE)
-        if args.github_token is True:
-            if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
-                robo_print("I couldn't find a GitHub token to use.", LogLevel.WARNING)
-                cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
-            else:
-                # TODO(Elliot): Learn how to use the GitHub token. (#18) https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
-                robo_print("I found a GitHub token, but I'm still learning how to use it.", LogLevel.WARNING)
-                cmd = "/usr/local/bin/autopkg search --path-only --use-token \"%s\"" % this_search
-        else:
-            cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        out = out.split("\n")
-        if exitcode == 0:
-            # TODO(Elliot): There's probably a more efficient way to do this.
-            # For each recipe type, see if it exists in the search
-            # results.
-            is_existing = False
-            for recipe in recipes:
-                recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
-                for line in out:
-                    if line.lower().startswith(recipe_name.lower()):
-                        # Set to False by default. If found, set True.
-                        recipe["existing"] = True
-                        robo_print("Found existing %s" % recipe_name, LogLevel.LOG, 4)
-                        is_existing = True
-                        break
-            if is_existing is True:
-                robo_print("Sorry, AutoPkg recipes already exist for this "
-                           "app, and I can't blend new recipes with existing "
-                           "recipes. Here are my suggestions:"
-                           "\n    - See if one of the above recipes meets "
-                           "your needs, either as-is or using an override."
-                           "\n    - Write your own recipe using one of the "
-                           "above as the ParentRecipe."
-                           "\n    - Or if you must, write your own recipe "
-                           "from scratch.", LogLevel.ERROR)
-            if not is_existing:
-                robo_print("No results", LogLevel.VERBOSE, 4)
-        else:
-            robo_print(err, LogLevel.ERROR)
-
-
 def debug_dump(items):
     """Dump all the variables we know about to output.
 
@@ -1912,49 +1844,6 @@ def congratulate(prefs):
         robo_print("\nYou've now created %s recipes with Recipe Robot. "
                    "%s\n" % (prefs["RecipeCreateCount"],
                              random.choice(congrats_msg)))
-
-
-#TODO (Shea): Refactor this.
-@timed
-def handle_preferences_and_build_facts_and_generate_recipes(args):
-    """This function does too much, and is slated to be refactored."""
-    # Create the master recipe information list.
-    recipes = init_recipes()
-
-    create_dest_dirs(CACHE_DIR)
-
-    # Read or create the user preferences.
-    prefs = init_prefs(recipes, args)
-
-    facts = build_facts()
-
-    # Collect facts from the input path, based on the type of path
-    # given.
-    process_input_path(args, facts)
-
-    # Look up existing recipes. (App name is required to proceed.)
-    if "app_name" in facts:
-        create_existing_recipe_list(facts["app_name"], recipes, args)
-    else:
-        robo_print("I wasn't able to determine the name of this app, "
-                    "so I can't make any recipes.", LogLevel.ERROR)
-
-    # Create recipes for the recipe types that were selected above.
-    recipe_robot_lib.generate_recipes(facts, prefs, recipes)
-
-    # If debug is on, print all the things.
-    if OutputMode.debug_mode is True:
-        debug_dump({
-            "Command line arguments": args,
-            "Supported file formats": ALL_SUPPORTED_FORMATS,
-            "Preferences for this session": prefs,
-            "Recipe information": recipes,
-            "Facts we have collected": facts
-        })
-
-    # Pat on the back!
-    congratulate(prefs)
-    return facts
 
 
 def build_facts():
@@ -2000,22 +1889,48 @@ def main():
     # Parse command line arguments.
     argparser = build_argument_parser()
     args = argparser.parse_args()
-
     configure_from_args(args)
 
-    facts = None
+    create_dest_dirs(CACHE_DIR)
+
+    facts = build_facts()
+    facts["args"] = args
+
+    # Create the master recipe information list.
+    recipes = init_recipes()
+
+    # Read or create the user preferences.
+    prefs = init_prefs(recipes, facts["args"])
+
+    # Collect facts from the input path, based on the type of path
+    # given.
+    process_input_path(facts)
+
     try:
-        time, facts = handle_preferences_and_build_facts_and_generate_recipes(args)
+        time, _ = recipe_robot_lib.generate_recipes(facts, prefs, recipes)
         facts["execution_time"] = time
+        # Pat on the back!
+        congratulate(prefs)
     except KeyboardInterrupt:
         robo_print("\nAborting Recipe Robot!")
-    # except Exception as error:
-    #     # TODO (Shea): Test for more appropriate exceptions (May need to create
-    #     # one).
-    #     robo_print(
-    #         "Recipe Robot exploded with error: {}".format(error.message),
-    #         LogLevel.ERROR)
-
+    except RoboException as error:
+        robo_print(
+            "Recipe Robot exploded with error: {}".format(error.message),
+            LogLevel.ERROR)
+        if args.verbose:
+            for line in traceback.format_exc(error).splitlines():
+                print line
+        else:
+            robo_print("Run with -v/--verbose for more info.", LogLevel.ERROR)
+    except Exception as error:
+        robo_print(
+            "Recipe Robot exploded with unexpected error: %s" % error.message,
+            LogLevel.ERROR)
+        if args.verbose:
+            for line in traceback.format_exc(error).splitlines():
+                print line
+        else:
+            robo_print("Run with -v/--verbose for more info.", LogLevel.ERROR)
     finally:
         # Cleanup tasks.
 
@@ -2025,8 +1940,20 @@ def main():
         if os.path.exists(CACHE_DIR) and args.keep_cache is not True:
             shutil.rmtree(CACHE_DIR)
 
+    # If debug is on, print all the things.
+    if OutputMode.debug_mode is True:
+        debug_dump({
+            "Command line arguments": facts["args"],
+            "Supported file formats": ALL_SUPPORTED_FORMATS,
+            "Preferences for this session": prefs,
+            "Recipe information": recipes,
+            "Facts we have collected": facts})
+
     # Save a report for the Mac app to read.
     if facts:
+        # Plistlib can't serialize a Namespace object, so convert args
+        # to a dict.
+        facts["args"] = vars(facts["args"])
         write_report(facts, os.path.join("/tmp", "report.plist"))
 
 
