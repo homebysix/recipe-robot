@@ -167,7 +167,8 @@ def _get_recipe_dict(type, description):
     return {"type": type, "description": description, "preferred": True,
             "existing": False}
 
-def init_prefs(prefs, recipes, args):
+
+def init_prefs(recipes, args):
     """Read Recipe Robot preferences.
 
     Preferences are handled in the following priority order:
@@ -176,9 +177,6 @@ def init_prefs(prefs, recipes, args):
         4. If preferences plist does exist, use it.
 
     Args:
-        prefs: A dictionary containing a key/value pair for each
-            preference.  When this function is called for the first
-            time, the prefs dict is typically empty.
         recipes: The list of known recipe types, created by
             init_recipes().
         args: The command line arguments.
@@ -1926,8 +1924,7 @@ def handle_preferences_and_build_facts_and_generate_recipes(args):
     recipes = init_recipes()
 
     # Read or create the user preferences.
-    prefs = {}
-    prefs = init_prefs(prefs, recipes, args)
+    prefs = init_prefs(recipes, args)
 
 
     # Collect facts from the input path, based on the type of path
