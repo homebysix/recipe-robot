@@ -1929,11 +1929,6 @@ def congratulate(prefs):
 @timed
 def handle_preferences_and_build_facts_and_generate_recipes(args):
     """This function does too much, and is slated to be refactored."""
-    # TODO: With a finally in place, this should NEVER get executed. Remove.
-    # Reset terminal colors, in case the last run aborted uncleanly.
-    recipe_robot_lib.tools.reset_term_colors()
-
-
     # Create the master recipe information list.
     recipes = init_recipes()
 
