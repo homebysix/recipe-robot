@@ -269,3 +269,8 @@ def reset_term_colors():
 
 def write_report(report, report_file):
     FoundationPlist.writePlist(report, report_file)
+
+
+def any_item_in_string(items, test_string):
+    """Return true if any item in items is in test_string"""
+    return any([True for item in items if item in test_string])

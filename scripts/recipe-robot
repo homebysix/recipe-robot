@@ -68,7 +68,7 @@ from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
 
 import recipe_robot_lib
-from recipe_robot_lib.tools import (create_dest_dirs,
+from recipe_robot_lib.tools import (any_item_in_string, create_dest_dirs,
                                     get_exitcode_stdout_stderr, robo_print,
                                     LogLevel, OutputMode, print_welcome_text,
                                     __version__, write_report, timed)
@@ -355,71 +355,88 @@ def build_prefs(prefs, recipes):
     return prefs
 
 
-def process_input_path(input_path, args, facts):
+def process_input_path(args, facts):
     """Determine which functions to call based on type of input path.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
-            to create recipes.
         args: The command line arguments.
         facts: A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
     """
+    # If --config was specified without an input path, stop here.
+    if not args.input_path:
+        sys.exit(0)
+    # Otherwise, retrieve the input path.
+    input_path = args.input_path
+    robo_print("Processing %s ..." % input_path)
+
+    # Strip trailing slash, but only if input_path is not a URL.
+    if "http" not in input_path:
+        input_path = input_path.rstrip("/ ")
+
+    # Put input_path into our facts for reporting purposes
+    facts["input_path"] = input_path
+
     # Initialize facts that are lists.
     facts["inspections"] = []
     facts["blocking_applications"] = []
     facts["codesign_authorities"] = []
 
+    github_domains = ("github.com", "githubusercontent.com", "github.io")
+
     # Determine what kind of input path we are working with, then
     # inspect it.
+    inspect_func = None
     if input_path.startswith("http"):
-        if (input_path.endswith(".xml") or input_path.endswith(".rss") or input_path.endswith(".php") or "appcast" in input_path):
+        if (input_path.endswith((".xml", ".rss", ".php")) or
+            "appcast" in input_path):
             robo_print("Input path looks like a Sparkle feed.",
                        LogLevel.VERBOSE)
-            facts = inspect_sparkle_feed_url(input_path, args, facts)
-        elif ("github.com" in input_path or
-              "githubusercontent.com" in input_path or
-              "github.io" in input_path):
+            inspect_func = inspect_sparkle_feed_url
+        elif any_item_in_string(github_domains, input_path):
             robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
-            facts = inspect_github_url(input_path, args, facts)
+            inspect_func = inspect_github_url
         elif "sourceforge.net" in input_path:
             robo_print("Input path looks like a SourceForge URL.",
                        LogLevel.VERBOSE)
-            facts = inspect_sourceforge_url(input_path, args, facts)
+            inspect_func = inspect_sourceforge_url
         elif "bitbucket.org" in input_path:
             robo_print("Input path looks like a BitBucket URL.",
                        LogLevel.VERBOSE)
-            facts = inspect_bitbucket_url(input_path, args, facts)
+            inspect_func = inspect_bitbucket_url
         else:
             robo_print("Input path looks like a download URL.",
                        LogLevel.VERBOSE)
-            facts = inspect_download_url(input_path, args, facts)
+            inspect_func = inspect_download_url
     elif input_path.startswith("ftp"):
         robo_print("Input path looks like a download URL.", LogLevel.VERBOSE)
-        facts = inspect_download_url(input_path, args, facts)
+        inspect_func = inspect_download_url
     elif os.path.exists(input_path):
         if input_path.endswith(".app"):
             robo_print("Input path looks like an app.", LogLevel.VERBOSE)
-            facts = inspect_app(input_path, args, facts)
+            inspect_func = inspect_app
         elif input_path.endswith(".recipe"):
             robo_print("Sorry, I can't use existing AutoPkg recipes as "
                        "input.", LogLevel.ERROR)
         elif input_path.endswith(SUPPORTED_INSTALL_FORMATS):
             robo_print("Input path looks like an installer.", LogLevel.VERBOSE)
-            facts = inspect_pkg(input_path, args, facts)
+            inspect_func = inspect_pkg
         elif input_path.endswith(SUPPORTED_IMAGE_FORMATS):
             robo_print("Input path looks like a disk image.", LogLevel.VERBOSE)
-            facts = inspect_disk_image(input_path, args, facts)
+            inspect_func = inspect_disk_image
         elif input_path.endswith(SUPPORTED_ARCHIVE_FORMATS):
             robo_print("Input path looks like an archive.", LogLevel.VERBOSE)
-            facts = inspect_archive(input_path, args, facts)
+            inspect_func = inspect_archive
         else:
             robo_print("I haven't been trained on how to handle this "
                        "input path:\n    %s" % input_path, LogLevel.ERROR)
     else:
         robo_print("Input path does not exist. Please try again with a "
                    "valid input path.", LogLevel.ERROR)
+
+    if inspect_func:
+        facts = inspect_func(input_path, args, facts)
 
 
 def get_app_description(app_name):
@@ -1931,15 +1948,6 @@ def handle_preferences_and_build_facts_and_generate_recipes(args):
     prefs = {}
     prefs = init_prefs(prefs, recipes, args)
 
-    # If --config was specified without an input path, stop here.
-    if not args.input_path:
-        sys.exit(0)
-    # Otherwise, retrieve the input path.
-    input_path = args.input_path
-
-    # Strip trailing slash, but only if input_path is not a URL.
-    if "http" not in input_path:
-        input_path = input_path.rstrip("/ ")
 
     # Collect facts from the input path, based on the type of path
     # given.
@@ -1951,8 +1959,8 @@ def handle_preferences_and_build_facts_and_generate_recipes(args):
         "icons": [],}
 
     create_dest_dirs(CACHE_DIR)
-    robo_print("Processing %s ..." % input_path)
-    process_input_path(input_path, args, facts)
+
+    process_input_path(args, facts)
 
     # Look up existing recipes. (App name is required to proceed.)
     if "app_name" in facts:
@@ -2022,12 +2030,12 @@ def main():
         facts["execution_time"] = time
     except KeyboardInterrupt:
         robo_print("\nAborting Recipe Robot!")
-    except Exception as error:
-        # TODO (Shea): Test for more appropriate exceptions (May need to create
-        # one).
-        robo_print(
-            "Recipe Robot exploded with error: {}".format(error.message),
-            LogLevel.ERROR)
+    # except Exception as error:
+    #     # TODO (Shea): Test for more appropriate exceptions (May need to create
+    #     # one).
+    #     robo_print(
+    #         "Recipe Robot exploded with error: {}".format(error.message),
+    #         LogLevel.ERROR)
 
     finally:
         # Cleanup tasks.
