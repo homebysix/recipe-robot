@@ -146,45 +146,26 @@ def init_recipes():
         A tuple of dicts that describe all the AutoPkg recipe types we
         know about.
     """
-    recipes = ({
-        "type": "download",
-        "description": "Downloads an app in whatever format the developer "
-                       "provides."
-        }, {
-            "type": "munki",
-            "description": "Imports into your Munki repository."
-        }, {
-            "type": "pkg",
-            "description": "Creates a standard pkg installer file."
-        }, {
-            "type": "install",
-            "description": "Installs the app on the computer running AutoPkg."
-        }, {
-            "type": "jss",
-            "description": "Imports into your Casper JSS and creates "
-                           "necessary groups, policies, etc."
-        }, {
-            "type": "absolute",
-            "description": "Imports into your Absolute Manage server."
-        }, {
-            "type": "sccm",
-            "description": "Creates a cmmac package for deploying via "
-                           "Microsoft SCCM."
-        }, {
-            "type": "ds",
-            "description": "Imports into your DeployStudio Packages folder."
-        }, {
-            "type": "filewave",
-            "description": "Imports a fileset into your FileWave server."
-        })
+    recipes_meta = (
+        ("download", "Downloads an app in whatever format the developer "
+        "provides."),
+        ("munki", "Imports into your Munki repository."),
+        ("pkg", "Creates a standard pkg installer file."),
+        ("install", "Installs the app on the computer running AutoPkg."),
+        ("jss", "Imports into your Casper JSS and creates necessary groups, "
+         "policies, etc."),
+        ("absolute", "Imports into your Absolute Manage server."),
+        ("sccm", "Creates a cmmac package for deploying via Microsoft SCCM."),
+        ("ds", "Imports into your DeployStudio Packages folder."),
+        ("filewave", "Imports a fileset into your FileWave server."))
 
-    # Set default values for all recipe types.
-    for recipe in recipes:
-        recipe["preferred"] = True
-        recipe["existing"] = False
+    recipes = tuple([_get_recipe_dict(*recipe) for recipe in recipes_meta])
 
     return recipes
 
+def _get_recipe_dict(type, description):
+    return {"type": type, "description": description, "preferred": True,
+            "existing": False}
 
 def init_prefs(prefs, recipes, args):
     """Read Recipe Robot preferences.
