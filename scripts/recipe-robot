@@ -184,8 +184,6 @@ def init_prefs(recipes, args):
     Returns:
         prefs: A fully populated preference dictionary.
     """
-    prefs = {}
-
     # If prefs file exists, try to read from it.
     if os.path.isfile(PREFS_FILE):
 
@@ -1923,21 +1921,15 @@ def handle_preferences_and_build_facts_and_generate_recipes(args):
     # Create the master recipe information list.
     recipes = init_recipes()
 
+    create_dest_dirs(CACHE_DIR)
+
     # Read or create the user preferences.
     prefs = init_prefs(recipes, args)
 
+    facts = build_facts()
 
     # Collect facts from the input path, based on the type of path
     # given.
-    facts = {
-        "errors": [],
-        "reminders": [],
-        "warnings": [],
-        "recipes": [],
-        "icons": [],}
-
-    create_dest_dirs(CACHE_DIR)
-
     process_input_path(args, facts)
 
     # Look up existing recipes. (App name is required to proceed.)
@@ -1963,6 +1955,15 @@ def handle_preferences_and_build_facts_and_generate_recipes(args):
     # Pat on the back!
     congratulate(prefs)
     return facts
+
+
+def build_facts():
+    """Set up an empty facts dict."""
+    return {"errors": [],
+            "reminders": [],
+            "warnings": [],
+            "recipes": [],
+            "icons": [],}
 
 
 def configure_from_args(args):
