@@ -86,11 +86,11 @@ cache_dir = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
                          datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
 
 # Build the list of download formats we know about.
-supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
-supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
-supported_install_formats = ("pkg",)
-all_supported_formats = (supported_image_formats + supported_archive_formats +
-                         supported_install_formats)
+SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
+SUPPORTED_ARCHIVE_FORMATS = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
+SUPPORTED_INSTALL_FORMATS = ("pkg",)
+ALL_SUPPORTED_FORMATS = (SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS +
+                         SUPPORTED_INSTALL_FORMATS)
 
 
 def build_argument_parser():
@@ -405,13 +405,13 @@ def process_input_path(input_path, args, facts):
         elif input_path.endswith(".recipe"):
             robo_print("Sorry, I can't use existing AutoPkg recipes as "
                        "input.", LogLevel.ERROR)
-        elif input_path.endswith(supported_install_formats):
+        elif input_path.endswith(SUPPORTED_INSTALL_FORMATS):
             robo_print("Input path looks like an installer.", LogLevel.VERBOSE)
             facts = inspect_pkg(input_path, args, facts)
-        elif input_path.endswith(supported_image_formats):
+        elif input_path.endswith(SUPPORTED_IMAGE_FORMATS):
             robo_print("Input path looks like a disk image.", LogLevel.VERBOSE)
             facts = inspect_disk_image(input_path, args, facts)
-        elif input_path.endswith(supported_archive_formats):
+        elif input_path.endswith(SUPPORTED_ARCHIVE_FORMATS):
             robo_print("Input path looks like an archive.", LogLevel.VERBOSE)
             facts = inspect_archive(input_path, args, facts)
         else:
@@ -591,7 +591,7 @@ def inspect_github_url(input_path, args, facts):
                        LogLevel.VERBOSE)
             if "assets" in parsed_release:
                 for asset in parsed_release["assets"]:
-                    for this_format in all_supported_formats:
+                    for this_format in ALL_SUPPORTED_FORMATS:
                         if asset["browser_download_url"].endswith(this_format):
                             download_format = this_format
                             download_url = asset["browser_download_url"]
@@ -920,7 +920,7 @@ def inspect_bitbucket_url(input_path, args, facts):
             robo_print("Getting information from latest BitBucket release...", LogLevel.VERBOSE)
             if "values" in parsed_release:
                 for asset in parsed_release["values"]:
-                    for this_format in all_supported_formats:
+                    for this_format in ALL_SUPPORTED_FORMATS:
                         if asset["links"]["self"]["href"].endswith(this_format):
                             download_format = this_format
                             download_url = asset["links"]["self"]["href"]
@@ -1214,7 +1214,7 @@ def inspect_download_url(input_path, args, facts):
     # reliable source.)
     download_format = ""
     robo_print("Determining download format...", LogLevel.VERBOSE)
-    for this_format in all_supported_formats:
+    for this_format in ALL_SUPPORTED_FORMATS:
         if filename.lower().endswith(this_format) or this_format in parsed_url.query:
             download_format = this_format
             facts["download_format"] = this_format
@@ -1233,16 +1233,16 @@ def inspect_download_url(input_path, args, facts):
                "success.", LogLevel.DEBUG)
 
     # Open the disk image (or test to see whether the download is one).
-    if (facts.get("download_format", "") == "" or download_format == "") or download_format in supported_image_formats:
+    if (facts.get("download_format", "") == "" or download_format == "") or download_format in SUPPORTED_IMAGE_FORMATS:
         facts = inspect_disk_image(os.path.join(cache_dir, filename), args, facts)
 
     # Open the zip archive (or test to see whether the download is one).
-    if (facts.get("download_format", "") == "" or download_format == "") or download_format in supported_archive_formats:
+    if (facts.get("download_format", "") == "" or download_format == "") or download_format in SUPPORTED_ARCHIVE_FORMATS:
         facts = inspect_archive(os.path.join(cache_dir, filename), args, facts)
 
     # Inspect the installer (or test to see whether the download is
     # one).
-    if download_format in supported_install_formats:
+    if download_format in SUPPORTED_INSTALL_FORMATS:
 
         robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
         facts["download_format"] = download_format
@@ -1299,7 +1299,7 @@ def inspect_archive(input_path, args, facts):
             facts["download_format"] = this_format["format"]
 
             # If the download filename was ambiguous, change it.
-            if not facts.get("download_filename", input_path).endswith(supported_archive_formats):
+            if not facts.get("download_filename", input_path).endswith(SUPPORTED_ARCHIVE_FORMATS):
                 facts["download_filename"] = "%s.%s" % (facts.get("download_filename", os.path.basename(input_path)), this_format["format"])
 
             # Locate and inspect any enclosed apps or pkgs.
@@ -1310,7 +1310,7 @@ def inspect_archive(input_path, args, facts):
                     # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
                     facts = inspect_app(os.path.join(cache_dir, "unpacked", this_file), args, facts)
                     break
-                if this_file.endswith(supported_install_formats):
+                if this_file.endswith(SUPPORTED_INSTALL_FORMATS):
                     facts = inspect_pkg(os.path.join(cache_dir, "unpacked", this_file), args, facts)
                     break
 
@@ -1370,7 +1370,7 @@ def inspect_disk_image(input_path, args, facts):
         facts["download_format"] = "dmg"  # most common disk image format
 
         # If the download filename was ambiguous, change it.
-        if not facts.get("download_filename", input_path).endswith(supported_image_formats):
+        if not facts.get("download_filename", input_path).endswith(SUPPORTED_IMAGE_FORMATS):
             facts["download_filename"] = facts.get("download_filename", input_path) + ".dmg"
 
         # Clean the output for cases where the dmg has a license
@@ -1406,7 +1406,7 @@ def inspect_disk_image(input_path, args, facts):
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 facts = inspect_app(cached_app_path, args, facts)
                 break
-            if this_file.endswith(supported_install_formats):
+            if this_file.endswith(SUPPORTED_INSTALL_FORMATS):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
@@ -1969,7 +1969,7 @@ def handle_preferences_and_build_facts_and_generate_recipes(args):
     if OutputMode.debug_mode is True:
         debug_dump({
             "Command line arguments": args,
-            "Supported file formats": all_supported_formats,
+            "Supported file formats": ALL_SUPPORTED_FORMATS,
             "Preferences for this session": prefs,
             "Recipe information": recipes,
             "Facts we have collected": facts
