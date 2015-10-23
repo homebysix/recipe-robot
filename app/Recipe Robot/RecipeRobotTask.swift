@@ -29,7 +29,7 @@ class RecipeRobotTask: NSObject {
     func createRecipes(progress: (progress: String) -> Void, completion: (error: NSError? ) -> Void) {
 
         task.launchPath = "/usr/bin/python"
-        task.arguments = self.constructTaskArgs() as? [String]
+        task.arguments = self.constructTaskArgs()
 
         let out = NSPipe()
         task.standardOutput = out
@@ -87,8 +87,8 @@ class RecipeRobotTask: NSObject {
         return dict
     }
 
-    private func constructTaskArgs() -> [AnyObject] {
-        var args = [AnyObject]()
+    private func constructTaskArgs() -> [String] {
+        var args = [String]()
 
         if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
             args.appendContentsOf([recipeRobotPy, "-v", self.appOrRecipe])

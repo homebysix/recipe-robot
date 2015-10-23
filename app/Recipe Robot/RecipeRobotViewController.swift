@@ -43,7 +43,7 @@ class feedMeDropImageView: NSImageView {
                 controller.task.appOrRecipe = file
                 controller.performSegueWithIdentifier("feedMeSegue", sender: self)
 
-                let item = sender.draggingPasteboard().pasteboardItems
+//                let item = sender.draggingPasteboard().pasteboardItems
         }
         return true
     }
@@ -82,14 +82,15 @@ class RecipeRobotViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.wantsLayer = true
     }
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        if let layer = self.view.layer {
+
+        self.view.wantsLayer = true
+        if view.layer != nil {
             view.layer = CAGradientLayer().baseGradient()
-            view.layer?.needsDisplay()
+            view.layer!.needsDisplay()
         }
     }
 
@@ -186,7 +187,7 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
             b.attributedTitle = NSAttributedString(string: k, attributes: [NSForegroundColorAttributeName: NSColor.whiteColor()])
 
             var color: NSColor!
-            if let idx = enabledRecipeTypes.indexOf(k){
+            if enabledRecipeTypes.indexOf(k) != nil {
                 b.state = NSOnState
                 color = rrYellowColor
             } else {
@@ -257,7 +258,7 @@ class ProcessingViewController: RecipeRobotViewController {
             if let view = view as? NSImageView {
                 if start {
                     let delay = NSTimeInterval(arc4random_uniform(2000)+500) / 1000
-                    let timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: view, selector: "robotRotate", userInfo: nil, repeats: false)
+                    NSTimer.scheduledTimerWithTimeInterval(delay, target: view, selector: "robotRotate", userInfo: nil, repeats: false)
                 }  else {
                     view.stopRobotRotate()
                 }

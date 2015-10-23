@@ -75,8 +75,9 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
             0, // y
             NSWidth(fromViewController.view.frame), // width
             NSHeight(fromViewController.view.frame)); // height
+        
+        viewController.view.autoresizingMask = [NSAutoresizingMaskOptions.ViewWidthSizable, NSAutoresizingMaskOptions.ViewHeightSizable]
 
-        viewController.view.autoresizingMask = [.ViewWidthSizable, .ViewHeightSizable]
         fromViewController.view.addSubview(viewController.view)
         let dRect = fromViewController.view.frame
 
@@ -90,11 +91,6 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
 
 
     func animateDismissalOfViewController(viewController: NSViewController, fromViewController: NSViewController) {
-        let destinationRect = NSMakeRect(NSWidth(fromViewController.view.frame), // x
-            0, // y
-            NSWidth(fromViewController.view.frame), // width
-            NSHeight(fromViewController.view.frame)); // height
-
         let dRect = fromViewController.view.frame
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5;

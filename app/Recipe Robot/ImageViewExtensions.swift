@@ -27,7 +27,7 @@ extension NSImageView {
             self.layer!.removeAnimationForKey("colorize")
 
         }
-        let timer = NSTimer.scheduledTimerWithTimeInterval(5.0, target: self, selector: "removeAnimations:", userInfo: nil, repeats: false)
+        NSTimer.scheduledTimerWithTimeInterval(5.0, target: self, selector: "removeAnimations:", userInfo: nil, repeats: false)
 
     }
 
