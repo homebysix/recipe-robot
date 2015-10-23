@@ -127,6 +127,8 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0, report=None):
         if report:
             report.errors.append(message)
             write_report(report, os.path.join("/tmp", "report.plist"))
+        # TODO (Shea): Add raise RoboException wherever this is being invoked.
+        # Or here.
         # sys.exit(1)
     elif log_level is LogLevel.REMINDER:
         print_func(line)
