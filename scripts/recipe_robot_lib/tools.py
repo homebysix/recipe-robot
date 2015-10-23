@@ -216,7 +216,6 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
         out: String from standard output.
         err: String from standard error.
     """
-
     if "|" in cmd:
         cmd_parts = cmd.split("|")
     else:
@@ -248,7 +247,6 @@ def _print_stdout(p):
 
 def print_welcome_text():
     """Print the text that appears when you run Recipe Robot."""
-
     #TODO(Shea): Get the version back in here.
     welcome_text = """
                       -----------------------------------

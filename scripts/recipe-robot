@@ -99,7 +99,6 @@ def build_argument_parser():
     Returns:
         Parser object.
     """
-
     parser = argparse.ArgumentParser(
         description="Easily and automatically create AutoPkg recipes.")
     parser.add_argument(
@@ -147,7 +146,6 @@ def init_recipes():
         A tuple of dicts that describe all the AutoPkg recipe types we
         know about.
     """
-
     recipes = ({
         "type": "download",
         "description": "Downloads an app in whatever format the developer "
@@ -261,7 +259,6 @@ def build_prefs(prefs, recipes):
         prefs: The preference dictionary, newly populated from user
             input.
     """
-
     # Start recipe count at zero, if no value already exists.
     if "RecipeCreateCount" not in prefs:
         prefs["RecipeCreateCount"] = int(0)
@@ -369,7 +366,6 @@ def process_input_path(input_path, args, facts):
             information we know so far about the app associated with the
             input path.
     """
-
     # Initialize facts that are lists.
     facts["inspections"] = []
     facts["blocking_applications"] = []
@@ -435,7 +431,6 @@ def get_app_description(app_name):
     Returns:
         description: A string containing a description of the app.
     """
-
     # Start with an empty string. (If it remains empty, the parent
     # function will know that no description was available.)
     description = ""
@@ -2011,7 +2006,6 @@ def configure_from_args(args):
 
 def main():
     """Make the magic happen."""
-
     if  sys.platform != "darwin":
         robo_print("Recipe Robot requires Mac OS X.", LogLevel.ERROR)
 
