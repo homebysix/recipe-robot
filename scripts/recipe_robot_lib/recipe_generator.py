@@ -27,7 +27,6 @@ create autopkg recipes for the specified app.
 
 import os
 
-from .exceptions import RoboException
 from .tools import (create_dest_dirs, create_existing_recipe_list,
                     create_SourceForgeURLProvider, extract_app_icon,
                     robo_print, error_handler, LogLevel, __version__,
@@ -61,7 +60,6 @@ def generate_recipes(facts, prefs, recipes):
     else:
         error_handler("I wasn't able to determine the name of this app, so I "
                       "can't make any recipes.", LogLevel.ERROR)
-        raise RoboException
 
     preferred = [recipe for recipe in recipes if recipe["preferred"]]
 

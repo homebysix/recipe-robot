@@ -35,6 +35,7 @@ import sys
 import timeit
 from urllib2 import urlopen
 
+from .exceptions import RoboError
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
@@ -130,31 +131,28 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0, report=None):
     else:
         print_func = _print_stdout
 
-    if log_level is LogLevel.ERROR:
+    if ((log_level in (LogLevel.ERROR, LogLevel.REMINDER, LogLevel.WARNING,
+                       LogLevel.LOG)) or
+        (log_level is LogLevel.DEBUG and OutputMode.debug_mode) or
+        (log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or
+                                            OutputMode.debug_mode))):
         print_func(line)
-        # TODO (Shea): This is problematic. robo_print should only be printing.
-        if report:
-            report.errors.append(message)
-            write_report(report, os.path.join("/tmp", "report.plist"))
-        # TODO (Shea): Add raise RoboException wherever this is being invoked.
-        # Or here.
-        # sys.exit(1)
-    elif log_level is LogLevel.REMINDER:
-        print_func(line)
-        # TODO (Shea): This is problematic. robo_print should only be printing.
-        if report:
-            report.reminders.append(message)
-    elif log_level is LogLevel.WARNING:
-        print_func(line)
-        # TODO (Shea): This is problematic. robo_print should only be printing.
-        if report:
-            report.warnings.append(message)
-    elif log_level is LogLevel.LOG:
-        print_func(line)
-    elif log_level is LogLevel.DEBUG and OutputMode.debug_mode:
-        print_func(line)
-    elif log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or OutputMode.debug_mode):
-        print_func(line)
+    # elif log_level is LogLevel.REMINDER:
+    #     print_func(line)
+    #     # TODO (Shea): This is problematic. robo_print should only be printing.
+    #     if report:
+    #         report.reminders.append(message)
+    # elif log_level is LogLevel.WARNING:
+    #     print_func(line)
+    #     # TODO (Shea): This is problematic. robo_print should only be printing.
+    #     if report:
+    #         report.warnings.append(message)
+    # elif log_level is LogLevel.LOG:
+    #     print_func(line)
+    # elif log_level is LogLevel.DEBUG and OutputMode.debug_mode:
+    #     print_func(line)
+    # elif log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or OutputMode.debug_mode):
+    #     print_func(line)
 
 
 def create_dest_dirs(path):
@@ -360,6 +358,6 @@ def create_existing_recipe_list(app_name, recipes, use_github_token):
 
 def error_handler(message, log_level, **kwargs):
     """Robo_print and then quit."""
-    robo_print(message, log_level, **kwargs)
-    # TODO (Shea): Send message to CFPrefs on the way out.
-    sys.exit(1)
+    # TODO: The kwargs are in there in case an unexpected indent shows up.
+    # This could eventually be replaced with just raising the error.
+    raise RoboError(message)

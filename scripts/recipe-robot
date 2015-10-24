@@ -69,7 +69,7 @@ from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
 
 import recipe_robot_lib
-from recipe_robot_lib.exceptions import RoboException
+from recipe_robot_lib.exceptions import RoboException, RoboError
 from recipe_robot_lib.facts import Facts
 from recipe_robot_lib.tools import (
     any_item_in_string, create_dest_dirs, get_exitcode_stdout_stderr,
@@ -1868,7 +1868,9 @@ def configure_from_args(args):
 def main():
     """Make the magic happen."""
     if  sys.platform != "darwin":
-        error_handler("Recipe Robot requires Mac OS X.", LogLevel.ERROR)
+        # TODO (Shea): Temporary until refactored main.
+        robo_print("Recipe Robot requires Mac OS X.", LogLevel.ERROR)
+        sys.exit(1)
 
     # Print welcome and version number.
     print_welcome_text()
@@ -1889,37 +1891,35 @@ def main():
     # Read or create the user preferences.
     prefs = init_prefs(recipes, facts["args"])
 
-    # Collect facts from the input path, based on the type of path
-    # given.
-    process_input_path(facts)
-
     try:
+        # Collect facts from the input path, based on the type of path
+        # given.
+        process_input_path(facts)
         time, _ = recipe_robot_lib.generate_recipes(facts, prefs, recipes)
         facts["execution_time"] = time
         # Pat on the back!
         congratulate(prefs)
     except KeyboardInterrupt:
-        robo_print("\nAborting Recipe Robot!")
-    except RoboException as error:
-        error_handler(
-            "Recipe Robot exploded with error: {}".format(error.message),
-            LogLevel.ERROR)
-        if args.verbose:
-            for line in traceback.format_exc(error).splitlines():
-                print line
-        else:
-            error_handler("Run with -v/--verbose for more info.",
-                          LogLevel.ERROR)
-    except Exception as error:
-        error_handler(
+        robo_print("\nAborting Recipe Robot!", LogLevel.ERROR)
+        sys.exit(0)
+    except RoboError as error:
+        robo_print(error.message, LogLevel.ERROR)
+        facts["errors"].append(error.message)
+        sys.exit(1)
+    # TODO: Any code requiring exceptions should do local handling, then
+    # re-raise as a RoboException.
+    except (RoboException, Exception) as error:
+        robo_print(
             "Recipe Robot exploded with unexpected error: %s" % error.message,
             LogLevel.ERROR)
         if args.verbose:
             for line in traceback.format_exc(error).splitlines():
-                print line
+                robo_print(line, LogLevel.ERROR)
         else:
-            error_handler("Run with -v/--verbose for more info.",
-                          LogLevel.ERROR)
+            # TODO: Is this overkill?
+            robo_print("Run with -v/--verbose for more info.", LogLevel.ERROR)
+        facts["errors"].append(error.message)
+        sys.exit(1)
     finally:
         # Cleanup tasks.
 

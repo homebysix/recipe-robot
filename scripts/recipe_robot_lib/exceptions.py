@@ -27,3 +27,8 @@ Custom Exceptions for use in Recipe Robot.
 class RoboException(Exception):
     """Base recipe-robot exception."""
     pass
+
+
+class RoboError(Exception):
+    """Something happened which means we can't continue."""
+    pass
