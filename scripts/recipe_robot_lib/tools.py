@@ -46,6 +46,15 @@ except ImportError:
 
 __version__ = '0.1.0'
 ENDC = "\033[0m"
+PREFS_FILE = os.path.expanduser(
+    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
+
+# Build the list of download formats we know about.
+SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
+SUPPORTED_ARCHIVE_FORMATS = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
+SUPPORTED_INSTALL_FORMATS = ("pkg",)
+ALL_SUPPORTED_FORMATS = (SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS +
+                         SUPPORTED_INSTALL_FORMATS)
 
 
 class LogLevel(object):
