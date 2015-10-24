@@ -170,7 +170,7 @@ def create_dest_dirs(path):
         try:
             os.makedirs(dest_dir)
         except OSError:
-            robo_print("Unable to create directory at %s." % dest_dir, LogLevel.ERROR)
+            error_handler("Unable to create directory at %s." % dest_dir, LogLevel.ERROR)
 
 
 def create_SourceForgeURLProvider(dest_dir):
@@ -343,16 +343,23 @@ def create_existing_recipe_list(app_name, recipes, use_github_token):
                         is_existing = True
                         break
             if is_existing is True:
-                robo_print("Sorry, AutoPkg recipes already exist for this "
-                           "app, and I can't blend new recipes with existing "
-                           "recipes. Here are my suggestions:"
-                           "\n    - See if one of the above recipes meets "
-                           "your needs, either as-is or using an override."
-                           "\n    - Write your own recipe using one of the "
-                           "above as the ParentRecipe."
-                           "\n    - Or if you must, write your own recipe "
-                           "from scratch.", LogLevel.ERROR)
+                error_handler("Sorry, AutoPkg recipes already exist for this "
+                              "app, and I can't blend new recipes with "
+                              "existing recipes.\n\nHere are my suggestions:"
+                              "\n\t- See if one of the above recipes meets "
+                              "your needs, either as-is or using an override."
+                              "\n\t- Write your own recipe using one of the "
+                              "above as the ParentRecipe."
+                              "\n\t- Or if you must, write your own recipe "
+                              "from scratch.", LogLevel.ERROR)
             if not is_existing:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
-            robo_print(err, LogLevel.ERROR)
+            error_handler(err, LogLevel.ERROR)
+
+
+def error_handler(message, log_level, **kwargs):
+    """Robo_print and then quit."""
+    robo_print(message, log_level, **kwargs)
+    # TODO (Shea): Send message to CFPrefs on the way out.
+    sys.exit(1)

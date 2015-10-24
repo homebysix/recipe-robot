@@ -30,7 +30,7 @@ import os
 from .exceptions import RoboException
 from .tools import (create_dest_dirs, create_existing_recipe_list,
                     create_SourceForgeURLProvider, extract_app_icon,
-                    robo_print, LogLevel, __version__,
+                    robo_print, error_handler, LogLevel, __version__,
                     get_exitcode_stdout_stderr, timed, SUPPORTED_IMAGE_FORMATS,
                     SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_INSTALL_FORMATS,
                     ALL_SUPPORTED_FORMATS, PREFS_FILE)
@@ -59,34 +59,34 @@ def generate_recipes(facts, prefs, recipes):
             create_existing_recipe_list(facts["app_name"], recipes,
                                         facts["args"].github_token)
     else:
-        robo_print("I wasn't able to determine the name of this app, "
-                    "so I can't make any recipes.", LogLevel.ERROR)
+        error_handler("I wasn't able to determine the name of this app, so I "
+                      "can't make any recipes.", LogLevel.ERROR)
         raise RoboException
 
     preferred = [recipe for recipe in recipes if recipe["preferred"]]
 
     # No recipe types are preferred.
     if not preferred:
-        robo_print("Sorry, no recipes available to generate.", LogLevel.ERROR)
+        error_handler("Sorry, no recipes available to generate.",
+                      LogLevel.ERROR)
 
     # We don't have enough information to create a recipe set.
     if (facts["is_from_app_store"] is False and
-            "sparkle_feed" not in facts and
-            "github_repo" not in facts and
-            "sourceforge_id" not in facts and
-            "download_url" not in facts):
-        robo_print("Sorry, I don't know how to download this app. "
-                   "Maybe try another angle? If you provided an app, try "
-                   "providing the Sparkle feed for the app instead. Or maybe "
-                   "the app's developers offer a direct download URL on their "
-                   "website.", LogLevel.ERROR)
+        not any([key in facts for key in (
+            "sparkle_feed", "github_repo", "sourceforge_id",
+            "download_url")])):
+        error_handler(
+            "Sorry, I don't know how to download this app. Maybe try another "
+            "angle? If you provided an app, try providing the Sparkle feed "
+            "for the app instead. Or maybe the app's developers offer a "
+            "direct download URL on their website.", LogLevel.ERROR)
     if (facts["is_from_app_store"] is False and
             "download_format" not in facts):
-        robo_print("Sorry, I can't tell what format to download this app in. "
-                   "Maybe try another angle? If you provided an app, try "
-                   "providing the Sparkle feed for the app instead. Or maybe "
-                   "the app's developers offer a direct download URL on their "
-                   "website.", LogLevel.ERROR)
+        error_handler(
+            "Sorry, I can't tell what format to download this app in. Maybe "
+            "try another angle? If you provided an app, try providing the "
+            "Sparkle feed for the app instead. Or maybe the app's developers "
+            "offer a direct download URL on their website.", LogLevel.ERROR)
 
     # We have enough information to create a recipe set, but with assumptions.
     # TODO(Elliot): This code may not be necessary if inspections do their job.
