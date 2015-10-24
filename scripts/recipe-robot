@@ -70,6 +70,7 @@ from xml.etree.ElementTree import parse, ParseError
 
 import recipe_robot_lib
 from recipe_robot_lib.exceptions import RoboException
+from recipe_robot_lib.facts import Facts
 from recipe_robot_lib.tools import (any_item_in_string, create_dest_dirs,
                                     get_exitcode_stdout_stderr, robo_print,
                                     LogLevel, OutputMode, print_welcome_text,
@@ -1846,15 +1847,6 @@ def congratulate(prefs):
                              random.choice(congrats_msg)))
 
 
-def build_facts():
-    """Set up an empty facts dict."""
-    return {"errors": [],
-            "reminders": [],
-            "warnings": [],
-            "recipes": [],
-            "icons": [],}
-
-
 def configure_from_args(args):
     """Perform validation and reporting on args."""
     # If no input path nor --config arg was specified, print help
@@ -1893,7 +1885,7 @@ def main():
 
     create_dest_dirs(CACHE_DIR)
 
-    facts = build_facts()
+    facts = Facts("/tmp/report.plist")
     facts["args"] = args
 
     # Create the master recipe information list.
@@ -1949,12 +1941,12 @@ def main():
             "Recipe information": recipes,
             "Facts we have collected": facts})
 
-    # Save a report for the Mac app to read.
-    if facts:
-        # Plistlib can't serialize a Namespace object, so convert args
-        # to a dict.
-        facts["args"] = vars(facts["args"])
-        write_report(facts, os.path.join("/tmp", "report.plist"))
+    # # Save a report for the Mac app to read.
+    # if facts:
+    #     # Plistlib can't serialize a Namespace object, so convert args
+    #     # to a dict.
+    #     facts["args"] = vars(facts["args"])
+    #     write_report(facts, os.path.join("/tmp", "report.plist"))
 
 
 if __name__ == '__main__':
