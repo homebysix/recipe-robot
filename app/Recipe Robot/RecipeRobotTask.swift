@@ -11,7 +11,35 @@ import Cocoa
 class RecipeRobotTask: NSObject {
 
     // MARK: Public
-    var appOrRecipe: String = ""
+    private var appBundle: NSBundle?
+
+    var appOrRecipe: String = "" {
+        didSet {
+            appBundle = NSBundle(path: appOrRecipe)
+        }
+    }
+
+    var appIcon: NSImage? {
+        if let dict = appBundle?.infoDictionary {
+            var iconName: String? = nil
+
+            if let name = dict["CFBundleIconFile"] as? String {
+                iconName = name
+            } else if let more = dict["CFBundleIcons"] as? [String: AnyObject],
+                evenMore = more["CFBundlePrimaryIcon"] as? [String: AnyObject],
+                array = evenMore["CFBundleIconFiles"] as? [String], name = array.last {
+                    iconName = name
+            }
+
+            if let iconName = iconName, iconFile = appBundle?.pathForImageResource(iconName){
+                if let image = NSImage(contentsOfFile: iconFile){
+                    return image
+                }
+            }
+        }
+        return nil
+    }
+
     var recipeTypes = []
     var output: String = "~/Library/AutoPkg/Recipe Robot Output/"
     var includeExisting : Bool = false
@@ -89,9 +117,9 @@ class RecipeRobotTask: NSObject {
 
     private func constructTaskArgs() -> [String] {
         var args = [String]()
-
+        
         if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
-            args.appendContentsOf([recipeRobotPy, "-v", self.appOrRecipe])
+            args.appendContentsOf([recipeRobotPy, self.appOrRecipe])
         }
 
         return args

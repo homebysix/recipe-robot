@@ -16,9 +16,8 @@ let sound = NSSound(named: "Glass")
 
 extension CAGradientLayer {
     func baseGradient() -> CAGradientLayer {
-        let gradientColors: [CGColor] = [rrBlueColor.CGColor, rrLtBlueColor.CGColor, rrBlueColor.CGColor ]
-
-        let gradientLocations: [Float] = [0.0, 0.5, 1.0]
+        let gradientColors: [CGColor] = [Color.Cream.cg, Color.Cream.cg]
+        let gradientLocations: [Float] = [0.0, 1.0]
 
         let layer = CAGradientLayer()
         layer.colors = gradientColors
@@ -136,29 +135,22 @@ class FeedMeViewController: RecipeRobotViewController {
 // MARK: - Recipe Choice
 class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource, NSTableViewDelegate {
 
+    @IBOutlet var tableView: NSTableView!
+    @IBOutlet var scrollView: NSScrollView!
+
     // MARK: IBOutlets
     @IBOutlet var appIconImageView: NSImageView?
 
-    @IBOutlet var downloadButton: NSButton!
-    @IBOutlet var munkiButton: NSButton!
-    @IBOutlet var pkgButton: NSButton!
-    @IBOutlet var installButton: NSButton!
-    @IBOutlet var jssButton: NSButton!
-    @IBOutlet var absoluteButton: NSButton!
-    @IBOutlet var sccmButton: NSButton!
-    @IBOutlet var dsButton: NSButton!
-
-    var buttons: [String: NSButton] { return [
-        "download": downloadButton!,
-        "munki": munkiButton!,
-        "pkg": pkgButton!,
-        "install": installButton!,
-        "jss": jssButton!,
-        "absolute": absoluteButton!,
-        "sccm": sccmButton!,
-        "ds": dsButton!
-        ]
-    }
+    let recipeTypes: [String] = [
+        "download",
+        "munki",
+        "pkg",
+        "install",
+        "jss",
+        "absolute",
+        "sccm",
+        "ds"
+    ]
     
     private var enabledRecipeTypes = NSUserDefaults.standardUserDefaults().objectForKey("RecipeTypes") as? [String] ?? [String]()
 
@@ -166,64 +158,47 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
     // MARK: Overrides
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.tableView.backgroundColor = NSColor.clearColor()
+        self.scrollView.backgroundColor = NSColor.clearColor()
+        self.scrollView.focusRingType = NSFocusRingType.None
+        
         // Do view setup here.
     }
 
-    override func viewWillAppear() {
-        configure()
-    }
-
     override func viewWillDisappear() {
+        super.viewWillDisappear()
         NSUserDefaults.standardUserDefaults().setObject(self.enabledRecipeTypes, forKey:"RecipeTypes")
     }
 
-    func configure(){
-        for (k, b) in buttons {
-            b.target = self
-
-            b.action = "recipeTypeClicked:"
-            b.identifier = k
-
-            b.attributedTitle = NSAttributedString(string: k, attributes: [NSForegroundColorAttributeName: NSColor.whiteColor()])
-
-            var color: NSColor!
-            if enabledRecipeTypes.indexOf(k) != nil {
-                b.state = NSOnState
-                color = rrYellowColor
-            } else {
-                color = rrGreenColor
-            }
-
-            let image = NSImage(size: b.bounds.size)
-            image.lockFocus()
-            color.drawSwatchInRect(b.bounds)
-            image.unlockFocus()
-            b.image = image
-        }
-
+    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+        return recipeTypes.count
     }
 
-    // MARK: IBActions
-    @IBAction func recipeTypeClicked(sender: AnyObject){
-        if let obj = sender as? NSButton {
-            if let t = obj.identifier {
-                var color: NSColor!
-                if (obj.state == NSOnState){
-                    enabledRecipeTypes.append(t)
-                    color = rrYellowColor
-                } else {
-                    color = rrGreenColor
-                    if enabledRecipeTypes.count > 0 {
-                        if let idx = enabledRecipeTypes.indexOf(t){
-                            enabledRecipeTypes.removeAtIndex(idx)
-                        }
+    func tableView(tableView: NSTableView, willDisplayCell cell: AnyObject, forTableColumn tableColumn: NSTableColumn?, row: Int) {
+        if let cell = cell as? NSButtonCell {
+            let title = recipeTypes[row]
+            cell.title = title
+            if enabledRecipeTypes.indexOf(title) != nil {
+                cell.state = NSOnState
+            } else {
+                cell.state = NSOffState
+            }
+        }
+    }
+
+    func tableView(tableView: NSTableView, setObjectValue object: AnyObject?, forTableColumn tableColumn: NSTableColumn?, row: Int) {
+        if let value = object as? Int {
+            let t = recipeTypes[row]
+            let idx = enabledRecipeTypes.indexOf(t)
+
+            if (value == NSOnState) && ( idx == nil){
+                enabledRecipeTypes.append(t)
+            } else if (value == NSOffState){
+                if enabledRecipeTypes.count > 0 {
+                    if let idx = idx{
+                        enabledRecipeTypes.removeAtIndex(idx)
                     }
                 }
-                let image = NSImage(size: obj.bounds.size)
-                image.lockFocus()
-                color.drawSwatchInRect(obj.bounds)
-                image.unlockFocus()
-                obj.image = image
             }
         }
     }
@@ -236,10 +211,25 @@ class ProcessingViewController: RecipeRobotViewController {
     @IBOutlet private var cancelButton: NSButton?
 
     @IBOutlet var gearContainerView: NSView!
-
+    private let listener = NotificationListener()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        listener.notificationHandler = {
+            noteType, info in
+            switch noteType {
+            case .Error:
+                // do something
+                break
+            case .Reminders:
+                break
+                // do something else
+            default:
+                break
+            }
+        }
+        
         self.progressView?.backgroundColor = NSColor.clearColor()
         self.progressView?.drawsBackground = false
         if let clipView = self.progressView?.superview as? NSClipView,

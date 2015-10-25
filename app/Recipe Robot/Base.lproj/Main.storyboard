@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -650,7 +650,7 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                    <window key="window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" texturedBackground="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="620" y="346" width="500" height="300"/>
@@ -672,8 +672,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="500" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
                                 <rect key="frame" x="208" y="254" width="85" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="81" id="2OM-YU-uCA"/>
+                                </constraints>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="fMo-Ix-2ju">
                                     <font key="font" metaFont="systemBold" size="17"/>
@@ -691,18 +694,10 @@
                                     <font key="font" metaFont="system"/>
                                     <string key="title">Drag in an app or paste a
 URL to start processing</string>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <imageView translatesAutoresizingMaskIntoConstraints="NO" id="bkD-3V-khJ" customClass="feedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                <rect key="frame" x="153" y="67" width="194" height="173"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="194" id="OBr-n0-7d1"/>
-                                </constraints>
-                                <animations/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSFlowViewTemplate" id="LKr-o1-PkU"/>
-                            </imageView>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nkw-ja-oeC">
                                 <rect key="frame" x="410" y="259" width="71" height="32"/>
                                 <animations/>
@@ -714,25 +709,21 @@ URL to start processing</string>
                                     <segue destination="ESu-qZ-Dbn" kind="sheet" id="1wH-qJ-G1c"/>
                                 </connections>
                             </button>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="feedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                                <rect key="frame" x="17" y="17" width="466" height="266"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" imageFrameStyle="grayBezel" id="96G-6b-REq"/>
+                            </imageView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="25" id="6xU-j9-XHE"/>
-                            <constraint firstItem="bkD-3V-khJ" firstAttribute="top" secondItem="oXK-h1-XrJ" secondAttribute="bottom" constant="14" id="F6b-8c-npJ"/>
                             <constraint firstAttribute="bottom" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="25" id="LXU-nP-60r"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="bkD-3V-khJ" secondAttribute="centerX" id="Rya-hp-EpX"/>
-                            <constraint firstItem="bkD-3V-khJ" firstAttribute="centerY" secondItem="m2S-Jp-Qdl" secondAttribute="centerY" constant="-3.5" id="W6c-B5-LAO"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="Jyu-oi-lVv" secondAttribute="centerX" id="lPX-uG-zjI"/>
+                            <constraint firstAttribute="bottom" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="20" symbolic="YES" id="LyT-Ox-OUy"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="NsQ-3Q-I6u"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="Pts-P6-IDE"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="aep-eh-Csg" secondAttribute="centerX" id="X2Y-oi-fgH"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="25" id="fII-dX-YoL"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="Jyu-oi-lVv" secondAttribute="centerX" id="wrd-pX-7tN"/>
                             <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="zqf-OF-vHq"/>
                         </constraints>
-                        <backgroundFilters>
-                            <ciFilter name="CIFalseColor">
-                                <configuration>
-                                    <ciColor key="inputColor0" red="0.74901960779999999" green="0.070588235289999995" blue="1" alpha="1"/>
-                                    <ciColor key="inputColor1" red="1" green="0.90000000000000002" blue="0.80000000000000004" alpha="1"/>
-                                    <null key="inputImage"/>
-                                </configuration>
-                            </ciFilter>
-                        </backgroundFilters>
                         <animations/>
                     </view>
                     <connections>
@@ -749,129 +740,149 @@ URL to start processing</string>
                 <customObject id="a22-BU-iZt" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <viewController id="ESu-qZ-Dbn" customClass="PreferenceViewController" customModule="Recipe_Robot" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="2dJ-2m-pWe">
-                        <rect key="frame" x="0.0" y="0.0" width="500" height="300"/>
+                        <rect key="frame" x="0.0" y="0.0" width="575" height="343"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5WK-Bj-mck">
-                                <rect key="frame" x="26" y="151" width="104" height="64"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="5" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OBc-wc-QuV">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IZ9-mM-Rho">
+                                <rect key="frame" x="28" y="300" width="529" height="35"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Welcome! a little information, first." id="5fM-5o-pay">
+                                    <font key="font" size="20" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <scrollView focusRingType="none" fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R1z-2V-fNs">
+                                <rect key="frame" x="30" y="50" width="240" height="209"/>
+                                <clipView key="contentView" focusRingType="none" ambiguous="YES" drawsBackground="NO" copiesOnScroll="NO" id="3rF-kf-gd0">
+                                    <rect key="frame" x="0.0" y="0.0" width="240" height="209"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <tableView focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="none" columnReordering="NO" columnResizing="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" id="AZn-zL-NZB">
+                                            <rect key="frame" x="0.0" y="0.0" width="240" height="209"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <size key="intercellSpacing" width="3" height="2"/>
+                                            <color key="backgroundColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                            <tableColumns>
+                                                <tableColumn width="237" minWidth="40" maxWidth="1000" id="uXh-be-zZG">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Prefered recipe format">
+                                                        <font key="font" size="12" name=".HelveticaNeueDeskInterface-Regular"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                    </tableHeaderCell>
+                                                    <buttonCell key="dataCell" type="check" title=".download" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" inset="2" id="7sD-Jh-WRf">
+                                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                        <font key="font" size="13" name=".HelveticaNeueDeskInterface-MediumP4"/>
+                                                    </buttonCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                </tableColumn>
+                                            </tableColumns>
+                                            <connections>
+                                                <outlet property="dataSource" destination="ESu-qZ-Dbn" id="gSc-YG-Wq4"/>
+                                                <outlet property="delegate" destination="ESu-qZ-Dbn" id="55H-EQ-Lme"/>
+                                            </connections>
+                                        </tableView>
+                                    </subviews>
+                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </clipView>
+                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="EWJ-mO-m4E">
+                                    <rect key="frame" x="-100" y="-100" width="223" height="15"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" arrowsPosition="none" horizontal="NO" id="99m-z3-Nbn">
+                                    <rect key="frame" x="-100" y="-100" width="15" height="102"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                            </scrollView>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GS6-NI-of8">
+                                <rect key="frame" x="30" y="264" width="242" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Prefered recipe format:" id="4Hw-1e-sSL">
+                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-UltraLightP2"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N79-I0-u6a">
+                                <rect key="frame" x="298" y="264" width="242" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Your prefered recipe identifier:" id="V1m-98-geR">
+                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-UltraLightP2"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HFT-6C-ZYU">
+                                <rect key="frame" x="298" y="187" width="242" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="DeployStudio Package folder:" id="wGl-U4-p4w">
+                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-UltraLightP2"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UuS-iq-Uqh">
+                                <rect key="frame" x="298" y="80" width="207" height="18"/>
+                                <buttonCell key="cell" type="check" title="Use jss-recipes identifier style" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="HFu-ur-ANn">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
                                 </buttonCell>
                             </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vo4-jr-rdS">
-                                <rect key="frame" x="26" y="218" width="104" height="64"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="1" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OcR-04-X4G">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w0f-h9-2tF">
+                                <rect key="frame" x="231" y="2" width="113" height="32"/>
+                                <buttonCell key="cell" type="push" title="Good to Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="de0-CZ-msm">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="dismissController:" target="a22-BU-iZt" id="79v-VP-7ce"/>
+                                </connections>
                             </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XLl-6j-J8Q">
-                                <rect key="frame" x="350" y="151" width="104" height="64"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="8" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6yg-8R-5D3">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
-                                </buttonCell>
-                            </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6iZ-LN-3HT">
-                                <rect key="frame" x="350" y="218" width="104" height="64"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="4" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GtB-aI-RW3">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
-                                </buttonCell>
-                            </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZK3-x4-eSR">
-                                <rect key="frame" x="134" y="218" width="104" height="64"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="2" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dhO-rF-dc6">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
-                                </buttonCell>
-                            </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bp3-ds-YSC">
-                                <rect key="frame" x="134" y="151" width="104" height="64"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="3" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bRw-3b-U1b">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
-                                </buttonCell>
-                            </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4f8-f1-q4n">
-                                <rect key="frame" x="242" y="151" width="104" height="64"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="7" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5qA-jX-vDA">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
-                                </buttonCell>
-                            </button>
-                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S4H-0C-FOJ">
-                                <rect key="frame" x="117" y="57" width="258" height="22"/>
-                                <animations/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="ifo-O3-ptj">
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZIM-gN-Rdk">
+                                <rect key="frame" x="300" y="237" width="260" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="CPV-VN-jhb">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
-                            </textField>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UHv-7e-9EL">
-                                <rect key="frame" x="377" y="51" width="88" height="32"/>
-                                <animations/>
-                                <buttonCell key="cell" type="push" title="Choose" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="wih-Xg-iFz">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                            </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wD1-ts-SfA">
-                                <rect key="frame" x="28" y="58" width="83" height="17"/>
-                                <animations/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Recipe Path:" id="5z8-Cp-QHp">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="skc-tx-x1M">
-                                <rect key="frame" x="222" y="13" width="57" height="29"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="Done" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ub6-dU-vbX">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                    <string key="keyEquivalent" base64-UTF8="YES">
-DQ
-</string>
-                                </buttonCell>
                                 <connections>
-                                    <action selector="dismissController:" target="ESu-qZ-Dbn" id="JOW-Xv-w9e"/>
+                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.RecipeIdentifierPrefix" id="52M-j6-b2c">
+                                        <dictionary key="options">
+                                            <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                        </dictionary>
+                                    </binding>
                                 </connections>
-                            </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CfN-P5-LHx">
-                                <rect key="frame" x="242" y="218" width="104" height="64"/>
-                                <animations/>
-                                <buttonCell key="cell" type="bevel" title="6" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yw7-zB-eim">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" metaFont="system" size="10"/>
+                            </textField>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="taG-FT-CNb">
+                                <rect key="frame" x="300" y="160" width="178" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1zr-Ad-yDY">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.DSPackagesPath" id="tw5-AS-xQ0">
+                                        <dictionary key="options">
+                                            <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eiD-vS-YGE">
+                                <rect key="frame" x="486" y="158" width="74" height="25"/>
+                                <buttonCell key="cell" type="roundTextured" title="Choose..." bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KNI-y2-o6f">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
                                 </buttonCell>
                             </button>
                         </subviews>
                         <animations/>
                     </view>
                     <connections>
-                        <outlet property="absoluteButton" destination="Vo4-jr-rdS" id="N4L-aV-f1A"/>
-                        <outlet property="downloadButton" destination="5WK-Bj-mck" id="Vlh-Vd-1GZ"/>
-                        <outlet property="dsButton" destination="XLl-6j-J8Q" id="veY-fq-CsS"/>
-                        <outlet property="installButton" destination="4f8-f1-q4n" id="roy-Su-5z8"/>
-                        <outlet property="jssButton" destination="6iZ-LN-3HT" id="hoJ-hy-rEv"/>
-                        <outlet property="munkiButton" destination="CfN-P5-LHx" id="tdl-4T-UBX"/>
-                        <outlet property="pkgButton" destination="ZK3-x4-eSR" id="gaU-Oc-PgG"/>
-                        <outlet property="sccmButton" destination="bp3-ds-YSC" id="kWa-gd-WY5"/>
+                        <outlet property="scrollView" destination="R1z-2V-fNs" id="ZQS-8e-G7Y"/>
+                        <outlet property="tableView" destination="AZn-zL-NZB" id="XXc-k4-1QK"/>
                     </connections>
                 </viewController>
+                <userDefaultsController representsSharedInstance="YES" id="56H-yK-n2G"/>
             </objects>
-            <point key="canvasLocation" x="774" y="236"/>
+            <point key="canvasLocation" x="811.5" y="257.5"/>
         </scene>
         <!--Processing View Controller-->
         <scene sceneID="fQZ-lh-HRm">
@@ -882,20 +893,20 @@ DQ
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NIe-rq-iQn" userLabel="Text-Processing">
-                                <rect key="frame" x="15" y="41" width="470" height="218"/>
+                                <rect key="frame" x="0.0" y="41" width="500" height="185"/>
                                 <clipView key="contentView" id="jpg-rj-Gur">
-                                    <rect key="frame" x="1" y="1" width="223" height="133"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="500" height="185"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView editable="NO" selectable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="XPn-uP-tNF">
-                                            <rect key="frame" x="0.0" y="0.0" width="223" height="239"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="500" height="185"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <animations/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="470" height="218"/>
+                                            <size key="minSize" width="500" height="185"/>
                                             <size key="maxSize" width="500" height="10000000"/>
                                             <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="470" height="218"/>
+                                            <size key="minSize" width="500" height="185"/>
                                             <size key="maxSize" width="500" height="10000000"/>
                                         </textView>
                                     </subviews>
@@ -903,6 +914,7 @@ DQ
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </clipView>
                                 <animations/>
+                                <edgeInsets key="contentInsets" left="5" right="5" top="0.0" bottom="0.0"/>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="9VJ-PL-Sdd">
                                     <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                     <autoresizingMask key="autoresizingMask"/>
@@ -914,10 +926,10 @@ DQ
                                     <animations/>
                                 </scroller>
                             </scrollView>
-                            <customView misplaced="YES" alphaValue="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wpZ-ia-RPf" userLabel="Gears View">
+                            <customView alphaValue="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wpZ-ia-RPf" userLabel="Gears View">
                                 <rect key="frame" x="0.0" y="0.0" width="500" height="269"/>
                                 <subviews>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Tpb-YN-zJ4">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Tpb-YN-zJ4">
                                         <rect key="frame" x="178" y="187" width="29" height="35"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="29" id="M7S-Ep-hHP"/>
@@ -925,12 +937,12 @@ DQ
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="2J8-P3-n8f"/>
                                     </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="zt7-fw-Qw6">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="zt7-fw-Qw6">
                                         <rect key="frame" x="96" y="185" width="48" height="55"/>
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="S5H-dD-6Om"/>
                                     </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="f6b-5g-3dy">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="f6b-5g-3dy">
                                         <rect key="frame" x="255" y="71" width="29" height="35"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="29" id="jR2-gg-AjK"/>
@@ -938,7 +950,7 @@ DQ
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IHB-cO-sMS"/>
                                     </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Ldu-tF-onM">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Ldu-tF-onM">
                                         <rect key="frame" x="246" y="208" width="46" height="47"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="46" id="14e-V0-tJJ"/>
@@ -946,12 +958,12 @@ DQ
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oP9-jh-oF7"/>
                                     </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="gn5-51-pkj">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="gn5-51-pkj">
                                         <rect key="frame" x="72" y="51" width="55" height="55"/>
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oi0-FE-bEc"/>
                                     </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="igg-4Y-ndW">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="igg-4Y-ndW">
                                         <rect key="frame" x="303" y="115" width="55" height="55"/>
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="vcY-2Q-9Jv"/>
@@ -965,7 +977,7 @@ DQ
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IvW-qr-Zlh"/>
                                     </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Sbd-5F-qdT">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Sbd-5F-qdT">
                                         <rect key="frame" x="384" y="102" width="45" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="32" id="K8y-BP-etH"/>
@@ -974,7 +986,7 @@ DQ
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="Wp3-Cv-F7H"/>
                                     </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="8os-nw-rgn">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="8os-nw-rgn">
                                         <rect key="frame" x="379" y="209" width="35" height="20"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="35" id="SUk-r3-6B0"/>
@@ -983,7 +995,7 @@ DQ
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="wIm-a0-6Pv"/>
                                     </imageView>
-                                    <imageView wantsLayer="YES" misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="dvk-2x-EOV">
+                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="dvk-2x-EOV">
                                         <rect key="frame" x="197" y="214" width="29" height="35"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="29" id="YXf-Sc-BJt"/>
@@ -992,7 +1004,7 @@ DQ
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="fD4-pL-GdL"/>
                                     </imageView>
-                                    <imageView misplaced="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Dy6-LB-UAX">
+                                    <imageView alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Dy6-LB-UAX">
                                         <rect key="frame" x="171" y="102" width="14" height="14"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="14" id="A83-4i-7Ck"/>
@@ -1019,6 +1031,14 @@ DQ
                                         <animations/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="KSI-bE-DeQ"/>
                                     </imageView>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tsZ-nv-LQm">
+                                        <rect key="frame" x="-2" y="230" width="504" height="30"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Running..." id="NNg-q1-5PF">
+                                            <font key="font" size="22" name=".HelveticaNeueDeskInterface-Regular"/>
+                                            <color key="textColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="f6b-5g-3dy" firstAttribute="centerX" secondItem="Ldu-tF-onM" secondAttribute="centerX" id="0vO-M3-RDj"/>
@@ -1049,6 +1069,7 @@ DQ
                                     <constraint firstItem="igg-4Y-ndW" firstAttribute="leading" secondItem="g0O-SY-tfW" secondAttribute="trailing" constant="-167" id="gua-hN-cZF"/>
                                     <constraint firstAttribute="bottom" secondItem="f6b-5g-3dy" secondAttribute="bottom" constant="71" id="h8n-A8-9Ga"/>
                                     <constraint firstItem="Ldu-tF-onM" firstAttribute="leading" secondItem="Tpb-YN-zJ4" secondAttribute="trailing" constant="39" id="kah-XZ-IUe"/>
+                                    <constraint firstItem="pOy-P2-jOb" firstAttribute="top" secondItem="zt7-fw-Qw6" secondAttribute="bottom" constant="8" id="ofb-xC-4xJ"/>
                                     <constraint firstItem="8os-nw-rgn" firstAttribute="leading" secondItem="Ldu-tF-onM" secondAttribute="trailing" constant="87" id="pOa-Dc-hkn"/>
                                     <constraint firstAttribute="trailing" secondItem="8os-nw-rgn" secondAttribute="trailing" constant="86" id="pTd-bA-GN6"/>
                                     <constraint firstItem="f6b-5g-3dy" firstAttribute="top" secondItem="GSh-FL-Sh6" secondAttribute="bottom" constant="51" id="skl-qB-c7h"/>
@@ -1086,12 +1107,13 @@ DQ
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="84M-Hj-WZN"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="8Nc-Ot-98X"/>
                             <constraint firstAttribute="centerX" secondItem="Y2T-7f-hL6" secondAttribute="centerX" id="FlO-dA-wvR"/>
+                            <constraint firstItem="NIe-rq-iQn" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" constant="43" id="I11-7N-YCU"/>
                             <constraint firstItem="Y2T-7f-hL6" firstAttribute="top" secondItem="NIe-rq-iQn" secondAttribute="bottom" constant="11" id="JR5-eX-ao5"/>
-                            <constraint firstItem="NIe-rq-iQn" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" constant="10" id="bQg-T7-V65"/>
+                            <constraint firstItem="NIe-rq-iQn" firstAttribute="trailing" secondItem="wpZ-ia-RPf" secondAttribute="trailing" id="caD-VP-TP6"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="dBn-hO-mKF"/>
-                            <constraint firstAttribute="trailing" secondItem="NIe-rq-iQn" secondAttribute="trailing" constant="15" id="dVz-zt-8Yg"/>
+                            <constraint firstAttribute="trailing" secondItem="NIe-rq-iQn" secondAttribute="trailing" id="dVz-zt-8Yg"/>
                             <constraint firstItem="Y2T-7f-hL6" firstAttribute="top" secondItem="wpZ-ia-RPf" secondAttribute="bottom" constant="-30" id="yJ3-go-xQK"/>
-                            <constraint firstItem="NIe-rq-iQn" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="15" id="yjr-HO-GK2"/>
+                            <constraint firstItem="NIe-rq-iQn" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="yjr-HO-GK2"/>
                         </constraints>
                         <animations/>
                     </view>
@@ -1108,6 +1130,5 @@ DQ
     </scenes>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
-        <image name="NSFlowViewTemplate" width="18" height="10"/>
     </resources>
 </document>

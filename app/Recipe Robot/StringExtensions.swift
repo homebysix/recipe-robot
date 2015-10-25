@@ -28,6 +28,12 @@ extension String {
                 break
             }
         }
+        
+        // Also replace the reset text
+        string.replaceOccurrencesOfString("[0m", withString: "",
+            options: NSStringCompareOptions.LiteralSearch,
+            range: NSMakeRange(0, string.length)
+        )
 
         let str = matchFound ? string as AnyObject as! String : self
 
@@ -38,9 +44,9 @@ extension String {
     func ANSIColors() -> Dictionary<String, NSColor> {
         let val = [
             "[0m" : NSColor.whiteColor(),
-            "[91m" : rrRedColor,
-            "[93m" : rrYellowColor,
-            "[94m" : rrGreenColor,
+            "[91m" : Color.Red.ns,
+            "[93m" : Color.Yellow.ns,
+            "[94m" : Color.Green.ns,
         ]
         return val
     }
