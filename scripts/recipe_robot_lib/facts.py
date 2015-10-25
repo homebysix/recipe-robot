@@ -8,6 +8,9 @@ from Foundation import (NSDistributedNotificationCenter,
 from .tools import (LogLevel, robo_print)
 
 
+# TODO (Shea): Write some docstrings!
+
+
 class Facts(MutableMapping):
     """Dictionary-like object that writes to a plist every update."""
 
@@ -15,8 +18,8 @@ class Facts(MutableMapping):
         self._dict = {"errors": ExitingList("errors"),
                       "reminders": NotifyingList("reminders"),
                       "warnings": NotifyingList("warnings"),
-                      "recipes": [],
-                      "icons": []}
+                      "recipes": NotifyingList("recipes"),
+                      "icons": NotifyingList("icons"),}
 
     def __getitem__(self, key):
         return self._dict[key]
