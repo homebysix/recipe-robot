@@ -80,7 +80,7 @@ from recipe_robot_lib.tools import (
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
-    print "[WARNING] importing plistlib as FoundationPlist"
+    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
     import plistlib as FoundationPlist
 
 
@@ -165,7 +165,7 @@ def _get_recipe_dict(type, description):
             "existing": False}
 
 
-def init_prefs(recipes, args):
+def init_prefs(facts):
     """Read Recipe Robot preferences.
 
     Preferences are handled in the following priority order:
@@ -174,13 +174,16 @@ def init_prefs(recipes, args):
         4. If preferences plist does exist, use it.
 
     Args:
-        recipes: The list of known recipe types, created by
-            init_recipes().
-        args: The command line arguments.
+        facts: The Facts object with required keys:
+            args
+            warnings
+            recipes
 
     Returns:
         prefs: A fully populated preference dictionary.
     """
+    args = facts["args"]
+    recipes = facts["recipes"]
     # If prefs file exists, try to read from it.
     if os.path.isfile(PREFS_FILE):
 
@@ -201,7 +204,7 @@ def init_prefs(recipes, args):
 
         if args.config is True:
             robo_print("Showing configuration options...")
-            prefs = build_prefs(prefs, recipes)
+            prefs = build_prefs(prefs, facts)
 
         # This seems to be necessary in order to avoid an error when reading
         # the plist back during subsequent runs.
@@ -221,18 +224,21 @@ def init_prefs(recipes, args):
     return prefs
 
 
-def build_prefs(prefs, recipes):
+def build_prefs(prefs, facts):
     """Prompt user for preferences, then save them back to the plist.
 
     Args:
         prefs: The preference dictionary, passed from init_prefs().
-        recipes: The list of known recipe types, created by
-            init_recipes().
+        facts: Facts object with required keys:
+            recipes: The list of known recipe types, created by
+                init_recipes().
+            warnings: List for storing any warnings.
 
     Returns:
         prefs: The preference dictionary, newly populated from user
             input.
     """
+    recipes = facts["recipes"]
     # Start recipe count at zero, if no value already exists.
     if "RecipeCreateCount" not in prefs:
         prefs["RecipeCreateCount"] = int(0)
@@ -1882,14 +1888,14 @@ def main():
 
     create_dest_dirs(CACHE_DIR)
 
-    facts = Facts("/tmp/report.plist")
+    facts = Facts()
     facts["args"] = args
 
     # Create the master recipe information list.
-    recipes = init_recipes()
+    facts["recipes"] = init_recipes()
 
     # Read or create the user preferences.
-    prefs = init_prefs(recipes, facts["args"])
+    prefs = init_prefs(facts)
 
     try:
         # Collect facts from the input path, based on the type of path
