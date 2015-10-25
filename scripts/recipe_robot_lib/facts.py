@@ -1,5 +1,6 @@
-from collections import MutableMapping
+from collections import MutableMapping, MutableSequence
 from copy import deepcopy
+import sys
 
 from Foundation import (NSDistributedNotificationCenter,
                         NSNotificationDeliverImmediately)
@@ -11,35 +12,17 @@ class Facts(MutableMapping):
     """Dictionary-like object that writes to a plist every update."""
 
     def __init__(self):
-        self.notification_center = (
-            NSDistributedNotificationCenter.defaultCenter())
-        # TODO (Shea): These could be @properties too, which would more clearly
-        # state that they are treated differently than the dict items.
-        self._dict = {"errors": [],
-                      "reminders": [],
-                      "warnings": [],
+        self._dict = {"errors": ExitingList("errors"),
+                      "reminders": NotifyingList("reminders"),
+                      "warnings": NotifyingList("warnings"),
                       "recipes": [],
-                      "icons": [],}
+                      "icons": []}
 
     def __getitem__(self, key):
         return self._dict[key]
 
     def __setitem__(self, key, val):
         self._dict[key] = val
-        if key in ("errors", "reminders", "warnings", "recipes", "icons"):
-            userInfo = {"message": str(val)}
-            self.notification_center.postNotificationName_object_userInfo_options_(
-                "com.elliotjordan.recipe-robot.dnc.%s" % key,
-                None,
-                userInfo,
-                NSNotificationDeliverImmediately)
-        if key in ("errors", "reminders", "warnings"):
-            log_level = LogLevel.__getattr__(key.rstrip("s").upper())
-            robo_print(val, log_level)
-            if key is "errors":
-                sys.exit(1)
-
-
         # Old plist-writing version.
         # TODO (Shea): Eventually we need to make args a dict instead of a
         # Namespace.
@@ -60,3 +43,54 @@ class Facts(MutableMapping):
 
     def __len__(self):
         return len(self._dict)
+
+
+class NotifyingList(MutableSequence):
+    """A list that robo_prints and sends NSNotifications on changes"""
+    def __init__(self, message_type, iterable=None):
+        self.notification_center = (
+            NSDistributedNotificationCenter.defaultCenter())
+        self.message_type = message_type
+        if iterable:
+            self._list = iterable
+        else:
+            self._list = []
+
+    def __getitem__(self, index):
+        return self._list(index)
+
+    def __setitem__(self, index, val):
+        self._list[index] = val
+        self._respond_to_item_setting(item)
+
+    def __delitem__(self, index):
+        del self._list[index]
+
+    def __len__(self):
+        return len(self._list)
+
+    def insert(self, index, item):
+        self._list.insert(index, item)
+        self._respond_to_item_setting(item)
+
+    def _respond_to_item_setting(self, message):
+        self._send_notification(self.message_type, message)
+        robo_print(
+            message,
+            LogLevel.__getattribute__(LogLevel,
+                                      self.message_type.rstrip("s").upper()))
+
+    def _send_notification(self, name, message):
+        userInfo = {"message": str(message)}
+        self.notification_center.postNotificationName_object_userInfo_options_(
+            "com.elliotjordan.recipe-robot.dnc.%s" % name,
+            None,
+            userInfo,
+            NSNotificationDeliverImmediately)
+
+
+class ExitingList(NotifyingList):
+    """A NotifyingList that quits when updated."""
+    def __setitem__(self, index, val):
+        super(ExitingList, self).__setitem__(index, val)
+        sys.exit(1)
