@@ -37,7 +37,6 @@ class GearImageView: NSImageView {
 
     func start(){
         run = true
-        self.colorize()
         self.rotate()
 
         NSTimer.scheduledTimerWithTimeInterval(duration, target: self, selector: "fade:", userInfo: nil, repeats: true)

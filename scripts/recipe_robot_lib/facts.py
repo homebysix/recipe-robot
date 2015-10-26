@@ -82,7 +82,7 @@ class NotifyingList(MutableSequence):
 
     def __setitem__(self, index, val):
         self._list[index] = val
-        self._respond_to_item_setting(item)
+        self._respond_to_item_setting(val)
 
     def __delitem__(self, index):
         del self._list[index]
@@ -90,9 +90,9 @@ class NotifyingList(MutableSequence):
     def __len__(self):
         return len(self._list)
 
-    def insert(self, index, item):
-        self._list.insert(index, item)
-        self._respond_to_item_setting(item)
+    def insert(self, index, val):
+        self._list.insert(index, val)
+        self._respond_to_item_setting(val)
 
     def _respond_to_item_setting(self, message):
         self._send_notification(self.message_type, message)

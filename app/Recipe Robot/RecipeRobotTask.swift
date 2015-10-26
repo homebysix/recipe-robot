@@ -40,6 +40,10 @@ class RecipeRobotTask: NSObject {
         return nil
     }
 
+    var appOrRecipeName: String? {
+        return (self.appOrRecipe as NSString).lastPathComponent
+    }
+
     var recipeTypes = []
     var output: String = "~/Library/AutoPkg/Recipe Robot Output/"
     var includeExisting : Bool = false

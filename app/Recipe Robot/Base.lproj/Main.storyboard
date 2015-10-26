@@ -21,7 +21,11 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                                        <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW"/>
+                                        <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW">
+                                            <connections>
+                                                <segue destination="ESu-qZ-Dbn" kind="show" id="55O-go-axt"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                                         <menuItem title="Services" id="NMo-om-nkz">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -644,7 +648,7 @@
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Recipe_Robot" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="112" y="68"/>
+            <point key="canvasLocation" x="112" y="17"/>
         </scene>
         <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
@@ -669,11 +673,11 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="FeedMeViewController" customModule="Recipe_Robot" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="300"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="350"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
-                                <rect key="frame" x="208" y="254" width="85" height="21"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
+                                <rect key="frame" x="258" y="304" width="85" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="81" id="2OM-YU-uCA"/>
                                 </constraints>
@@ -684,8 +688,8 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
-                                <rect key="frame" x="137" y="25" width="227" height="34"/>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
+                                <rect key="frame" x="187" y="25" width="227" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="223" id="g1H-uu-hAk"/>
                                 </constraints>
@@ -698,19 +702,8 @@ URL to start processing</string>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nkw-ja-oeC">
-                                <rect key="frame" x="410" y="259" width="71" height="32"/>
-                                <animations/>
-                                <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EaX-Yk-4WT">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <segue destination="ESu-qZ-Dbn" kind="sheet" id="1wH-qJ-G1c"/>
-                                </connections>
-                            </button>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="feedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                <rect key="frame" x="17" y="17" width="466" height="266"/>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="feedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                                <rect key="frame" x="17" y="17" width="567" height="316"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" imageFrameStyle="grayBezel" id="96G-6b-REq"/>
                             </imageView>
                         </subviews>
@@ -727,7 +720,7 @@ URL to start processing</string>
                         <animations/>
                     </view>
                     <connections>
-                        <segue destination="DLx-gp-7HF" kind="custom" identifier="feedMeSegue" customClass="FadeSegue" customModule="Recipe_Robot" customModuleProvider="target" id="uhZ-iq-Ne8"/>
+                        <segue destination="DLx-gp-7HF" kind="custom" identifier="feedMeSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="uhZ-iq-Ne8"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -1039,19 +1032,6 @@ URL to start processing</string>
                                 </constraints>
                                 <animations/>
                             </customView>
-                            <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uhj-oq-9WR">
-                                <rect key="frame" x="220" y="13" width="159" height="32"/>
-                                <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Gch-Hb-fFR">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                    <string key="keyEquivalent" base64-UTF8="YES">
-Gw
-</string>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="dismissController:" target="DLx-gp-7HF" id="4gg-pW-UN5"/>
-                                </connections>
-                            </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tsZ-nv-LQm">
                                 <rect key="frame" x="-2" y="303" width="604" height="27"/>
                                 <constraints>
@@ -1063,6 +1043,42 @@ Gw
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4rl-0f-yDq">
+                                <rect key="frame" x="8" y="49" width="584" height="63"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="63" id="xSj-Yo-FPE"/>
+                                </constraints>
+                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Processing" id="GzI-d9-eIi">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WfO-R6-w38">
+                                <rect key="frame" x="217" y="126" width="165" height="165"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="165" id="4ec-FX-pej"/>
+                                    <constraint firstAttribute="width" constant="165" id="5XD-Si-TsN"/>
+                                </constraints>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" id="c2L-lw-z5C"/>
+                            </imageView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uhj-oq-9WR">
+                                <rect key="frame" x="220" y="13" width="159" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="147" id="udX-ih-Kv5"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Gch-Hb-fFR">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="dismissController:" target="DLx-gp-7HF" id="4gg-pW-UN5"/>
+                                    <segue destination="XfG-lQ-9wD" kind="custom" identifier="processingSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="50X-tC-H7B"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="uhj-oq-9WR" secondAttribute="bottom" constant="20" id="49R-Jb-GGC"/>
@@ -1070,16 +1086,24 @@ Gw
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="84M-Hj-WZN"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="8Nc-Ot-98X"/>
                             <constraint firstAttribute="trailing" secondItem="tsZ-nv-LQm" secondAttribute="trailing" id="9zS-yW-Sga"/>
+                            <constraint firstAttribute="trailing" secondItem="4rl-0f-yDq" secondAttribute="trailing" constant="10" id="Gl3-su-iLT"/>
+                            <constraint firstItem="4rl-0f-yDq" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="10" id="Z6n-fl-BJA"/>
+                            <constraint firstItem="WfO-R6-w38" firstAttribute="centerX" secondItem="7XC-1Y-g29" secondAttribute="centerX" id="d86-qL-2oo"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="dBn-hO-mKF"/>
+                            <constraint firstItem="WfO-R6-w38" firstAttribute="top" secondItem="tsZ-nv-LQm" secondAttribute="bottom" constant="12" id="h3m-A5-5ks"/>
                             <constraint firstItem="tsZ-nv-LQm" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="n78-ps-3Xk"/>
                             <constraint firstItem="uhj-oq-9WR" firstAttribute="centerX" secondItem="7XC-1Y-g29" secondAttribute="centerX" id="oFe-Zp-Kra"/>
+                            <constraint firstItem="4rl-0f-yDq" firstAttribute="top" secondItem="WfO-R6-w38" secondAttribute="bottom" constant="14" id="ylb-uk-TNt"/>
                             <constraint firstItem="tsZ-nv-LQm" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" constant="20" id="ze2-Wt-uU4"/>
                         </constraints>
                         <animations/>
                     </view>
                     <connections>
+                        <outlet property="appIcon" destination="WfO-R6-w38" id="pdh-ZM-37l"/>
                         <outlet property="cancelButton" destination="uhj-oq-9WR" id="vsK-DC-KXE"/>
                         <outlet property="gearContainerView" destination="wpZ-ia-RPf" id="1uG-eZ-rat"/>
+                        <outlet property="infoLabel" destination="4rl-0f-yDq" id="suR-vn-ieg"/>
+                        <outlet property="titleLabel" destination="tsZ-nv-LQm" id="01k-VX-CzZ"/>
                     </connections>
                 </viewController>
                 <customObject id="MNt-61-K9k" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -1090,4 +1114,7 @@ Gw
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="cq2-FE-JQM"/>
+    </inferredMetricsTieBreakers>
 </document>

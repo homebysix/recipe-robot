@@ -24,7 +24,7 @@ enum NoteType: Int {
     var name: String {
         let base = "com.elliotjordan.recipe-robot.dnc."
         switch self {
-        case Error: return base + "error"
+        case Error: return base + "errors"
         case Reminders: return base + "reminders"
         case Warnings: return base + "warnings"
         case Recipes: return base + "recipes"

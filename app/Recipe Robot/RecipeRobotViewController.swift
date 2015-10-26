@@ -11,23 +11,8 @@ import AudioToolbox
 import Quartz
 
 
-let sound = NSSound(named: "Glass")
-
-
-extension CAGradientLayer {
-    func baseGradient() -> CAGradientLayer {
-        let gradientColors: [CGColor] = [Color.Cream.cg, Color.Cream.cg]
-        let gradientLocations: [Float] = [0.0, 1.0]
-
-        let layer = CAGradientLayer()
-        layer.colors = gradientColors
-        layer.locations = gradientLocations
-        return layer
-    }
-}
-
-// MARK: Subclases
-// MARK: -- Segue --
+//let sound = NSSound(named: "Glass")
+var sound: NSSound? = nil
 
 
 // MARK: -- Views --
@@ -41,8 +26,6 @@ class feedMeDropImageView: NSImageView {
                 controller.task = RecipeRobotTask()
                 controller.task.appOrRecipe = file
                 controller.performSegueWithIdentifier("feedMeSegue", sender: self)
-
-//                let item = sender.draggingPasteboard().pasteboardItems
         }
         return true
     }
@@ -85,12 +68,11 @@ class RecipeRobotViewController: NSViewController {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-
         self.view.wantsLayer = true
-        if view.layer != nil {
-            view.layer = CAGradientLayer().baseGradient()
-            view.layer!.needsDisplay()
-        }
+//        if view.layer != nil {
+//            view.layer = CAGradientLayer().baseGradient()
+//            view.layer!.needsDisplay()
+//        }
     }
 
     override var representedObject: AnyObject? {
@@ -208,26 +190,36 @@ class ProcessingViewController: RecipeRobotViewController {
 
     @IBOutlet private var progressView: NSTextView?
     @IBOutlet private var cancelButton: NSButton?
+    @IBOutlet weak var titleLabel: NSTextField!
+    @IBOutlet weak var appIcon: NSImageView!
+    @IBOutlet weak var infoLabel: NSTextField!
 
     @IBOutlet var gearContainerView: NSView!
     private let listener = NotificationListener()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        progressView?.hidden = true
 
         listener.notificationHandler = {
             noteType, info in
+            var color = NSColor.whiteColor()
             switch noteType {
             case .Error:
-                break
+                color = Color.Red.ns
             case .Reminders:
-                break
+                color = Color.Yellow.ns
             case .Warnings:
                 break
             case .Recipes:
                 break
             case .Icons:
                 break
+            }
+
+            if let string = info["message"] as? String {
+                let attrs = [NSForegroundColorAttributeName: color]
+                self.infoLabel.attributedStringValue = NSAttributedString(string: string, attributes: attrs)
             }
         }
         
@@ -238,6 +230,18 @@ class ProcessingViewController: RecipeRobotViewController {
             scrollView.backgroundColor = NSColor.clearColor()
             scrollView.drawsBackground = false
         }
+    }
+
+    override func viewWillAppear() {
+        if let icon = task.appIcon {
+            appIcon.image = icon
+        }
+        if let name = task.appOrRecipeName {
+            titleLabel.stringValue = "Making " + name + " recipes..."
+        } else {
+            titleLabel.stringValue = "Making recipes..."
+        }
+
     }
 
     override func awakeFromNib() {
@@ -269,14 +273,22 @@ class ProcessingViewController: RecipeRobotViewController {
                 pView.scrollToEndOfDocument(self)
             }
 
-            }, completion: {[weak self](error) ->
-                Void in
+            }, completion: {[weak self]
+                error in
+
+                if error == nil {
+                    self!.appIcon.image = NSImage(named: "NSFolder")
+                    self!.titleLabel.stringValue = "All Done"
+                } else {
+                    self!.appIcon.image = NSImage(named: "NSCaution")
+                    self!.titleLabel.stringValue = "Finished with errors."
+
+                }
 
                 if let pView = self?.progressView, error = error {
                     let attrString = NSAttributedString(string: error.localizedDescription)
                     pView.textStorage?.appendAttributedString(attrString)
                     pView.scrollToEndOfDocument(self)
-
                 }
 
                 if let sound = sound{
@@ -285,7 +297,7 @@ class ProcessingViewController: RecipeRobotViewController {
 
                 self?.gearsShouldRotate(false)
                 if let button = self?.cancelButton {
-                    button.title = "Let's Do Another!"
+                    button.title = "Do Another?"
                 }
         })
     }
