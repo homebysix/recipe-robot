@@ -249,7 +249,6 @@ def _print_stdout(p):
 
 def print_welcome_text():
     """Print the text that appears when you run Recipe Robot."""
-    #TODO(Shea): Get the version back in here.
     welcome_text = """
                       -----------------------------------
                      |  Welcome to Recipe Robot v%s.  |
@@ -262,6 +261,18 @@ def print_welcome_text():
     """ % __version__
 
     robo_print(welcome_text)
+
+
+def print_death_text():
+    """Print the text that appears when you RoboError out."""
+    death_text = """
+                                   _[]_
+                                   [xx]
+                                  d-||-b
+                                    ||
+                                  _/  \_
+    """
+    robo_print(death_text, LogLevel.ERROR)
 
 
 def reset_term_colors():
