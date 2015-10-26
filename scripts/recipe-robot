@@ -75,7 +75,8 @@ from recipe_robot_lib.tools import (
     any_item_in_string, create_dest_dirs, get_exitcode_stdout_stderr,
     robo_print, LogLevel, OutputMode, print_welcome_text, __version__,
     write_report, timed, SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
-    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS, PREFS_FILE)
+    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS, PREFS_FILE,
+    print_death_text)
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
@@ -1945,6 +1946,7 @@ def main():
         if OutputMode.debug_mode:
             message = error.message + traceback.format_exc(error)
         facts["errors"].append(error.message)
+        print_death_text()
         sys.exit(1)
     # TODO: Any code requiring exceptions should do local handling, then
     # re-raise as a RoboException subclass.
@@ -1957,6 +1959,7 @@ def main():
             # TODO: Is this overkill?
             message += "Run with -v/--verbose for more info."
         facts["errors"].append(error.message)
+        print_death_text()
         sys.exit(1)
     finally:
         # Make sure to reset the terminal color.
