@@ -41,7 +41,7 @@ from .exceptions import RoboError
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
-    print "[WARNING] importing plistlib as FoundationPlist"
+    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
     import plistlib as FoundationPlist
 
 
@@ -151,8 +151,9 @@ def create_dest_dirs(path):
     if not os.path.exists(dest_dir):
         try:
             os.makedirs(dest_dir)
-        except OSError:
-            error_handler("Unable to create directory at %s." % dest_dir, LogLevel.ERROR)
+        except OSError as error:
+            raise RoboError("Unable to create directory at %s." % dest_dir,
+                            error=error)
 
 
 def create_SourceForgeURLProvider(dest_dir):
@@ -202,7 +203,8 @@ def extract_app_icon(facts, png_path):
             robo_print("%s" % png_path, LogLevel.VERBOSE, 4)
             facts["icons"].append(png_path)
         else:
-            robo_print("An error occurred during icon extraction: %s" % err, LogLevel.WARNING)
+            facts["warnings"].append(
+                "An error occurred during icon extraction: %s" % err)
 
 
 def get_exitcode_stdout_stderr(cmd, stdin=""):

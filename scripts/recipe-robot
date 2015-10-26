@@ -75,8 +75,7 @@ from recipe_robot_lib.tools import (
     any_item_in_string, create_dest_dirs, get_exitcode_stdout_stderr,
     robo_print, LogLevel, OutputMode, print_welcome_text, __version__,
     write_report, timed, SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
-    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS, PREFS_FILE,
-    error_handler)
+    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS, PREFS_FILE)
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
@@ -883,7 +882,7 @@ def inspect_bitbucket_url(input_path, args, facts):
             else:
                 facts["warnings"].append(
                     "Error occurred while getting information from the "
-                    BitBucket API. (%s)" % err)
+                    "BitBucket API. (%s)" % err)
                 return facts
         except URLError as err:
             if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
@@ -1409,10 +1408,10 @@ def inspect_disk_image(input_path, args, facts):
             dmg_plist.write(out_clean)
         try:
             dmg_dict = FoundationPlist.readPlist(os.path.join(CACHE_DIR, "dmg_attach.plist"))
-        except Exception:
+        except Exception as error:
             raise RoboError(
                 "Shoot, I had trouble parsing the output of hdiutil while "
-                "mounting the downloaded dmg. Sorry about that.")
+                "mounting the downloaded dmg. Sorry about that.", error=error)
         for entity in dmg_dict["system-entities"]:
             if "mount-point" in entity:
                 dmg_mount = entity["mount-point"]
@@ -1653,8 +1652,9 @@ def inspect_app(input_path, args, facts):
     try:
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
         robo_print("App seems valid", LogLevel.VERBOSE, 4)
-    except Exception:
-        raise RoboError("%s doesn't look like a valid app to me." % input_path)
+    except Exception as error:
+        raise RoboError("%s doesn't look like a valid app to me." % input_path,
+                        error=error)
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
@@ -1911,27 +1911,29 @@ def main():
     # Print welcome and version number.
     print_welcome_text()
 
+    facts = Facts()
+
     # Parse command line arguments.
     argparser = build_argument_parser()
     args = argparser.parse_args()
-    configure_from_args(args)
-
-    create_dest_dirs(CACHE_DIR)
-
-    facts = Facts()
     facts["args"] = args
+    configure_from_args(facts)
 
     # Create the master recipe information list.
-    facts["recipes"] = init_recipes()
+    facts["recipe_types"] = init_recipes()
 
     # Read or create the user preferences.
     prefs = init_prefs(facts)
 
     try:
+        create_dest_dirs(CACHE_DIR)
+
         # Collect facts from the input path, based on the type of path
         # given.
         process_input_path(facts)
-        time, _ = recipe_robot_lib.generate_recipes(facts, prefs, recipes)
+        # TODO (Shea): Modernize signature.
+        time, _ = recipe_robot_lib.generate_recipes(facts, prefs,
+                                                    facts["recipe_types"])
         facts["execution_time"] = time
         # Pat on the back!
         congratulate(prefs)
@@ -1939,6 +1941,8 @@ def main():
         robo_print("\nAborting Recipe Robot!", LogLevel.ERROR)
         sys.exit(0)
     except RoboError as error:
+        if OutputMode.debug_mode:
+            message = error.message + traceback.format_exc(error)
         facts["errors"].append(error.message)
         sys.exit(1)
     # TODO: Any code requiring exceptions should do local handling, then
@@ -1961,12 +1965,12 @@ def main():
             shutil.rmtree(CACHE_DIR)
 
         # If debug is on, print all the things.
-        if OutputMode.debug_mode is True:
+        if OutputMode.debug_mode:
             debug_dump({
                 "Command line arguments": facts["args"],
                 "Supported file formats": ALL_SUPPORTED_FORMATS,
                 "Preferences for this session": prefs,
-                "Recipe information": recipes,
+                "Recipe information": facts["recipe_types"],
                 "Facts we have collected": facts})
 
 
