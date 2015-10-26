@@ -40,7 +40,7 @@ from .tools import (create_dest_dirs, create_existing_recipe_list,
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
-    print "[WARNING] importing plistlib as FoundationPlist"
+    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
     import plistlib as FoundationPlist
 
 
@@ -59,7 +59,7 @@ def generate_recipes(facts, prefs, recipes):
             create_existing_recipe_list(facts)
     else:
         raise RoboError("I wasn't able to determine the name of this app, so I "
-                      "can't make any recipes.", LogLevel.ERROR)
+                      "can't make any recipes.")
 
     preferred = [recipe for recipe in recipes if recipe["preferred"]]
 
@@ -88,18 +88,18 @@ def generate_recipes(facts, prefs, recipes):
     # We have enough information to create a recipe set, but with assumptions.
     # TODO(Elliot): This code may not be necessary if inspections do their job.
     if "codesign_reqs" not in facts and "codesign_authorities" not in facts:
-        robo_print("I can't tell whether this app is codesigned or not, so "
-                   "I'm going to assume it's not. You may want to verify that "
-                   "yourself and add the CodeSignatureVerifier processor if "
-                   "necessary.", LogLevel.REMINDER)
+        facts["reminders"].append(
+            "I can't tell whether this app is codesigned or not, so I'm "
+            "going to assume it's not. You may want to verify that yourself "
+            "and add the CodeSignatureVerifier processor if necessary.")
         facts["codesign_reqs"] = ""
         facts["codesign_authorities"] = []
     if "version_key" not in facts:
-        robo_print("I can't tell whether to use CFBundleShortVersionString or "
-                   "CFBundleVersion for the version key of this app. Most "
-                   "apps use CFBundleShortVersionString, so that's what I'll "
-                   "use. You may want to verify that and modify the recipes "
-                   "if necessary.", LogLevel.REMINDER)
+        facts["reminders"].append(
+            "I can't tell whether to use CFBundleShortVersionString or "
+            "CFBundleVersion for the version key of this app. Most apps use "
+            "CFBundleShortVersionString, so that's what I'll use. You may "
+            "want to verify that and modify the recipes if necessary.")
         facts["version_key"] = "CFBundleShortVersionString"
 
     # TODO(Elliot): Run `autopkg repo-list` once and store the resulting value for
@@ -184,9 +184,10 @@ def generate_recipes(facts, prefs, recipes):
         else:
             # This shouldn't happen, if all the right recipe types are
             # specified in init_recipes() and also specified above.
-            robo_print("Oops, I think my programmer messed up. I don't "
-                        "yet know how to generate a %s recipe. Sorry about "
-                        "that." % recipe["type"], LogLevel.WARNING)
+            facts["warnings"].append(
+                "Oops, I think my programmer messed up. I don't yet know how "
+                "to generate a %s recipe. Sorry about that." %
+                recipe["type"])
 
         # Write the recipe to disk.
         if len(recipe["keys"]["Process"]) > 0:
@@ -216,9 +217,9 @@ def generate_download_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     # Can't make this recipe if the app is from the App Store.
     if facts["is_from_app_store"] is True:
-        robo_print("Skipping %s recipe, because this app "
-                    "was downloaded from the "
-                    "App Store." % recipe["type"], LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping %s recipe, because this app was downloaded from the "
+            "App Store." % recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -445,12 +446,12 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
     if "description" in facts:
         keys["Input"]["pkginfo"]["description"] = facts["description"]
     else:
-        robo_print("I couldn't find a description for this app, "
-                    "so you'll need to manually add one to the "
-                    "munki recipe.", LogLevel.REMINDER)
+        facts["reminders"].append(
+            "I couldn't find a description for this app, so you'll need to "
+            "manually add one to the munki recipe.")
         keys["Input"]["pkginfo"]["description"] = " "
 
-    warn_about_appstoreapp_pyasn()
+    warn_about_appstoreapp_pyasn(facts)
 
 
 def generate_munki_recipe(facts, prefs, recipe):
@@ -486,9 +487,9 @@ def generate_munki_recipe(facts, prefs, recipe):
     if "description" in facts:
         keys["Input"]["pkginfo"]["description"] = facts["description"]
     else:
-        robo_print("I couldn't find a description for this app, "
-                    "so you'll need to manually add one to the "
-                    "munki recipe.", LogLevel.REMINDER)
+        facts["reminders"].append(
+            "I couldn't find a description for this app, so you'll need to "
+            "manually add one to the munki recipe.")
         keys["Input"]["pkginfo"]["description"] = " "
 
     # Set default variable to use for substitution.
@@ -574,8 +575,9 @@ def generate_munki_recipe(facts, prefs, recipe):
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
         extract_app_icon(facts, extracted_icon)
     else:
-        robo_print("I don't have enough information to create a "
-                    "PNG icon for this app.", LogLevel.WARNING)
+        facts["warnings"].append(
+            "I don't have enough information to create a PNG icon for this "
+            "app.")
 
 
 def generate_app_store_pkg_recipe(facts, prefs, recipe):
@@ -601,7 +603,7 @@ def generate_app_store_pkg_recipe(facts, prefs, recipe):
     keys["Input"]["PATH"] = facts["app_path"]
     recipe["filename"] = "MAS-" + recipe["filename"]
 
-    warn_about_appstoreapp_pyasn()
+    warn_about_appstoreapp_pyasn(facts)
 
 
 def generate_pkg_recipe(facts, prefs, recipe):
@@ -622,11 +624,11 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # Sparkle feeds. When those are present, can we proceed even though we
     # don't have bundle_id in facts? (#40)
     if "bundle_id" not in facts:
-        robo_print("Skipping %s recipe, because I wasn't able to "
-                    "determine the bundle identifier of this app. "
-                    "You may want to actually download the app and "
-                    "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input."
+            % recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -697,8 +699,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 })
 
     elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
-        robo_print("Skipping pkg recipe, since the download format is "
-                   "already pkg.", LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping pkg recipe, since the download format is already pkg.")
         return
 
     keys["Process"].append({
@@ -735,9 +737,9 @@ def generate_install_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     # Can't make this recipe if the app is from the App Store.
     if facts["is_from_app_store"] is True:
-        robo_print("Skipping %s recipe, because this app "
-                    "was downloaded from the "
-                    "App Store." % recipe["type"], LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping %s recipe, because this app was downloaded from the "
+            "App Store." % recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -812,11 +814,11 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
-        robo_print("Skipping %s recipe, because I wasn't able to "
-                    "determine the bundle identifier of this app. "
-                    "You may want to actually download the app and "
-                    "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input."
+            % recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -832,16 +834,17 @@ def generate_jss_recipe(facts, prefs, recipe):
         prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
     keys["Input"]["CATEGORY"] = "Productivity"
-    robo_print("Remember to manually set the category in the jss "
-               "recipe. I've set it to \"Productivity\" by "
-               "default.", LogLevel.REMINDER)
+    facts["reminders"].append(
+        "Remember to manually set the category in the jss recipe. I've set "
+        "it to \"Productivity\" by default.")
 
     keys["Input"]["POLICY_CATEGORY"] = "Testing"
     keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
     keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
     if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "%s.png" % facts["app_name"])):
-        robo_print("Please make sure %s.png is in your AutoPkg search "
-                    "path." % facts["app_name"], LogLevel.REMINDER)
+        facts["reminders"].append(
+            "Please make sure %s.png is in your AutoPkg search path." %
+            facts["app_name"])
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
@@ -880,8 +883,9 @@ def generate_jss_recipe(facts, prefs, recipe):
             extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
         extract_app_icon(facts, extracted_icon)
     else:
-        robo_print("I don't have enough information to create a "
-                    "PNG icon for this app.", LogLevel.WARNING)
+        facts["warnings"].append(
+            "I don't have enough information to create a PNG icon for this "
+            "app.")
 
     # Put fully constructed JSSImporter arguments into the process list.
     keys["Process"].append({
@@ -905,11 +909,11 @@ def generate_absolute_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
-        robo_print("Skipping %s recipe, because I wasn't able to "
-                    "determine the bundle identifier of this app. "
-                    "You may want to actually download the app and "
-                    "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input."
+            % recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -924,7 +928,10 @@ def generate_absolute_recipe(facts, prefs, recipe):
     cmd = "autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if not any(line.endswith("(https://github.com/tburgin/AbsoluteManageExport)") for line in out.split("\n")):
-        robo_print("You'll need to add the AbsoluteManageExport repo in order to use this recipe:\nautopkg repo-add \"https://github.com/tburgin/AbsoluteManageExport\"", LogLevel.REMINDER)
+        facts["reminders"].append(
+            "You'll need to add the AbsoluteManageExport repo in order to use "
+            "this recipe:\nautopkg repo-add "
+            "\"https://github.com/tburgin/AbsoluteManageExport\"")
 
     keys["Process"].append({
         "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
@@ -953,11 +960,11 @@ def generate_sccm_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
-        robo_print("Skipping %s recipe, because I wasn't able to "
-                    "determine the bundle identifier of this app. "
-                    "You may want to actually download the app and "
-                    "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input."
+            % recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -972,7 +979,10 @@ def generate_sccm_recipe(facts, prefs, recipe):
     cmd = "autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if not any(line.endswith("(https://github.com/autopkg/cgerke-recipes)") for line in out.split("\n")):
-        robo_print("You'll need to add the cgerke-recipes repo in order to use this recipe:\nautopkg repo-add \"https://github.com/autopkg/cgerke-recipes\"", LogLevel.REMINDER)
+        facts["reminders"].append(
+            "You'll need to add the cgerke-recipes repo in order to use this "
+            "recipe:\nautopkg repo-add "
+            "\"https://github.com/autopkg/cgerke-recipes\"")
 
     keys["Process"].append({
         "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
@@ -999,11 +1009,11 @@ def generate_filewave_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
-        robo_print("Skipping %s recipe, because I wasn't able to "
-                    "determine the bundle identifier of this app. "
-                    "You may want to actually download the app and "
-                    "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input." %
+            recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -1037,14 +1047,18 @@ def generate_filewave_recipe(facts, prefs, recipe):
             })
     elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
         # TODO(Elliot): Fix this. (#41)
-        robo_print("Sorry, I don't yet know how to create "
-                    "filewave recipes from pkg downloads.", LogLevel.WARNING)
+        facts["warnings"].append(
+            "Sorry, I don't yet know how to create filewave recipes from pkg "
+            "downloads.")
 
     # Print a reminder if the required repo isn't present on disk.
     cmd = "autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if not any(line.endswith("(https://github.com/johncclayton/FileWaveImporter)") for line in out.split("\n")):
-        robo_print("You'll need to add the FileWaveImporter repo in order to use this recipe:\nautopkg repo-add \"https://github.com/johncclayton/FileWaveImporter\"", LogLevel.REMINDER)
+        facts["reminders"].append(
+            "You'll need to add the FileWaveImporter repo in order to use "
+            "this recipe:\nautopkg repo-add "
+            "\"https://github.com/johncclayton/FileWaveImporter\"")
 
     keys["Process"].append({
         "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
@@ -1074,11 +1088,11 @@ def generate_ds_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
-        robo_print("Skipping %s recipe, because I wasn't able to "
-                    "determine the bundle identifier of this app. "
-                    "You may want to actually download the app and "
-                    "try again, using the .app file itself as "
-                    "input." % recipe["type"], LogLevel.WARNING)
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input."
+            % recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -1106,13 +1120,17 @@ def generate_ds_recipe(facts, prefs, recipe):
     })
 
 
-def warn_about_appstoreapp_pyasn():
-    """Print warning reminding user of dependencies for AppStoreApps."""
-    robo_print("I've created at least one AppStoreApp override for you. "
-                "Be sure to add the nmcspadden-recipes repo and install "
-                "pyasn1, if you haven't already. (More information: "
-                "https://github.com/autopkg/nmcspadden-recipes"
-                "#appstoreapp-recipe)", LogLevel.REMINDER)
+def warn_about_appstoreapp_pyasn(facts):
+    """Print warning reminding user of dependencies for AppStoreApps.
+
+    Args:
+        facts: Facts object with required key: "reminders".
+    """
+    facts["reminders"].append(
+        "I've created at least one AppStoreApp override for you. Be sure to "
+        "add the nmcspadden-recipes repo and install pyasn1, if you haven't "
+        "already. (More information: "
+        "https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe)")
 
 
 def main():
