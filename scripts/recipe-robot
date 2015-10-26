@@ -69,30 +69,25 @@ from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
 
 import recipe_robot_lib
-from recipe_robot_lib.exceptions import RoboException
-from recipe_robot_lib.tools import (any_item_in_string, create_dest_dirs,
-                                    get_exitcode_stdout_stderr, robo_print,
-                                    LogLevel, OutputMode, print_welcome_text,
-                                    __version__, write_report, timed)
+from recipe_robot_lib.exceptions import RoboException, RoboError
+from recipe_robot_lib.facts import Facts
+from recipe_robot_lib.tools import (
+    any_item_in_string, create_dest_dirs, get_exitcode_stdout_stderr,
+    robo_print, LogLevel, OutputMode, print_welcome_text, __version__,
+    write_report, timed, SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
+    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS, PREFS_FILE,
+    error_handler)
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
-    print "[WARNING] importing plistlib as FoundationPlist"
+    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
     import plistlib as FoundationPlist
 
 
 # Global variables.
-PREFS_FILE = os.path.expanduser(
-    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
 CACHE_DIR = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
                          datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
 
-# Build the list of download formats we know about.
-SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
-SUPPORTED_ARCHIVE_FORMATS = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
-SUPPORTED_INSTALL_FORMATS = ("pkg",)
-ALL_SUPPORTED_FORMATS = (SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS +
-                         SUPPORTED_INSTALL_FORMATS)
 
 
 def build_argument_parser():
@@ -170,7 +165,7 @@ def _get_recipe_dict(type, description):
             "existing": False}
 
 
-def init_prefs(recipes, args):
+def init_prefs(facts):
     """Read Recipe Robot preferences.
 
     Preferences are handled in the following priority order:
@@ -179,13 +174,16 @@ def init_prefs(recipes, args):
         4. If preferences plist does exist, use it.
 
     Args:
-        recipes: The list of known recipe types, created by
-            init_recipes().
-        args: The command line arguments.
+        facts: The Facts object with required keys:
+            args
+            warnings
+            recipes
 
     Returns:
         prefs: A fully populated preference dictionary.
     """
+    args = facts["args"]
+    recipes = facts["recipes"]
     # If prefs file exists, try to read from it.
     if os.path.isfile(PREFS_FILE):
 
@@ -206,7 +204,7 @@ def init_prefs(recipes, args):
 
         if args.config is True:
             robo_print("Showing configuration options...")
-            prefs = build_prefs(prefs, recipes)
+            prefs = build_prefs(prefs, facts)
 
         # This seems to be necessary in order to avoid an error when reading
         # the plist back during subsequent runs.
@@ -226,18 +224,21 @@ def init_prefs(recipes, args):
     return prefs
 
 
-def build_prefs(prefs, recipes):
+def build_prefs(prefs, facts):
     """Prompt user for preferences, then save them back to the plist.
 
     Args:
         prefs: The preference dictionary, passed from init_prefs().
-        recipes: The list of known recipe types, created by
-            init_recipes().
+        facts: Facts object with required keys:
+            recipes: The list of known recipe types, created by
+                init_recipes().
+            warnings: List for storing any warnings.
 
     Returns:
         prefs: The preference dictionary, newly populated from user
             input.
     """
+    recipes = facts["recipes"]
     # Start recipe count at zero, if no value already exists.
     if "RecipeCreateCount" not in prefs:
         prefs["RecipeCreateCount"] = int(0)
@@ -397,8 +398,8 @@ def process_input_path(facts):
             robo_print("Input path looks like an app.", LogLevel.VERBOSE)
             inspect_func = inspect_app
         elif input_path.endswith(".recipe"):
-            robo_print("Sorry, I can't use existing AutoPkg recipes as "
-                       "input.", LogLevel.ERROR)
+            error_handler("Sorry, I can't use existing AutoPkg recipes as "
+                          "input.", LogLevel.ERROR)
         elif input_path.endswith(SUPPORTED_INSTALL_FORMATS):
             robo_print("Input path looks like an installer.", LogLevel.VERBOSE)
             inspect_func = inspect_pkg
@@ -409,11 +410,11 @@ def process_input_path(facts):
             robo_print("Input path looks like an archive.", LogLevel.VERBOSE)
             inspect_func = inspect_archive
         else:
-            robo_print("I haven't been trained on how to handle this "
-                       "input path:\n    %s" % input_path, LogLevel.ERROR)
+            error_handler("I haven't been trained on how to handle this "
+                          "input path:\n\t%s" % input_path, LogLevel.ERROR)
     else:
-        robo_print("Input path does not exist. Please try again with a "
-                   "valid input path.", LogLevel.ERROR)
+        error_handler("Input path does not exist. Please try again with a "
+                      "valid input path.", LogLevel.ERROR)
 
     if inspect_func:
         facts = inspect_func(input_path, args, facts)
@@ -1380,9 +1381,9 @@ def inspect_disk_image(input_path, args, facts):
         try:
             dmg_dict = FoundationPlist.readPlist(os.path.join(CACHE_DIR, "dmg_attach.plist"))
         except Exception:
-            robo_print("Shoot, I had trouble parsing the output of "
-                       "hdiutil while mounting the downloaded dmg. Sorry "
-                       "about that.", LogLevel.ERROR)
+            error_handler("Shoot, I had trouble parsing the output of "
+                          "hdiutil while mounting the downloaded dmg. Sorry "
+                          "about that.", LogLevel.ERROR)
         for entity in dmg_dict["system-entities"]:
             if "mount-point" in entity:
                 dmg_mount = entity["mount-point"]
@@ -1624,7 +1625,8 @@ def inspect_app(input_path, args, facts):
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
         robo_print("App seems valid", LogLevel.VERBOSE, 4)
     except Exception:
-        robo_print("%s doesn't look like a valid app to me." % input_path, LogLevel.ERROR)
+        error_handler("%s doesn't look like a valid app to me." % input_path,
+                      LogLevel.ERROR)
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
@@ -1659,8 +1661,8 @@ def inspect_app(input_path, args, facts):
     if "CFBundleIdentifier" in info_plist:
         bundle_id = info_plist["CFBundleIdentifier"]
     else:
-        robo_print("Strange, this app doesn't have a bundle "
-                   "identifier.", LogLevel.ERROR)
+        error_handler("Strange, this app doesn't have a bundle identifier.",
+                      LogLevel.ERROR)
     robo_print("Bundle idenfitier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
     facts["bundle_id"] = bundle_id
 
@@ -1727,8 +1729,8 @@ def inspect_app(input_path, args, facts):
                        (version_key, info_plist[version_key]), LogLevel.VERBOSE, 4)
             facts["version_key"] = version_key
         else:
-            robo_print("Sorry, I can't determine which version key to use "
-                       "for this app.", LogLevel.ERROR)
+            error_handler("Sorry, I can't determine which version key to use "
+                          "for this app.", LogLevel.ERROR)
 
     # Determine path to the app's icon.
     if "icon_path" not in facts:
@@ -1846,15 +1848,6 @@ def congratulate(prefs):
                              random.choice(congrats_msg)))
 
 
-def build_facts():
-    """Set up an empty facts dict."""
-    return {"errors": [],
-            "reminders": [],
-            "warnings": [],
-            "recipes": [],
-            "icons": [],}
-
-
 def configure_from_args(args):
     """Perform validation and reporting on args."""
     # If no input path nor --config arg was specified, print help
@@ -1881,7 +1874,9 @@ def configure_from_args(args):
 def main():
     """Make the magic happen."""
     if  sys.platform != "darwin":
+        # TODO (Shea): Temporary until refactored main.
         robo_print("Recipe Robot requires Mac OS X.", LogLevel.ERROR)
+        sys.exit(1)
 
     # Print welcome and version number.
     print_welcome_text()
@@ -1893,44 +1888,44 @@ def main():
 
     create_dest_dirs(CACHE_DIR)
 
-    facts = build_facts()
+    facts = Facts()
     facts["args"] = args
 
     # Create the master recipe information list.
-    recipes = init_recipes()
+    facts["recipes"] = init_recipes()
 
     # Read or create the user preferences.
-    prefs = init_prefs(recipes, facts["args"])
-
-    # Collect facts from the input path, based on the type of path
-    # given.
-    process_input_path(facts)
+    prefs = init_prefs(facts)
 
     try:
+        # Collect facts from the input path, based on the type of path
+        # given.
+        process_input_path(facts)
         time, _ = recipe_robot_lib.generate_recipes(facts, prefs, recipes)
         facts["execution_time"] = time
         # Pat on the back!
         congratulate(prefs)
     except KeyboardInterrupt:
-        robo_print("\nAborting Recipe Robot!")
-    except RoboException as error:
-        robo_print(
-            "Recipe Robot exploded with error: {}".format(error.message),
-            LogLevel.ERROR)
-        if args.verbose:
-            for line in traceback.format_exc(error).splitlines():
-                print line
-        else:
-            robo_print("Run with -v/--verbose for more info.", LogLevel.ERROR)
-    except Exception as error:
+        robo_print("\nAborting Recipe Robot!", LogLevel.ERROR)
+        sys.exit(0)
+    except RoboError as error:
+        robo_print(error.message, LogLevel.ERROR)
+        facts["errors"].append(error.message)
+        sys.exit(1)
+    # TODO: Any code requiring exceptions should do local handling, then
+    # re-raise as a RoboException.
+    except (RoboException, Exception) as error:
         robo_print(
             "Recipe Robot exploded with unexpected error: %s" % error.message,
             LogLevel.ERROR)
         if args.verbose:
             for line in traceback.format_exc(error).splitlines():
-                print line
+                robo_print(line, LogLevel.ERROR)
         else:
+            # TODO: Is this overkill?
             robo_print("Run with -v/--verbose for more info.", LogLevel.ERROR)
+        facts["errors"].append(error.message)
+        sys.exit(1)
     finally:
         # Cleanup tasks.
 
@@ -1949,12 +1944,12 @@ def main():
             "Recipe information": recipes,
             "Facts we have collected": facts})
 
-    # Save a report for the Mac app to read.
-    if facts:
-        # Plistlib can't serialize a Namespace object, so convert args
-        # to a dict.
-        facts["args"] = vars(facts["args"])
-        write_report(facts, os.path.join("/tmp", "report.plist"))
+    # # Save a report for the Mac app to read.
+    # if facts:
+    #     # Plistlib can't serialize a Namespace object, so convert args
+    #     # to a dict.
+    #     facts["args"] = vars(facts["args"])
+    #     write_report(facts, os.path.join("/tmp", "report.plist"))
 
 
 if __name__ == '__main__':

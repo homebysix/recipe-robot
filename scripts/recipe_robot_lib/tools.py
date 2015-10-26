@@ -35,6 +35,7 @@ import sys
 import timeit
 from urllib2 import urlopen
 
+from .exceptions import RoboError
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
@@ -46,6 +47,15 @@ except ImportError:
 
 __version__ = '0.1.0'
 ENDC = "\033[0m"
+PREFS_FILE = os.path.expanduser(
+    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
+
+# Build the list of download formats we know about.
+SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
+SUPPORTED_ARCHIVE_FORMATS = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
+SUPPORTED_INSTALL_FORMATS = ("pkg",)
+ALL_SUPPORTED_FORMATS = (SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS +
+                         SUPPORTED_INSTALL_FORMATS)
 
 
 class LogLevel(object):
@@ -121,31 +131,28 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0, report=None):
     else:
         print_func = _print_stdout
 
-    if log_level is LogLevel.ERROR:
+    if ((log_level in (LogLevel.ERROR, LogLevel.REMINDER, LogLevel.WARNING,
+                       LogLevel.LOG)) or
+        (log_level is LogLevel.DEBUG and OutputMode.debug_mode) or
+        (log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or
+                                            OutputMode.debug_mode))):
         print_func(line)
-        # TODO (Shea): This is problematic. robo_print should only be printing.
-        if report:
-            report.errors.append(message)
-            write_report(report, os.path.join("/tmp", "report.plist"))
-        # TODO (Shea): Add raise RoboException wherever this is being invoked.
-        # Or here.
-        # sys.exit(1)
-    elif log_level is LogLevel.REMINDER:
-        print_func(line)
-        # TODO (Shea): This is problematic. robo_print should only be printing.
-        if report:
-            report.reminders.append(message)
-    elif log_level is LogLevel.WARNING:
-        print_func(line)
-        # TODO (Shea): This is problematic. robo_print should only be printing.
-        if report:
-            report.warnings.append(message)
-    elif log_level is LogLevel.LOG:
-        print_func(line)
-    elif log_level is LogLevel.DEBUG and OutputMode.debug_mode:
-        print_func(line)
-    elif log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or OutputMode.debug_mode):
-        print_func(line)
+    # elif log_level is LogLevel.REMINDER:
+    #     print_func(line)
+    #     # TODO (Shea): This is problematic. robo_print should only be printing.
+    #     if report:
+    #         report.reminders.append(message)
+    # elif log_level is LogLevel.WARNING:
+    #     print_func(line)
+    #     # TODO (Shea): This is problematic. robo_print should only be printing.
+    #     if report:
+    #         report.warnings.append(message)
+    # elif log_level is LogLevel.LOG:
+    #     print_func(line)
+    # elif log_level is LogLevel.DEBUG and OutputMode.debug_mode:
+    #     print_func(line)
+    # elif log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or OutputMode.debug_mode):
+    #     print_func(line)
 
 
 def create_dest_dirs(path):
@@ -161,7 +168,7 @@ def create_dest_dirs(path):
         try:
             os.makedirs(dest_dir)
         except OSError:
-            robo_print("Unable to create directory at %s." % dest_dir, LogLevel.ERROR)
+            error_handler("Unable to create directory at %s." % dest_dir, LogLevel.ERROR)
 
 
 def create_SourceForgeURLProvider(dest_dir):
@@ -334,16 +341,23 @@ def create_existing_recipe_list(app_name, recipes, use_github_token):
                         is_existing = True
                         break
             if is_existing is True:
-                robo_print("Sorry, AutoPkg recipes already exist for this "
-                           "app, and I can't blend new recipes with existing "
-                           "recipes. Here are my suggestions:"
-                           "\n    - See if one of the above recipes meets "
-                           "your needs, either as-is or using an override."
-                           "\n    - Write your own recipe using one of the "
-                           "above as the ParentRecipe."
-                           "\n    - Or if you must, write your own recipe "
-                           "from scratch.", LogLevel.ERROR)
+                error_handler("Sorry, AutoPkg recipes already exist for this "
+                              "app, and I can't blend new recipes with "
+                              "existing recipes.\n\nHere are my suggestions:"
+                              "\n\t- See if one of the above recipes meets "
+                              "your needs, either as-is or using an override."
+                              "\n\t- Write your own recipe using one of the "
+                              "above as the ParentRecipe."
+                              "\n\t- Or if you must, write your own recipe "
+                              "from scratch.", LogLevel.ERROR)
             if not is_existing:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
-            robo_print(err, LogLevel.ERROR)
+            error_handler(err, LogLevel.ERROR)
+
+
+def error_handler(message, log_level, **kwargs):
+    """Robo_print and then quit."""
+    # TODO: The kwargs are in there in case an unexpected indent shows up.
+    # This could eventually be replaced with just raising the error.
+    raise RoboError(message)

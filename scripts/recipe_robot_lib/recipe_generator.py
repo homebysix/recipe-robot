@@ -27,11 +27,12 @@ create autopkg recipes for the specified app.
 
 import os
 
-from .exceptions import RoboException
 from .tools import (create_dest_dirs, create_existing_recipe_list,
                     create_SourceForgeURLProvider, extract_app_icon,
-                    robo_print, LogLevel, __version__,
-                    get_exitcode_stdout_stderr, timed)
+                    robo_print, error_handler, LogLevel, __version__,
+                    get_exitcode_stdout_stderr, timed, SUPPORTED_IMAGE_FORMATS,
+                    SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_INSTALL_FORMATS,
+                    ALL_SUPPORTED_FORMATS, PREFS_FILE)
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
@@ -40,18 +41,6 @@ try:
 except ImportError:
     print "[WARNING] importing plistlib as FoundationPlist"
     import plistlib as FoundationPlist
-
-
-# Global variables.
-PREFS_FILE = os.path.expanduser(
-    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
-
-# Build the list of download formats we know about.
-supported_image_formats = ("dmg", "iso")  # downloading iso unlikely
-supported_archive_formats = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
-supported_install_formats = ("pkg", "mpkg")  # downloading mpkg unlikely
-all_supported_formats = (supported_image_formats + supported_archive_formats +
-                         supported_install_formats)
 
 
 @timed
@@ -69,34 +58,33 @@ def generate_recipes(facts, prefs, recipes):
             create_existing_recipe_list(facts["app_name"], recipes,
                                         facts["args"].github_token)
     else:
-        robo_print("I wasn't able to determine the name of this app, "
-                    "so I can't make any recipes.", LogLevel.ERROR)
-        raise RoboException
+        error_handler("I wasn't able to determine the name of this app, so I "
+                      "can't make any recipes.", LogLevel.ERROR)
 
     preferred = [recipe for recipe in recipes if recipe["preferred"]]
 
     # No recipe types are preferred.
     if not preferred:
-        robo_print("Sorry, no recipes available to generate.", LogLevel.ERROR)
+        error_handler("Sorry, no recipes available to generate.",
+                      LogLevel.ERROR)
 
     # We don't have enough information to create a recipe set.
     if (facts["is_from_app_store"] is False and
-            "sparkle_feed" not in facts and
-            "github_repo" not in facts and
-            "sourceforge_id" not in facts and
-            "download_url" not in facts):
-        robo_print("Sorry, I don't know how to download this app. "
-                   "Maybe try another angle? If you provided an app, try "
-                   "providing the Sparkle feed for the app instead. Or maybe "
-                   "the app's developers offer a direct download URL on their "
-                   "website.", LogLevel.ERROR)
+        not any([key in facts for key in (
+            "sparkle_feed", "github_repo", "sourceforge_id",
+            "download_url")])):
+        error_handler(
+            "Sorry, I don't know how to download this app. Maybe try another "
+            "angle? If you provided an app, try providing the Sparkle feed "
+            "for the app instead. Or maybe the app's developers offer a "
+            "direct download URL on their website.", LogLevel.ERROR)
     if (facts["is_from_app_store"] is False and
             "download_format" not in facts):
-        robo_print("Sorry, I can't tell what format to download this app in. "
-                   "Maybe try another angle? If you provided an app, try "
-                   "providing the Sparkle feed for the app instead. Or maybe "
-                   "the app's developers offer a direct download URL on their "
-                   "website.", LogLevel.ERROR)
+        error_handler(
+            "Sorry, I can't tell what format to download this app in. Maybe "
+            "try another angle? If you provided an app, try providing the "
+            "Sparkle feed for the app instead. Or maybe the app's developers "
+            "offer a direct download URL on their website.", LogLevel.ERROR)
 
     # We have enough information to create a recipe set, but with assumptions.
     # TODO(Elliot): This code may not be necessary if inspections do their job.
@@ -341,7 +329,7 @@ def generate_download_recipe(facts, prefs, recipe):
     if facts.get("codesign_reqs", "") != "" or len(facts["codesign_authorities"]) > 0:
         # We encountered a signed app, and will use CodeSignatureVerifier on
         # the app.
-        if facts["download_format"] in supported_image_formats:
+        if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
             if facts.get("codesign_reqs", "") != "":
                 codesigverifier_args = {
@@ -375,7 +363,7 @@ def generate_download_recipe(facts, prefs, recipe):
                             "plist_version_key": facts["version_key"]
                         }
                     })
-        elif facts["download_format"] in supported_archive_formats:
+        elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             # We're assuming that the app is at the root level of the zip.
             keys["Process"].append({
                 "Processor": "Unarchiver",
@@ -409,7 +397,7 @@ def generate_download_recipe(facts, prefs, recipe):
                         "plist_version_key": facts["version_key"]
                     }
                 })
-        elif facts["download_format"] in supported_install_formats:
+        elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
             # TODO(Elliot): Need a few test cases to prove this works.
             keys["Process"].append({
@@ -507,7 +495,7 @@ def generate_munki_recipe(facts, prefs, recipe):
     # Set default variable to use for substitution.
     import_file_var = "%pathname%"
 
-    if facts["download_format"] in supported_image_formats:
+    if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             if facts["version_key"] == "CFBundleShortVersionString":
                 keys["Process"].append({
@@ -525,7 +513,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                     }
                 })
 
-    elif facts["download_format"] in supported_archive_formats:
+    elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
         if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
@@ -546,7 +534,7 @@ def generate_munki_recipe(facts, prefs, recipe):
         })
         import_file_var = "%dmg_path%"
 
-    elif facts["download_format"] in supported_install_formats:
+    elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
         # Blocking applications are determined automatically by Munki except
         # when the software is distributed inside a pkg. In this case, the
         # blocking applications must be set manually in the recipe.
@@ -652,7 +640,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # Save bundle identifier.
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
-    if facts["download_format"] in supported_image_formats:
+    if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             if facts["version_key"] == "CFBundleShortVersionString":
                 keys["Process"].append({
@@ -686,7 +674,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             }
         })
 
-    elif facts["download_format"] in supported_archive_formats:
+    elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
         if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet. Need to do that and version.
@@ -709,7 +697,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     }
                 })
 
-    elif facts["download_format"] in supported_install_formats:
+    elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
         robo_print("Skipping pkg recipe, since the download format is "
                    "already pkg.", LogLevel.WARNING)
         return
@@ -761,7 +749,7 @@ def generate_install_recipe(facts, prefs, recipe):
 
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
-    if facts["download_format"] in supported_image_formats:
+    if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         keys["Process"].append({
             "Processor": "InstallFromDMG",
             "Arguments": {
@@ -773,7 +761,7 @@ def generate_install_recipe(facts, prefs, recipe):
             }
         })
 
-    elif facts["download_format"] in supported_archive_formats:
+    elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
         if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             keys["Process"].append({
                 "Processor": "Unarchiver",
@@ -801,7 +789,7 @@ def generate_install_recipe(facts, prefs, recipe):
             }
         })
 
-    elif facts["download_format"] in supported_install_formats:
+    elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
         keys["Process"].append({
             "Processor": "Installer",
             "Arguments": {
@@ -1027,7 +1015,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                            "Server." % facts["app_name"])
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
-    if facts["download_format"] in supported_image_formats and "sparkle_feed" not in facts:
+    if facts["download_format"] in SUPPORTED_IMAGE_FORMATS and "sparkle_feed" not in facts:
         # It's a dmg download, but not from Sparkle, so we need to version it.
         keys["Process"].append({
             "Processor": "Versioner",
@@ -1036,7 +1024,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                 "plist_version_key": facts["version_key"]
             }
         })
-    elif facts["download_format"] in supported_archive_formats:
+    elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
         if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
@@ -1048,7 +1036,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                     "purge_destination": True
                 }
             })
-    elif facts["download_format"] in supported_install_formats:
+    elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
         # TODO(Elliot): Fix this. (#41)
         robo_print("Sorry, I don't yet know how to create "
                     "filewave recipes from pkg downloads.", LogLevel.WARNING)
