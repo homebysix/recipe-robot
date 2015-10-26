@@ -56,8 +56,7 @@ def generate_recipes(facts, prefs, recipes):
     """
     if "app_name" in facts:
         if not facts["args"].ignore_existing:
-            create_existing_recipe_list(facts["app_name"], recipes,
-                                        facts["args"].github_token)
+            create_existing_recipe_list(facts)
     else:
         raise RoboError("I wasn't able to determine the name of this app, so I "
                       "can't make any recipes.", LogLevel.ERROR)

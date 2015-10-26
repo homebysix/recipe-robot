@@ -1878,8 +1878,9 @@ def congratulate(prefs):
                              random.choice(congrats_msg)))
 
 
-def configure_from_args(args):
+def configure_from_args(facts):
     """Perform validation and reporting on args."""
+    args = facts["args"]
     # If no input path nor --config arg was specified, print help
     # and exit.
     if not args.input_path and not args.config:
@@ -1961,7 +1962,7 @@ def main():
         # Make sure to reset the terminal color.
         recipe_robot_lib.tools.reset_term_colors()
         # Clean up cache folder.
-        if os.path.exists(CACHE_DIR) and args.keep_cache is not True:
+        if os.path.exists(CACHE_DIR) and not args.keep_cache:
             shutil.rmtree(CACHE_DIR)
 
         # If debug is on, print all the things.
