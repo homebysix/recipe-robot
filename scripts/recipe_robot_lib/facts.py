@@ -15,9 +15,9 @@ class Facts(MutableMapping):
     """Dictionary-like object that writes to a plist every update."""
 
     def __init__(self):
-        self._dict = {"errors": ExitingList("errors"),
-                      "reminders": NotifyingList("reminders"),
-                      "warnings": NotifyingList("warnings"),
+        self._dict = {"errors": NoisyNotifyingList("errors"),
+                      "reminders": NoisyNotifyingList("reminders"),
+                      "warnings": NoisyNotifyingList("warnings"),
                       "recipes": NotifyingList("recipes"),
                       "icons": NotifyingList("icons"),}
 
@@ -26,15 +26,6 @@ class Facts(MutableMapping):
 
     def __setitem__(self, key, val):
         self._dict[key] = val
-        # Old plist-writing version.
-        # TODO (Shea): Eventually we need to make args a dict instead of a
-        # Namespace.
-        # if "args" in self._dict and not isinstance(output["args"], dict):
-        #     output = deepcopy(self._dict)
-        #     output["args"] = vars(output["args"])
-        # else:
-        #     output = self._dict
-        # FoundationPlist.writePlist(output, self.path)
 
     def __delitem__(self, key):
         if key in self:
@@ -50,6 +41,7 @@ class Facts(MutableMapping):
 
 class NotifyingList(MutableSequence):
     """A list that robo_prints and sends NSNotifications on changes"""
+
     def __init__(self, message_type, iterable=None):
         self.notification_center = (
             NSDistributedNotificationCenter.defaultCenter())
@@ -78,10 +70,6 @@ class NotifyingList(MutableSequence):
 
     def _respond_to_item_setting(self, message):
         self._send_notification(self.message_type, message)
-        robo_print(
-            message,
-            LogLevel.__getattribute__(LogLevel,
-                                      self.message_type.rstrip("s").upper()))
 
     def _send_notification(self, name, message):
         userInfo = {"message": str(message)}
@@ -92,8 +80,11 @@ class NotifyingList(MutableSequence):
             NSNotificationDeliverImmediately)
 
 
-class ExitingList(NotifyingList):
+class NoisyNotifyingList(NotifyingList):
     """A NotifyingList that quits when updated."""
-    def __setitem__(self, index, val):
-        super(ExitingList, self).__setitem__(index, val)
-        sys.exit(1)
+
+    def _respond_to_item_setting(self, message):
+        self._send_notification(self.message_type, message)
+        log_level = LogLevel.__getattribute__(
+                LogLevel, self.message_type.rstrip("s").upper()))
+        robo_print(message, log_level)
