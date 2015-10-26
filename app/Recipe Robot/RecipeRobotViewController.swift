@@ -174,15 +174,14 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
         return recipeTypes.count
     }
 
+    func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
+        return (enabledRecipeTypes.contains(recipeTypes[row])) ? NSOnState: NSOffState
+    }
+
     func tableView(tableView: NSTableView, willDisplayCell cell: AnyObject, forTableColumn tableColumn: NSTableColumn?, row: Int) {
         if let cell = cell as? NSButtonCell {
             let title = recipeTypes[row]
             cell.title = title
-            if enabledRecipeTypes.indexOf(title) != nil {
-                cell.state = NSOnState
-            } else {
-                cell.state = NSOffState
-            }
         }
     }
 
@@ -191,11 +190,11 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
             let t = recipeTypes[row]
             let idx = enabledRecipeTypes.indexOf(t)
 
-            if (value == NSOnState) && ( idx == nil){
+            if (value == NSOnState) && ( idx == nil) {
                 enabledRecipeTypes.append(t)
             } else if (value == NSOffState){
                 if enabledRecipeTypes.count > 0 {
-                    if let idx = idx{
+                    if let idx = idx {
                         enabledRecipeTypes.removeAtIndex(idx)
                     }
                 }
@@ -220,12 +219,14 @@ class ProcessingViewController: RecipeRobotViewController {
             noteType, info in
             switch noteType {
             case .Error:
-                // do something
                 break
             case .Reminders:
                 break
-                // do something else
-            default:
+            case .Warnings:
+                break
+            case .Recipes:
+                break
+            case .Icons:
                 break
             }
         }
@@ -245,12 +246,12 @@ class ProcessingViewController: RecipeRobotViewController {
 
     func gearsShouldRotate(start: Bool){
         for view in gearContainerView.subviews {
-            if let view = view as? NSImageView {
+            if let view = view as? GearImageView {
                 if start {
-                    let delay = NSTimeInterval(arc4random_uniform(2000)+500) / 1000
-                    NSTimer.scheduledTimerWithTimeInterval(delay, target: view, selector: "robotRotate", userInfo: nil, repeats: false)
+                    let delay = NSTimeInterval(arc4random_uniform(2000)) / 1000
+                    NSTimer.scheduledTimerWithTimeInterval(delay, target: view, selector: "start", userInfo: nil, repeats: false)
                 }  else {
-                    view.stopRobotRotate()
+                    view.stop()
                 }
             }
         }
@@ -282,8 +283,8 @@ class ProcessingViewController: RecipeRobotViewController {
                     sound.play()
                 }
 
-                self!.gearsShouldRotate(false)
-                if let button = self!.cancelButton {
+                self?.gearsShouldRotate(false)
+                if let button = self?.cancelButton {
                     button.title = "Let's Do Another!"
                 }
         })
@@ -293,9 +294,8 @@ class ProcessingViewController: RecipeRobotViewController {
         if self.task.isProcessing {
             cancelButton = sender
             self.task.cancel()
-        } else {
-            self.dismissController(sender)
         }
+        self.dismissController(sender)
     }
 }
 
