@@ -1,3 +1,27 @@
+#!/usr/bin/python
+# This Python file uses the following encoding: utf-8
+
+# Recipe Robot
+# Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+"""
+facts.py
+"""
+
+
 from collections import MutableMapping, MutableSequence
 from copy import deepcopy
 import sys
@@ -15,9 +39,9 @@ class Facts(MutableMapping):
     """Dictionary-like object that writes to a plist every update."""
 
     def __init__(self):
-        self._dict = {"errors": ExitingList("errors"),
-                      "reminders": NotifyingList("reminders"),
-                      "warnings": NotifyingList("warnings"),
+        self._dict = {"errors": NoisyNotifyingList("errors"),
+                      "reminders": NoisyNotifyingList("reminders"),
+                      "warnings": NoisyNotifyingList("warnings"),
                       "recipes": NotifyingList("recipes"),
                       "icons": NotifyingList("icons"),}
 
@@ -26,15 +50,6 @@ class Facts(MutableMapping):
 
     def __setitem__(self, key, val):
         self._dict[key] = val
-        # Old plist-writing version.
-        # TODO (Shea): Eventually we need to make args a dict instead of a
-        # Namespace.
-        # if "args" in self._dict and not isinstance(output["args"], dict):
-        #     output = deepcopy(self._dict)
-        #     output["args"] = vars(output["args"])
-        # else:
-        #     output = self._dict
-        # FoundationPlist.writePlist(output, self.path)
 
     def __delitem__(self, key):
         if key in self:
@@ -47,9 +62,12 @@ class Facts(MutableMapping):
     def __len__(self):
         return len(self._dict)
 
+    def __repr__(self):
+        return self._dict.__repr__()
 
 class NotifyingList(MutableSequence):
     """A list that robo_prints and sends NSNotifications on changes"""
+
     def __init__(self, message_type, iterable=None):
         self.notification_center = (
             NSDistributedNotificationCenter.defaultCenter())
@@ -60,7 +78,7 @@ class NotifyingList(MutableSequence):
             self._list = []
 
     def __getitem__(self, index):
-        return self._list(index)
+        return self._list[index]
 
     def __setitem__(self, index, val):
         self._list[index] = val
@@ -78,10 +96,6 @@ class NotifyingList(MutableSequence):
 
     def _respond_to_item_setting(self, message):
         self._send_notification(self.message_type, message)
-        robo_print(
-            message,
-            LogLevel.__getattribute__(LogLevel,
-                                      self.message_type.rstrip("s").upper()))
 
     def _send_notification(self, name, message):
         userInfo = {"message": str(message)}
@@ -91,9 +105,15 @@ class NotifyingList(MutableSequence):
             userInfo,
             NSNotificationDeliverImmediately)
 
+    def __repr__(self):
+        return self._list.__repr__()
 
-class ExitingList(NotifyingList):
+
+class NoisyNotifyingList(NotifyingList):
     """A NotifyingList that quits when updated."""
-    def __setitem__(self, index, val):
-        super(ExitingList, self).__setitem__(index, val)
-        sys.exit(1)
+
+    def _respond_to_item_setting(self, message):
+        self._send_notification(self.message_type, message)
+        log_level = LogLevel.__getattribute__(
+                LogLevel, self.message_type.rstrip("s").upper())
+        robo_print(message, log_level)

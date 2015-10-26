@@ -41,7 +41,7 @@ from .exceptions import RoboError
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
-    print "[WARNING] importing plistlib as FoundationPlist"
+    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
     import plistlib as FoundationPlist
 
 
@@ -137,22 +137,6 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0, report=None):
         (log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or
                                             OutputMode.debug_mode))):
         print_func(line)
-    # elif log_level is LogLevel.REMINDER:
-    #     print_func(line)
-    #     # TODO (Shea): This is problematic. robo_print should only be printing.
-    #     if report:
-    #         report.reminders.append(message)
-    # elif log_level is LogLevel.WARNING:
-    #     print_func(line)
-    #     # TODO (Shea): This is problematic. robo_print should only be printing.
-    #     if report:
-    #         report.warnings.append(message)
-    # elif log_level is LogLevel.LOG:
-    #     print_func(line)
-    # elif log_level is LogLevel.DEBUG and OutputMode.debug_mode:
-    #     print_func(line)
-    # elif log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or OutputMode.debug_mode):
-    #     print_func(line)
 
 
 def create_dest_dirs(path):
@@ -167,8 +151,9 @@ def create_dest_dirs(path):
     if not os.path.exists(dest_dir):
         try:
             os.makedirs(dest_dir)
-        except OSError:
-            error_handler("Unable to create directory at %s." % dest_dir, LogLevel.ERROR)
+        except OSError as error:
+            raise RoboError("Unable to create directory at %s." % dest_dir,
+                            error=error)
 
 
 def create_SourceForgeURLProvider(dest_dir):
@@ -186,8 +171,10 @@ def create_SourceForgeURLProvider(dest_dir):
             download_file.write(raw_download.read())
             robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"), LogLevel.VERBOSE, 4)
     except:
-        robo_print("Unable to download SourceForgeURLProvider from GitHub.", LogLevel.WARNING)
         # TODO(Elliot):  Copy SourceForgeURLProvider from local file. (#46)
+        # TODO: This doesn't notify or update the facts object.
+        robo_print("Unable to download SourceForgeURLProvider from GitHub.",
+                   LogLevel.WARNING)
 
 
 def extract_app_icon(facts, png_path):
@@ -216,7 +203,8 @@ def extract_app_icon(facts, png_path):
             robo_print("%s" % png_path, LogLevel.VERBOSE, 4)
             facts["icons"].append(png_path)
         else:
-            robo_print("An error occurred during icon extraction: %s" % err, LogLevel.WARNING)
+            facts["warnings"].append(
+                "An error occurred during icon extraction: %s" % err)
 
 
 def get_exitcode_stdout_stderr(cmd, stdin=""):
@@ -290,16 +278,19 @@ def any_item_in_string(items, test_string):
     return any([True for item in items if item in test_string])
 
 
-def create_existing_recipe_list(app_name, recipes, use_github_token):
+def create_existing_recipe_list(facts):
     """Use autopkg search results to build existing recipe list.
 
     Args:
-        app_name: The name of the app for which we're searching for
-            recipes.
-        recipes: The list of known recipe types, created by
-            init_recipes().
-        args: The command line arguments.
+        facts: The Facts instance containing all of our information.
+            Required keys:
+                app_name: The app's name.
+                recipes: The recipes to build.
+                args: ArgParser args with github_token bool.
     """
+    app_name = facts["app_name"]
+    recipes = facts["recipe_types"]
+    use_github_token = facts["args"].github_token
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
     recipe_searches = []
     recipe_searches.append(app_name)
@@ -316,11 +307,14 @@ def create_existing_recipe_list(app_name, recipes, use_github_token):
         robo_print("Searching for existing AutoPkg recipes for \"%s\"..." % this_search, LogLevel.VERBOSE)
         if use_github_token:
             if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
-                robo_print("I couldn't find a GitHub token to use.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "I couldn't find a GitHub token to use.")
                 cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
             else:
                 # TODO(Elliot): Learn how to use the GitHub token. (#18) https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
-                robo_print("I found a GitHub token, but I'm still learning how to use it.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "I found a GitHub token, but I'm still learning how to "
+                    "use it.")
                 cmd = "/usr/local/bin/autopkg search --path-only --use-token \"%s\"" % this_search
         else:
             cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
@@ -341,23 +335,15 @@ def create_existing_recipe_list(app_name, recipes, use_github_token):
                         is_existing = True
                         break
             if is_existing is True:
-                error_handler("Sorry, AutoPkg recipes already exist for this "
-                              "app, and I can't blend new recipes with "
-                              "existing recipes.\n\nHere are my suggestions:"
-                              "\n\t- See if one of the above recipes meets "
-                              "your needs, either as-is or using an override."
-                              "\n\t- Write your own recipe using one of the "
-                              "above as the ParentRecipe."
-                              "\n\t- Or if you must, write your own recipe "
-                              "from scratch.", LogLevel.ERROR)
+                raise RoboError(
+                    "Sorry, AutoPkg recipes already exist for this app, and "
+                    "I can't blend new recipes with existing recipes.\n\nHere "
+                    "are my suggestions:\n\t- See if one of the above recipes "
+                    "meets your needs, either as-is or using an override."
+                    "\n\t- Write your own recipe using one of the above as "
+                    "the ParentRecipe.\n\t- Or if you must, write your own "
+                    "recipe from scratch.")
             if not is_existing:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
-            error_handler(err, LogLevel.ERROR)
-
-
-def error_handler(message, log_level, **kwargs):
-    """Robo_print and then quit."""
-    # TODO: The kwargs are in there in case an unexpected indent shows up.
-    # This could eventually be replaced with just raising the error.
-    raise RoboError(message)
+            raise RoboError(err.message)

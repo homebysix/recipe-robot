@@ -75,8 +75,7 @@ from recipe_robot_lib.tools import (
     any_item_in_string, create_dest_dirs, get_exitcode_stdout_stderr,
     robo_print, LogLevel, OutputMode, print_welcome_text, __version__,
     write_report, timed, SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
-    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS, PREFS_FILE,
-    error_handler)
+    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS, PREFS_FILE)
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
@@ -191,9 +190,10 @@ def init_prefs(facts):
         try:
             prefs = FoundationPlist.readPlist(PREFS_FILE)
         except FoundationPlist.NSPropertyListSerializationException:
-            robo_print("There was a problem opening the prefs file. Building "
-                       "new preferences.", LogLevel.WARNING)
-            prefs = build_prefs(prefs, recipes)
+            message = ("There was a problem opening the prefs file. Building "
+                       "new preferences.")
+            facts["warnings"].append(message)
+            prefs = build_prefs({}, facts)
 
         for recipe in recipes:
             # Load preferred recipe types.
@@ -211,9 +211,10 @@ def init_prefs(facts):
         prefs["RecipeCreateCount"] = int(prefs["RecipeCreateCount"])
 
     else:
-        robo_print("No prefs file found. Building new preferences...",
-                   LogLevel.WARNING)
-        prefs = build_prefs(prefs, recipes)
+        # TODO: Isn't this basically the same condition as the except above?
+        message = "No prefs file found. Building new preferences..."
+        facts["warnings"].append(message)
+        prefs = build_prefs({}, facts)
 
     # Record last version number.
     prefs["LastRecipeRobotVersion"] = __version__
@@ -298,13 +299,14 @@ def build_prefs(prefs, facts):
             sys.exit(0)
         else:
             try:
-                if recipes[int(choice)]["preferred"] is False:
-                    recipes[int(choice)]["preferred"] = True
-                else:
-                    recipes[int(choice)]["preferred"] = False
-            except Exception:
-                robo_print("%s is not a valid option. Please try "
-                           "again.\n" % choice, LogLevel.WARNING)
+                choice = int(choice)
+            except ValueError:
+                message = ("%s is not a valid option. Please try "
+                           "again.\n" % choice)
+                robo_print(message, LogLevel.WARNING)
+                continue
+
+            recipes[choice]["preferred"] = False if recipes[choice] else True
 
     # Set "preferred" status of each recipe type according to
     # preferences.
@@ -398,8 +400,8 @@ def process_input_path(facts):
             robo_print("Input path looks like an app.", LogLevel.VERBOSE)
             inspect_func = inspect_app
         elif input_path.endswith(".recipe"):
-            error_handler("Sorry, I can't use existing AutoPkg recipes as "
-                          "input.", LogLevel.ERROR)
+            raise RoboError("Sorry, I can't use existing AutoPkg recipes as "
+                            "input.")
         elif input_path.endswith(SUPPORTED_INSTALL_FORMATS):
             robo_print("Input path looks like an installer.", LogLevel.VERBOSE)
             inspect_func = inspect_pkg
@@ -410,11 +412,11 @@ def process_input_path(facts):
             robo_print("Input path looks like an archive.", LogLevel.VERBOSE)
             inspect_func = inspect_archive
         else:
-            error_handler("I haven't been trained on how to handle this "
-                          "input path:\n\t%s" % input_path, LogLevel.ERROR)
+            raise RoboError("I haven't been trained on how to handle this "
+                            "input path:\n\t%s" % input_path)
     else:
-        error_handler("Input path does not exist. Please try again with a "
-                      "valid input path.", LogLevel.ERROR)
+        raise RoboError("Input path does not exist. Please try again with a "
+                        "valid input path.")
 
     if inspect_func:
         facts = inspect_func(input_path, args, facts)
@@ -432,6 +434,7 @@ def get_app_description(app_name):
     # Start with an empty string. (If it remains empty, the parent
     # function will know that no description was available.)
     description = ""
+    warning = None
 
     # This is the HTML immediately preceding the description text on the
     # MacUpdate search results page.
@@ -454,10 +457,10 @@ def get_app_description(app_name):
                 # lines.
                 break
     else:
-        robo_print("Error occurred while getting description from "
-                   "MacUpdate: %s" % err, LogLevel.WARNING)
+        warning = ("Error occurred while getting description from "
+                   "MacUpdate: %s" % err)
 
-    return description
+    return (description, warning)
 
 
 def inspect_github_url(input_path, args, facts):
@@ -497,8 +500,8 @@ def inspect_github_url(input_path, args, facts):
     path.remove("")
     if "api.github.com" in input_path:
         if "/repos/" not in input_path:
-            robo_print("GitHub API URL specified is not a repository.",
-                       LogLevel.WARNING)
+            message = "GitHub API URL specified is not a repository."
+            facts["warnings"].append(message)
         else:
             github_repo = path[1] + "/" + path[2]
     elif ".github.io" in input_path:
@@ -525,31 +528,36 @@ def inspect_github_url(input_path, args, facts):
             raw_json_user = urlopen(user_api_url).read()
         except HTTPError as err:
             if err.code == 403:
-                robo_print("Error occurred while getting information "
-                           "from the GitHub API. If you've been creating a "
-                           "lot of recipes quickly, you may have hit the "
-                           "rate limit. Give it a few minutes, then try "
-                           "again. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error occurred while getting information from the GitHub "
+                    "API. If you've been creating a lot of recipes quickly, "
+                    "you may have hit the rate limit. Give it a few minutes, "
+                    "then try again. (%s)" % err)
                 return facts
             if err.code == 404:
-                robo_print("GitHub API URL not found. "
-                           "(%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append("GitHub API URL not found. (%s)" %
+                                         err)
                 return facts
             else:
-                robo_print("Error occurred while getting information "
-                           "from the GitHub API. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error occurred while getting information from the GitHub "
+                    "API. (%s)" % err)
+                # TODO: All of these return facts can just be return, since
+                # dicts are passed by reference.
                 return facts
         except URLError as err:
-            if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
+            if str(err.reason).startswith(
+                    "[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
                 # TODO(Elliot): Try again using curl? (#19)
-                robo_print("I got an SSLv3 handshake error while getting "
-                           "information from the GitHub API, and I "
-                           "don't yet know what to do with that. "
-                           "(%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "I got an SSLv3 handshake error while getting information "
+                    "from the GitHub API, and I don't yet know what to do "
+                    "with that. (%s)" % err)
                 return facts
             else:
-                robo_print("Error encountered while getting information "
-                           "from the GitHub API. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error encountered while getting information from the "
+                    "GitHub API. (%s)" % err)
                 return facts
 
         # Parse the downloaded JSON.
@@ -578,8 +586,7 @@ def inspect_github_url(input_path, args, facts):
                            LogLevel.VERBOSE, 4)
                 facts["description"] = description
             else:
-                robo_print("No GitHub description provided.",
-                           LogLevel.WARNING)
+                facts["warnings"].append("No GitHub description provided.")
 
         # Get download format of latest release.
         if "download_format" not in facts or "download_url" not in facts:
@@ -600,16 +607,16 @@ def inspect_github_url(input_path, args, facts):
                            LogLevel.VERBOSE, 4)
                 facts["download_format"] = download_format
             else:
-                robo_print("Could not detect GitHub release download format.",
-                           LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Could not detect GitHub release download format.")
             if download_url != "":
                 robo_print("GitHub release download URL "
                            "is: %s" % download_url, LogLevel.VERBOSE, 4)
                 facts["download_url"] = download_url
                 facts = inspect_download_url(download_url, args, facts)
             else:
-                robo_print("Could not detect GitHub release download URL.",
-                           LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Could not detect GitHub release download URL.")
 
         # Get the developer's name from GitHub.
         if "developer" not in facts:
@@ -623,20 +630,21 @@ def inspect_github_url(input_path, args, facts):
                            "is: %s" % developer, LogLevel.VERBOSE, 4)
                 facts["developer"] = developer
             else:
-                robo_print("Could not detect GitHub developer.",
-                           LogLevel.WARNING)
+                facts["warnings"].append("Could not detect GitHub developer.")
 
         # Warn user if the GitHub project is private.
         if parsed_repo.get("private", False) is not False:
-            robo_print("This GitHub project is marked \"private\" "
-                       "and recipes you generate may not work for others.", LogLevel.WARNING)
+            facts["warnings"].append(
+                "This GitHub project is marked \"private\" and recipes you "
+                "generate may not work for others.")
 
         # Warn user if the GitHub project is a fork.
         if parsed_repo.get("fork", False) is not False:
-            robo_print("This GitHub project is a fork. You may want to "
-                       "try again with the original repo URL instead.", LogLevel.WARNING)
+            facts["warnings"].append(
+                "This GitHub project is a fork. You may want to try again "
+                "with the original repo URL instead.")
     else:
-        robo_print("Could not detect GitHub repo.", LogLevel.WARNING)
+        facts["warnings"].append("Could not detect GitHub repo.")
 
     return facts
 
@@ -690,7 +698,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         proj_str = input_path.lstrip("http://")
         proj_name = proj_str[:proj_str.find(marker)]
     else:
-        robo_print("Unable to parse SourceForge URL.", LogLevel.WARNING)
+        facts["warnings"].append("Unable to parse SourceForge URL.")
     if proj_name != "":
 
         # Use SourceForge API to obtain project information.
@@ -699,31 +707,33 @@ def inspect_sourceforge_url(input_path, args, facts):
             raw_json = urlopen(project_api_url).read()
         except HTTPError as err:
             if err.code == 403:
-                robo_print("Error occurred while getting information "
-                           "from the SourceForge API. If you've been creating a "
-                           "lot of recipes quickly, you may have hit the "
-                           "rate limit. Give it a few minutes, then try "
-                           "again. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error occurred while getting information from the "
+                    "SourceForge API. If you've been creating a lot of "
+                    "recipes quickly, you may have hit the rate limit. Give "
+                    "it a few minutes, then try again. (%s)" % err)
                 return facts
             if err.code == 404:
-                robo_print("SourceForge API URL not found. "
-                           "(%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append("SourceForge API URL not found. "
+                                         "(%s)" % err)
                 return facts
             else:
-                robo_print("Error occurred while getting information "
-                           "from the SourceForge API. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error occurred while getting information from the "
+                    "SourceForge API. (%s)" % err)
                 return facts
         except URLError as err:
             if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
                 # TODO(Elliot): Try again using curl? (#19)
-                robo_print("I got an SSLv3 handshake error while getting "
-                           "information from the SourceForge API, and I "
-                           "don't yet know what to do with that. "
-                           "(%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "I got an SSLv3 handshake error while getting information "
+                    "from the SourceForge API, and I don't yet know what to "
+                    "do with that. (%s)" % err)
                 return facts
             else:
-                robo_print("Error encountered while getting information "
-                           "from the SourceForge API. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error encountered while getting information from the "
+                    "SourceForge API. (%s)" % err)
                 return facts
         parsed_json = json.loads(raw_json)
 
@@ -750,7 +760,8 @@ def inspect_sourceforge_url(input_path, args, facts):
             robo_print("SourceForge project ID is: %s" % proj_id, LogLevel.VERBOSE, 4)
             facts["sourceforge_id"] = proj_id
         else:
-            robo_print("Could not detect SourceForge project ID.", LogLevel.WARNING)
+            facts["warnings"].append(
+                "Could not detect SourceForge project ID.")
 
         # Get project description.
         if "description" not in facts:
@@ -765,7 +776,8 @@ def inspect_sourceforge_url(input_path, args, facts):
                 robo_print("SourceForge description is: %s" % description, LogLevel.VERBOSE, 4)
                 facts["description"] = description
             else:
-                robo_print("Could not detect SourceForge description.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Could not detect SourceForge description.")
 
         # Get download format of latest release.
         if "download_url" not in facts:
@@ -777,8 +789,9 @@ def inspect_sourceforge_url(input_path, args, facts):
             try:
                 raw_xml = urlopen(files_rss)
             except Exception as err:
-                robo_print("Error occured while inspecting SourceForge RSS "
-                           "feed: %s" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error occured while inspecting SourceForge RSS feed: "
+                    "%s" % err)
             doc = parse(raw_xml)
 
             # Get the latest download URL.
@@ -796,16 +809,19 @@ def inspect_sourceforge_url(input_path, args, facts):
             if download_url != "":
                 facts = inspect_download_url(download_url, args, facts)
             else:
-                robo_print("Could not detect SourceForge latest release download_url.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Could not detect SourceForge latest release "
+                    "download_url.")
 
         # Warn user if the SourceForge project is private.
         if "private" in parsed_json:
             if parsed_json["private"] is True:
-                robo_print("This SourceForge project is marked \"private\" "
-                           "and recipes you generate may not work for others.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "This SourceForge project is marked \"private\" and "
+                    "recipes you generate may not work for others.")
 
     else:
-        robo_print("Could not detect SourceForge project name.", LogLevel.WARNING)
+        facts["warnings"].append("Could not detect SourceForge project name.")
 
     return facts
 
@@ -853,31 +869,33 @@ def inspect_bitbucket_url(input_path, args, facts):
             parsed_release = json.loads(raw_json_release)
         except HTTPError as err:
             if err.code == 403:
-                robo_print("Error occurred while getting information "
-                           "from the BitBucket API. If you've been creating a "
-                           "lot of recipes quickly, you may have hit the "
-                           "rate limit. Give it a few minutes, then try "
-                           "again. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error occurred while getting information from the "
+                    "BitBucket API. If you've been creating a lot of recipes "
+                    "quickly, you may have hit the rate limit. Give it a few "
+                    "minutes, then try again. (%s)" % err)
                 return facts
             if err.code == 404:
-                robo_print("BitBucket API URL not found. "
-                           "(%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "BitBucket API URL not found. " "(%s)" % err)
                 return facts
             else:
-                robo_print("Error occurred while getting information "
-                           "from the BitBucket API. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error occurred while getting information from the "
+                    "BitBucket API. (%s)" % err)
                 return facts
         except URLError as err:
             if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
                 # TODO(Elliot): Try again using curl? (#19)
-                robo_print("I got an SSLv3 handshake error while getting "
-                           "information from the BitBucket API, and I "
-                           "don't yet know what to do with that. "
-                           "(%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "I got an SSLv3 handshake error while getting "
+                    "information from the BitBucket API, and I don't yet "
+                    "know what to do with that. (%s)" % err)
                 return facts
             else:
-                robo_print("Error encountered while getting information "
-                           "from the BitBucket API. (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error encountered while getting information from the "
+                    "BitBucket API. (%s)" % err)
                 return facts
 
         # Get app name.
@@ -909,7 +927,8 @@ def inspect_bitbucket_url(input_path, args, facts):
                 robo_print("BitBucket description is: %s" % description, LogLevel.VERBOSE, 4)
                 facts["description"] = description
             else:
-                robo_print("Could not detect BitBucket description.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Could not detect BitBucket description.")
 
         # Get download format of latest release.
         if "download_format" not in facts or "download_url" not in facts:
@@ -928,22 +947,25 @@ def inspect_bitbucket_url(input_path, args, facts):
                            "is: %s" % download_format, LogLevel.VERBOSE, 4)
                 facts["download_format"] = download_format
             else:
-                robo_print("Could not detect BitBucket release download format.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Could not detect BitBucket release download format.")
             if download_url != "":
                 robo_print("BitBucket release download URL "
                            "is: %s" % download_url, LogLevel.VERBOSE, 4)
                 facts["download_url"] = download_url
                 facts = inspect_download_url(download_url, args, facts)
             else:
-                robo_print("Could not detect BitBucket release download URL.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Could not detect BitBucket release download URL.")
 
         # Warn user if the BitBucket project is private.
         if parsed_repo.get("is_private", False) is not False:
-            robo_print("This BitBucket project is marked \"private\" "
-                       "and recipes you generate may not work for others.", LogLevel.WARNING)
+            facts["warnings"].append(
+                "This BitBucket project is marked \"private\" and recipes "
+                "you generate may not work for others.")
 
     else:
-        robo_print("Could not detect BitBucket repo.", LogLevel.WARNING)
+        facts["warnings"].append("Could not detect BitBucket repo.")
 
     return facts
 
@@ -984,38 +1006,41 @@ def inspect_sparkle_feed_url(input_path, args, facts):
                 opener = build_opener()
                 opener.addheaders = [("User-agent", "Mozilla/5.0")]
                 raw_xml = opener.open(input_path)
-                robo_print("I had to use a different user-agent in order to "
-                           "read this Sparkle feed. If you run the recipes and "
-                           "get a \"Can't open URL\" error, it means AutoPkg "
-                           "encountered the same problem.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "I had to use a different user-agent in order to read "
+                    "this Sparkle feed. If you run the recipes and get a "
+                    "\"Can't open URL\" error, it means AutoPkg encountered "
+                    "the same problem.")
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
-                robo_print("Error occured while downloading Sparkle feed (%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error occured while downloading Sparkle feed (%s)" % err)
                 # Remove Sparkle feed if it's not usable.
                 facts.pop("sparkle_feed", None)
                 return facts
         if err.code == 404:
-            robo_print("Sparkle feed not found. "
-                       "(%s)" % err, LogLevel.WARNING)
+            facts["warnings"].append("Sparkle feed not found. (%s)" % err)
             facts.pop("sparkle_feed", None)
             return facts
         else:
-            robo_print("Error occurred while getting information "
-                       "from the Sparkle feed. (%s)" % err, LogLevel.WARNING)
+            facts["warnings"].append(
+                "Error occurred while getting information from the Sparkle "
+                "feed. (%s)" % err)
             facts.pop("sparkle_feed", None)
             return facts
     except URLError as err:
         if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
             # TODO(Elliot): Try again using curl? (#19)
-            robo_print("I got an SSLv3 handshake error while getting "
-                       "information from the Sparkle feed, and I "
-                       "don't yet know what to do with that. "
-                       "(%s)" % err, LogLevel.WARNING)
+            facts["warnings"].append(
+                "I got an SSLv3 handshake error while getting information "
+                "from the Sparkle feed, and I don't yet know what to do with "
+                "that.  (%s)" % err)
             facts.pop("sparkle_feed", None)
             return facts
         else:
-            robo_print("Error encountered while getting information "
-                       "from the Sparkle feed. (%s)" % err, LogLevel.WARNING)
+            facts["warnings"].append(
+                "Error encountered while getting information from the "
+                "Sparkle feed. (%s)" % err)
             facts.pop("sparkle_feed", None)
             return facts
 
@@ -1024,7 +1049,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     try:
         doc = parse(raw_xml)
     except ParseError as err:
-        robo_print("Error occured while parsing Sparkle feed (%s)" % err, LogLevel.WARNING)
+        facts["warnings"].append(
+            "Error occured while parsing Sparkle feed (%s)" % err)
         facts.pop("sparkle_feed", None)
         return facts
 
@@ -1118,9 +1144,9 @@ def inspect_download_url(input_path, args, facts):
                                       "github_url" not in facts["inspections"] and
                                       "sourceforge_url" not in facts["inspections"] and
                                       "bitbucket_url" not in facts["inspections"]):
-        robo_print("Careful, this might be a version-specific URL. Better to "
-                   "give me a \"-latest\" URL or a Sparkle "
-                   "feed.", LogLevel.WARNING)
+        facts["warnings"].append(
+            "Careful, this might be a version-specific URL. Better to give me "
+            "a \"-latest\" URL or a Sparkle feed.")
 
     # Determine filename from input URL (will be overridden later if a
     # better candidate is found.)
@@ -1150,31 +1176,33 @@ def inspect_download_url(input_path, args, facts):
                 opener = build_opener()
                 opener.addheaders = [("User-agent", "Mozilla/5.0")]
                 raw_download = opener.open(input_path)
-                robo_print("I had to use a different user-agent in order to "
-                           "download this file. If you run the recipes and get a "
-                           "\"Can't open URL\" error, it means AutoPkg "
-                           "encountered the same problem.", LogLevel.WARNING)
+                facts["warnings"].append(
+                    "I had to use a different user-agent in order to "
+                    "download this file. If you run the recipes and get a "
+                    "\"Can't open URL\" error, it means AutoPkg encountered "
+                    "the same problem.")
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
-                robo_print("Error encountered during file download. "
-                           "(%s)" % err, LogLevel.WARNING)
+                facts["warnings"].append(
+                    "Error encountered during file download. (%s)" % err)
                 return facts
         if err.code == 404:
-            robo_print("Download URL not found. (%s)" % err, LogLevel.WARNING)
+            facts["warnings"].append("Download URL not found. (%s)" % err)
             return facts
         else:
-            robo_print("Error encountered during file download. "
-                       "(%s)" % err, LogLevel.WARNING)
+            facts["warnings"].append(
+                "Error encountered during file download. (%s)" % err)
             return facts
     except URLError as err:
         if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
             # TODO(Elliot): Try again using curl? (#19)
-            robo_print("I got an SSLv3 handshake error, and I don't yet know "
-                       "what to do with that. (%s)" % err, LogLevel.WARNING)
+            facts["warnings"].append(
+                "I got an SSLv3 handshake error, and I don't yet know what to "
+                "do with that. (%s)" % err)
             return facts
         else:
-            robo_print("Error encountered during file download. "
-                       "(%s)" % err.reason, LogLevel.WARNING)
+            facts["warnings"].append("Error encountered during file download. "
+                                     "(%s)" % err.reason)
             return facts
 
     # Get the actual filename from the server, if it exists.
@@ -1249,9 +1277,9 @@ def inspect_download_url(input_path, args, facts):
         facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
 
     if facts.get("download_format", "") == "":
-        robo_print("I've investigated pretty thoroughly, and I'm still not "
-                   "sure what the download format is. This could cause "
-                   "problems later.", LogLevel.WARNING)
+        facts["warnings"].append(
+            "I've investigated pretty thoroughly, and I'm still not sure "
+            "what the download format is. This could cause problems later.")
 
     return facts
 
@@ -1380,10 +1408,10 @@ def inspect_disk_image(input_path, args, facts):
             dmg_plist.write(out_clean)
         try:
             dmg_dict = FoundationPlist.readPlist(os.path.join(CACHE_DIR, "dmg_attach.plist"))
-        except Exception:
-            error_handler("Shoot, I had trouble parsing the output of "
-                          "hdiutil while mounting the downloaded dmg. Sorry "
-                          "about that.", LogLevel.ERROR)
+        except Exception as error:
+            raise RoboError(
+                "Shoot, I had trouble parsing the output of hdiutil while "
+                "mounting the downloaded dmg. Sorry about that.", error=error)
         for entity in dmg_dict["system-entities"]:
             if "mount-point" in entity:
                 dmg_mount = entity["mount-point"]
@@ -1624,9 +1652,9 @@ def inspect_app(input_path, args, facts):
     try:
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
         robo_print("App seems valid", LogLevel.VERBOSE, 4)
-    except Exception:
-        error_handler("%s doesn't look like a valid app to me." % input_path,
-                      LogLevel.ERROR)
+    except Exception as error:
+        raise RoboError("%s doesn't look like a valid app to me." % input_path,
+                        error=error)
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
@@ -1661,8 +1689,7 @@ def inspect_app(input_path, args, facts):
     if "CFBundleIdentifier" in info_plist:
         bundle_id = info_plist["CFBundleIdentifier"]
     else:
-        error_handler("Strange, this app doesn't have a bundle identifier.",
-                      LogLevel.ERROR)
+        raise RoboError("Strange, this app doesn't have a bundle identifier.")
     robo_print("Bundle idenfitier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
     facts["bundle_id"] = bundle_id
 
@@ -1729,8 +1756,8 @@ def inspect_app(input_path, args, facts):
                        (version_key, info_plist[version_key]), LogLevel.VERBOSE, 4)
             facts["version_key"] = version_key
         else:
-            error_handler("Sorry, I can't determine which version key to use "
-                          "for this app.", LogLevel.ERROR)
+            raise RoboError("Sorry, I can't determine which version key to "
+                            "use for this app.")
 
     # Determine path to the app's icon.
     if "icon_path" not in facts:
@@ -1739,7 +1766,7 @@ def inspect_app(input_path, args, facts):
         if "CFBundleIconFile" in info_plist:
             icon_path = os.path.join(input_path, "Contents", "Resources", info_plist["CFBundleIconFile"])
         else:
-            robo_print("Can't determine app icon.", LogLevel.WARNING)
+            facts["warnings"].append("Can't determine app icon.")
         if icon_path != "":
             robo_print("App icon is: %s" % icon_path, LogLevel.VERBOSE, 4)
             facts["icon_path"] = icon_path
@@ -1747,10 +1774,12 @@ def inspect_app(input_path, args, facts):
     # Attempt to get a description of the app from MacUpdate.com.
     if "description" not in facts:
         robo_print("Getting app description from MacUpdate...", LogLevel.VERBOSE)
-        description = get_app_description(app_name)
-        if description != "":
+        description, warning = get_app_description(app_name)
+        if description:
             robo_print("Description: %s" % description, LogLevel.VERBOSE, 4)
             facts["description"] = description
+        if warning:
+            facts["warnings"].append(warning)
 
     # Gather info from code signing attributes, including:
     #    - Code signature verification requirements
@@ -1785,7 +1814,8 @@ def inspect_app(input_path, args, facts):
                 if line.startswith(vers_marker):
                     codesign_version = line[len(vers_marker):len(vers_marker) + 1]
                     if codesign_version == "1":
-                        robo_print("This app uses an obsolete code signature.", LogLevel.WARNING)
+                        facts["warnings"].append(
+                            "This app uses an obsolete code signature.")
                         # Clear code signature markers, treat app as
                         # unsigned.
                         codesign_reqs = ""
@@ -1848,8 +1878,9 @@ def congratulate(prefs):
                              random.choice(congrats_msg)))
 
 
-def configure_from_args(args):
+def configure_from_args(facts):
     """Perform validation and reporting on args."""
+    args = facts["args"]
     # If no input path nor --config arg was specified, print help
     # and exit.
     if not args.input_path and not args.config:
@@ -1858,9 +1889,9 @@ def configure_from_args(args):
 
     # If --ignore-existing was specified, print a warning.
     if args.ignore_existing is True:
-        robo_print("Will build recipes even if they already exist in "
-                    "\"autopkg search\" results. Please don't upload "
-                    "duplicate recipes.", LogLevel.WARNING)
+        facts["warnings"].append(
+            "Will build recipes even if they already exist in \"autopkg "
+            "search\" results. Please don't upload duplicate recipes.")
 
     # If --verbose was specified, set verbose mode to True.
     if args.verbose is True or OutputMode.verbose_mode is True:
@@ -1881,27 +1912,29 @@ def main():
     # Print welcome and version number.
     print_welcome_text()
 
+    facts = Facts()
+
     # Parse command line arguments.
     argparser = build_argument_parser()
     args = argparser.parse_args()
-    configure_from_args(args)
-
-    create_dest_dirs(CACHE_DIR)
-
-    facts = Facts()
     facts["args"] = args
+    configure_from_args(facts)
 
     # Create the master recipe information list.
-    facts["recipes"] = init_recipes()
+    facts["recipe_types"] = init_recipes()
 
     # Read or create the user preferences.
     prefs = init_prefs(facts)
 
     try:
+        create_dest_dirs(CACHE_DIR)
+
         # Collect facts from the input path, based on the type of path
         # given.
         process_input_path(facts)
-        time, _ = recipe_robot_lib.generate_recipes(facts, prefs, recipes)
+        # TODO (Shea): Modernize signature.
+        time, _ = recipe_robot_lib.generate_recipes(facts, prefs,
+                                                    facts["recipe_types"])
         facts["execution_time"] = time
         # Pat on the back!
         congratulate(prefs)
@@ -1909,47 +1942,37 @@ def main():
         robo_print("\nAborting Recipe Robot!", LogLevel.ERROR)
         sys.exit(0)
     except RoboError as error:
-        robo_print(error.message, LogLevel.ERROR)
+        if OutputMode.debug_mode:
+            message = error.message + traceback.format_exc(error)
         facts["errors"].append(error.message)
         sys.exit(1)
     # TODO: Any code requiring exceptions should do local handling, then
-    # re-raise as a RoboException.
+    # re-raise as a RoboException subclass.
     except (RoboException, Exception) as error:
-        robo_print(
-            "Recipe Robot exploded with unexpected error: %s" % error.message,
-            LogLevel.ERROR)
+        message = ("Recipe Robot exploded with unexpected error: %s" %
+                   error.message)
         if args.verbose:
-            for line in traceback.format_exc(error).splitlines():
-                robo_print(line, LogLevel.ERROR)
+            message += traceback.format_exc(error)
         else:
             # TODO: Is this overkill?
-            robo_print("Run with -v/--verbose for more info.", LogLevel.ERROR)
+            message += "Run with -v/--verbose for more info."
         facts["errors"].append(error.message)
         sys.exit(1)
     finally:
-        # Cleanup tasks.
-
         # Make sure to reset the terminal color.
         recipe_robot_lib.tools.reset_term_colors()
         # Clean up cache folder.
-        if os.path.exists(CACHE_DIR) and args.keep_cache is not True:
+        if os.path.exists(CACHE_DIR) and not args.keep_cache:
             shutil.rmtree(CACHE_DIR)
 
-    # If debug is on, print all the things.
-    if OutputMode.debug_mode is True:
-        debug_dump({
-            "Command line arguments": facts["args"],
-            "Supported file formats": ALL_SUPPORTED_FORMATS,
-            "Preferences for this session": prefs,
-            "Recipe information": recipes,
-            "Facts we have collected": facts})
-
-    # # Save a report for the Mac app to read.
-    # if facts:
-    #     # Plistlib can't serialize a Namespace object, so convert args
-    #     # to a dict.
-    #     facts["args"] = vars(facts["args"])
-    #     write_report(facts, os.path.join("/tmp", "report.plist"))
+        # If debug is on, print all the things.
+        if OutputMode.debug_mode:
+            debug_dump({
+                "Command line arguments": facts["args"],
+                "Supported file formats": ALL_SUPPORTED_FORMATS,
+                "Preferences for this session": prefs,
+                "Recipe information": facts["recipe_types"],
+                "Facts we have collected": facts})
 
 
 if __name__ == '__main__':
