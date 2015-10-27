@@ -15,45 +15,7 @@ import Quartz
 var sound: NSSound? = nil
 
 
-// MARK: -- Views --
-class feedMeDropImageView: NSImageView {
-
-    override func performDragOperation(sender: NSDraggingInfo) -> Bool {
-        if let controller = sender.draggingDestinationWindow()!.contentViewController as? FeedMeViewController,
-            files = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? NSArray,
-            file = files.firstObject as? String {
-
-                controller.task = RecipeRobotTask()
-                controller.task.appOrRecipe = file
-                controller.performSegueWithIdentifier("feedMeSegue", sender: self)
-        }
-        return true
-    }
-
-    override func prepareForDragOperation(sender: NSDraggingInfo) -> Bool {
-        return true
-    }
-
-    override func concludeDragOperation(sender: NSDraggingInfo?) {
-        // All done.
-    }
-
-    override func draggingEntered(sender: NSDraggingInfo) -> NSDragOperation  {
-        return NSDragOperation.Copy
-    }
-
-    override func draggingExited(sender: NSDraggingInfo?) {
-    }
-}
-
-// MARK: -- TableCellView --
-class recipeTypeCellView: NSTableCellView {
-    @IBOutlet var checkBox: NSButton?
-}
-
-// MARK: - View Controllers
-// MARK: -
-// MARK: Base view Controller for Recipe-Robot story board.
+// MARK: Base view Controller for Main Storyboard.
 class RecipeRobotViewController: NSViewController {
 
     deinit {
@@ -87,8 +49,9 @@ class RecipeRobotViewController: NSViewController {
                 // Here we pass off the task object during the seague transition.
                 // So in the future make sure to call super.prepareForSegue() on any
                 // additional viewControllers.
-                dest.task = source.task
+
                 if let dest = dest as? ProcessingViewController {
+                    dest.task = source.task
                     dest.processRecipes()
                 } else if let dest = dest as? FeedMeViewController {
                     dest.task = RecipeRobotTask()
@@ -97,7 +60,7 @@ class RecipeRobotViewController: NSViewController {
     }
 }
 
-// MARK: - FeedMe
+// MARK: - Feed Me View Controller
 class FeedMeViewController: RecipeRobotViewController {
     @IBOutlet var Gear1: NSImageView!
 
@@ -114,14 +77,13 @@ class FeedMeViewController: RecipeRobotViewController {
     }
 }
 
-// MARK: - Recipe Choice
-class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource, NSTableViewDelegate {
+// MARK: - Preference View Controller
 
-    @IBOutlet var tableView: NSTableView!
-    @IBOutlet var scrollView: NSScrollView!
+class PreferenceViewController: RecipeRobotViewController {
 
     // MARK: IBOutlets
-    @IBOutlet var appIconImageView: NSImageView?
+    @IBOutlet var tableView: NSTableView!
+    @IBOutlet var scrollView: NSScrollView!
 
     let recipeTypes: [String] = [
         "download",
@@ -134,8 +96,7 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
         "ds"
     ]
     
-    private var enabledRecipeTypes = NSUserDefaults.standardUserDefaults().objectForKey("RecipeTypes") as? [String] ?? [String]()
-
+    private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? [String]()
 
     // MARK: Overrides
     override func viewDidLoad() {
@@ -151,7 +112,10 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
         super.viewWillDisappear()
         NSUserDefaults.standardUserDefaults().setObject(self.enabledRecipeTypes, forKey:"RecipeTypes")
     }
+}
 
+// MARK: Preference View Controller: Table View
+extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
         return recipeTypes.count
     }
@@ -169,11 +133,11 @@ class PreferenceViewController: RecipeRobotViewController, NSTableViewDataSource
 
     func tableView(tableView: NSTableView, setObjectValue object: AnyObject?, forTableColumn tableColumn: NSTableColumn?, row: Int) {
         if let value = object as? Int {
-            let t = recipeTypes[row]
-            let idx = enabledRecipeTypes.indexOf(t)
+            let type = recipeTypes[row]
+            let idx = enabledRecipeTypes.indexOf(type)
 
             if (value == NSOnState) && ( idx == nil) {
-                enabledRecipeTypes.append(t)
+                enabledRecipeTypes.append(type)
             } else if (value == NSOffState){
                 if enabledRecipeTypes.count > 0 {
                     if let idx = idx {
@@ -195,31 +159,77 @@ class ProcessingViewController: RecipeRobotViewController {
     @IBOutlet weak var infoLabel: NSTextField!
 
     @IBOutlet var gearContainerView: NSView!
+
+
+    @IBOutlet weak var recipeIndicator: NSButton?
+    @IBOutlet weak var reminderIndicator: NSButton?
+    @IBOutlet weak var iconIndicator: NSButton?
+    @IBOutlet weak var warningIndicator: NSButton?
+    @IBOutlet weak var errorIndicator: NSButton?
+
     private let listener = NotificationListener()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         progressView?.hidden = true
 
-        listener.notificationHandler = {
+        var traits =  NSFontSymbolicTraits(0)
+        let green = StatusImage.Available.image
+        let red = StatusImage.Unavailable.image
+
+        let defaultAttrs = self.infoLabel.attributedStringValue.attributesAtIndex(0, effectiveRange: nil)
+
+        infoLabel.textColor = Color.White.ns
+        infoLabel.stringValue = "Preping..."
+
+        listener.notificationHandler = {[weak self]
             noteType, info in
             var color = NSColor.whiteColor()
             switch noteType {
-            case .Error:
-                color = Color.Red.ns
-            case .Reminders:
-                color = Color.Yellow.ns
-            case .Warnings:
+            case .Info:
                 break
             case .Recipes:
-                break
+                self!.warningIndicator?.cell?.image = green
+            case .Reminders:
+                self!.reminderIndicator?.cell?.image = green
             case .Icons:
-                break
+                self!.iconIndicator?.cell?.image = green
+            case .Warnings:
+                color = Color.Yellow.ns
+                traits = (traits & NSFontSymbolicTraits(NSFontItalicTrait))
+                self!.warningIndicator?.cell?.image = red
+            case .Error:
+                color = Color.Red.ns
+                self!.errorIndicator?.cell?.image = red
             }
 
-            if let string = info["message"] as? String {
-                let attrs = [NSForegroundColorAttributeName: color]
-                self.infoLabel.attributedStringValue = NSAttributedString(string: string, attributes: attrs)
+            if let _string = info["message"] as? String {
+                // Trim the progress message down to the first two lines.
+                let string = _string.splitByLine()
+                                    .prefix(2)
+                                    .reduce(""){"\($0) \($1)"}
+                                    .trimmed
+
+                var attrs = [String: AnyObject]()
+
+                if let label = self?.infoLabel {
+                    let descriptor = label.font!
+                                          .fontDescriptor
+                                          .fontDescriptorWithSymbolicTraits(traits)
+
+                    if label.attributedStringValue.length > 0 {
+                        attrs = label.attributedStringValue
+                                     .attributesAtIndex(0, effectiveRange: nil)
+                    } else {
+                        attrs = defaultAttrs
+                    }
+
+                    attrs[NSForegroundColorAttributeName] = color
+                    attrs[NSFontAttributeName] =  NSFont(descriptor: descriptor, size: 0)
+
+                    label.attributedStringValue = NSAttributedString(string: string,
+                                                                     attributes: attrs)
+                }
             }
         }
         
@@ -233,15 +243,21 @@ class ProcessingViewController: RecipeRobotViewController {
     }
 
     override func viewWillAppear() {
+        recipeIndicator?.image = StatusImage.PartiallyAvailable.image
+        reminderIndicator?.image = StatusImage.PartiallyAvailable.image
+        iconIndicator?.image = StatusImage.PartiallyAvailable.image
+        warningIndicator?.image = StatusImage.PartiallyAvailable.image
+        errorIndicator?.image = StatusImage.PartiallyAvailable.image
+
+
         if let icon = task.appIcon {
             appIcon.image = icon
         }
         if let name = task.appOrRecipeName {
-            titleLabel.stringValue = "Making " + name + " recipes..."
+            titleLabel.stringValue = "Making \(name) recipes..."
         } else {
             titleLabel.stringValue = "Making recipes..."
         }
-
     }
 
     override func awakeFromNib() {
@@ -252,7 +268,7 @@ class ProcessingViewController: RecipeRobotViewController {
         for view in gearContainerView.subviews {
             if let view = view as? GearImageView {
                 if start {
-                    let delay = NSTimeInterval(arc4random_uniform(2000)) / 1000
+                    let delay = NSTimeInterval(arc4random_uniform(2000)) / 1000.0
                     NSTimer.scheduledTimerWithTimeInterval(delay, target: view, selector: "start", userInfo: nil, repeats: false)
                 }  else {
                     view.stop()
@@ -262,7 +278,6 @@ class ProcessingViewController: RecipeRobotViewController {
     }
 
     func processRecipes() {
-
         gearsShouldRotate(true)
 
         // Do view setup here.
@@ -297,10 +312,11 @@ class ProcessingViewController: RecipeRobotViewController {
 
                 self?.gearsShouldRotate(false)
                 if let button = self?.cancelButton {
-                    button.title = "Do Another?"
+                    button.title = "Do another?"
                 }
         })
     }
+    
     // MARK: IBActions
     @IBAction private func cancelTask(sender: NSButton){
         if self.task.isProcessing {

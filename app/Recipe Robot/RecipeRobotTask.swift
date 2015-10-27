@@ -75,6 +75,7 @@ class RecipeRobotTask: NSObject {
                 if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as? String {
                     NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
                         progress(progress: str)
+                        print(str)
                     })
                 }
         }
@@ -123,7 +124,7 @@ class RecipeRobotTask: NSObject {
         var args = [String]()
         
         if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
-            args.appendContentsOf([recipeRobotPy, self.appOrRecipe])
+            args.appendContentsOf([recipeRobotPy, "-v", self.appOrRecipe])
         }
 
         return args

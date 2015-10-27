@@ -8,8 +8,34 @@
 
 import Cocoa
 
+// MARK: Space
 extension String {
-    func parseANSI() -> NSAttributedString {
+    public func splitByLine() -> [String] {
+        return self.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
+    }
+
+    public func splitBySpace() -> [String] {
+        return self.componentsSeparatedByCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+    }
+}
+
+// MARK: Trimmed
+extension String {
+
+    // Trimmed whitespace and new line
+    public var trimmedFull: String {
+        return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+    }
+
+    // Timmed whitespace
+    public var trimmed: String {
+        return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+    }
+}
+
+// MARK: ANSI
+extension String {
+    public func parseANSI() -> NSAttributedString {
         var matchFound = false
         var color = NSColor.whiteColor()
 
@@ -41,7 +67,7 @@ extension String {
         return attrString
     }
 
-    func ANSIColors() -> Dictionary<String, NSColor> {
+    public func ANSIColors() -> Dictionary<String, NSColor> {
         let val = [
             "[0m" : NSColor.whiteColor(),
             "[91m" : Color.Red.ns,

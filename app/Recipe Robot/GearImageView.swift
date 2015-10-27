@@ -61,7 +61,9 @@ class GearImageView: NSImageView {
         rotation.fromValue = Float(0 * (M_PI / 180.0))
         rotation.toValue = Float((360.0) * (M_PI / 180.0))
 
-        rotation.duration = 10.0
+        rotation.duration = 100.0
+        rotation.speed = 2
+        
         rotation.delegate = self
 
         self.layer!.addAnimation(rotation, forKey: "transform")

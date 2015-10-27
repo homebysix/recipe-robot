@@ -16,6 +16,9 @@
 		BE328F181BDC0DFD00EAF2E5 /* NotificationListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE328F171BDC0DFD00EAF2E5 /* NotificationListener.swift */; };
 		BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */; };
 		BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE34C8351B7EC5DF00E0822E /* Main.storyboard */; };
+		BE49EB8D1BDFCB03001AA9CF /* Images.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE49EB8C1BDFCB03001AA9CF /* Images.swift */; };
+		BE49EB8F1BDFD33C001AA9CF /* FeedMeDropImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE49EB8E1BDFD33C001AA9CF /* FeedMeDropImageView.swift */; };
+		BE49EB911BDFD451001AA9CF /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE49EB901BDFD451001AA9CF /* Defaults.swift */; };
 		BE6F6BA31B800E270082011D /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
 		BE76397C1BCB42EC00589695 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE76397B1BCB42EC00589695 /* StringExtensions.swift */; };
 		BE76397E1BCB602A00589695 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE76397D1BCB602A00589695 /* Colors.swift */; };
@@ -47,6 +50,9 @@
 		BE328F171BDC0DFD00EAF2E5 /* NotificationListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationListener.swift; sourceTree = "<group>"; };
 		BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotViewController.swift; sourceTree = "<group>"; };
 		BE34C8361B7EC5DF00E0822E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		BE49EB8C1BDFCB03001AA9CF /* Images.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Images.swift; sourceTree = "<group>"; };
+		BE49EB8E1BDFD33C001AA9CF /* FeedMeDropImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedMeDropImageView.swift; sourceTree = "<group>"; };
+		BE49EB901BDFD451001AA9CF /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		BE6F6BA21B800E270082011D /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		BE76397B1BCB42EC00589695 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
 		BE76397D1BCB602A00589695 /* Colors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
@@ -98,12 +104,15 @@
 				BE34C8351B7EC5DF00E0822E /* Main.storyboard */,
 				8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */,
 				BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */,
-				BE328F171BDC0DFD00EAF2E5 /* NotificationListener.swift */,
-				BE76397D1BCB602A00589695 /* Colors.swift */,
-				BE76397B1BCB42EC00589695 /* StringExtensions.swift */,
+				BE49EB8E1BDFD33C001AA9CF /* FeedMeDropImageView.swift */,
 				BE09DAAF1BBA1D94007F8FF4 /* GearImageView.swift */,
 				BEE6A1B81BB88A080050653A /* CustomSegues.swift */,
+				BE49EB8C1BDFCB03001AA9CF /* Images.swift */,
+				BE76397D1BCB602A00589695 /* Colors.swift */,
+				BE49EB901BDFD451001AA9CF /* Defaults.swift */,
+				BE328F171BDC0DFD00EAF2E5 /* NotificationListener.swift */,
 				BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */,
+				BE76397B1BCB42EC00589695 /* StringExtensions.swift */,
 				8B42AC851B5C5BEC0058A814 /* Images.xcassets */,
 				8B42AC811B5C5BEC0058A814 /* Supporting Files */,
 				BEE6A1BA1BB89FCA0050653A /* Recipe Robot-Bridging-Header.h */,
@@ -246,10 +255,13 @@
 				BE76397C1BCB42EC00589695 /* StringExtensions.swift in Sources */,
 				BE09DAB01BBA1D95007F8FF4 /* GearImageView.swift in Sources */,
 				BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */,
+				BE49EB8D1BDFCB03001AA9CF /* Images.swift in Sources */,
 				BE76397E1BCB602A00589695 /* Colors.swift in Sources */,
 				8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */,
 				BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */,
 				BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */,
+				BE49EB8F1BDFD33C001AA9CF /* FeedMeDropImageView.swift in Sources */,
+				BE49EB911BDFD451001AA9CF /* Defaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

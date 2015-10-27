@@ -702,7 +702,7 @@ URL to start processing</string>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="feedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
                                 <rect key="frame" x="17" y="17" width="567" height="316"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" imageFrameStyle="grayBezel" id="96G-6b-REq"/>
                             </imageView>
@@ -720,7 +720,7 @@ URL to start processing</string>
                         <animations/>
                     </view>
                     <connections>
-                        <segue destination="DLx-gp-7HF" kind="custom" identifier="feedMeSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="uhZ-iq-Ne8"/>
+                        <segue destination="DLx-gp-7HF" kind="custom" identifier="FeedMeSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="uhZ-iq-Ne8"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -817,6 +817,14 @@ URL to start processing</string>
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.FollowOfficialJSSRecipesFormat" id="VbQ-yP-oBq">
+                                        <dictionary key="options">
+                                            <bool key="NSConditionallySetsEnabled" value="NO"/>
+                                            <integer key="NSNullPlaceholder" value="0"/>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
                             </button>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w0f-h9-2tF">
                                 <rect key="frame" x="231" y="9" width="113" height="32"/>
@@ -1032,6 +1040,56 @@ URL to start processing</string>
                                 </constraints>
                                 <animations/>
                             </customView>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="9Yp-aw-dgi">
+                                <rect key="frame" x="57" y="267" width="120" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="VfU-Qk-fZ3"/>
+                                </constraints>
+                                <buttonCell key="cell" type="bevel" title="Recipes" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="4yP-fn-g6Y">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="6JW-lO-aIJ">
+                                <rect key="frame" x="57" y="241" width="120" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="zOC-8d-AbL"/>
+                                </constraints>
+                                <buttonCell key="cell" type="bevel" title="Reminders" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="bS9-s6-t8w">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="6oq-Jo-oYs">
+                                <rect key="frame" x="57" y="214" width="120" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="I4y-iZ-djy"/>
+                                </constraints>
+                                <buttonCell key="cell" type="bevel" title="Icons" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="FTf-fV-dbx">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="mvH-1H-cfh">
+                                <rect key="frame" x="57" y="187" width="120" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="CYo-Ii-Wep"/>
+                                </constraints>
+                                <buttonCell key="cell" type="bevel" title="Warnings" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="nNW-jx-HFy">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="zsJ-jR-J1z">
+                                <rect key="frame" x="57" y="160" width="120" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="3vQ-rw-qkI"/>
+                                </constraints>
+                                <buttonCell key="cell" type="bevel" title="Errors" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="X8x-aK-Si7">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tsZ-nv-LQm">
                                 <rect key="frame" x="-2" y="303" width="604" height="27"/>
                                 <constraints>
@@ -1049,7 +1107,7 @@ URL to start processing</string>
                                     <constraint firstAttribute="height" constant="63" id="xSj-Yo-FPE"/>
                                 </constraints>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Processing" id="GzI-d9-eIi">
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" size="15" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -1085,14 +1143,24 @@ Gw
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="4KW-N3-A9o"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="84M-Hj-WZN"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="8Nc-Ot-98X"/>
+                            <constraint firstItem="mvH-1H-cfh" firstAttribute="top" secondItem="6oq-Jo-oYs" secondAttribute="bottom" constant="10" id="8hN-k1-dLM"/>
                             <constraint firstAttribute="trailing" secondItem="tsZ-nv-LQm" secondAttribute="trailing" id="9zS-yW-Sga"/>
+                            <constraint firstItem="zsJ-jR-J1z" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="57" id="CTg-c7-b9S"/>
                             <constraint firstAttribute="trailing" secondItem="4rl-0f-yDq" secondAttribute="trailing" constant="10" id="Gl3-su-iLT"/>
+                            <constraint firstItem="6oq-Jo-oYs" firstAttribute="top" secondItem="6JW-lO-aIJ" secondAttribute="bottom" constant="10" id="SXQ-59-GRB"/>
+                            <constraint firstItem="9Yp-aw-dgi" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="57" id="Uu2-kI-J66"/>
+                            <constraint firstItem="6oq-Jo-oYs" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="57" id="Vs3-r1-e0h"/>
+                            <constraint firstItem="mvH-1H-cfh" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="57" id="YeI-SH-hjX"/>
+                            <constraint firstItem="zsJ-jR-J1z" firstAttribute="top" secondItem="mvH-1H-cfh" secondAttribute="bottom" constant="10" id="YlD-y0-FfL"/>
                             <constraint firstItem="4rl-0f-yDq" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="10" id="Z6n-fl-BJA"/>
                             <constraint firstItem="WfO-R6-w38" firstAttribute="centerX" secondItem="7XC-1Y-g29" secondAttribute="centerX" id="d86-qL-2oo"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="dBn-hO-mKF"/>
                             <constraint firstItem="WfO-R6-w38" firstAttribute="top" secondItem="tsZ-nv-LQm" secondAttribute="bottom" constant="12" id="h3m-A5-5ks"/>
                             <constraint firstItem="tsZ-nv-LQm" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="n78-ps-3Xk"/>
                             <constraint firstItem="uhj-oq-9WR" firstAttribute="centerX" secondItem="7XC-1Y-g29" secondAttribute="centerX" id="oFe-Zp-Kra"/>
+                            <constraint firstItem="6JW-lO-aIJ" firstAttribute="top" secondItem="9Yp-aw-dgi" secondAttribute="bottom" constant="9" id="qNe-uV-x7h"/>
+                            <constraint firstItem="9Yp-aw-dgi" firstAttribute="top" secondItem="tsZ-nv-LQm" secondAttribute="bottom" constant="19" id="ver-VD-UxI"/>
+                            <constraint firstItem="6JW-lO-aIJ" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="57" id="yck-Gg-yIv"/>
                             <constraint firstItem="4rl-0f-yDq" firstAttribute="top" secondItem="WfO-R6-w38" secondAttribute="bottom" constant="14" id="ylb-uk-TNt"/>
                             <constraint firstItem="tsZ-nv-LQm" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" constant="20" id="ze2-Wt-uU4"/>
                         </constraints>
@@ -1101,9 +1169,14 @@ Gw
                     <connections>
                         <outlet property="appIcon" destination="WfO-R6-w38" id="pdh-ZM-37l"/>
                         <outlet property="cancelButton" destination="uhj-oq-9WR" id="vsK-DC-KXE"/>
+                        <outlet property="errorIndicator" destination="zsJ-jR-J1z" id="3Ps-iz-vCm"/>
                         <outlet property="gearContainerView" destination="wpZ-ia-RPf" id="1uG-eZ-rat"/>
+                        <outlet property="iconIndicator" destination="6oq-Jo-oYs" id="qBx-Jc-dKd"/>
                         <outlet property="infoLabel" destination="4rl-0f-yDq" id="suR-vn-ieg"/>
+                        <outlet property="recipeIndicator" destination="9Yp-aw-dgi" id="hU8-CQ-tlD"/>
+                        <outlet property="reminderIndicator" destination="6JW-lO-aIJ" id="eAJ-AM-JUu"/>
                         <outlet property="titleLabel" destination="tsZ-nv-LQm" id="01k-VX-CzZ"/>
+                        <outlet property="warningIndicator" destination="mvH-1H-cfh" id="XQb-Ah-VeA"/>
                     </connections>
                 </viewController>
                 <customObject id="MNt-61-K9k" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -1113,8 +1186,9 @@ Gw
     </scenes>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="NSStatusPartiallyAvailable" width="16" height="16"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="cq2-FE-JQM"/>
+        <segue reference="50X-tC-H7B"/>
     </inferredMetricsTieBreakers>
 </document>
