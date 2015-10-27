@@ -58,6 +58,10 @@ SUPPORTED_INSTALL_FORMATS = ("pkg",)
 ALL_SUPPORTED_FORMATS = (SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS +
                          SUPPORTED_INSTALL_FORMATS)
 
+# Global variables.
+CACHE_DIR = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
+                         datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
+
 
 class LogLevel(object):
     """Specify colors that are used in Terminal output."""
@@ -154,7 +158,7 @@ def create_dest_dirs(path):
             os.makedirs(dest_dir)
         except OSError as error:
             raise RoboError("Unable to create directory at %s." % dest_dir,
-                            error=error)
+                            error)
 
 
 def create_SourceForgeURLProvider(dest_dir):

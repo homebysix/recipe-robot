@@ -36,8 +36,10 @@ from xml.etree.ElementTree import parse, ParseError
 
 from recipe_robot_lib import FoundationPlist as FoundationPlist
 from recipe_robot_lib.exceptions import RoboError
-from recipe_robot_lib.tools import (robo_print, LogLevel, any_item_in_string, SUPPORTED_INSTALL_FORMATS,
-    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS, get_exitcode_stdout_stderr, ALL_SUPPORTED_FORMATS)
+from recipe_robot_lib.tools import (
+    robo_print, LogLevel, any_item_in_string, SUPPORTED_INSTALL_FORMATS,
+    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
+    get_exitcode_stdout_stderr, ALL_SUPPORTED_FORMATS, CACHE_DIR)
 
 
 def process_input_path(facts):
@@ -162,7 +164,7 @@ def inspect_app(input_path, args, facts):
         robo_print("App seems valid", LogLevel.VERBOSE, 4)
     except Exception as error:
         raise RoboError("%s doesn't look like a valid app to me." % input_path,
-                        error=error)
+                        error)
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
@@ -655,7 +657,7 @@ def inspect_disk_image(input_path, args, facts):
         except Exception as error:
             raise RoboError(
                 "Shoot, I had trouble parsing the output of hdiutil while "
-                "mounting the downloaded dmg. Sorry about that.", error=error)
+                "mounting the downloaded dmg. Sorry about that.", error)
         for entity in dmg_dict["system-entities"]:
             if "mount-point" in entity:
                 dmg_mount = entity["mount-point"]

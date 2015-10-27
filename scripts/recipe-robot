@@ -70,19 +70,14 @@ from recipe_robot_lib.exceptions import RoboException, RoboError
 from recipe_robot_lib.facts import Facts
 from recipe_robot_lib.inspect import process_input_path
 from recipe_robot_lib.tools import (
-    create_dest_dirs, robo_print, LogLevel, OutputMode, print_welcome_text, __version__,
-    ALL_SUPPORTED_FORMATS, PREFS_FILE,
-    print_death_text, congratulate)
+    create_dest_dirs, robo_print, LogLevel, OutputMode, print_welcome_text,
+    __version__, ALL_SUPPORTED_FORMATS, PREFS_FILE, print_death_text,
+    congratulate, CACHE_DIR)
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
     robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
     import plistlib as FoundationPlist
-
-
-# Global variables.
-CACHE_DIR = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
-                         datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
 
 
 def main():
@@ -111,9 +106,11 @@ def main():
         robo_print("\nAborting Recipe Robot!", LogLevel.ERROR)
         sys.exit(0)
     except RoboError as error:
-        if OutputMode.debug_mode:
-            message = error.message + traceback.format_exc(error)
-        facts["errors"].append(error.message)
+        message = error.message
+        if OutputMode.debug_mode and error.error:
+            message += error.error
+
+        facts["errors"].append(message)
         print_death_text()
         sys.exit(1)
     # TODO: Any code requiring exceptions should do local handling, then
@@ -121,12 +118,12 @@ def main():
     except (RoboException, Exception) as error:
         message = ("Recipe Robot exploded with unexpected error: %s" %
                    error.message)
-        if args.verbose:
+        if facts["args"].verbose:
             message += traceback.format_exc(error)
         else:
             # TODO: Is this overkill?
             message += "Run with -v/--verbose for more info."
-        facts["errors"].append(error.message)
+        facts["errors"].append(message)
         print_death_text()
         sys.exit(1)
     finally:

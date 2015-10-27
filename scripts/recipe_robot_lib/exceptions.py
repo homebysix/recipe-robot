@@ -24,29 +24,34 @@ Custom Exceptions for use in Recipe Robot.
 """
 
 
+import traceback
+
+
 class RoboException(Exception):
     """Base recipe-robot exception."""
 
-    def __init__(self, message, **kwargs):
+    def __init__(self, message, error=None):
         """Add message and kwargs to exception.
 
         Args:
             message: String message describing the exception.
-            kwargs: Keyword arguments are added as attributes to the
-                exception.
-
-                error: A kwarg of {error: Exception object} will be
-                    added to error attribute as a traceback string.
+            error:  An exception object. The traceback stack from
+                'error' will be string formatted and added to the
+                RoboException.error property.
         """
         # This is primarily set up to store tracebacks for later debug
         # printing.
         super(RoboException, self).__init__(message)
-        for key in kwargs:
-            if key is "error":
-                val = traceback.format_exc(kwargs[key])
-            else:
-                val = kwargs[key]
-            self.__setattr__(key, val)
+        self.error = error
+
+    @property
+    def error(self):
+        return self._error
+
+    @error.setter
+    def error(self, exception_object):
+        self._error = traceback.format_exc(exception_object)
+
 
 
 class RoboError(RoboException):
