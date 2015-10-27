@@ -68,6 +68,11 @@ from urllib2 import urlopen, build_opener, URLError, HTTPError
 from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
 
+# Test for platform here, before we try to import any PyObjC stuff.
+if  sys.platform != "darwin":
+    print "Recipe Robot requires Mac OS X."
+    sys.exit(1)
+
 import recipe_robot_lib
 from recipe_robot_lib.exceptions import RoboException, RoboError
 from recipe_robot_lib.facts import Facts
@@ -1903,18 +1908,12 @@ def configure_from_args(facts):
         OutputMode.set_debug_mode(True)
 
 
-def main():
-    """Make the magic happen."""
-    if  sys.platform != "darwin":
-        # TODO (Shea): Temporary until refactored main.
-        robo_print("Recipe Robot requires Mac OS X.", LogLevel.ERROR)
-        sys.exit(1)
+def setup(facts):
+    """Parse args, set state for recipe generation, and setup cache.
 
-    # Print welcome and version number.
-    print_welcome_text()
-
-    facts = Facts()
-
+    Args:
+        facts: A Facts object.
+    """
     # Parse command line arguments.
     argparser = build_argument_parser()
     args = argparser.parse_args()
@@ -1924,19 +1923,30 @@ def main():
     # Create the master recipe information list.
     facts["recipe_types"] = init_recipes()
 
-    # Read or create the user preferences.
-    prefs = init_prefs(facts)
+    # Make someplace to cache things.
+    create_dest_dirs(CACHE_DIR)
+
+
+def main():
+    """Make the magic happen."""
+    # Print welcome and version number.
+    print_welcome_text()
+
+    facts = Facts()
 
     try:
-        create_dest_dirs(CACHE_DIR)
+        setup(facts)
 
-        # Collect facts from the input path, based on the type of path
-        # given.
+        # Read or create the user preferences.
+        prefs = init_prefs(facts)
+
+        # Collect facts from the input path, based on the type of path.
         process_input_path(facts)
-        # TODO (Shea): Modernize signature.
-        time, _ = recipe_robot_lib.generate_recipes(facts, prefs,
-                                                    facts["recipe_types"])
+
+        # Time the execution of generating recipes.
+        time, _ = recipe_robot_lib.generate_recipes(facts, prefs)
         facts["execution_time"] = time
+
         # Pat on the back!
         congratulate(prefs)
     except KeyboardInterrupt:
@@ -1964,8 +1974,9 @@ def main():
     finally:
         # Make sure to reset the terminal color.
         recipe_robot_lib.tools.reset_term_colors()
+
         # Clean up cache folder.
-        if os.path.exists(CACHE_DIR) and not args.keep_cache:
+        if os.path.exists(CACHE_DIR) and not facts["args"].keep_cache:
             shutil.rmtree(CACHE_DIR)
 
         # If debug is on, print all the things.
@@ -1978,5 +1989,5 @@ def main():
                 "Facts we have collected": facts})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
