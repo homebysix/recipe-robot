@@ -45,15 +45,15 @@ except ImportError:
 
 
 @timed
-def generate_recipes(facts, prefs, recipes):
+def generate_recipes(facts, prefs):
     """Generate the selected types of recipes.
 
     Args:
         facts: A continually-updated dictionary containing all the information
             we know so far about the app associated with the input path.
         prefs: The dictionary containing a key/value pair for each preference.
-        recipes: The list of known recipe types, created by init_recipes().
     """
+    recipes = facts["recipe_types"]
     if "app_name" in facts:
         if not facts["args"].ignore_existing:
             create_existing_recipe_list(facts)
