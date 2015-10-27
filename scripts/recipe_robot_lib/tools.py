@@ -28,6 +28,7 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 from datetime import datetime
 from functools import wraps
 import os
+from random import choice as random_choice
 import re
 import shlex
 from subprocess import Popen, PIPE
@@ -358,3 +359,36 @@ def create_existing_recipe_list(facts):
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
             raise RoboError(err.message)
+
+
+def congratulate(prefs):
+    """Display a friendly congratulatory message upon creating recipes.
+
+    Args:
+        prefs: A dictionary containing a key/value pair for each
+            preference.
+    """
+    congrats_msg = (
+        "Amazing.",
+        "Easy peasy.",
+        "Fantastic.",
+        "Good on ya!",
+        "Imagine all the typing you saved.",
+        "Isn't meta-automation great?",
+        "(Yep, it's pretty fun for me too.)",
+        "Pretty cool, right?",
+        "Round of applause for you!",
+        "Terrific job!",
+        "Thanks!",
+        "That's awesome!",
+        "Want to do another?",
+        "Well done!",
+        "You rock star, you."
+    )
+    if prefs["RecipeCreateCount"] == 1:
+        robo_print("\nYou've created your first recipe with Recipe "
+                   "Robot. Congratulations!\n")
+    elif prefs["RecipeCreateCount"] > 1:
+        robo_print("\nYou've now created %s recipes with Recipe Robot. "
+                   "%s\n" % (prefs["RecipeCreateCount"],
+                             random_choice(congrats_msg)))
