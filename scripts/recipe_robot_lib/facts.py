@@ -41,8 +41,30 @@ from Foundation import (NSDistributedNotificationCenter,
 from .tools import (LogLevel, robo_print)
 
 
+# pylint: disable=too-few-public-methods
+class NotificationMixin(object):
+    """Adds a send_notification method to Notifying classes."""
+
+    def send_notification(self, message):
+        """Send an NSNotification to our stored center."""
+        userInfo = {"message": str(message)}  # pylint: disable=invalid-name
+        self.notification_center.postNotificationName_object_userInfo_options_(
+            "com.elliotjordan.recipe-robot.dnc.%s" % self.message_type,
+            None,
+            userInfo,
+            NSNotificationDeliverImmediately)
+
+# pylint: enable=too-few-public-methods
+
 class Facts(MutableMapping):
-    """Dictionary-like object for holding all of recipe-robot's data."""
+    """Dictionary-like object for holding all of recipe-robot's data.
+
+    To aid in intercommunication with the App, all dictionary values
+    are cast to notification-sending subclassed-varients of that type.
+
+    i.e. lists -> NotifyingList, str -> NotifyingString.
+    """
+    default_suffix = "information"
 
     def __init__(self):
         """Set up a Fact instance with required list-like objects."""
@@ -56,6 +78,12 @@ class Facts(MutableMapping):
         return self._dict[key]
 
     def __setitem__(self, key, val):
+        if isinstance(val, basestring):
+            val = NotifyingString(self.default_suffix, val)
+        elif isinstance(val, list):
+            val = NotifyingList(self.default_suffix, val)
+        elif isinstance(val, bool):
+            val = NotifyingBool(self.default_suffix, val)
         self._dict[key] = val
 
     def __delitem__(self, key):
@@ -72,7 +100,9 @@ class Facts(MutableMapping):
     def __repr__(self):
         return self._dict.__repr__()
 
-class NotifyingList(MutableSequence):
+
+# pylint: disable=too-few-public-methods, too-many-ancestors
+class NotifyingList(NotificationMixin, MutableSequence):
     """A list that robo_prints and sends NSNotifications on changes"""
 
     def __init__(self, message_type, iterable=None):
@@ -98,7 +128,7 @@ class NotifyingList(MutableSequence):
     def __setitem__(self, index, val):
         """Set val at index, and send a notification with that val."""
         self._list[index] = val
-        self._respond_to_item_setting(val)
+        self.send_notification(str(val))
 
     def __delitem__(self, index):
         del self._list[index]
@@ -109,20 +139,7 @@ class NotifyingList(MutableSequence):
     def insert(self, index, item):
         """Insert val before index, and send a notification with val."""
         self._list.insert(index, item)
-        self._respond_to_item_setting(item)
-
-    def _respond_to_item_setting(self, message):
-        """Send a notification that an item has been set."""
-        self._send_notification(self.message_type, message)
-
-    def _send_notification(self, name, message):
-        """Send an NSNotification to our stored center."""
-        userInfo = {"message": str(message)}  # pylint: disable=invalid-name
-        self.notification_center.postNotificationName_object_userInfo_options_(
-            "com.elliotjordan.recipe-robot.dnc.%s" % name,
-            None,
-            userInfo,
-            NSNotificationDeliverImmediately)
+        self.send_notification(str(item))
 
     def __repr__(self):
         return self._list.__repr__()
@@ -131,9 +148,64 @@ class NotifyingList(MutableSequence):
 class NoisyNotifyingList(NotifyingList):
     """A NotifyingList that robo_prints when updated."""
 
-    def _respond_to_item_setting(self, message):
+    def send_notification(self, message):
         """Notify that an item has been set, and robo_print it."""
-        self._send_notification(self.message_type, message)
+        super(NoisyNotifyingList, self).send_notification(message)
         log_level = LogLevel.__getattribute__(
             LogLevel, self.message_type.rstrip("s").upper())
         robo_print(message, log_level)
+
+
+class NotifyingString(NotificationMixin, str):
+    """A string that sends notifications."""
+
+    def __new__(cls, message_type, text=""):
+        """Set up NotifyingString for use.
+
+        Args:
+            message_type: String name appended to message identifier.
+            text: Optional string to use to fill the instance.
+        """
+        instance = super(NotifyingString, cls).__new__(cls, text)
+        instance.message_type = message_type
+        return instance
+
+    # pylint: disable=unused-argument
+    def __init__(self, message_type, text=""):
+        """Set up NotifyingString for use.
+
+        Args:
+            message_type: String name appended to message identifier.
+            text: Optional string to use to fill the instance.
+        """
+        # NSDistributedNotificationCenter is the NotificationCenter
+        # that allows messages to be sent between applications.
+        self.notification_center = (
+            NSDistributedNotificationCenter.defaultCenter())
+        self.send_notification(text)
+        super(NotifyingString, self).__init__(self, text)
+
+    # pylint: enable=unused-argument
+
+
+class NotifyingBool(NotificationMixin, object):
+    """A bool that sends notifications."""
+
+    def __new__(cls, message_type, val):
+        """Set up NotifyingBool for use.
+
+        Args:
+            message_type: String name appended to message identifier.
+            val: True or False
+        """
+        instance = super(NotifyingBool, cls).__new__(cls)
+        instance.message_type = message_type
+        # NSDistributedNotificationCenter is the NotificationCenter
+        # that allows messages to be sent between applications.
+        instance.notification_center = (
+            NSDistributedNotificationCenter.defaultCenter())
+        instance.send_notification(val)
+        return bool(val)
+
+
+# pylint: enable=too-few-public-methods, too-many-ancestors
