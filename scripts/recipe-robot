@@ -52,7 +52,6 @@ optional arguments:
 
 
 import argparse
-from datetime import datetime
 import os
 import pprint
 import shutil
@@ -97,7 +96,7 @@ def main():
         process_input_path(facts)
 
         # Time the execution of generating recipes.
-        time, _ = recipe_robot_lib.generate_recipes(facts, prefs)
+        time, _ = recipe_robot_lib.generate_recipes(facts, prefs)  # pylint: disable=assignment-from-no-return
         facts["execution_time"] = time
 
         # Pat on the back!
@@ -115,7 +114,7 @@ def main():
         sys.exit(1)
     # TODO: Any code requiring exceptions should do local handling, then
     # re-raise as a RoboException subclass.
-    except (RoboException, Exception) as error:
+    except (RoboException, Exception) as error:   # pylint: disable=broad-except
         message = ("Recipe Robot exploded with unexpected error: %s" %
                    error.message)
         if facts["args"].verbose:
@@ -153,6 +152,13 @@ def setup(facts):
     # Parse command line arguments.
     argparser = build_argument_parser()
     args = argparser.parse_args()
+
+    # If no input path nor --config arg was specified, print help
+    # and exit.
+    if not args.input_path and not args.config:
+        argparser.print_help()
+        sys.exit(0)
+
     facts["args"] = args
     configure_from_args(facts)
 
@@ -212,12 +218,6 @@ def build_argument_parser():
 def configure_from_args(facts):
     """Perform validation and reporting on args."""
     args = facts["args"]
-    # If no input path nor --config arg was specified, print help
-    # and exit.
-    if not args.input_path and not args.config:
-        argparser.print_help()
-        sys.exit(0)
-
     # If --ignore-existing was specified, print a warning.
     if args.ignore_existing is True:
         facts["warnings"].append(
@@ -242,7 +242,7 @@ def init_recipes():
     """
     recipes_meta = (
         ("download", "Downloads an app in whatever format the developer "
-        "provides."),
+                     "provides."),
         ("munki", "Imports into your Munki repository."),
         ("pkg", "Creates a standard pkg installer file."),
         ("install", "Installs the app on the computer running AutoPkg."),
@@ -258,8 +258,9 @@ def init_recipes():
     return recipes
 
 
-def _get_recipe_dict(type, description):
-    return {"type": type, "description": description, "preferred": True,
+def _get_recipe_dict(recipe_type, description):
+    """Build a recipe dictionary."""
+    return {"type": recipe_type, "description": description, "preferred": True,
             "existing": False}
 
 
@@ -343,25 +344,89 @@ def build_prefs(prefs, facts):
     if "RecipeCreateCount" not in prefs:
         prefs["RecipeCreateCount"] = int(0)
 
-    # Prompt for and save recipe identifier prefix.
+    get_recipe_identifier_prefix(prefs)
+    get_recipe_creation_location(prefs)
+    get_preferred_recipe_types(prefs, recipes)
+    set_recipe_preferences(prefs, recipes)
+
+    return prefs
+
+
+def set_recipe_preferences(prefs, recipes):
+    """Set "preferred" status of each recipe type.
+
+    Args:
+        prefs: The preference dictionary, passed from init_prefs().
+        recipes: The list of known recipe types, created by
+            init_recipes().
+    """
+    for recipe in recipes:
+        if recipe["preferred"] is True:
+            prefs["RecipeTypes"].append(recipe["type"])
+
+            # If DeployStudio recipes are among the preferred types,
+            # prompt for the path of the Packages folder.
+            if recipe["type"] == "ds":
+                prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
+                robo_print("\nLocation of your DeployStudio packages:")
+                robo_print("This where packages will be copied in order to "
+                           "appear in DeployStudio.\n")
+                choice = raw_input(
+                    "[%s]: " % prefs["DSPackagesPath"])
+                if choice != "":
+                    prefs["DSPackagesPath"] = str(choice).rstrip("/ ")
+
+            if recipe["type"] == "jss":
+                prefs["FollowOfficialJSSRecipesFormat"] = False
+                robo_print("\nFollow official jss-recipes style format? (Y/N)")
+                robo_print("See details here: "
+                           "https://github.com/autopkg/jss-recipes"
+                           "#style-guide\n")
+                choice = raw_input("[N]: ")
+                if choice.lower() in ("y", "yes", "true", "ok", "yep", "sure"):
+                    prefs["FollowOfficialJSSRecipesFormat"] = True
+
+
+def get_recipe_identifier_prefix(prefs):
+    """Prompt for and save recipe identifier prefix.
+
+    Args:
+        prefs: The preference dictionary, passed from init_prefs().
+    """
     prefs["RecipeIdentifierPrefix"] = "com.github.homebysix"
     robo_print("\nRecipe identifier prefix")
-    robo_print("This is your default identifier, in reverse-domain notation.\n")
+    robo_print("This is your default identifier, in reverse-domain "
+               "notation.\n")
     choice = raw_input(
         "[%s]: " % prefs["RecipeIdentifierPrefix"])
     if choice != "":
         prefs["RecipeIdentifierPrefix"] = str(choice).rstrip(". ")
 
-    # Prompt for recipe creation location.
+
+def get_recipe_creation_location(prefs):
+    """Prompt for recipe creation location.
+
+    Args:
+        prefs: The preference dictionary, passed from init_prefs().
+    """
     prefs["RecipeCreateLocation"] = "~/Library/AutoPkg/Recipe Robot output"
     robo_print("\nLocation to save new recipes")
-    robo_print("This is where on disk your newly created recipes will be saved.\n")
+    robo_print("This is where on disk your newly created recipes will be "
+               "saved.\n")
     choice = raw_input(
         "[%s]: " % prefs["RecipeCreateLocation"])
     if choice != "":
         prefs["RecipeCreateLocation"] = str(choice).rstrip("/ ")
 
-    # Prompt to set recipe types on/off as desired.
+
+def get_preferred_recipe_types(prefs, recipes):
+    """Prompt to set recipe types on/off as desired.
+
+    Args:
+        prefs: The preference dictionary, passed from init_prefs().
+        recipes: The list of known recipe types, created by
+            init_recipes().
+    """
     prefs["RecipeTypes"] = []
     robo_print("\nPreferred recipe types")
     robo_print("Choose which recipe types will be offered to you by default.\n")
@@ -406,38 +471,6 @@ def build_prefs(prefs, facts):
                 continue
 
             recipes[choice]["preferred"] = False if recipes[choice] else True
-
-    # Set "preferred" status of each recipe type according to
-    # preferences.
-    for recipe in recipes:
-        if recipe["preferred"] is True:
-            prefs["RecipeTypes"].append(recipe["type"])
-
-            # If DeployStudio recipes are among the preferred types,
-            # prompt for the path of the Packages folder.
-            if recipe["type"] == "ds":
-                prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
-                robo_print("\nLocation of your DeployStudio packages:")
-                robo_print("This where packages will be copied in order to "
-                           "appear in DeployStudio.\n")
-                choice = raw_input(
-                    "[%s]: " % prefs["DSPackagesPath"])
-                if choice != "":
-                    prefs["DSPackagesPath"] = str(choice).rstrip("/ ")
-
-            if recipe["type"] == "jss":
-                prefs["FollowOfficialJSSRecipesFormat"] = False
-                robo_print("\nFollow official jss-recipes style format? (Y/N)")
-                robo_print("See details here: https://github.com/autopkg/jss-recipes#style-guide\n")
-                choice = raw_input("[N]: ")
-                if choice.lower() in ("y", "yes", "true", "ok", "yep", "sure"):
-                    prefs["FollowOfficialJSSRecipesFormat"] = True
-
-    return prefs
-
-
-# TODO (Shea): These are all going to get moved to an inspect.py module.
-# TODO (Shea): All of these funcs have too many levels of abstraction.
 
 
 def debug_dump(items):
