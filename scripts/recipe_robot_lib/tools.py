@@ -172,9 +172,11 @@ def create_SourceForgeURLProvider(dest_dir):
     dest_dir_absolute = os.path.expanduser(dest_dir)
     try:
         raw_download = urlopen(base_url)
-        with open(os.path.join(dest_dir_absolute, "SourceForgeURLProvider.py"), "wb") as download_file:
+        with open(os.path.join(dest_dir_absolute, "SourceForgeURLProvider.py"),
+                  "wb") as download_file:
             download_file.write(raw_download.read())
-            robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"), LogLevel.VERBOSE, 4)
+            robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"),
+                       LogLevel.VERBOSE, 4)
     except:
         # TODO(Elliot):  Copy SourceForgeURLProvider from local file. (#46)
         # TODO: This doesn't notify or update the facts object.
@@ -233,9 +235,11 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
     for cmd_part in cmd_parts:
         cmd_part = cmd_part.strip()
         if i == 0:
-            p[i]=Popen(shlex.split(cmd_part), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            p[i]=Popen(shlex.split(cmd_part), stdin=PIPE, stdout=PIPE,
+                       stderr=PIPE)
         else:
-            p[i]=Popen(shlex.split(cmd_part), stdin=p[i-1].stdout, stdout=PIPE, stderr=PIPE)
+            p[i]=Popen(shlex.split(cmd_part), stdin=p[i-1].stdout, stdout=PIPE,
+                       stderr=PIPE)
         i = i + 1
 
     out, err = p[i-1].communicate(stdin)
@@ -305,7 +309,7 @@ def create_existing_recipe_list(facts):
                 args: ArgParser args with github_token bool.
     """
     app_name = facts["app_name"]
-    recipes = facts["recipe_types"]
+    recipes = facts["recipes"]
     use_github_token = facts["args"].github_token
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
     recipe_searches = []
@@ -320,20 +324,24 @@ def create_existing_recipe_list(facts):
         recipe_searches.append(app_name_no_symbol)
 
     for this_search in recipe_searches:
-        robo_print("Searching for existing AutoPkg recipes for \"%s\"..." % this_search, LogLevel.VERBOSE)
+        robo_print("Searching for existing AutoPkg recipes for \"%s\"..." %
+                   this_search, LogLevel.VERBOSE)
         if use_github_token:
             if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
                 facts["warnings"].append(
                     "I couldn't find a GitHub token to use.")
-                cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
+                cmd = ("/usr/local/bin/autopkg search --path-only \"%s\"" %
+                       this_search)
             else:
                 # TODO(Elliot): Learn how to use the GitHub token. (#18) https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
                 facts["warnings"].append(
                     "I found a GitHub token, but I'm still learning how to "
                     "use it.")
-                cmd = "/usr/local/bin/autopkg search --path-only --use-token \"%s\"" % this_search
+                cmd = ("/usr/local/bin/autopkg search --path-only --use-token "
+                       "\"%s\"" % this_search)
         else:
-            cmd = "/usr/local/bin/autopkg search --path-only \"%s\"" % this_search
+            cmd = ("/usr/local/bin/autopkg search --path-only \"%s\"" %
+                   this_search)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
         if exitcode == 0:
@@ -347,7 +355,8 @@ def create_existing_recipe_list(facts):
                     if line.lower().startswith(recipe_name.lower()):
                         # Set to False by default. If found, set True.
                         recipe["existing"] = True
-                        robo_print("Found existing %s" % recipe_name, LogLevel.LOG, 4)
+                        robo_print("Found existing %s" % recipe_name,
+                                   LogLevel.LOG, 4)
                         is_existing = True
                         break
             if is_existing is True:

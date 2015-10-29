@@ -31,13 +31,12 @@ but also robo_prints the message as well.
 """
 
 
-from collections import MutableMapping, MutableSequence
-
 # pylint: disable=no-name-in-module
 from Foundation import (NSDistributedNotificationCenter,
                         NSNotificationDeliverImmediately)
 # pylint: enable=no-name-in-module
 
+from .roboabc import RoboDict, RoboList
 from .tools import (LogLevel, robo_print)
 
 
@@ -56,7 +55,7 @@ class NotificationMixin(object):
 
 # pylint: enable=too-few-public-methods
 
-class Facts(MutableMapping):
+class Facts(RoboDict):
     """Dictionary-like object for holding all of recipe-robot's data.
 
     To aid in intercommunication with the App, all dictionary values
@@ -68,14 +67,12 @@ class Facts(MutableMapping):
 
     def __init__(self):
         """Set up a Fact instance with required list-like objects."""
-        self._dict = {"errors": NoisyNotifyingList("errors"),
-                      "reminders": NoisyNotifyingList("reminders"),
-                      "warnings": NoisyNotifyingList("warnings"),
-                      "recipes": NotifyingList("recipes"),
-                      "icons": NotifyingList("icons"),}
-
-    def __getitem__(self, key):
-        return self._dict[key]
+        super(Facts, self).__init__()
+        self._dict.update({"errors": NoisyNotifyingList("errors"),
+                           "reminders": NoisyNotifyingList("reminders"),
+                           "warnings": NoisyNotifyingList("warnings"),
+                           "recipes": NotifyingList("recipes"),
+                           "icons": NotifyingList("icons"),})
 
     def __setitem__(self, key, val):
         if isinstance(val, basestring):
@@ -84,25 +81,11 @@ class Facts(MutableMapping):
             val = NotifyingList(self.default_suffix, val)
         elif isinstance(val, bool):
             val = NotifyingBool(self.default_suffix, val)
-        self._dict[key] = val
-
-    def __delitem__(self, key):
-        if key in self:
-            del self._dict[key]
-
-    def __iter__(self):
-        for key in self._dict:
-            yield key
-
-    def __len__(self):
-        return len(self._dict)
-
-    def __repr__(self):
-        return self._dict.__repr__()
+        super(Facts, self).__setitem__(key, val)
 
 
 # pylint: disable=too-few-public-methods, too-many-ancestors
-class NotifyingList(NotificationMixin, MutableSequence):
+class NotifyingList(NotificationMixin, RoboList):
     """A list that robo_prints and sends NSNotifications on changes"""
 
     def __init__(self, message_type, iterable=None):
@@ -112,37 +95,22 @@ class NotifyingList(NotificationMixin, MutableSequence):
             message_type: String name appended to message identifier.
             iterable: Optional iterable to use to fill the instance.
         """
+        super(NotifyingList, self).__init__(iterable)
         # NSDistributedNotificationCenter is the NotificationCenter
         # that allows messages to be sent between applications.
         self.notification_center = (
             NSDistributedNotificationCenter.defaultCenter())
         self.message_type = message_type
-        if iterable:
-            self._list = iterable
-        else:
-            self._list = []
-
-    def __getitem__(self, index):
-        return self._list[index]
 
     def __setitem__(self, index, val):
         """Set val at index, and send a notification with that val."""
-        self._list[index] = val
+        super(NotifyingList, self).__setitem__(index, val)
         self.send_notification(str(val))
 
-    def __delitem__(self, index):
-        del self._list[index]
-
-    def __len__(self):
-        return len(self._list)
-
-    def insert(self, index, item):
+    def insert(self, index, val):
         """Insert val before index, and send a notification with val."""
-        self._list.insert(index, item)
-        self.send_notification(str(item))
-
-    def __repr__(self):
-        return self._list.__repr__()
+        super(NotifyingList, self).insert(index, val)
+        self.send_notification(str(val))
 
 
 class NoisyNotifyingList(NotifyingList):

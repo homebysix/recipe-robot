@@ -53,7 +53,7 @@ def generate_recipes(facts, prefs):
             we know so far about the app associated with the input path.
         prefs: The dictionary containing a key/value pair for each preference.
     """
-    recipes = facts["recipe_types"]
+    recipes = facts["recipes"]
     if "app_name" in facts:
         if not facts["args"].ignore_existing:
             create_existing_recipe_list(facts)

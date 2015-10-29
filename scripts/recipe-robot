@@ -68,7 +68,7 @@ import recipe_robot_lib
 from recipe_robot_lib.exceptions import RoboException, RoboError
 from recipe_robot_lib.facts import Facts
 from recipe_robot_lib.inspect import process_input_path
-from recipe_robot_lib.recipe import init_recipes
+from recipe_robot_lib.recipe import Recipes
 from recipe_robot_lib.tools import (
     create_dest_dirs, robo_print, LogLevel, OutputMode, print_welcome_text,
     __version__, ALL_SUPPORTED_FORMATS, PREFS_FILE, print_death_text,
@@ -94,6 +94,8 @@ def main():
         prefs = init_prefs(facts)
 
         # Collect facts from the input path, based on the type of path.
+        # TODO (Shea): Standardize on always returning Facts, even though they
+        # are passed by reference, to remove ambiguity about what is happening.
         process_input_path(facts)
 
         # Time the execution of generating recipes.
@@ -140,7 +142,7 @@ def main():
                 "Command line arguments": facts["args"],
                 "Supported file formats": ALL_SUPPORTED_FORMATS,
                 "Preferences for this session": prefs,
-                "Recipe information": facts["recipe_types"],
+                "Recipe information": facts["recipes"],
                 # TODO: This is redundent. Perhaps just pull out other
                 # keys we're interested in.
                 "Facts we have collected": facts})
@@ -166,7 +168,7 @@ def setup(facts):
     configure_from_args(facts)
 
     # Create the master recipe information list.
-    facts["recipe_types"] = tuple(init_recipes())
+    facts["recipes"] = Recipes()
 
     # Make someplace to cache things.
     create_dest_dirs(CACHE_DIR)
