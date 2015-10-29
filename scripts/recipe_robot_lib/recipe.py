@@ -27,7 +27,7 @@ Describes a Recipe class, mostly by initializing keys.
 from collections import MutableMapping
 import os
 
-from recipe_robot_lib.tools import (robo_print, LogLevel)
+from recipe_robot_lib.tools import (robo_print, LogLevel, __version__)
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
@@ -43,6 +43,15 @@ class Recipe(MutableMapping):
                     "description": description,
                     "preferred": True,
                     "existing": False}
+        self._dict["keys"] = {
+            "Identifier": "",
+            "MinimumVersion": "0.5.0",
+            "Input": {
+                "NAME": ""},
+            "Process": [],
+            "Comment": "Created with Recipe Robot v%s "
+                       "(https://github.com/homebysix/recipe-robot)"
+                       % __version__}
 
     def __getitem__(self, key):
         return self._dict[key]

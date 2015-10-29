@@ -117,20 +117,8 @@ def generate_recipes(facts, prefs):
     # Create a recipe for each preferred type we know about.
     for recipe in preferred:
 
-        # TODO (Shea): This could be a global constant. Well, maybe.
-        # Construct the default keys common to all recipes.
-        recipe["keys"] = {
-            "Identifier": "",
-            "MinimumVersion": "0.5.0",
-            "Input": {
-                "NAME": facts["app_name"]
-            },
-            "Process": [],
-            "Comment": "Created with Recipe Robot v%s "
-                       "(https://github.com/homebysix/recipe-robot)"
-                       % __version__
-        }
         keys = recipe["keys"]
+        keys["Input"]["NAME"] = facts["app_name"]
 
         # Set the recipe filename (spaces are OK).
         recipe["filename"] = "%s.%s.recipe" % (facts["app_name"], recipe["type"])
