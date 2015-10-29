@@ -95,7 +95,7 @@ def generate_recipes(facts, prefs):
     facts["recipe_dest_dir"] = recipe_dest_dir
     create_dest_dirs(recipe_dest_dir)
 
-    build_recipes(facts, preferred, prefs, recipe_dest_dir)
+    build_recipes(facts, preferred, prefs)
 
     # TODO (Shea): As far as I can tell, the only pref that changes is the recipe created count. Move out from here!
     # Save preferences to disk for next time.
