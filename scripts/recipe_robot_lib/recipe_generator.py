@@ -63,27 +63,7 @@ def generate_recipes(facts, prefs):
 
     preferred = [recipe for recipe in recipes if recipe["preferred"]]
 
-    # No recipe types are preferred.
-    if not preferred:
-        raise RoboError("Sorry, no recipes available to generate.")
-
-    # We don't have enough information to create a recipe set.
-    if (facts["is_from_app_store"] is False and
-        not any([key in facts for key in (
-            "sparkle_feed", "github_repo", "sourceforge_id",
-            "download_url")])):
-        raise RoboError(
-            "Sorry, I don't know how to download this app. Maybe try another "
-            "angle? If you provided an app, try providing the Sparkle feed "
-            "for the app instead. Or maybe the app's developers offer a "
-            "direct download URL on their website.")
-    if (facts["is_from_app_store"] is False and
-            "download_format" not in facts):
-        raise RoboError(
-            "Sorry, I can't tell what format to download this app in. Maybe "
-            "try another angle? If you provided an app, try providing the "
-            "Sparkle feed for the app instead. Or maybe the app's developers "
-            "offer a direct download URL on their website.")
+    raise_if_recipes_cannot_be_generated(facts, preferred)
 
     # We have enough information to create a recipe set, but with assumptions.
     # TODO(Elliot): This code may not be necessary if inspections do their job.
@@ -112,9 +92,44 @@ def generate_recipes(facts, prefs):
         recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"))
     else:
         recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"))
+    facts["recipe_dest_dir"] = recipe_dest_dir
     create_dest_dirs(recipe_dest_dir)
 
-    # Create a recipe for each preferred type we know about.
+    build_recipes(facts, preferred, prefs, recipe_dest_dir)
+
+    # TODO (Shea): As far as I can tell, the only pref that changes is the recipe created count. Move out from here!
+    # Save preferences to disk for next time.
+    FoundationPlist.writePlist(prefs, PREFS_FILE)
+
+
+def raise_if_recipes_cannot_be_generated(facts, preferred):
+    """Raise a RoboError if recipes cannot be generated."""
+    # No recipe types are preferred.
+    if not preferred:
+        raise RoboError("Sorry, no recipes available to generate.")
+
+    # We don't have enough information to create a recipe set.
+    if (facts["is_from_app_store"] is False and
+            not any([key in facts for key in (
+                    "sparkle_feed", "github_repo", "sourceforge_id",
+                    "download_url")])):
+        raise RoboError(
+            "Sorry, I don't know how to download this app. Maybe try another "
+            "angle? If you provided an app, try providing the Sparkle feed "
+            "for the app instead. Or maybe the app's developers offer a "
+            "direct download URL on their website.")
+    if (facts["is_from_app_store"] is False and
+                "download_format" not in facts):
+        raise RoboError(
+            "Sorry, I can't tell what format to download this app in. Maybe "
+            "try another angle? If you provided an app, try providing the "
+            "Sparkle feed for the app instead. Or maybe the app's developers "
+            "offer a direct download URL on their website.")
+
+
+def build_recipes(facts, preferred, prefs):
+    """Create a recipe for each preferred type we know about."""
+    recipe_dest_dir = facts["recipe_dest_dir"]
     for recipe in preferred:
 
         keys = recipe["keys"]
@@ -125,8 +140,8 @@ def generate_recipes(facts, prefs):
 
         # Set the recipe identifier.
         keys["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"],
-                                            recipe["type"],
-                                            facts["app_name"].replace(" ", ""))
+                                           recipe["type"],
+                                           facts["app_name"].replace(" ", ""))
 
         # If the name of the app bundle differs from the name of the app
         # itself, we need another input variable for that.
@@ -137,45 +152,14 @@ def generate_recipes(facts, prefs):
             facts["app_name_key"] = "%NAME%"
 
         # Set keys specific to download recipes.
-        if recipe["type"] == "download":
-            generate_download_recipe(facts, prefs, recipe)
-        # Set keys specific to App Store munki overrides.
-        elif recipe["type"] == "munki" and facts["is_from_app_store"] is True:
-            generate_app_store_munki_recipe(facts, prefs, recipe)
-        # Set keys specific to non-App Store munki recipes.
-        elif recipe["type"] == "munki" and facts["is_from_app_store"] is False:
-            generate_munki_recipe(facts, prefs, recipe)
-        # Set keys specific to App Store pkg overrides.
-        elif recipe["type"] == "pkg" and facts["is_from_app_store"] is True:
-            generate_app_store_pkg_recipe(facts, prefs, recipe)
-        # Set keys specific to non-App Store pkg recipes.
-        elif recipe["type"] == "pkg" and facts["is_from_app_store"] is False:
-            generate_pkg_recipe(facts, prefs, recipe)
-        # Set keys specific to install recipes.
-        elif recipe["type"] == "install":
-            generate_install_recipe(facts, prefs, recipe)
-        # Set keys specific to jss recipes.
-        elif recipe["type"] == "jss":
-            generate_jss_recipe(facts, prefs, recipe)
-        # Set keys specific to absolute recipes.
-        elif recipe["type"] == "absolute":
-            generate_absolute_recipe(facts, prefs, recipe)
-        # Set keys specific to sccm recipes.
-        elif recipe["type"] == "sccm":
-            generate_sccm_recipe(facts, prefs, recipe)
-        # Set keys specific to ds recipes.
-        elif recipe["type"] == "ds":
-            generate_ds_recipe(facts, prefs, recipe)
-        # Set keys specific to filewave recipes.
-        elif recipe["type"] == "filewave":
-            generate_filewave_recipe(facts, prefs, recipe)
-        else:
-            # This shouldn't happen, if all the right recipe types are
-            # specified in init_recipes() and also specified above.
+        generation_func = get_generation_func(facts, prefs, recipe)
+        if not generation_func:
             facts["warnings"].append(
                 "Oops, I think my programmer messed up. I don't yet know how "
                 "to generate a %s recipe. Sorry about that." %
                 recipe["type"])
+        else:
+            generation_func(facts, prefs, recipe)
 
         dest_path = os.path.join(recipe_dest_dir, recipe["filename"])
         if not os.path.exists(dest_path):
@@ -184,8 +168,21 @@ def generate_recipes(facts, prefs):
         robo_print(dest_path, LogLevel.LOG, 4)
         facts["recipes"].append(dest_path)
 
-    # Save preferences to disk for next time.
-    FoundationPlist.writePlist(prefs, PREFS_FILE)
+
+def get_generation_func(facts, prefs, recipe):
+    """Return the correct generation function based on type."""
+    if recipe["type"] not in prefs["RecipeTypes"]:
+        return None
+
+    func_name = ["generate", recipe["type"], "recipe"]
+
+    if recipe["type"] in ("munki", "pkg"):
+        func_name.insert(1, "app_store")
+
+    # TODO (Shea): This is a hack until I can use AbstractFactory for this.
+    generation_func = globals()["_".join(func_name)]
+
+    return generation_func
 
 
 def generate_download_recipe(facts, prefs, recipe):
