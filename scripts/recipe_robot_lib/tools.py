@@ -275,11 +275,11 @@ def print_welcome_text():
 def print_death_text():
     """Print the text that appears when you RoboError out."""
     death_text = """
-                                   _[]_
-                                   [xx]
-                                  d-||-b
-                                    ||
-                                  _/  \_
+                                    _[]_
+                                    [xx]
+                                   q-||-p
+                                     ||
+                                   _/  \_
     """
     robo_print(death_text, LogLevel.ERROR)
 
