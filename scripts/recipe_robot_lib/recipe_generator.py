@@ -189,16 +189,12 @@ def generate_recipes(facts, prefs):
                 "to generate a %s recipe. Sorry about that." %
                 recipe["type"])
 
-        # Write the recipe to disk.
-        if len(recipe["keys"]["Process"]) > 0:
-            dest_path = os.path.join(recipe_dest_dir, recipe["filename"])
-            if not os.path.exists(dest_path):
-                # Keep track of the total number of unique recipes we've created.
-                prefs["RecipeCreateCount"] += 1
-            FoundationPlist.writePlist(recipe["keys"], dest_path)
-            robo_print("%s" % os.path.join(recipe_dest_dir,
-                                  recipe["filename"]), LogLevel.LOG, 4)
-            facts["recipes"].append(dest_path)
+        dest_path = os.path.join(recipe_dest_dir, recipe["filename"])
+        if not os.path.exists(dest_path):
+            prefs["RecipeCreateCount"] += 1
+        recipe.write(dest_path)
+        robo_print(dest_path, LogLevel.LOG, 4)
+        facts["recipes"].append(dest_path)
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, PREFS_FILE)

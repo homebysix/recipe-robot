@@ -68,6 +68,7 @@ import recipe_robot_lib
 from recipe_robot_lib.exceptions import RoboException, RoboError
 from recipe_robot_lib.facts import Facts
 from recipe_robot_lib.inspect import process_input_path
+from recipe_robot_lib.recipe import init_recipes
 from recipe_robot_lib.tools import (
     create_dest_dirs, robo_print, LogLevel, OutputMode, print_welcome_text,
     __version__, ALL_SUPPORTED_FORMATS, PREFS_FILE, print_death_text,
@@ -140,6 +141,8 @@ def main():
                 "Supported file formats": ALL_SUPPORTED_FORMATS,
                 "Preferences for this session": prefs,
                 "Recipe information": facts["recipe_types"],
+                # TODO: This is redundent. Perhaps just pull out other
+                # keys we're interested in.
                 "Facts we have collected": facts})
 
 
@@ -163,7 +166,7 @@ def setup(facts):
     configure_from_args(facts)
 
     # Create the master recipe information list.
-    facts["recipe_types"] = init_recipes()
+    facts["recipe_types"] = tuple(init_recipes())
 
     # Make someplace to cache things.
     create_dest_dirs(CACHE_DIR)
@@ -231,37 +234,6 @@ def configure_from_args(facts):
     # If --debug was specified, set debug mode to True.
     if args.debug is True or OutputMode.debug_mode is True:
         OutputMode.set_debug_mode(True)
-
-
-def init_recipes():
-    """Store information related to each supported AutoPkg recipe type.
-
-    Returns:
-        A tuple of dicts that describe all the AutoPkg recipe types we
-        know about.
-    """
-    recipes_meta = (
-        ("download", "Downloads an app in whatever format the developer "
-                     "provides."),
-        ("munki", "Imports into your Munki repository."),
-        ("pkg", "Creates a standard pkg installer file."),
-        ("install", "Installs the app on the computer running AutoPkg."),
-        ("jss", "Imports into your Casper JSS and creates necessary groups, "
-         "policies, etc."),
-        ("absolute", "Imports into your Absolute Manage server."),
-        ("sccm", "Creates a cmmac package for deploying via Microsoft SCCM."),
-        ("ds", "Imports into your DeployStudio Packages folder."),
-        ("filewave", "Imports a fileset into your FileWave server."))
-
-    recipes = tuple([_get_recipe_dict(*recipe) for recipe in recipes_meta])
-
-    return recipes
-
-
-def _get_recipe_dict(recipe_type, description):
-    """Build a recipe dictionary."""
-    return {"type": recipe_type, "description": description, "preferred": True,
-            "existing": False}
 
 
 def init_prefs(facts):
@@ -429,7 +401,8 @@ def get_preferred_recipe_types(prefs, recipes):
     """
     prefs["RecipeTypes"] = []
     robo_print("\nPreferred recipe types")
-    robo_print("Choose which recipe types will be offered to you by default.\n")
+    robo_print("Choose which recipe types will be offered to you by "
+               "default.\n")
     # TODO(Elliot): Make this interactive while retaining scrollback. (#17)
     # Maybe with curses module?
     while True:
@@ -480,7 +453,8 @@ def debug_dump(items):
         items: A dict of dicts of all the things to dump to output.
     """
     for key, value in items.iteritems():
-        robo_print("%s:\n%s\n" % (key.upper(), pprint.pformat(value)), LogLevel.DEBUG)
+        robo_print("%s:\n%s\n" % (key.upper(), pprint.pformat(value)),
+                   LogLevel.DEBUG)
 
 
 
