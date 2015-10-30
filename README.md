@@ -20,13 +20,13 @@ __Table of contents__
 
 ## Overview
 
-Recipe Robot will soon become the easiest way to create basic AutoPkg recipes. It will consist of two components:
+Recipe Robot is the easiest way to create new AutoPkg recipes for simple Mac apps. It consists of two components:
 
 - A __[Python script](#python-script-usage)__ that takes various types of input and automatically outputs AutoPkg recipes in various formats.
 
 - A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
 
-This two-pronged approach will allow AutoPkg novices to easily create recipes that follow community-accepted guidelines, and will still provide a command-line tool for more advanced AutoPkg users. Also, ensuring that all program logic is written in Python should hopefully encourage community contribution to this project.
+This two-pronged approach will allow AutoPkg novices to easily create recipes that follow community-accepted guidelines, and will still provide a command-line tool for more advanced AutoPkg users. Also, ensuring that all program logic is written in Python encourages community contribution to this project.
 
 
 ## Mac App Usage
@@ -225,6 +225,6 @@ If you provide Recipe Robot with the path to an app that came from the Mac App S
 
 Recipe Robot is in public beta now, so please be gentle when reporting errors. There are many bugs, and we're actively working on them.
 
-The best way to get in touch with us is by opening an [issue](https://github.com/homebysix/recipe-robot/issues) on GitHub.
+The best way to get in touch is by opening an [issue](https://github.com/homebysix/recipe-robot/issues) on GitHub.
 
 
