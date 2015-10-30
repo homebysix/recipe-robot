@@ -687,10 +687,26 @@
                                     <action selector="paste:" target="rPt-NT-nkU" id="NYC-ou-PdW"/>
                                 </connections>
                             </imageView>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
+                                <rect key="frame" x="170" y="48" width="258" height="18"/>
+                                <animations/>
+                                <buttonCell key="cell" type="check" title="Ignore existing recipes for this run only" bezelStyle="regularSquare" imagePosition="left" inset="2" id="zO6-wJ-Rb7">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.FollowOfficialJSSRecipesFormat" id="MnX-7M-dV7">
+                                        <dictionary key="options">
+                                            <bool key="NSConditionallySetsEnabled" value="NO"/>
+                                            <integer key="NSNullPlaceholder" value="0"/>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
-                                <rect key="frame" x="17" y="260" width="565" height="21"/>
+                                <rect key="frame" x="17" y="182" width="565" height="21"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="fW0-pT-AYZ"/>
+                                    <constraint firstAttribute="height" constant="21" id="A61-6Z-p9q"/>
                                 </constraints>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="fMo-Ix-2ju">
@@ -700,31 +716,31 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
-                                <rect key="frame" x="17" y="50" width="565" height="46"/>
+                                <rect key="frame" x="18" y="148" width="565" height="26"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="46" id="uFu-H1-AOg"/>
+                                    <constraint firstAttribute="height" constant="26" id="lZs-Nb-eUO"/>
                                 </constraints>
                                 <animations/>
-                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" id="A3b-Bf-P3c">
+                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Drag in an app to start processing." id="A3b-Bf-P3c">
                                     <font key="font" metaFont="system"/>
-                                    <string key="title">Drag in an app or paste a
-URL to start processing</string>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="17" id="Pkp-s4-NLS"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerY" secondItem="m2S-Jp-Qdl" secondAttribute="centerY" id="V0g-00-FUf"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" id="W4O-32-8x2"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="69" id="b0G-uI-IaD"/>
-                            <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="dW0-JD-SqB"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="dku-zO-o1G"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="jSk-9k-DoK"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="leading" secondItem="Jyu-oi-lVv" secondAttribute="leading" id="kgP-OC-syZ"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="17" id="lXe-sc-aUl"/>
-                            <constraint firstAttribute="bottom" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="50" id="yEF-6f-g8h"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="8JE-NP-b4Z"/>
+                            <constraint firstItem="PTd-IR-P4B" firstAttribute="top" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="84" id="N1V-0T-dVf"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="17" id="YgD-bL-S6v"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerY" secondItem="m2S-Jp-Qdl" secondAttribute="centerY" id="ZOc-Vc-Dnj"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="btd-XS-Tqj"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="aep-eh-Csg" secondAttribute="centerX" id="eMF-nr-jkX"/>
+                            <constraint firstItem="PTd-IR-P4B" firstAttribute="centerX" secondItem="oXK-h1-XrJ" secondAttribute="centerX" id="kUD-Mv-deW"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="17" id="lJz-rw-jMA"/>
+                            <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="qKs-nv-R2t"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="t8E-Ou-4BB"/>
+                            <constraint firstAttribute="bottom" secondItem="PTd-IR-P4B" secondAttribute="bottom" constant="50" id="tLO-8U-YH8"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="top" secondItem="oXK-h1-XrJ" secondAttribute="bottom" constant="8" symbolic="YES" id="wb7-Dc-xiL"/>
                         </constraints>
                         <animations/>
                     </view>
@@ -889,22 +905,6 @@ URL to start processing</string>
                                 </buttonCell>
                                 <connections>
                                     <binding destination="56H-yK-n2G" name="value" keyPath="values.FollowOfficialJSSRecipesFormat" id="VbQ-yP-oBq">
-                                        <dictionary key="options">
-                                            <bool key="NSConditionallySetsEnabled" value="NO"/>
-                                            <integer key="NSNullPlaceholder" value="0"/>
-                                        </dictionary>
-                                    </binding>
-                                </connections>
-                            </button>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Dbz-u9-R3b">
-                                <rect key="frame" x="298" y="81" width="282" height="18"/>
-                                <animations/>
-                                <buttonCell key="cell" type="check" title="Ignore existing recipes (not recommended)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="RW4-qq-rq6">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.IgnoreExisting" id="kjG-Vb-0lX">
                                         <dictionary key="options">
                                             <bool key="NSConditionallySetsEnabled" value="NO"/>
                                             <integer key="NSNullPlaceholder" value="0"/>
