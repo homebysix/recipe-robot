@@ -356,7 +356,7 @@ class ProcessingViewController: RecipeRobotViewController {
                 error in
 
                 if error == nil || error!.code == 0 {
-                    self!.titleLabel.stringValue = "All Done"
+                    self!.titleLabel.stringValue = "All done! Click the folder below to reveal your recipes."
                     self!.appIcon.image = NSImage(named: "NSFolder")
 
                     self!.appIcon.action = "openFolder:"
