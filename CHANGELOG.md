@@ -4,10 +4,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased][unreleased]
 
+- Nothing yet.
 
-## 0.2 - 2015-10-30
+## 0.2.0 - 2015-10-30
 
-### Added
 - Initial public release of Recipe Robot (beta).
 
-[unreleased]: https://github.com/lindegroup/autopkgr/compare/v0.2...HEAD
+[unreleased]: https://github.com/homebysix/recipe-robot/compare/v0.2.0...HEAD
