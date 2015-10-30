@@ -10,8 +10,8 @@
 		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
-		8B4D8F7E1BE3D45F00210573 /* DropZone.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B4D8F7D1BE3D45F00210573 /* DropZone.png */; settings = {ASSET_TAGS = (); }; };
-		8BC7598F1BE413190074040F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7598E1BE413190074040F /* Credits.rtf */; settings = {ASSET_TAGS = (); }; };
+		8B4D8F7E1BE3D45F00210573 /* DropZone.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B4D8F7D1BE3D45F00210573 /* DropZone.png */; };
+		8BC7598F1BE413190074040F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7598E1BE413190074040F /* Credits.rtf */; };
 		BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */ = {isa = PBXBuildFile; fileRef = BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */; };
 		BE09DAB01BBA1D95007F8FF4 /* GearImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09DAAF1BBA1D94007F8FF4 /* GearImageView.swift */; };
 		BE1A41CF1BB4C374008173FB /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
@@ -109,9 +109,9 @@
 			children = (
 				BE34C8351B7EC5DF00E0822E /* Main.storyboard */,
 				8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */,
-				BEB732821BE3F1AC00EA375C /* Storyboard.swift */,
 				BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */,
 				BE49EB8E1BDFD33C001AA9CF /* FeedMeDropImageView.swift */,
+				BEB732821BE3F1AC00EA375C /* Storyboard.swift */,
 				BE09DAAF1BBA1D94007F8FF4 /* GearImageView.swift */,
 				BEE6A1B81BB88A080050653A /* CustomSegues.swift */,
 				BE49EB8C1BDFCB03001AA9CF /* Images.swift */,
