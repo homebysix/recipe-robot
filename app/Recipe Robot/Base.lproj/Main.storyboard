@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -654,11 +654,12 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" texturedBackground="YES"/>
+                    <window key="window" title="Recipe Robot" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" texturedBackground="YES" unifiedTitleAndToolbar="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="620" y="346" width="500" height="300"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <value key="minSize" type="size" width="400" height="225"/>
                     </window>
                     <connections>
                         <segue destination="XfG-lQ-9wD" kind="relationship" relationship="window.shadowedContentViewController" id="cq2-FE-JQM"/>
@@ -676,22 +677,27 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="350"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                                <rect key="frame" x="17" y="17" width="567" height="316"/>
+                                <animations/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" imageFrameStyle="photo" image="icon_128x128" id="96G-6b-REq"/>
+                            </imageView>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
-                                <rect key="frame" x="258" y="304" width="85" height="21"/>
+                                <rect key="frame" x="17" y="260" width="565" height="21"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="81" id="2OM-YU-uCA"/>
+                                    <constraint firstAttribute="height" constant="21" id="R8Z-me-IUM"/>
                                 </constraints>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="fMo-Ix-2ju">
-                                    <font key="font" metaFont="systemBold" size="17"/>
+                                    <font key="font" metaFont="systemBold" size="20"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
-                                <rect key="frame" x="187" y="25" width="227" height="34"/>
+                                <rect key="frame" x="17" y="50" width="565" height="46"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="223" id="g1H-uu-hAk"/>
+                                    <constraint firstAttribute="height" constant="46" id="Usi-h5-T0e"/>
                                 </constraints>
                                 <animations/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" id="A3b-Bf-P3c">
@@ -702,20 +708,18 @@ URL to start processing</string>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                <rect key="frame" x="17" y="17" width="567" height="316"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" imageFrameStyle="grayBezel" id="96G-6b-REq"/>
-                            </imageView>
                         </subviews>
                         <constraints>
-                            <constraint firstAttribute="bottom" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="25" id="LXU-nP-60r"/>
-                            <constraint firstAttribute="bottom" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="20" symbolic="YES" id="LyT-Ox-OUy"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="NsQ-3Q-I6u"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="Pts-P6-IDE"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="aep-eh-Csg" secondAttribute="centerX" id="X2Y-oi-fgH"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="25" id="fII-dX-YoL"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="Jyu-oi-lVv" secondAttribute="centerX" id="wrd-pX-7tN"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="zqf-OF-vHq"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="69" id="6qq-zl-bba"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="AUo-2y-zqM"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="leading" secondItem="Jyu-oi-lVv" secondAttribute="leading" id="GvV-SP-kZg"/>
+                            <constraint firstAttribute="bottom" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="50" id="MtP-SJ-mxR"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="b9x-Ft-Cqt"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="bxF-yb-wLo"/>
+                            <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="cAg-Mr-Vtg"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="pH8-sJ-huD"/>
+                            <constraint firstAttribute="bottom" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="20" symbolic="YES" id="tMj-zu-x4z"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="trailing" secondItem="Jyu-oi-lVv" secondAttribute="trailing" id="tn2-3K-U99"/>
                         </constraints>
                         <animations/>
                     </view>
@@ -738,8 +742,9 @@ URL to start processing</string>
                         <subviews>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IZ9-mM-Rho">
                                 <rect key="frame" x="28" y="307" width="529" height="35"/>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Welcome! a little information, first." id="5fM-5o-pay">
-                                    <font key="font" size="20" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <font key="font" metaFont="systemSemibold" size="20"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -753,6 +758,7 @@ URL to start processing</string>
                                         <tableView focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="none" columnReordering="NO" columnResizing="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" id="AZn-zL-NZB">
                                             <rect key="frame" x="0.0" y="0.0" width="240" height="209"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
@@ -765,7 +771,7 @@ URL to start processing</string>
                                                     </tableHeaderCell>
                                                     <buttonCell key="dataCell" type="check" title=".download" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" inset="2" id="7sD-Jh-WRf">
                                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                        <font key="font" size="13" name=".HelveticaNeueDeskInterface-MediumP4"/>
+                                                        <font key="font" metaFont="system"/>
                                                     </buttonCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
@@ -776,58 +782,51 @@ URL to start processing</string>
                                             </connections>
                                         </tableView>
                                     </subviews>
+                                    <animations/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </clipView>
+                                <animations/>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="EWJ-mO-m4E">
                                     <rect key="frame" x="-100" y="-100" width="223" height="15"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" arrowsPosition="none" horizontal="NO" id="99m-z3-Nbn">
                                     <rect key="frame" x="-100" y="-100" width="15" height="102"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                             </scrollView>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GS6-NI-of8">
                                 <rect key="frame" x="30" y="271" width="242" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Prefered recipe format:" id="4Hw-1e-sSL">
-                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-UltraLightP2"/>
+                                <animations/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Preferred recipe formats:" id="4Hw-1e-sSL">
+                                    <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N79-I0-u6a">
                                 <rect key="frame" x="298" y="271" width="242" height="17"/>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Your prefered recipe identifier:" id="V1m-98-geR">
-                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-UltraLightP2"/>
+                                    <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HFT-6C-ZYU">
-                                <rect key="frame" x="298" y="194" width="242" height="17"/>
+                                <rect key="frame" x="298" y="214" width="242" height="17"/>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="DeployStudio Package folder:" id="wGl-U4-p4w">
-                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-UltraLightP2"/>
+                                    <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UuS-iq-Uqh">
-                                <rect key="frame" x="298" y="87" width="207" height="18"/>
-                                <buttonCell key="cell" type="check" title="Use jss-recipes identifier style" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="HFu-ur-ANn">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.FollowOfficialJSSRecipesFormat" id="VbQ-yP-oBq">
-                                        <dictionary key="options">
-                                            <bool key="NSConditionallySetsEnabled" value="NO"/>
-                                            <integer key="NSNullPlaceholder" value="0"/>
-                                        </dictionary>
-                                    </binding>
-                                </connections>
-                            </button>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w0f-h9-2tF">
-                                <rect key="frame" x="231" y="9" width="113" height="32"/>
+                                <rect key="frame" x="244" y="13" width="113" height="32"/>
+                                <animations/>
                                 <buttonCell key="cell" type="push" title="Good to Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="de0-CZ-msm">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -838,6 +837,7 @@ URL to start processing</string>
                             </button>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZIM-gN-Rdk">
                                 <rect key="frame" x="300" y="244" width="260" height="22"/>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="CPV-VN-jhb">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -852,7 +852,8 @@ URL to start processing</string>
                                 </connections>
                             </textField>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="taG-FT-CNb">
-                                <rect key="frame" x="300" y="167" width="178" height="22"/>
+                                <rect key="frame" x="300" y="187" width="178" height="22"/>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1zr-Ad-yDY">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -867,11 +868,44 @@ URL to start processing</string>
                                 </connections>
                             </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eiD-vS-YGE">
-                                <rect key="frame" x="486" y="165" width="74" height="25"/>
+                                <rect key="frame" x="486" y="185" width="74" height="25"/>
+                                <animations/>
                                 <buttonCell key="cell" type="roundTextured" title="Choose..." bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KNI-y2-o6f">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                            </button>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UuS-iq-Uqh">
+                                <rect key="frame" x="298" y="158" width="207" height="18"/>
+                                <animations/>
+                                <buttonCell key="cell" type="check" title="Use jss-recipes identifier style" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="HFu-ur-ANn">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.FollowOfficialJSSRecipesFormat" id="VbQ-yP-oBq">
+                                        <dictionary key="options">
+                                            <bool key="NSConditionallySetsEnabled" value="NO"/>
+                                            <integer key="NSNullPlaceholder" value="0"/>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Dbz-u9-R3b">
+                                <rect key="frame" x="298" y="133" width="282" height="18"/>
+                                <animations/>
+                                <buttonCell key="cell" type="check" title="Ignore existing recipes (not recommended)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="RW4-qq-rq6">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.FollowOfficialJSSRecipesFormat" id="fJ5-sh-Eag">
+                                        <dictionary key="options">
+                                            <bool key="NSConditionallySetsEnabled" value="NO"/>
+                                            <integer key="NSNullPlaceholder" value="0"/>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
                             </button>
                         </subviews>
                         <animations/>
@@ -1045,6 +1079,7 @@ URL to start processing</string>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="120" id="VfU-Qk-fZ3"/>
                                 </constraints>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="Recipes" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="4yP-fn-g6Y">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1055,6 +1090,7 @@ URL to start processing</string>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="120" id="zOC-8d-AbL"/>
                                 </constraints>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="Reminders" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="bS9-s6-t8w">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1065,6 +1101,7 @@ URL to start processing</string>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="120" id="I4y-iZ-djy"/>
                                 </constraints>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="Icons" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="FTf-fV-dbx">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1075,6 +1112,7 @@ URL to start processing</string>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="120" id="CYo-Ii-Wep"/>
                                 </constraints>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="Warnings" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="nNW-jx-HFy">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1085,6 +1123,7 @@ URL to start processing</string>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="120" id="3vQ-rw-qkI"/>
                                 </constraints>
+                                <animations/>
                                 <buttonCell key="cell" type="bevel" title="Errors" bezelStyle="regularSquare" image="NSStatusPartiallyAvailable" imagePosition="left" state="on" allowsMixedState="YES" inset="2" id="X8x-aK-Si7">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1095,6 +1134,7 @@ URL to start processing</string>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="600" id="lsM-6d-3SM"/>
                                 </constraints>
+                                <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Running..." id="NNg-q1-5PF">
                                     <font key="font" size="22" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1106,6 +1146,7 @@ URL to start processing</string>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="63" id="xSj-Yo-FPE"/>
                                 </constraints>
+                                <animations/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Processing" id="GzI-d9-eIi">
                                     <font key="font" size="15" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1118,6 +1159,7 @@ URL to start processing</string>
                                     <constraint firstAttribute="height" constant="165" id="4ec-FX-pej"/>
                                     <constraint firstAttribute="width" constant="165" id="5XD-Si-TsN"/>
                                 </constraints>
+                                <animations/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" id="c2L-lw-z5C"/>
                             </imageView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uhj-oq-9WR">
@@ -1125,6 +1167,7 @@ URL to start processing</string>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="147" id="udX-ih-Kv5"/>
                                 </constraints>
+                                <animations/>
                                 <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Gch-Hb-fFR">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1187,8 +1230,9 @@ Gw
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
         <image name="NSStatusPartiallyAvailable" width="16" height="16"/>
+        <image name="icon_128x128" width="128" height="128"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="50X-tC-H7B"/>
+        <segue reference="cq2-FE-JQM"/>
     </inferredMetricsTieBreakers>
 </document>
