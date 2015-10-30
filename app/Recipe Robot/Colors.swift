@@ -3,7 +3,7 @@
 //  Recipe Robot
 //
 //  Created by Eldon on 10/11/15.
-//  Copyright (c) 2015 Linde Group. All rights reserved.
+//  Copyright (c) 2015 Eldon Ahrold. All rights reserved.
 //
 
 import Cocoa
