@@ -22,7 +22,7 @@ __Table of contents__
 
 Recipe Robot is the easiest way to create new AutoPkg recipes for simple Mac apps. It consists of two components:
 
-- A __[Python script](#python-script-usage)__ that takes various types of input and automatically outputs AutoPkg recipes in various formats.
+- A __[Python script](#python-script-usage)__ that takes various types of input and automatically outputs AutoPkg recipes.
 
 - A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
 
@@ -37,6 +37,7 @@ When you first launch the app, the first thing you'll want to do is to set your 
 
 - Your desired recipe types
 - Your preferred recipe identifier
+- Your recipe output location
 
 Then click __Good to Go__.
 
