@@ -11,6 +11,7 @@
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
 		8B4D8F7E1BE3D45F00210573 /* DropZone.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B4D8F7D1BE3D45F00210573 /* DropZone.png */; settings = {ASSET_TAGS = (); }; };
+		8BC7598F1BE413190074040F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7598E1BE413190074040F /* Credits.rtf */; settings = {ASSET_TAGS = (); }; };
 		BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */ = {isa = PBXBuildFile; fileRef = BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */; };
 		BE09DAB01BBA1D95007F8FF4 /* GearImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09DAAF1BBA1D94007F8FF4 /* GearImageView.swift */; };
 		BE1A41CF1BB4C374008173FB /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
@@ -46,6 +47,7 @@
 		8B42AC931B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe_RobotTests.swift; sourceTree = "<group>"; };
 		8B4D8F7D1BE3D45F00210573 /* DropZone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DropZone.png; sourceTree = "<group>"; };
+		8BC7598E1BE413190074040F /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = Credits.rtf; path = "Recipe Robot/Credits.rtf"; sourceTree = SOURCE_ROOT; };
 		8BD5A1CC1BCB6E3F00D16D0A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../scripts; sourceTree = "<group>"; };
 		BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_128x128.png; path = Images.xcassets/AppIcon.appiconset/icon_128x128.png; sourceTree = "<group>"; };
 		BE09DAAF1BBA1D94007F8FF4 /* GearImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GearImageView.swift; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 		8B42AC811B5C5BEC0058A814 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8BC7598E1BE413190074040F /* Credits.rtf */,
 				8B4D8F7D1BE3D45F00210573 /* DropZone.png */,
 				BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */,
 				8B42AC821B5C5BEC0058A814 /* Info.plist */,
@@ -233,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE6F6BA31B800E270082011D /* scripts in Resources */,
+				8BC7598F1BE413190074040F /* Credits.rtf in Resources */,
 				BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */,
 				8B4D8F7E1BE3D45F00210573 /* DropZone.png in Resources */,
 				BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */,
