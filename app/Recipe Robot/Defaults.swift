@@ -3,7 +3,7 @@
 //  Recipe Robot
 //
 //  Created by Eldon on 10/27/15.
-//  Copyright © 2015 Linde Group. All rights reserved.
+//  Copyright (c) 2015 Eldon Ahrold. All rights reserved.
 //
 
 import Foundation
@@ -25,6 +25,12 @@ import Foundation
 
 class Defaults: NSObject {
     static let sharedInstance = Defaults()
+
+    override init() {
+        super.init()
+        defaults.registerDefaults(["RecipeCreateCount": 0,
+                                    "RecipeCreateLocation": "\(NSHomeDirectory())/Library/AutoPkg/RecipeRobot"])
+    }
 
     private let defaults = NSUserDefaults.standardUserDefaults()
     var recipeTypes: [String]? {
@@ -60,6 +66,24 @@ class Defaults: NSObject {
         }
         set {
             defaults.setValue(newValue, forKey: "DSPackagesPath")
+        }
+    }
+
+    var recipeCreateCount: Int {
+        get {
+            return defaults.integerForKey("RecipeCreateCount")
+        }
+        set {
+            defaults.setInteger(newValue, forKey: "RecipeCreateCount")
+        }
+    }
+
+    var initialized: Bool {
+        get {
+            return defaults.boolForKey("Initialized")
+        }
+        set {
+            defaults.setBool(newValue, forKey: "Initialized")
         }
     }
 }

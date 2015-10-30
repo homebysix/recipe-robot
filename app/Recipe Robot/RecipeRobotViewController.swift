@@ -73,6 +73,10 @@ class FeedMeViewController: RecipeRobotViewController {
 
     override func viewDidAppear() {
         super.viewDidAppear()
+        if !Defaults.sharedInstance.initialized {
+            self.presentViewControllerAsSheet(MainStoryboard().preferenceViewController)
+            Defaults.sharedInstance.initialized = true
+        }
         self.task = RecipeRobotTask()
     }
 }
@@ -184,8 +188,7 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
 
     func tableView(tableView: NSTableView, willDisplayCell cell: AnyObject, forTableColumn tableColumn: NSTableColumn?, row: Int) {
         if let cell = cell as? NSButtonCell {
-            let title = recipeTypes[row]
-            cell.title = title
+            cell.title = recipeTypes[row]
         }
     }
 
@@ -194,7 +197,7 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
             let type = recipeTypes[row]
             let idx = enabledRecipeTypes.indexOf(type)
 
-            if (value == NSOnState) && ( idx == nil) {
+            if (value == NSOnState) && (idx == nil) {
                 enabledRecipeTypes.append(type)
             } else if (value == NSOffState){
                 if enabledRecipeTypes.count > 0 {
@@ -240,8 +243,9 @@ class ProcessingViewController: RecipeRobotViewController {
         infoLabel.textColor = Color.White.ns
         infoLabel.stringValue = "Preping..."
 
-        listener.notificationHandler = {[weak self]
-            noteType, info in
+        listener.notificationHandler = {
+            [weak self] noteType, info in
+
             var color = NSColor.whiteColor()
             switch noteType {
             case .Info:
@@ -282,8 +286,9 @@ class ProcessingViewController: RecipeRobotViewController {
                         attrs = defaultAttrs
                     }
 
-                    attrs[NSForegroundColorAttributeName] = color
+                    // Setting size to 0 keeps it the same.
                     attrs[NSFontAttributeName] =  NSFont(descriptor: descriptor, size: 0)
+                    attrs[NSForegroundColorAttributeName] = color
 
                     label.attributedStringValue = NSAttributedString(string: string,
                                                                      attributes: attrs)
@@ -339,7 +344,8 @@ class ProcessingViewController: RecipeRobotViewController {
         gearsShouldRotate(true)
 
         // Do view setup here.
-        self.task.createRecipes({[weak self] (progress) -> Void in
+        self.task.createRecipes({
+            [weak self] progress in
 
             if let pView = self?.progressView {
                 pView.textStorage?.appendAttributedString(progress.parseANSI())
