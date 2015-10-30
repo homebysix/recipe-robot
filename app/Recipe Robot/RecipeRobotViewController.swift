@@ -85,6 +85,9 @@ class PreferenceViewController: RecipeRobotViewController {
     @IBOutlet var tableView: NSTableView!
     @IBOutlet var scrollView: NSScrollView!
 
+    @IBOutlet var dsFolderPathButton: NSButton!
+    @IBOutlet var recipeFolderPathButton: NSButton!
+
     let recipeTypes: [String] = [
         "download",
         "munki",
@@ -93,7 +96,8 @@ class PreferenceViewController: RecipeRobotViewController {
         "jss",
         "absolute",
         "sccm",
-        "ds"
+        "ds",
+        "filewave"
     ]
     
     private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? [String]()
@@ -104,13 +108,67 @@ class PreferenceViewController: RecipeRobotViewController {
         self.tableView.backgroundColor = NSColor.clearColor()
         self.scrollView.backgroundColor = NSColor.clearColor()
         self.scrollView.focusRingType = NSFocusRingType.None
-        
+
+        self.recipeFolderPathButton.action = "chooseFilePath:"
+        self.recipeFolderPathButton.target = self
+        self.dsFolderPathButton.action = "chooseFilePath:"
+        self.dsFolderPathButton.target = self
         // Do view setup here.
     }
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
-        NSUserDefaults.standardUserDefaults().setObject(self.enabledRecipeTypes, forKey:"RecipeTypes")
+        Defaults.sharedInstance.recipeTypes = self.enabledRecipeTypes
+    }
+
+    @IBAction func close(sender: AnyObject) {
+        self.dismissController(sender)
+        self.view.window?.close()
+    }
+}
+
+extension PreferenceViewController {
+    @IBAction func chooseFilePath(sender: NSButton){
+        let d = Defaults.sharedInstance
+        var directoryURL = NSHomeDirectory()
+        if sender === recipeFolderPathButton {
+            if let p = d.recipeCreateLocation {
+                directoryURL = p
+            }
+        }
+        else if sender === dsFolderPathButton {
+            if let p = d.dsPackagePath {
+                directoryURL = p
+            }
+        }
+        
+        let panel = NSOpenPanel()
+
+        let dir = (directoryURL as NSString).stringByExpandingTildeInPath
+        var isDir: ObjCBool = ObjCBool(false)
+        if NSFileManager.defaultManager().fileExistsAtPath(dir, isDirectory: &isDir) && isDir {
+            panel.directoryURL = NSURL(fileURLWithPath: dir)
+        }
+
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.prompt = "Choose";
+
+        panel.beginSheetModalForWindow(self.view.window!) {
+            [weak self] result in
+            if (result == NSFileHandlingPanelOKButton) {
+                if let path = panel.URL?.path {
+                    if sender === self!.recipeFolderPathButton {
+                        d.recipeCreateLocation = path
+                    }
+                    else if sender === self!.dsFolderPathButton {
+                        d.dsPackagePath = path
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -155,7 +213,7 @@ class ProcessingViewController: RecipeRobotViewController {
     @IBOutlet private var progressView: NSTextView?
     @IBOutlet private var cancelButton: NSButton?
     @IBOutlet weak var titleLabel: NSTextField!
-    @IBOutlet weak var appIcon: NSImageView!
+    @IBOutlet weak var appIcon: NSButton!
     @IBOutlet weak var infoLabel: NSTextField!
 
     @IBOutlet var gearContainerView: NSView!
@@ -291,9 +349,12 @@ class ProcessingViewController: RecipeRobotViewController {
             }, completion: {[weak self]
                 error in
 
-                if error == nil {
-                    self!.appIcon.image = NSImage(named: "NSFolder")
+                if error == nil || error!.code == 0 {
                     self!.titleLabel.stringValue = "All Done"
+                    self!.appIcon.image = NSImage(named: "NSFolder")
+
+                    self!.appIcon.action = "openFolder:"
+                    self!.appIcon.target = self
                 } else {
                     self!.appIcon.image = NSImage(named: "NSCaution")
                     self!.titleLabel.stringValue = "Finished with errors."
@@ -316,8 +377,15 @@ class ProcessingViewController: RecipeRobotViewController {
                 }
         })
     }
-    
+
     // MARK: IBActions
+    @IBAction private func openFolder(sender: AnyObject?){
+        if let loc = Defaults.sharedInstance.recipeCreateLocation {
+            let url = NSURL(fileURLWithPath: loc, isDirectory: true)
+            NSWorkspace.sharedWorkspace().openURL(url)
+        }
+    }
+
     @IBAction private func cancelTask(sender: NSButton){
         if self.task.isProcessing {
             cancelButton = sender

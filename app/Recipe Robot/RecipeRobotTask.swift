@@ -13,6 +13,8 @@ class RecipeRobotTask: NSObject {
     // MARK: Public
     private var appBundle: NSBundle?
 
+    var ignoreExisting: Bool?
+
     var appOrRecipe: String = "" {
         didSet {
             appBundle = NSBundle(path: appOrRecipe)
@@ -124,7 +126,20 @@ class RecipeRobotTask: NSObject {
         var args = [String]()
         
         if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
-            args.appendContentsOf([recipeRobotPy, "-v", self.appOrRecipe])
+
+            args.appendContentsOf([recipeRobotPy, "-v"])
+
+            // Honor the ignoreExisting of the instance first
+            // If that's unset apply the setting from defaults.
+            if let ignore = self.ignoreExisting {
+                if ignore {
+                    args.append("--ignore-existing")
+                }
+            } else if Defaults.sharedInstance.ignoreExisting {
+                args.append("--ignore-existing")
+            }
+
+            args.append(self.appOrRecipe)
         }
 
         return args

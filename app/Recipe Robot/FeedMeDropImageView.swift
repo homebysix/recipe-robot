@@ -8,7 +8,7 @@
 
 import Cocoa
 
-// MARK: -- Views --
+// MARK: -- Dragging  --
 class FeedMeDropImageView: NSImageView {
 
     override func performDragOperation(sender: NSDraggingInfo) -> Bool {
@@ -38,3 +38,18 @@ class FeedMeDropImageView: NSImageView {
     override func draggingExited(sender: NSDraggingInfo?) {
     }
 }
+
+//// MARK: -- Pasting  --
+//extension FeedMeDropImageView {
+//    @IBAction func paste(sender: AnyObject){
+//        let pasteboard = NSPasteboard.generalPasteboard()
+//        let classes = [NSURL.classForCoder()]
+//        let options = [String: AnyObject]()
+//        if pasteboard.canReadObjectForClasses(classes, options: options){
+//            let objs = pasteboard.readObjectsForClasses(classes, options: options)
+//            Swift.print(objs)
+//            Swift.print(sender)
+//        }
+//    }
+//}
+
