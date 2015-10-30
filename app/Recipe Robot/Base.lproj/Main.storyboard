@@ -687,7 +687,7 @@
                                     <action selector="paste:" target="rPt-NT-nkU" id="NYC-ou-PdW"/>
                                 </connections>
                             </imageView>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
+                            <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
                                 <rect key="frame" x="170" y="48" width="258" height="18"/>
                                 <animations/>
                                 <buttonCell key="cell" type="check" title="Ignore existing recipes for this run only" bezelStyle="regularSquare" imagePosition="left" inset="2" id="zO6-wJ-Rb7">
