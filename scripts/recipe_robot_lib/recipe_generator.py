@@ -176,7 +176,7 @@ def get_generation_func(facts, prefs, recipe):
 
     func_name = ["generate", recipe["type"], "recipe"]
 
-    if recipe["type"] in ("munki", "pkg") and facts["is_from_app_store"] is True:
+    if recipe["type"] in ("munki", "pkg") and facts["is_from_app_store"]:
         func_name.insert(1, "app_store")
 
     # TODO (Shea): This is a hack until I can use AbstractFactory for this.
