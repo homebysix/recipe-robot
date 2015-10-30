@@ -5,6 +5,7 @@ __Table of contents__
 <!-- MarkdownTOC autolink=true depth=3 bracket=round -->
 
 - [Overview](#overview)
+- [Mac App Usage](#mac-app-usage)
 - [Python Script Usage](#python-script-usage)
 - [Tips](#tips)
   - [Compatibility](#compatibility)
@@ -21,18 +22,48 @@ __Table of contents__
 
 Recipe Robot will soon become the easiest way to create basic AutoPkg recipes. It will consist of two components:
 
-- A __Python script__ that takes various types of input and automatically outputs AutoPkg recipes in various formats.
+- A __[Python script](#python-script-usage)__ that takes various types of input and automatically outputs AutoPkg recipes in various formats.
 
-- A __native Mac app__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
+- A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
 
 This two-pronged approach will allow AutoPkg novices to easily create recipes that follow community-accepted guidelines, and will still provide a command-line tool for more advanced AutoPkg users. Also, ensuring that all program logic is written in Python should hopefully encourage community contribution to this project.
 
 
+## Mac App Usage
+
+:warning: The Mac app is still in heavy development. As such, some features may not work, and you may encounter a bug or two. Be patient; we're still building robot parts.
+
+When you first launch the app, the first thing you'll want to do is to set your preferences. Choose __Preferences__ from the __Recipe Robot__ menu, and select the following:
+
+- Your desired recipe types
+- Your preferred recipe identifier
+
+Then click __Good to Go__.
+
+![Mac App - Preferences](images/app-prefs.png)
+
+Now you're ready to build some recipes! Drag in an app that you want to create recipes for.
+
+The Recipe Robot app works best with apps that have a Sparkle feed, and for which there are no existing AutoPkg recipes.
+
+![Mac App - Feed Me](images/app-feedme.png)
+
+You'll see some activity while Recipe Robot processes the app.
+
+![Mac App - Processing](images/app-processing.png)
+
+If no errors are encountered, you'll see a screen that looks like this:
+
+![Mac App - Done](images/app-done.png)
+
+And if you click on the folder icon, you'll be taken to the finished recipes.
+
+![Recipes](images/created-recipes.png)
+
+
 ## Python Script Usage
 
-The Python script is under heavy development right now, but you're welcome to try it out if you want a preview of what Recipe Robot will do. __Use at your own risk,__ and always manually review the recipes that are created before running them.
-
-Just open Terminal, `cd` to the scripts folder, then type:
+If you prefer to use the command-line version of Recipe Robot, just open Terminal, `cd` to the scripts folder, and type:
 
 ```
 recipe-robot <input>
@@ -52,7 +83,7 @@ Here's what Recipe Robot looks like when it's working properly. The command I us
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.1.0.  |
+                     |  Welcome to Recipe Robot v0.2.0.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]
@@ -78,7 +109,7 @@ If you use the `--verbose` argument, you'll get a little more information about 
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.1.0.  |
+                     |  Welcome to Recipe Robot v0.2.0.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]
@@ -126,10 +157,7 @@ Generating install recipe...
 You've now created 4 recipes with Recipe Robot. Round of applause for you!
 ```
 
-It's fun to see the details, and very useful in case anything goes wrong.
-
-
-<!-- ## Mac App Usage -->
+It's fun to see the details, and it proves very useful for troubleshooting.
 
 
 ## Tips
@@ -142,9 +170,9 @@ You may still need to make a recipe the old fashioned way, if the Robot comes up
 
 ### Apps with existing AutoPkg recipes
 
-By default, Recipe Robot does not generate recipes for an app if any AutoPkg recipes already exist for that app. This is a design choice we made after careful consideration, for two reasons:
+By default, Recipe Robot does _not_ generate recipes for an app if any AutoPkg recipes already exist for that app. This is a design choice we made after careful consideration, for two reasons:
 
-1. It's difficult to parse a ParentRecipe and determine exactly which processors will be needed and which file paths we can rely on. Your brain is still the best tool for that, for now.
+1. It's difficult to parse a ParentRecipe and determine exactly which processors will be needed and which file paths we can rely on. Your brain is still the best tool for that.
 
 2. Many AutoPkg recipe authors put a lot of work into the recipes they write, and it's important that we respect that by refraining from uploading duplicate recipes to GitHub.
 
@@ -152,7 +180,7 @@ You can override this etiquette, but please only post a duplicate set of recipes
 
 - applicable to a wide audience
 - better than the original in at least one significant way
-- a note in the description clarifies how your recipe differs from the existing recipe (see [this example](https://github.com/autopkg/homebysix-recipes/blob/b3e30cf859e983ff1cf6ad6a053917d17434567f/ObjectiveDevelopment/LaunchBar.download.recipe#L10-L13))
+- a note in the description clarifies how your recipe differs (see [this example](https://github.com/autopkg/homebysix-recipes/blob/b3e30cf859e983ff1cf6ad6a053917d17434567f/ObjectiveDevelopment/LaunchBar.download.recipe#L10-L13))
 
 Thank you!
 
@@ -182,9 +210,9 @@ If you provide Recipe Robot with the path to an app that came from the Mac App S
 - If at first you don't succeed, try try again! I usually enlist the following steps for creating recipes:
 
     1. Provide the app itself as input to Recipe Robot.
-    2. If that doesn't work, go to the developer's website and see if they provide a static download link (usually ends with .zip or .dmg). Try using that.
-    3. If that still doesn't work, maybe the app has a GitHub or SourceForge project page? Try providing that to Recipe Robot.
-    4. Still no luck? Write a recipe from scratch like the good old days.
+    2. If that doesn't work, go to the developer's website and see if they provide a static download link (usually ends with .zip or .dmg). Try using that with the Recipe Robot [script](#python-script-usage).
+    3. If that still doesn't work, maybe the app has a GitHub or SourceForge project page? Try providing that to the Recipe Robot [script](#python-script-usage).
+    4. Still no luck? Write a recipe from scratch like the good old days. It builds character.
 
 - Run again with `--verbose` when errors occur, and you'll usually see why. It's often because Recipe Robot couldn't determine how to download the app. As I said, the Robot won't work for all apps.
 
@@ -195,5 +223,8 @@ If you provide Recipe Robot with the path to an app that came from the Mac App S
 
 ## Feedback
 
-Recipe Robot hasn't been formally released yet, so let's keep this between you and me for now. :-)
+Recipe Robot is in public beta now, so please be gentle when reporting errors. There are many bugs, and we're actively working on them.
+
+The best way to get in touch with us is by opening an [issue](https://github.com/homebysix/recipe-robot/issues) on GitHub.
+
 
