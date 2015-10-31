@@ -64,10 +64,10 @@ And if you click on the folder icon, you'll be taken to the finished recipes.
 
 ## Python Script Usage
 
-If you prefer to use the command-line version of Recipe Robot, just open Terminal, `cd` to the scripts folder, and type:
+If you prefer to use the command-line version of Recipe Robot, just install the latest version of Recipe Robot in your Applications folder, open Terminal, and type:
 
 ```
-recipe-robot <input>
+/Applications/Recipe\ Robot.app/Contents/Resources/scripts/recipe-robot <input>
 ```
 
 For `<input>`, you can use one of several types of information:
