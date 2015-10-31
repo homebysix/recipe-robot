@@ -156,7 +156,7 @@
                     <window key="window" title="Recipe Robot" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" texturedBackground="YES" unifiedTitleAndToolbar="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="600" y="300" width="600" height="350"/>
+                        <rect key="contentRect" x="600" y="350" width="600" height="350"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <value key="minSize" type="size" width="600" height="350"/>
                         <contentBorderThickness minY="0.0" maxY="0.0"/>
@@ -243,6 +243,7 @@
                         <animations/>
                     </view>
                     <connections>
+                        <outlet property="ignoreButton" destination="PTd-IR-P4B" id="VEQ-ge-daK"/>
                         <segue destination="DLx-gp-7HF" kind="custom" identifier="FeedMeSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="uhZ-iq-Ne8"/>
                     </connections>
                 </viewController>
@@ -766,6 +767,6 @@ Gw
         <image name="NSStatusPartiallyAvailable" width="16" height="16"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="cq2-FE-JQM"/>
+        <segue reference="50X-tC-H7B"/>
     </inferredMetricsTieBreakers>
 </document>

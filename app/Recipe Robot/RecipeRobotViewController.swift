@@ -62,12 +62,27 @@ class RecipeRobotViewController: NSViewController {
 
 // MARK: - Feed Me View Controller
 class FeedMeViewController: RecipeRobotViewController {
-    @IBOutlet var Gear1: NSImageView!
+
+    @IBOutlet var ignoreButton: NSButton!
+    var eventMonitor: AnyObject?
 
     override func awakeFromNib() {
         super.awakeFromNib()
     }
+
     override func viewDidLoad() {
+        ignoreButton.target = self
+        ignoreButton.action = "changeIgnoreState:"
+
+        NSEvent.addLocalMonitorForEventsMatchingMask(NSEventMask.FlagsChangedMask) { [weak self](event) -> NSEvent? in
+
+            if (self!.ignoreButton.state == NSOnState){
+                self!.ignoreButton.hidden = false
+            } else {
+                self!.ignoreButton.hidden = (event.modifierFlags.rawValue & NSEventModifierFlags.AlternateKeyMask.rawValue) == 0
+            }
+            return event
+        }
         super.viewDidLoad()
     }
 
@@ -78,6 +93,12 @@ class FeedMeViewController: RecipeRobotViewController {
             Defaults.sharedInstance.initialized = true
         }
         self.task = RecipeRobotTask()
+    }
+
+    @IBAction func changeIgnoreState(sender: NSButton?){
+        if sender === ignoreButton {
+            task.ignoreExisting = (sender?.state == NSOnState)
+        }
     }
 }
 
