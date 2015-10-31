@@ -4,7 +4,16 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased][unreleased]
 
-- Nothing yet.
+### Added
+- Added license header to each source file.
+- Prefs sheet now appears by default on first launch.
+
+### Changed
+- Changed readme to point to the version of `recipe-robot` Python script embedded in the Recipe Robot app.
+
+### Fixed
+- Adjusted layout of Mac app.
+
 
 ## 0.2.0 - 2015-10-30
 
