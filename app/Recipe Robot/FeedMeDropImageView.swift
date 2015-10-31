@@ -25,8 +25,6 @@ class FeedMeDropImageView: NSImageView {
         if let controller = sender.draggingDestinationWindow()!.contentViewController as? FeedMeViewController,
             files = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? NSArray,
             file = files.firstObject as? String {
-
-                controller.task = RecipeRobotTask()
                 controller.task.appOrRecipe = file
                 controller.performSegueWithIdentifier("FeedMeSegue", sender: self)
         }

@@ -76,6 +76,12 @@ class FeedMeViewController: RecipeRobotViewController {
     @IBOutlet var ignoreButton: NSButton!
     var eventMonitor: AnyObject?
 
+    deinit {
+        if let eventMonitor = eventMonitor {
+            NSEvent.removeMonitor(eventMonitor)
+        }
+    }
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -84,12 +90,13 @@ class FeedMeViewController: RecipeRobotViewController {
         ignoreButton.target = self
         ignoreButton.action = "changeIgnoreState:"
 
-        NSEvent.addLocalMonitorForEventsMatchingMask(NSEventMask.FlagsChangedMask) { [weak self](event) -> NSEvent? in
-
-            if (self!.ignoreButton.state == NSOnState){
-                self!.ignoreButton.hidden = false
-            } else {
-                self!.ignoreButton.hidden = (event.modifierFlags.rawValue & NSEventModifierFlags.AlternateKeyMask.rawValue) == 0
+        eventMonitor = NSEvent.addLocalMonitorForEventsMatchingMask(NSEventMask.FlagsChangedMask) { [weak self](event) -> NSEvent? in
+            if let _self = self {
+                if (_self.ignoreButton.state == NSOnState){
+                    _self.ignoreButton.hidden = false
+                } else {
+                    _self.ignoreButton.hidden = (event.modifierFlags.rawValue & NSEventModifierFlags.AlternateKeyMask.rawValue) == 0
+                }
             }
             return event
         }
