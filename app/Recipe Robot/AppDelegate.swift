@@ -22,5 +22,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication) -> Bool {
         return true
     }
-}
 
+    @IBAction func openHelpURL(sender: AnyObject) {
+        let urlString = NSURL(string: "https://github.com/homebysix/recipe-robot/blob/master/README.md")
+        NSWorkspace.sharedWorkspace().openURL(urlString!)
+    }
+}
