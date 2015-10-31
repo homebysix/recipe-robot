@@ -20,9 +20,11 @@ import Cocoa
 
 class RecipeRobotTask: NSObject {
 
-    // MARK: Public
+    // MARK: Private
+    private var task = NSTask()
     private var appBundle: NSBundle?
 
+    // MARK: Public
     var ignoreExisting: Bool?
 
     var appOrRecipe: String = "" {
@@ -70,10 +72,12 @@ class RecipeRobotTask: NSObject {
         }
     }
 
-    func createRecipes(progress: (progress: String) -> Void, completion: (error: NSError? ) -> Void) {
+    func createRecipes(progress: (progress: String) -> Void,
+                       completion: (error: NSError? ) -> Void) {
 
         task.launchPath = "/usr/bin/python"
-        task.arguments = self.constructTaskArgs()
+        task.arguments = constructTaskArgs()
+        task.environment = constructTaskEnvironment()
 
         let out = NSPipe()
         task.standardOutput = out
@@ -124,11 +128,9 @@ class RecipeRobotTask: NSObject {
         task.launch()
     }
 
-    // MARK: Private
-    private var task = NSTask()
-
-    private func constructTaskEnvironment() -> Dictionary<String, AnyObject> {
-        let dict = Dictionary<String, AnyObject>()
+    private func constructTaskEnvironment() -> Dictionary<String, String> {
+        let dict = NSProcessInfo.processInfo().environment
+        /// Possibly do more here some day.
         return dict
     }
 
