@@ -32,12 +32,12 @@ extension String {
 // MARK: Trimmed
 extension String {
 
-    // Trimmed whitespace and new line
+    /// Trimmed whitespace and new line
     public var trimmedFull: String {
         return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
     }
 
-    // Timmed whitespace
+    /// Timmed whitespace
     public var trimmed: String {
         return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
     }
