@@ -284,7 +284,7 @@ class ProcessingViewController: RecipeRobotViewController {
         listener.notificationHandler = {
             [weak self] noteType, info in
 
-            var color = NSColor.whiteColor()
+            var color = NSColor.blackColor()
             switch noteType {
             case .Info:
                 break
