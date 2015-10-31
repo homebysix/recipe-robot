@@ -26,6 +26,7 @@
 		BE76397E1BCB602A00589695 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE76397D1BCB602A00589695 /* Colors.swift */; };
 		BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */; };
 		BEB732831BE3F1AC00EA375C /* Storyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB732821BE3F1AC00EA375C /* Storyboard.swift */; };
+		BEDA880E1BE536E500DBC59B /* AHHelpPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = BEDA880D1BE536E500DBC59B /* AHHelpPopover.m */; };
 		BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE6A1B81BB88A080050653A /* CustomSegues.swift */; };
 /* End PBXBuildFile section */
 
@@ -63,6 +64,8 @@
 		BE76397D1BCB602A00589695 /* Colors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotTask.swift; sourceTree = "<group>"; };
 		BEB732821BE3F1AC00EA375C /* Storyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storyboard.swift; sourceTree = "<group>"; };
+		BEDA880C1BE536E500DBC59B /* AHHelpPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AHHelpPopover.h; sourceTree = "<group>"; };
+		BEDA880D1BE536E500DBC59B /* AHHelpPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AHHelpPopover.m; sourceTree = "<group>"; };
 		BEE6A1B81BB88A080050653A /* CustomSegues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSegues.swift; sourceTree = "<group>"; };
 		BEE6A1BA1BB89FCA0050653A /* Recipe Robot-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Recipe Robot-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -120,6 +123,8 @@
 				BE328F171BDC0DFD00EAF2E5 /* NotificationListener.swift */,
 				BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */,
 				BE76397B1BCB42EC00589695 /* StringExtensions.swift */,
+				BEDA880C1BE536E500DBC59B /* AHHelpPopover.h */,
+				BEDA880D1BE536E500DBC59B /* AHHelpPopover.m */,
 				8B42AC851B5C5BEC0058A814 /* Images.xcassets */,
 				8B42AC811B5C5BEC0058A814 /* Supporting Files */,
 				BEE6A1BA1BB89FCA0050653A /* Recipe Robot-Bridging-Header.h */,
@@ -274,6 +279,7 @@
 				BE34C8341B7EC5D400E0822E /* RecipeRobotViewController.swift in Sources */,
 				BE49EB8F1BDFD33C001AA9CF /* FeedMeDropImageView.swift in Sources */,
 				BE49EB911BDFD451001AA9CF /* Defaults.swift in Sources */,
+				BEDA880E1BE536E500DBC59B /* AHHelpPopover.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
