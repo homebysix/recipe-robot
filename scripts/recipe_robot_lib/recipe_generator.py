@@ -906,7 +906,7 @@ def generate_absolute_recipe(facts, prefs, recipe):
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
     # Print a reminder if the required repo isn't present on disk.
-    cmd = "autopkg repo-list"
+    cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if not any(line.endswith("(https://github.com/tburgin/AbsoluteManageExport)") for line in out.split("\n")):
         facts["reminders"].append(
@@ -957,7 +957,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
 
     # Print a reminder if the required repo isn't present on disk.
-    cmd = "autopkg repo-list"
+    cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if not any(line.endswith("(https://github.com/autopkg/cgerke-recipes)") for line in out.split("\n")):
         facts["reminders"].append(
@@ -1033,7 +1033,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "downloads.")
 
     # Print a reminder if the required repo isn't present on disk.
-    cmd = "autopkg repo-list"
+    cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if not any(line.endswith("(https://github.com/johncclayton/FileWaveImporter)") for line in out.split("\n")):
         facts["reminders"].append(
