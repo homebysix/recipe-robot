@@ -301,6 +301,8 @@ class ProcessingViewController: RecipeRobotViewController {
             case .Error:
                 color = Color.Red.ns
                 self!.errorIndicator?.cell?.image = red
+            case .Complete:
+                self!.completionInfo = info
             }
 
             if let _string = info["message"] as? String {

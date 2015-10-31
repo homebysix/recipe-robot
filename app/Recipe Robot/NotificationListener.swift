@@ -20,7 +20,7 @@ import Cocoa
 
 
 enum NoteType: Int {
-    case Info, Error, Reminders, Warnings, Recipes, Icons
+    case Info, Error, Reminders, Warnings, Recipes, Icons, Complete
 
     static func fromName(name: String) -> NoteType? {
         for t in self.cases {
@@ -31,16 +31,20 @@ enum NoteType: Int {
         return nil
     }
 
-    var name: String {
-        let base = "com.elliotjordan.recipe-robot.dnc."
+    var key: String {
         switch self {
-        case Info: return base + "information"
-        case Error: return base + "errors"
-        case Reminders: return base + "reminders"
-        case Warnings: return base + "warnings"
-        case Recipes: return base + "recipes"
-        case Icons: return base + "icons"
+        case Info: return "information"
+        case Error: return "errors"
+        case Reminders: return "reminders"
+        case Warnings: return "warnings"
+        case Recipes: return "recipes"
+        case Icons: return "icons"
+        case Complete: return "complete"
         }
+    }
+
+    var name: String {
+        return "com.elliotjordan.recipe-robot.dnc." + self.key
     }
 
     static var cases: [NoteType]{
