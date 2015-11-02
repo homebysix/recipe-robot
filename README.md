@@ -45,7 +45,7 @@ Then click __Good to Go__.
 
 Now you're ready to build some recipes! Drag in an app that you want to create recipes for.
 
-The Recipe Robot app works best with apps that have a Sparkle feed, and for which there are no existing AutoPkg recipes.
+IMPORTANT: The Recipe Robot app currently works best with apps that have a Sparkle feed, and for which there are no existing AutoPkg recipes.
 
 ![Mac App - Feed Me](images/app-feedme.png)
 
@@ -64,7 +64,7 @@ And if you click on the folder icon, you'll be taken to the finished recipes.
 
 ## Python Script Usage
 
-If you prefer to use the command-line version of Recipe Robot, just install the latest version of Recipe Robot in your Applications folder, open Terminal, and type:
+Recipe Robot's Mac app is designed to be easy to use, but it's the Python script that contains the real horsepower. To use it, just install the latest version of Recipe Robot in your Applications folder, open Terminal, and type:
 
 ```
 /Applications/Recipe\ Robot.app/Contents/Resources/scripts/recipe-robot <input>
@@ -80,11 +80,11 @@ For `<input>`, you can use one of several types of information:
 
 The first time Recipe Robot runs, you'll be prompted for some information. On subsequent runs, you can use the `--config` argument to force this prompt to return.
 
-Here's what Recipe Robot looks like when it's working properly. The command I used was: `recipe-robot http://delicious-monster.com/downloads/DeliciousLibrary3.zip`
+Here's what Recipe Robot looks like when it's working properly. The command I used was: `recipe-robot --verbose /Applications/coconutBattery.app`
 
 ```
                       -----------------------------------
-                     |  Welcome to Recipe Robot v0.2.0.  |
+                     |  Welcome to Recipe Robot v0.2.1.  |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]
@@ -92,73 +92,48 @@ Here's what Recipe Robot looks like when it's working properly. The command I us
                                      ||
                                    _/  \_
 
-Processing http://delicious-monster.com/downloads/DeliciousLibrary3.zip ...
-Generating download recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.download.recipe
-Generating munki recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.png
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.munki.recipe
-Generating pkg recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.pkg.recipe
-Generating install recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.install.recipe
-
-You've now created 4 recipes with Recipe Robot. Well done!
-```
-
-If you use the `--verbose` argument, you'll get a little more information about what's going on:
-
-```
-                      -----------------------------------
-                     |  Welcome to Recipe Robot v0.2.0.  |
-                      -----------------------------------
-                                \   _[]_
-                                 \  [oo]
-                                   d-||-b
-                                     ||
-                                   _/  \_
-
-Processing http://delicious-monster.com/downloads/DeliciousLibrary3.zip ...
-Input path looks like a download URL.
-    Download URL is: http://delicious-monster.com/downloads/DeliciousLibrary3.zip
-Downloading file for further inspection...
-    Downloaded to ~/Library/Caches/Recipe Robot/2015-10-16_07-53-22_632100/DeliciousLibrary3.zip
-Determining download format...
-    File extension is zip
-Opening downloaded file...
-    Successfully unarchived zip
+Processing /Applications/coconutBattery.app ...
+Input path looks like an app.
 Validating app...
     App seems valid
 Getting app name...
-    App name is: Delicious Library 3
+    App name is: coconutBattery
 Getting bundle identifier...
-    Bundle idenfitier is: com.delicious-monster.library3
+    Bundle idenfitier is: com.coconut-flavour.coconutBattery
 Checking for a Sparkle feed...
-    No Sparkle feed
+    Sparkle feed is: http://updates.coconut-flavour.com/coconutBatteryIntel.xml
+Getting information from Sparkle feed...
+    The Sparkle feed provides a version number
+    The latest version is 3.2.1
+    Download URL is: http://www.coconut-flavour.com/downloads/coconutBattery_3_2_1.zip
+Downloading file for further inspection...
+    Downloaded to ~/Library/Caches/Recipe Robot/2015-11-02_11-55-06_687672/coconutBattery_3_2_1.zip
+Determining download format...
+    File extension is zip
 Looking for version key...
-    Version key is: CFBundleShortVersionString (3.3.5)
+    Version key is: CFBundleShortVersionString (3.2.1)
 Looking for app icon...
-    App icon is: ~/Library/Caches/Recipe Robot/2015-10-16_07-53-22_632100/unpacked/Delicious Library 3.app/Contents/Resources/Delicious Library.icns
+    App icon is: /Applications/coconutBattery.app/Contents/Resources/icon1024
 Getting app description from MacUpdate...
-    Description: Import, browse and share your media.
+    Description: Displays info about your laptop battery.
 Gathering code signature information...
     Code signature verification requirements recorded
     3 authority names recorded
-    Developer: Delicious Monster Software, LLC
+    Developer: Christoph Sinai
 Generating download recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.download.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.download.recipe
 Generating munki recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.png
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.munki.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.png
+    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.munki.recipe
 Generating pkg recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.pkg.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.pkg.recipe
 Generating install recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.install.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.install.recipe
 
 You've now created 4 recipes with Recipe Robot. Round of applause for you!
 ```
 
-It's fun to see the details, and it proves very useful for troubleshooting.
+It's fun to see the `--verbose` details, and it proves very useful for troubleshooting.
 
 
 ## Tips
