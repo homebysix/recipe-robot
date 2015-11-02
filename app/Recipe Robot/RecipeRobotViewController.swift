@@ -392,7 +392,7 @@ class ProcessingViewController: RecipeRobotViewController {
 
                 self?.gearsShouldRotate(false)
                 if let button = self?.cancelButton {
-                    button.title = "Let's do another"
+                    button.title = "Let's Do Another!"
                 }
         })
     }
