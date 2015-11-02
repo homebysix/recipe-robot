@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -173,20 +173,61 @@
         <scene sceneID="hIz-AP-VOD">
             <objects>
                 <viewController storyboardIdentifier="FeedMe" id="XfG-lQ-9wD" customClass="FeedMeViewController" customModule="Recipe_Robot" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" wantsLayer="YES" misplaced="YES" id="m2S-Jp-Qdl">
+                    <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="350"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
                                 <rect key="frame" x="17" y="36" width="567" height="297"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="297" id="9QN-WS-oqs"/>
+                                </constraints>
                                 <animations/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="DropZone" id="96G-6b-REq"/>
                                 <connections>
                                     <action selector="paste:" target="rPt-NT-nkU" id="NYC-ou-PdW"/>
                                 </connections>
                             </imageView>
-                            <button hidden="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
-                                <rect key="frame" x="170" y="59" width="258" height="18"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
+                                <rect key="frame" x="17" y="182" width="565" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="mlC-Qb-xGd"/>
+                                </constraints>
+                                <animations/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="fMo-Ix-2ju">
+                                    <font key="font" metaFont="systemBold" size="20"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
+                                <rect key="frame" x="18" y="148" width="565" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="26" id="pBo-pg-xKy"/>
+                                </constraints>
+                                <animations/>
+                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Drag in an app to start processing." id="A3b-Bf-P3c">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="2Pa-uM-zOX">
+                                <rect key="frame" x="567" y="12" width="17" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="17" id="aIn-gb-YCz"/>
+                                </constraints>
+                                <animations/>
+                                <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSActionTemplate" imagePosition="only" alignment="center" alternateImage="NSActionTemplate" imageScaling="proportionallyUpOrDown" inset="2" id="eTm-xf-5Ir">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <segue destination="ESu-qZ-Dbn" kind="sheet" id="5DS-F9-XQ4"/>
+                                </connections>
+                            </button>
+                            <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
+                                <rect key="frame" x="171" y="124" width="258" height="18"/>
                                 <animations/>
                                 <buttonCell key="cell" type="check" title="Ignore existing recipes for this run only" bezelStyle="regularSquare" imagePosition="left" inset="2" id="zO6-wJ-Rb7">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -201,54 +242,22 @@
                                     </binding>
                                 </connections>
                             </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
-                                <rect key="frame" x="17" y="182" width="565" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="A61-6Z-p9q"/>
-                                </constraints>
-                                <animations/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="fMo-Ix-2ju">
-                                    <font key="font" metaFont="systemBold" size="20"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
-                                <rect key="frame" x="18" y="148" width="565" height="26"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="26" id="lZs-Nb-eUO"/>
-                                </constraints>
-                                <animations/>
-                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Drag in an app to start processing." id="A3b-Bf-P3c">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Pa-uM-zOX">
-                                <rect key="frame" x="578" y="332" width="17" height="17"/>
-                                <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSActionTemplate" imagePosition="only" alignment="center" alternateImage="NSActionTemplate" imageScaling="proportionallyUpOrDown" inset="2" id="eTm-xf-5Ir">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <segue destination="ESu-qZ-Dbn" kind="sheet" id="5DS-F9-XQ4"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="8JE-NP-b4Z"/>
-                            <constraint firstItem="PTd-IR-P4B" firstAttribute="top" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="73" id="N1V-0T-dVf"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="17" id="YgD-bL-S6v"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerY" secondItem="m2S-Jp-Qdl" secondAttribute="centerY" constant="-9.5" id="ZOc-Vc-Dnj"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="btd-XS-Tqj"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="aep-eh-Csg" secondAttribute="centerX" id="eMF-nr-jkX"/>
-                            <constraint firstItem="PTd-IR-P4B" firstAttribute="centerX" secondItem="oXK-h1-XrJ" secondAttribute="centerX" id="kUD-Mv-deW"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="17" id="lJz-rw-jMA"/>
-                            <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="qKs-nv-R2t"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="t8E-Ou-4BB"/>
-                            <constraint firstAttribute="bottom" secondItem="PTd-IR-P4B" secondAttribute="bottom" constant="61" id="tLO-8U-YH8"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="top" secondItem="oXK-h1-XrJ" secondAttribute="bottom" constant="8" symbolic="YES" id="wb7-Dc-xiL"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="7RJ-bk-y70"/>
+                            <constraint firstItem="PTd-IR-P4B" firstAttribute="bottom" secondItem="2Pa-uM-zOX" secondAttribute="bottom" constant="-114" id="9G8-tJ-cfZ"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="147" id="9pU-4d-6ap"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="17" id="IeW-jx-T4Q"/>
+                            <constraint firstItem="2Pa-uM-zOX" firstAttribute="top" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="7" id="Kux-3U-FTI"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="17" id="MDY-R5-qhg"/>
+                            <constraint firstItem="2Pa-uM-zOX" firstAttribute="trailing" secondItem="aep-eh-Csg" secondAttribute="trailing" id="OIr-eT-fIB"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="PTd-IR-P4B" secondAttribute="centerX" id="RNJ-hw-KWA"/>
+                            <constraint firstItem="PTd-IR-P4B" firstAttribute="top" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="-104" id="XGv-4e-Hgu"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerX" secondItem="Jyu-oi-lVv" secondAttribute="centerX" id="atw-Nm-VCB"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="top" secondItem="oXK-h1-XrJ" secondAttribute="bottom" constant="8" symbolic="YES" id="ctZ-AN-zFG"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="iLT-At-PPW"/>
+                            <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="ovG-2L-4hx"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="wd1-e1-ZVK"/>
                         </constraints>
                         <animations/>
                     </view>
@@ -360,6 +369,9 @@
                                 <buttonCell key="cell" type="push" title="Good to Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="de0-CZ-msm">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
                                 </buttonCell>
                                 <connections>
                                     <action selector="close:" target="ESu-qZ-Dbn" id="X7o-gd-65K"/>
@@ -633,14 +645,15 @@
                                         <textView editable="NO" importsGraphics="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" spellingCorrection="YES" smartInsertDelete="YES" id="THv-bG-5qD">
                                             <rect key="frame" x="0.0" y="0.0" width="579" height="242"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <animations/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <size key="minSize" width="579" height="242"/>
                                             <size key="maxSize" width="588" height="10000000"/>
                                             <attributedString key="textStorage">
-                                                <fragment content="Recipe-Robot">
+                                                <fragment content=" ">
                                                     <attributes>
-                                                        <font key="NSFont" size="12" name="Menlo-Italic"/>
-                                                        <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                                        <font key="NSFont" size="9" name="Menlo-Regular"/>
+                                                        <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                     </attributes>
                                                 </fragment>
                                             </attributedString>
@@ -649,15 +662,19 @@
                                             <size key="maxSize" width="588" height="10000000"/>
                                         </textView>
                                     </subviews>
+                                    <animations/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </clipView>
+                                <animations/>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="qOI-Zc-sn6">
                                     <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="zkp-Xc-s4x">
                                     <rect key="frame" x="564" y="1" width="16" height="242"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
                                 </scroller>
                             </scrollView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uhj-oq-9WR">
@@ -690,7 +707,7 @@ Gw
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                     <string key="keyEquivalent" base64-UTF8="YES">
-Gw
+DQ
 </string>
                                 </buttonCell>
                                 <connections>
@@ -748,7 +765,7 @@ Gw
         <image name="NSActionTemplate" width="14" height="14"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="50X-tC-H7B"/>
         <segue reference="5DS-F9-XQ4"/>
+        <segue reference="50X-tC-H7B"/>
     </inferredMetricsTieBreakers>
 </document>
