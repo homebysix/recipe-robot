@@ -45,9 +45,10 @@ extension String {
 
 // MARK: ANSI
 extension String {
-    public func parseANSI() -> NSAttributedString {
+
+    public func decodedANSI() -> (String, NSColor) {
         var matchFound = false
-        var color = NSColor.whiteColor()
+        var color = NSColor.blackColor()
 
         let string = NSMutableString(string: self)
         string.replaceCharactersInRange(NSMakeRange(0, 1), withString: "")
@@ -72,14 +73,18 @@ extension String {
         )
 
         let str = matchFound ? string as AnyObject as! String : self
+        return (str, color)
+    }
 
-        let attrString = NSAttributedString(string: str, attributes: [NSForegroundColorAttributeName: color])
+    public func parseANSI() -> NSAttributedString {
+        let (string, color) = self.decodedANSI()
+        let attrString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
         return attrString
     }
 
-    public func ANSIColors() -> Dictionary<String, NSColor> {
+    private func ANSIColors() -> Dictionary<String, NSColor> {
         let val = [
-            "[0m" : NSColor.whiteColor(),
+            "[0m" :  Color.Black.ns,
             "[91m" : Color.Red.ns,
             "[93m" : Color.Yellow.ns,
             "[94m" : Color.Green.ns,

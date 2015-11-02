@@ -91,7 +91,6 @@ class RecipeRobotTask: NSObject {
                 if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as? String {
                     NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
                         progress(progress: str)
-                        print(str)
                     })
                 }
         }

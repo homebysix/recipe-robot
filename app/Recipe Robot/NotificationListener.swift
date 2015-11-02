@@ -47,6 +47,24 @@ enum NoteType: Int {
         return "com.elliotjordan.recipe-robot.dnc." + self.key
     }
 
+    var prefix: String {
+        switch self {
+        case .Error, .Warnings, .Reminders:
+            return "[\(self.key.uppercaseString)]"
+        default:
+            return ""
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case Error: return Color.Red
+        case Reminders: return Color.Green
+        case Warnings: return Color.Yellow
+        default: return Color.Black
+        }
+    }
+
     static var cases: [NoteType]{
         var all = [NoteType]()
 

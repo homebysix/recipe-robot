@@ -19,7 +19,7 @@
 import Cocoa
 
 enum Color: Int {
-    case Blue, LtBlue, Grey, Green, Red, Yellow, Cream, White
+    case Blue, LtBlue, Grey, Green, Red, Yellow, Cream, Black, White
 
     // NSColor Representation
     var ns: NSColor {
@@ -31,6 +31,7 @@ enum Color: Int {
         case Red: return NSColor(SRGBRed: 181/255, green: 33/255, blue: 38/255, alpha: 1)
         case Yellow: return NSColor(SRGBRed: 221/255, green: 182/255, blue: 81/255, alpha: 1)
         case Cream: return NSColor(SRGBRed: 248/255, green: 235/255, blue: 189/255, alpha: 1)
+        case Black: return NSColor.blackColor()
         case White: return NSColor.whiteColor()
         }
     }
