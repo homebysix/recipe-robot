@@ -676,7 +676,7 @@ Gw
                                     <constraint firstAttribute="height" constant="21" id="yaz-3O-v7p"/>
                                 </constraints>
                                 <animations/>
-                                <buttonCell key="cell" type="push" title="Let's Do Another" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2EJ-Jh-4y0">
+                                <buttonCell key="cell" type="push" title="Reveal in finder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2EJ-Jh-4y0">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                     <string key="keyEquivalent" base64-UTF8="YES">
