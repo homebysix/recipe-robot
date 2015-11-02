@@ -383,7 +383,7 @@ def get_recipe_creation_location(prefs):
     Args:
         prefs: The preference dictionary, passed from init_prefs().
     """
-    prefs["RecipeCreateLocation"] = "~/Library/AutoPkg/Recipe Robot output"
+    prefs["RecipeCreateLocation"] = "~/Library/AutoPkg/Recipe Robot Output"
     robo_print("\nLocation to save new recipes")
     robo_print("This is where on disk your newly created recipes will be "
                "saved.\n")

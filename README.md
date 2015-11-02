@@ -94,14 +94,14 @@ Here's what Recipe Robot looks like when it's working properly. The command I us
 
 Processing http://delicious-monster.com/downloads/DeliciousLibrary3.zip ...
 Generating download recipe...
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.download.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.download.recipe
 Generating munki recipe...
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.png
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.munki.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.png
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.munki.recipe
 Generating pkg recipe...
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.pkg.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.pkg.recipe
 Generating install recipe...
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.install.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.install.recipe
 
 You've now created 4 recipes with Recipe Robot. Well done!
 ```
@@ -146,14 +146,14 @@ Gathering code signature information...
     3 authority names recorded
     Developer: Delicious Monster Software, LLC
 Generating download recipe...
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.download.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.download.recipe
 Generating munki recipe...
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.png
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.munki.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.png
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.munki.recipe
 Generating pkg recipe...
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.pkg.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.pkg.recipe
 Generating install recipe...
-    ~/Library/AutoPkg/Recipe Robot output/Delicious Monster Software, LLC/Delicious Library 3.install.recipe
+    ~/Library/AutoPkg/Recipe Robot Output/Delicious Monster Software, LLC/Delicious Library 3.install.recipe
 
 You've now created 4 recipes with Recipe Robot. Round of applause for you!
 ```
@@ -227,5 +227,3 @@ If you provide Recipe Robot with the path to an app that came from the Mac App S
 Recipe Robot is in public beta now, so please be gentle when reporting errors. There are many bugs, and we're actively working on them.
 
 The best way to get in touch is by opening an [issue](https://github.com/homebysix/recipe-robot/issues) on GitHub.
-
-
