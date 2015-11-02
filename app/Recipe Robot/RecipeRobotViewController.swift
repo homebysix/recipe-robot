@@ -376,22 +376,15 @@ class ProcessingViewController: RecipeRobotViewController {
                 self!.showInFinderButton.enabled = success
                 
                 if success {
-                    self!.titleLabel.stringValue = "All done! Click the folder below to reveal your recipes."
+                    self!.titleLabel.stringValue = "Ding! All done."
                     self!.appIcon?.image = NSImage(named: "NSFolder")
 
                     self!.appIcon?.action = "openFolder:"
                     self!.appIcon?.target = self
                 } else {
                     self!.appIcon?.image = NSImage(named: "NSCaution")
-                    self!.titleLabel.stringValue = "Finished with errors."
-
+                    self!.titleLabel.stringValue = "Oops, I couldn't make recipes for this app."
                 }
-
-//                if let pView = self?.progressView, error = error {
-//                    let attrString = NSAttributedString(string: error.localizedDescription)
-//                    pView.textStorage?.appendAttributedString(attrString)
-//                    pView.scrollToEndOfDocument(self)
-//                }
 
                 if let sound = sound{
                     sound.play()
@@ -399,7 +392,7 @@ class ProcessingViewController: RecipeRobotViewController {
 
                 self?.gearsShouldRotate(false)
                 if let button = self?.cancelButton {
-                    button.title = "Do another?"
+                    button.title = "Let's do another"
                 }
         })
     }

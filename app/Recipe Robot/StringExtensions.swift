@@ -68,7 +68,7 @@ extension String {
 
         // Also replace the reset text
         string.replaceOccurrencesOfString("[0m", withString: "",
-            options: NSStringCompareOptions.LiteralSearch,
+            options: NSStringCompareOptions.DiacriticInsensitiveSearch,
             range: NSMakeRange(0, string.length)
         )
 

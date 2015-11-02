@@ -173,12 +173,12 @@
         <scene sceneID="hIz-AP-VOD">
             <objects>
                 <viewController storyboardIdentifier="FeedMe" id="XfG-lQ-9wD" customClass="FeedMeViewController" customModule="Recipe_Robot" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
+                    <view key="view" wantsLayer="YES" misplaced="YES" id="m2S-Jp-Qdl">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="350"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                <rect key="frame" x="17" y="17" width="567" height="316"/>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                                <rect key="frame" x="17" y="36" width="567" height="297"/>
                                 <animations/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="DropZone" id="96G-6b-REq"/>
                                 <connections>
@@ -186,7 +186,7 @@
                                 </connections>
                             </imageView>
                             <button hidden="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
-                                <rect key="frame" x="170" y="48" width="258" height="18"/>
+                                <rect key="frame" x="170" y="59" width="258" height="18"/>
                                 <animations/>
                                 <buttonCell key="cell" type="check" title="Ignore existing recipes for this run only" bezelStyle="regularSquare" imagePosition="left" inset="2" id="zO6-wJ-Rb7">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -225,19 +225,29 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Pa-uM-zOX">
+                                <rect key="frame" x="578" y="332" width="17" height="17"/>
+                                <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSActionTemplate" imagePosition="only" alignment="center" alternateImage="NSActionTemplate" imageScaling="proportionallyUpOrDown" inset="2" id="eTm-xf-5Ir">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <segue destination="ESu-qZ-Dbn" kind="sheet" id="5DS-F9-XQ4"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="Jyu-oi-lVv" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="8JE-NP-b4Z"/>
-                            <constraint firstItem="PTd-IR-P4B" firstAttribute="top" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="84" id="N1V-0T-dVf"/>
+                            <constraint firstItem="PTd-IR-P4B" firstAttribute="top" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="73" id="N1V-0T-dVf"/>
                             <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="17" id="YgD-bL-S6v"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerY" secondItem="m2S-Jp-Qdl" secondAttribute="centerY" id="ZOc-Vc-Dnj"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerY" secondItem="m2S-Jp-Qdl" secondAttribute="centerY" constant="-9.5" id="ZOc-Vc-Dnj"/>
                             <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="btd-XS-Tqj"/>
                             <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="aep-eh-Csg" secondAttribute="centerX" id="eMF-nr-jkX"/>
                             <constraint firstItem="PTd-IR-P4B" firstAttribute="centerX" secondItem="oXK-h1-XrJ" secondAttribute="centerX" id="kUD-Mv-deW"/>
                             <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="17" id="lJz-rw-jMA"/>
                             <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="qKs-nv-R2t"/>
                             <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="t8E-Ou-4BB"/>
-                            <constraint firstAttribute="bottom" secondItem="PTd-IR-P4B" secondAttribute="bottom" constant="50" id="tLO-8U-YH8"/>
+                            <constraint firstAttribute="bottom" secondItem="PTd-IR-P4B" secondAttribute="bottom" constant="61" id="tLO-8U-YH8"/>
                             <constraint firstItem="Jyu-oi-lVv" firstAttribute="top" secondItem="oXK-h1-XrJ" secondAttribute="bottom" constant="8" symbolic="YES" id="wb7-Dc-xiL"/>
                         </constraints>
                         <animations/>
@@ -620,7 +630,7 @@
                                     <rect key="frame" x="1" y="1" width="579" height="242"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="THv-bG-5qD">
+                                        <textView editable="NO" importsGraphics="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" spellingCorrection="YES" smartInsertDelete="YES" id="THv-bG-5qD">
                                             <rect key="frame" x="0.0" y="0.0" width="579" height="242"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -676,7 +686,7 @@ Gw
                                     <constraint firstAttribute="height" constant="21" id="yaz-3O-v7p"/>
                                 </constraints>
                                 <animations/>
-                                <buttonCell key="cell" type="push" title="Reveal in finder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2EJ-Jh-4y0">
+                                <buttonCell key="cell" type="push" title="Reveal Recipes" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2EJ-Jh-4y0">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                     <string key="keyEquivalent" base64-UTF8="YES">
@@ -739,5 +749,6 @@ Gw
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="50X-tC-H7B"/>
+        <segue reference="5DS-F9-XQ4"/>
     </inferredMetricsTieBreakers>
 </document>
