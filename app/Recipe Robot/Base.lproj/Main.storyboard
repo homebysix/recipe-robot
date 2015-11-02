@@ -486,7 +486,9 @@ DQ
                             <constraint firstItem="dM0-Kr-Oni" firstAttribute="leading" secondItem="AZn-zL-NZB" secondAttribute="trailing" constant="30" id="Vo5-nV-ZI9"/>
                             <constraint firstItem="w0f-h9-2tF" firstAttribute="centerX" secondItem="2dJ-2m-pWe" secondAttribute="centerX" id="aRE-nk-FRT"/>
                             <constraint firstAttribute="trailing" secondItem="ZIM-gN-Rdk" secondAttribute="trailing" constant="40" id="eGU-3B-3zT"/>
+                            <constraint firstItem="IZ9-mM-Rho" firstAttribute="leading" secondItem="2dJ-2m-pWe" secondAttribute="leading" constant="20" id="iLI-rX-WXs"/>
                             <constraint firstAttribute="trailing" secondItem="Mba-Fp-Bf1" secondAttribute="trailing" constant="40" id="tlH-iG-Ehu"/>
+                            <constraint firstAttribute="trailing" secondItem="IZ9-mM-Rho" secondAttribute="trailing" constant="20" id="v8m-BT-Obo"/>
                         </constraints>
                         <animations/>
                     </view>
