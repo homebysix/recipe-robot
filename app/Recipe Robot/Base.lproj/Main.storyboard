@@ -268,7 +268,7 @@
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="131" y="798"/>
+            <point key="canvasLocation" x="126" y="831"/>
         </scene>
         <!--Preference View Controller-->
         <scene sceneID="aAg-uc-dT8">
@@ -499,7 +499,7 @@ DQ
                 </viewController>
                 <userDefaultsController representsSharedInstance="YES" id="56H-yK-n2G"/>
             </objects>
-            <point key="canvasLocation" x="811" y="257"/>
+            <point key="canvasLocation" x="926" y="334"/>
         </scene>
         <!--Processing View Controller-->
         <scene sceneID="fQZ-lh-HRm">
@@ -509,6 +509,96 @@ DQ
                         <rect key="frame" x="0.0" y="0.0" width="600" height="350"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
+                            <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rMt-6n-gBl">
+                                <rect key="frame" x="9" y="53" width="581" height="244"/>
+                                <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="bGe-dc-TUP">
+                                    <rect key="frame" x="1" y="1" width="579" height="242"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="THv-bG-5qD">
+                                            <rect key="frame" x="0.0" y="0.0" width="579" height="242"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <animations/>
+                                            <color key="backgroundColor" white="1" alpha="0.80000000000000004" colorSpace="calibratedWhite"/>
+                                            <size key="minSize" width="579" height="242"/>
+                                            <size key="maxSize" width="588" height="10000000"/>
+                                            <attributedString key="textStorage">
+                                                <fragment content=" ">
+                                                    <attributes>
+                                                        <font key="NSFont" size="8" name="Menlo-Regular"/>
+                                                        <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                                    </attributes>
+                                                </fragment>
+                                            </attributedString>
+                                            <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                            <size key="minSize" width="579" height="242"/>
+                                            <size key="maxSize" width="588" height="10000000"/>
+                                        </textView>
+                                    </subviews>
+                                    <animations/>
+                                    <color key="backgroundColor" white="1" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </clipView>
+                                <animations/>
+                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="qOI-Zc-sn6">
+                                    <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
+                                </scroller>
+                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="zkp-Xc-s4x">
+                                    <rect key="frame" x="564" y="1" width="16" height="242"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
+                                </scroller>
+                            </scrollView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uhj-oq-9WR">
+                                <rect key="frame" x="117" y="13" width="172" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="160" id="7XV-gC-6hR"/>
+                                    <constraint firstAttribute="height" constant="21" id="OIt-0v-m5S"/>
+                                </constraints>
+                                <animations/>
+                                <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Gch-Hb-fFR">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="dismissController:" target="DLx-gp-7HF" id="4gg-pW-UN5"/>
+                                    <segue destination="XfG-lQ-9wD" kind="custom" identifier="processingSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="50X-tC-H7B"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uHR-tD-pYY">
+                                <rect key="frame" x="310" y="13" width="172" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="160" id="fn3-6l-5w0"/>
+                                    <constraint firstAttribute="height" constant="21" id="yaz-3O-v7p"/>
+                                </constraints>
+                                <animations/>
+                                <buttonCell key="cell" type="push" title="Reveal Recipes" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2EJ-Jh-4y0">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="dismissController:" target="DLx-gp-7HF" id="M0U-4p-Eso"/>
+                                </connections>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tsZ-nv-LQm">
+                                <rect key="frame" x="18" y="307" width="564" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="bu0-rg-YFS"/>
+                                </constraints>
+                                <animations/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Running..." id="NNg-q1-5PF">
+                                    <font key="font" size="20" name=".HelveticaNeueDeskInterface-Bold"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                             <customView alphaValue="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wpZ-ia-RPf" userLabel="Gears View">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="350"/>
                                 <subviews>
@@ -657,96 +747,6 @@ DQ
                                 </constraints>
                                 <animations/>
                             </customView>
-                            <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rMt-6n-gBl">
-                                <rect key="frame" x="9" y="53" width="581" height="244"/>
-                                <clipView key="contentView" id="bGe-dc-TUP">
-                                    <rect key="frame" x="1" y="1" width="579" height="242"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <textView editable="NO" importsGraphics="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" spellingCorrection="YES" smartInsertDelete="YES" id="THv-bG-5qD">
-                                            <rect key="frame" x="0.0" y="0.0" width="579" height="242"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <animations/>
-                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="579" height="242"/>
-                                            <size key="maxSize" width="588" height="10000000"/>
-                                            <attributedString key="textStorage">
-                                                <fragment content=" ">
-                                                    <attributes>
-                                                        <font key="NSFont" size="9" name="Menlo-Regular"/>
-                                                        <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
-                                                    </attributes>
-                                                </fragment>
-                                            </attributedString>
-                                            <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="579" height="242"/>
-                                            <size key="maxSize" width="588" height="10000000"/>
-                                        </textView>
-                                    </subviews>
-                                    <animations/>
-                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                </clipView>
-                                <animations/>
-                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="qOI-Zc-sn6">
-                                    <rect key="frame" x="-100" y="-100" width="87" height="18"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <animations/>
-                                </scroller>
-                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="zkp-Xc-s4x">
-                                    <rect key="frame" x="564" y="1" width="16" height="242"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <animations/>
-                                </scroller>
-                            </scrollView>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uhj-oq-9WR">
-                                <rect key="frame" x="117" y="7" width="172" height="32"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="160" id="7XV-gC-6hR"/>
-                                    <constraint firstAttribute="height" constant="21" id="OIt-0v-m5S"/>
-                                </constraints>
-                                <animations/>
-                                <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Gch-Hb-fFR">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                    <string key="keyEquivalent" base64-UTF8="YES">
-Gw
-</string>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="dismissController:" target="DLx-gp-7HF" id="4gg-pW-UN5"/>
-                                    <segue destination="XfG-lQ-9wD" kind="custom" identifier="processingSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="50X-tC-H7B"/>
-                                </connections>
-                            </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uHR-tD-pYY">
-                                <rect key="frame" x="310" y="7" width="172" height="32"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="160" id="fn3-6l-5w0"/>
-                                    <constraint firstAttribute="height" constant="21" id="yaz-3O-v7p"/>
-                                </constraints>
-                                <animations/>
-                                <buttonCell key="cell" type="push" title="Reveal Recipes" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2EJ-Jh-4y0">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                    <string key="keyEquivalent" base64-UTF8="YES">
-DQ
-</string>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="dismissController:" target="DLx-gp-7HF" id="M0U-4p-Eso"/>
-                                </connections>
-                            </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tsZ-nv-LQm">
-                                <rect key="frame" x="18" y="307" width="564" height="30"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="bu0-rg-YFS"/>
-                                </constraints>
-                                <animations/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Running..." id="NNg-q1-5PF">
-                                    <font key="font" size="20" name=".HelveticaNeueDeskInterface-Bold"/>
-                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                         </subviews>
                         <constraints>
                             <constraint firstItem="rMt-6n-gBl" firstAttribute="top" secondItem="tsZ-nv-LQm" secondAttribute="bottom" constant="10" id="1fy-oT-ghT"/>
@@ -756,11 +756,11 @@ DQ
                             <constraint firstItem="rMt-6n-gBl" firstAttribute="centerY" secondItem="wpZ-ia-RPf" secondAttribute="centerY" id="IYi-ie-Det"/>
                             <constraint firstItem="tsZ-nv-LQm" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" constant="13" id="Nuc-Bb-yPd"/>
                             <constraint firstItem="uhj-oq-9WR" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="123" id="Oeo-xx-KAn"/>
-                            <constraint firstAttribute="bottom" secondItem="uHR-tD-pYY" secondAttribute="bottom" constant="14" id="Okn-hU-SuX"/>
+                            <constraint firstAttribute="bottom" secondItem="uHR-tD-pYY" secondAttribute="bottom" constant="20" id="Okn-hU-SuX"/>
                             <constraint firstAttribute="trailing" secondItem="uHR-tD-pYY" secondAttribute="trailing" constant="124" id="Sxx-cY-RF4"/>
-                            <constraint firstItem="uHR-tD-pYY" firstAttribute="top" secondItem="rMt-6n-gBl" secondAttribute="bottom" constant="18" id="YDU-B2-w3O"/>
+                            <constraint firstItem="uHR-tD-pYY" firstAttribute="top" secondItem="rMt-6n-gBl" secondAttribute="bottom" constant="12" id="YDU-B2-w3O"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" id="bgb-sJ-9nz"/>
-                            <constraint firstAttribute="bottom" secondItem="uhj-oq-9WR" secondAttribute="bottom" constant="14" id="k9v-IH-uqx"/>
+                            <constraint firstAttribute="bottom" secondItem="uhj-oq-9WR" secondAttribute="bottom" constant="20" id="k9v-IH-uqx"/>
                             <constraint firstItem="rMt-6n-gBl" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="9" id="r9e-dd-4FL"/>
                             <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" id="vgC-6M-asq"/>
                             <constraint firstItem="tsZ-nv-LQm" firstAttribute="leading" secondItem="wpZ-ia-RPf" secondAttribute="leading" constant="20" id="zEd-Sv-CBz"/>
@@ -778,7 +778,7 @@ DQ
                 </viewController>
                 <customObject id="MNt-61-K9k" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1071" y="659"/>
+            <point key="canvasLocation" x="926" y="831"/>
         </scene>
     </scenes>
     <resources>
