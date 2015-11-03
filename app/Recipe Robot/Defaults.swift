@@ -43,12 +43,19 @@ class Defaults: NSObject {
     }
 
     private let defaults = NSUserDefaults.standardUserDefaults()
-    var recipeTypes: [String]? {
+    var recipeTypes: Set<String>? {
         get {
-            return defaults.stringArrayForKey("RecipeTypes")
+            guard let recipeTypes = defaults.stringArrayForKey("RecipeTypes") else {
+                return nil
+            }
+            return Set(recipeTypes)
         }
         set {
-            defaults.setValue(newValue, forKey: "RecipeTypes")
+            if newValue == nil {
+                defaults.setValue(newValue, forKey: "RecipeTypes")
+            } else {
+                defaults.setValue(Array(newValue!), forKey: "RecipeTypes")
+            }
         }
     }
 

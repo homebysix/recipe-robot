@@ -119,7 +119,6 @@ class FeedMeViewController: RecipeRobotViewController {
 }
 
 // MARK: - Preference View Controller
-
 class PreferenceViewController: RecipeRobotViewController {
 
     // MARK: IBOutlets
@@ -129,19 +128,7 @@ class PreferenceViewController: RecipeRobotViewController {
     @IBOutlet var dsFolderPathButton: NSButton!
     @IBOutlet var recipeFolderPathButton: NSButton!
 
-    let recipeTypes: [String] = [
-        "download",
-        "munki",
-        "pkg",
-        "install",
-        "jss",
-        "absolute",
-        "sccm",
-        "ds",
-        "filewave"
-    ]
-
-    private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? [String]()
+    private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? Set<String>()
 
     // MARK: Overrides
     override func viewDidLoad() {
@@ -215,35 +202,40 @@ extension PreferenceViewController {
 
 // MARK: Preference View Controller: Table View
 extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
+
+
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
-        return recipeTypes.count
+        return RecipeType.values.count
     }
 
     func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
-        return (enabledRecipeTypes.contains(recipeTypes[row])) ? NSOnState: NSOffState
+        return (enabledRecipeTypes.contains(RecipeType.values[row])) ? NSOnState: NSOffState
     }
 
     func tableView(tableView: NSTableView, willDisplayCell cell: AnyObject, forTableColumn tableColumn: NSTableColumn?, row: Int) {
         if let cell = cell as? NSButtonCell {
-            cell.title = recipeTypes[row]
+            cell.title = RecipeType.values[row]
         }
     }
 
     func tableView(tableView: NSTableView, setObjectValue object: AnyObject?, forTableColumn tableColumn: NSTableColumn?, row: Int) {
-        if let value = object as? Int {
-            let type = recipeTypes[row]
-            let idx = enabledRecipeTypes.indexOf(type)
 
-            if (value == NSOnState) && (idx == nil) {
-                enabledRecipeTypes.append(type)
-            } else if (value == NSOffState){
-                if enabledRecipeTypes.count > 0 {
-                    if let idx = idx {
-                        enabledRecipeTypes.removeAtIndex(idx)
-                    }
+        guard let value = object as? Int else {
+            return
+        }
+
+        let type = RecipeType.cases[row]
+        if (value == NSOnState) {
+            enabledRecipeTypes.unionInPlace(type.requiredTypeValues)
+        } else if (value == NSOffState){
+            if enabledRecipeTypes.count > 0 {
+                guard let idx = enabledRecipeTypes.indexOf(type.value) else {
+                    return
                 }
+                enabledRecipeTypes.removeAtIndex(idx)
             }
         }
+        tableView.reloadData()
     }
 }
 
