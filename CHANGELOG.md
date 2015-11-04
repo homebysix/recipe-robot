@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file. This projec
 - Help menu now opens README.md in default web browser. (#57)
 
 ### Changed
+- The app now displays the raw script output, including all warnings, reminders, and errors.
+- Selecting a given recipe type in the preferences window (or `--config` prompts) now automatically selects its required parent recipe types.
 - Changed readme to point to the version of `recipe-robot` Python script embedded in the Recipe Robot app.
 
 ### Fixed

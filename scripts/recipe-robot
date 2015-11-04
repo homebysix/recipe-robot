@@ -439,13 +439,28 @@ def get_preferred_recipe_types(prefs, recipes):
         else:
             try:
                 choice = int(choice)
-            except ValueError:
-                message = ("%s is not a valid option. Please try "
-                           "again.\n" % choice)
-                robo_print(message, LogLevel.WARNING)
+                if recipes[choice]["preferred"] is False:
+                    recipes[choice]["preferred"] = True
+                else:
+                    recipes[choice]["preferred"] = False
+            except (ValueError, IndexError):
+                invalid_option_msg = ("%s is not a valid option. Please try "
+                                      "again.\n" % choice)
+                robo_print(invalid_option_msg, LogLevel.WARNING)
                 continue
 
-            recipes[choice]["preferred"] = False if recipes[choice] else True
+            # Automatically enable download recipe type if required.
+            if recipes[choice]["type"] in ("munki", "pkg", "install", "jss",
+                                           "absolute", "ds", "sccm",
+                                           "filewave"):
+                for recipe in recipes:
+                    if recipe["type"] == "download":
+                        recipe["preferred"] = True
+            # Automatically enable pkg recipe type if required.
+            if recipes[choice]["type"] in ("jss", "absolute", "ds", "sccm"):
+                for recipe in recipes:
+                    if recipe["type"] == "pkg":
+                        recipe["preferred"] = True
 
 
 def debug_dump(items):
