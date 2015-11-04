@@ -37,12 +37,16 @@ enum RecipeType: Int {
         case .Install:
             types.appendContentsOf([.Download])
         case .JSS:
+            types.appendContentsOf([.Download])
             types.appendContentsOf([.Pkg])
         case .AbsoluteManage:
+            types.appendContentsOf([.Download])
             types.appendContentsOf([.Pkg])
         case .SCCM:
+            types.appendContentsOf([.Download])
             types.appendContentsOf([.Pkg])
         case .DS:
+            types.appendContentsOf([.Download])
             types.appendContentsOf([.Pkg])
         case .Filewave:
             types.appendContentsOf([.Download])
