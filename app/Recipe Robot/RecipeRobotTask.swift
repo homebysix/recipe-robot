@@ -138,7 +138,7 @@ class RecipeRobotTask: NSObject {
 
         if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
 
-            args.appendContentsOf([recipeRobotPy, "-v"])
+            args.appendContentsOf([recipeRobotPy, "-v", "--app-mode"])
 
             // Honor the ignoreExisting of the instance first
             // If that's unset apply the setting from defaults.

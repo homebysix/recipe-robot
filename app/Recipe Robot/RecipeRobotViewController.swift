@@ -357,8 +357,7 @@ class ProcessingViewController: RecipeRobotViewController {
         self.task.createRecipes({
             [weak self] progress in /* Do nothing */
                 if let pView = self?.progressView {
-                    let (string, color) = progress.decodedANSI();
-                    pView.textStorage?.appendString(string, color: color)
+                    pView.textStorage?.appendString(progress, color: progress.color)
                     pView.scrollToEndOfDocument(self)
                 }
             }, completion: {[weak self]
