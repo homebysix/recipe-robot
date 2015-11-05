@@ -405,3 +405,7 @@ def congratulate(prefs):
         robo_print("\nYou've now created %s recipes with Recipe Robot. "
                    "%s\n" % (prefs["RecipeCreateCount"],
                              random_choice(congrats_msg)))
+
+
+def robo_join(*args):
+    return os.path.expanduser(os.path.join(*args))

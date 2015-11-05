@@ -26,7 +26,6 @@ create autopkg recipes for the specified app.
 
 
 # TODO: refactor all usages of replace(" ", "")
-# TODO: refactor all os.path.join(os.path.expanduser( situations.
 # TODO: refactor code issuing warnings about missing processors/repos.
 
 import os
@@ -34,7 +33,7 @@ import os
 from .exceptions import RoboError
 from .tools import (create_dest_dirs, create_existing_recipe_list,
                     create_SourceForgeURLProvider, extract_app_icon,
-                    robo_print, LogLevel, __version__,
+                    robo_print, robo_join, LogLevel, __version__,
                     get_exitcode_stdout_stderr, timed, SUPPORTED_IMAGE_FORMATS,
                     SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_INSTALL_FORMATS,
                     ALL_SUPPORTED_FORMATS, PREFS_FILE)
@@ -92,13 +91,11 @@ def generate_recipes(facts, prefs):
     # Prepare the destination directory.
     if ("developer" in facts and
         prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
-        recipe_dest_dir = os.path.join(os.path.expanduser(
-            prefs["RecipeCreateLocation"]),
-            facts["developer"].replace("/", "-"))
+        recipe_dest_dir = robo_join(prefs["RecipeCreateLocation"],
+                                    facts["developer"].replace("/", "-"))
     else:
-        recipe_dest_dir = os.path.join(
-            os.path.expanduser(prefs["RecipeCreateLocation"]),
-            facts["app_name"].replace("/", "-"))
+        recipe_dest_dir = robo_join(prefs["RecipeCreateLocation"],
+                                    facts["app_name"].replace("/", "-"))
     facts["recipe_dest_dir"] = recipe_dest_dir
     create_dest_dirs(recipe_dest_dir)
 
@@ -170,7 +167,7 @@ def build_recipes(facts, preferred, prefs):
         else:
             generation_func(facts, prefs, recipe)
 
-        dest_path = os.path.join(recipe_dest_dir, recipe["filename"])
+        dest_path = robo_join(recipe_dest_dir, recipe["filename"])
         if not os.path.exists(dest_path):
             prefs["RecipeCreateCount"] += 1
         recipe.write(dest_path)
@@ -275,11 +272,11 @@ def generate_download_recipe(facts, prefs, recipe):
         if "developer" in facts and prefs.get(
             "FollowOfficialJSSRecipesFormat", False) is not True:
             create_SourceForgeURLProvider(
-                os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]),
-                             facts["developer"]).replace("/", "-"))
+                robo_join(prefs["RecipeCreateLocation"],
+                          facts["developer"]).replace("/", "-"))
         else:
-            create_SourceForgeURLProvider(os.path.join(
-                os.path.expanduser(prefs["RecipeCreateLocation"]),
+            create_SourceForgeURLProvider(robo_join(
+                prefs["RecipeCreateLocation"],
                 facts["app_name"]).replace("/", "-"))
         recipe["keys"]["Process"].append({
             "Processor": "SourceForgeURLProvider",
@@ -589,13 +586,13 @@ def generate_munki_recipe(facts, prefs, recipe):
     if "icon_path" in facts:
         if ("developer" in facts and
             prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
-            extracted_icon = os.path.join(
-                os.path.expanduser(prefs["RecipeCreateLocation"]),
+            extracted_icon = robo_join(
+                prefs["RecipeCreateLocation"],
                 facts["developer"].replace("/", "-"),
                 facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(
-                os.path.expanduser(prefs["RecipeCreateLocation"]),
+            extracted_icon = robo_join(
+                prefs["RecipeCreateLocation"],
                 facts["app_name"].replace("/", "-"),
                 facts["app_name"] + ".png")
         extract_app_icon(facts, extracted_icon)
@@ -881,9 +878,8 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Input"]["POLICY_CATEGORY"] = "Testing"
     keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
     keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
-    if (not os.path.exists(
-            os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]),
-                         "%s.png" % facts["app_name"]))):
+    if (not os.path.exists( robo_join(prefs["RecipeCreateLocation"],
+                                      "%s.png" % facts["app_name"]))):
         facts["reminders"].append(
             "Please make sure %s.png is in your AutoPkg search path." %
             facts["app_name"])
@@ -922,13 +918,13 @@ def generate_jss_recipe(facts, prefs, recipe):
     if "icon_path" in facts:
         if ("developer" in facts and
             prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
-            extracted_icon = os.path.join(
-                os.path.expanduser(prefs["RecipeCreateLocation"]),
+            extracted_icon = robo_join(
+                prefs["RecipeCreateLocation"],
                 facts["developer"].replace("/", "-"),
                 facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(
-                os.path.expanduser(prefs["RecipeCreateLocation"]),
+            extracted_icon = robo_join(
+                prefs["RecipeCreateLocation"],
                 facts["app_name"].replace("/", "-"),
                 facts["app_name"] + ".png")
         extract_app_icon(facts, extracted_icon)
