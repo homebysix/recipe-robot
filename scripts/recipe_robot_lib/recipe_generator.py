@@ -25,7 +25,9 @@ create autopkg recipes for the specified app.
 """
 
 
-# TODO: refactor all usages of replace(" ", "")
+# TODO: refactor all usages of replace(" ", "") and replace("/", "-")
+# These are applied to developer and app_name only. How about a
+# "sanitized_developer" or "output_app_name"?
 # TODO: refactor code issuing warnings about missing processors/repos.
 
 import os
