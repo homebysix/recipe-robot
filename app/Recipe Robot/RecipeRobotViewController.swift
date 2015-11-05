@@ -20,7 +20,6 @@ import Cocoa
 import AudioToolbox
 import Quartz
 
-
 //let sound = NSSound(named: "Glass")
 var sound: NSSound? = nil
 
@@ -120,7 +119,6 @@ class FeedMeViewController: RecipeRobotViewController {
 }
 
 // MARK: - Preference View Controller
-
 class PreferenceViewController: RecipeRobotViewController {
 
     // MARK: IBOutlets
@@ -130,19 +128,7 @@ class PreferenceViewController: RecipeRobotViewController {
     @IBOutlet var dsFolderPathButton: NSButton!
     @IBOutlet var recipeFolderPathButton: NSButton!
 
-    let recipeTypes: [String] = [
-        "download",
-        "munki",
-        "pkg",
-        "install",
-        "jss",
-        "absolute",
-        "sccm",
-        "ds",
-        "filewave"
-    ]
-
-    private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? [String]()
+    private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? Set<String>()
 
     // MARK: Overrides
     override func viewDidLoad() {
@@ -216,35 +202,40 @@ extension PreferenceViewController {
 
 // MARK: Preference View Controller: Table View
 extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
+
+
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
-        return recipeTypes.count
+        return RecipeType.values.count
     }
 
     func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
-        return (enabledRecipeTypes.contains(recipeTypes[row])) ? NSOnState: NSOffState
+        return (enabledRecipeTypes.contains(RecipeType.values[row])) ? NSOnState: NSOffState
     }
 
     func tableView(tableView: NSTableView, willDisplayCell cell: AnyObject, forTableColumn tableColumn: NSTableColumn?, row: Int) {
         if let cell = cell as? NSButtonCell {
-            cell.title = recipeTypes[row]
+            cell.title = RecipeType.values[row]
         }
     }
 
     func tableView(tableView: NSTableView, setObjectValue object: AnyObject?, forTableColumn tableColumn: NSTableColumn?, row: Int) {
-        if let value = object as? Int {
-            let type = recipeTypes[row]
-            let idx = enabledRecipeTypes.indexOf(type)
 
-            if (value == NSOnState) && (idx == nil) {
-                enabledRecipeTypes.append(type)
-            } else if (value == NSOffState){
-                if enabledRecipeTypes.count > 0 {
-                    if let idx = idx {
-                        enabledRecipeTypes.removeAtIndex(idx)
-                    }
+        guard let value = object as? Int else {
+            return
+        }
+
+        let type = RecipeType.cases[row]
+        if (value == NSOnState) {
+            enabledRecipeTypes.unionInPlace(type.requiredTypeValues)
+        } else if (value == NSOffState){
+            if enabledRecipeTypes.count > 0 {
+                guard let idx = enabledRecipeTypes.indexOf(type.value) else {
+                    return
                 }
+                enabledRecipeTypes.removeAtIndex(idx)
             }
         }
+        tableView.reloadData()
     }
 }
 
@@ -252,14 +243,17 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
 class ProcessingViewController: RecipeRobotViewController {
 
     @IBOutlet private var progressView: NSTextView?
-    @IBOutlet private var cancelButton: NSButton?
+    @IBOutlet private var cancelButton: NSButton!
+    @IBOutlet private var showInFinderButton: NSButton!
+
     @IBOutlet weak var titleLabel: NSTextField!
-    @IBOutlet weak var appIcon: NSButton!
-    @IBOutlet weak var infoLabel: NSTextField!
+    @IBOutlet weak var infoLabel: NSTextField?
+
+    @IBOutlet weak var appIcon: NSButton?
 
     @IBOutlet var gearContainerView: NSView!
 
-
+    // MARK: Indicators
     @IBOutlet weak var recipeIndicator: NSButton?
     @IBOutlet weak var reminderIndicator: NSButton?
     @IBOutlet weak var iconIndicator: NSButton?
@@ -267,19 +261,17 @@ class ProcessingViewController: RecipeRobotViewController {
     @IBOutlet weak var errorIndicator: NSButton?
 
     private let listener = NotificationListener()
+    private var completionInfo: Dictionary<String,AnyObject>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        progressView?.hidden = true
 
         var traits =  NSFontSymbolicTraits(0)
         let green = StatusImage.Available.image
         let red = StatusImage.Unavailable.image
 
-        let defaultAttrs = self.infoLabel.attributedStringValue.attributesAtIndex(0, effectiveRange: nil)
-
-        infoLabel.textColor = Color.White.ns
-        infoLabel.stringValue = "Preping..."
+        infoLabel?.textColor = Color.White.ns
+        infoLabel?.stringValue = "Preping..."
 
         listener.notificationHandler = {
             [weak self] noteType, info in
@@ -305,62 +297,40 @@ class ProcessingViewController: RecipeRobotViewController {
                 self!.completionInfo = info
             }
 
-            if let _string = info["message"] as? String {
-                // Trim the progress message down to the first two lines.
-                let string = _string.splitByLine()
-                                    .prefix(2)
-                                    .reduce(""){"\($0) \($1)"}
-                                    .trimmed
-
-                var attrs = [String: AnyObject]()
-
-                if let label = self?.infoLabel {
-                    let descriptor = label.font!
-                                          .fontDescriptor
-                                          .fontDescriptorWithSymbolicTraits(traits)
-
-                    if label.attributedStringValue.length > 0 {
-                        attrs = label.attributedStringValue
-                                     .attributesAtIndex(0, effectiveRange: nil)
-                    } else {
-                        attrs = defaultAttrs
-                    }
-
-                    // Setting size to 0 keeps it the same.
-                    attrs[NSFontAttributeName] =  NSFont(descriptor: descriptor, size: 0)
-                    attrs[NSForegroundColorAttributeName] = color
-
-                    label.attributedStringValue = NSAttributedString(string: string,
-                                                                     attributes: attrs)
-                }
-            }
-        }
-
-        self.progressView?.backgroundColor = NSColor.clearColor()
-        self.progressView?.drawsBackground = false
-        if let clipView = self.progressView?.superview as? NSClipView,
-                scrollView = clipView.superview as? NSScrollView {
-            scrollView.backgroundColor = NSColor.clearColor()
-            scrollView.drawsBackground = false
+//            if let string = info["message"] as? String {
+//                if let pView = self?.progressView {
+//                    pView.textStorage?.appendString("\(noteType.prefix) \(string)\n\n", color: noteType.color.ns)
+//                    pView.scrollToEndOfDocument(self)
+//                }
+//            }
         }
     }
 
     override func viewWillAppear() {
-        recipeIndicator?.image = StatusImage.PartiallyAvailable.image
-        reminderIndicator?.image = StatusImage.PartiallyAvailable.image
-        iconIndicator?.image = StatusImage.PartiallyAvailable.image
-        warningIndicator?.image = StatusImage.PartiallyAvailable.image
-        errorIndicator?.image = StatusImage.PartiallyAvailable.image
+        let buttons = [recipeIndicator,
+                       reminderIndicator,
+                       iconIndicator,
+                       warningIndicator,
+                       errorIndicator]
 
+        for b in buttons {
+            b?.target = self
+            b?.action = "showCompletionPopover:"
+            b?.image = StatusImage.PartiallyAvailable.image
+        }
 
         if let icon = task.appIcon {
-            appIcon.image = icon
+            appIcon?.image = icon
         }
         if let name = task.appOrRecipeName {
             titleLabel.stringValue = "Making \(name) recipes..."
         } else {
             titleLabel.stringValue = "Making recipes..."
         }
+
+        showInFinderButton.enabled = false
+        showInFinderButton.target = self
+        showInFinderButton.action = "openFolder:"
     }
 
     override func awakeFromNib() {
@@ -385,32 +355,26 @@ class ProcessingViewController: RecipeRobotViewController {
 
         // Do view setup here.
         self.task.createRecipes({
-            [weak self] progress in
-
-            if let pView = self?.progressView {
-                pView.textStorage?.appendAttributedString(progress.parseANSI())
-                pView.scrollToEndOfDocument(self)
-            }
-
+            [weak self] progress in /* Do nothing */
+                if let pView = self?.progressView {
+                    pView.textStorage?.appendString(progress, color: progress.color)
+                    pView.scrollToEndOfDocument(self)
+                }
             }, completion: {[weak self]
                 error in
 
-                if error == nil || error!.code == 0 {
-                    self!.titleLabel.stringValue = "All done! Click the folder below to reveal your recipes."
-                    self!.appIcon.image = NSImage(named: "NSFolder")
+                let success = (error == nil || error!.code == 0)
+                self!.showInFinderButton.enabled = success
+                
+                if success {
+                    self!.titleLabel.stringValue = "Ding! All done."
+                    self!.appIcon?.image = NSImage(named: "NSFolder")
 
-                    self!.appIcon.action = "openFolder:"
-                    self!.appIcon.target = self
+                    self!.appIcon?.action = "openFolder:"
+                    self!.appIcon?.target = self
                 } else {
-                    self!.appIcon.image = NSImage(named: "NSCaution")
-                    self!.titleLabel.stringValue = "Finished with errors."
-
-                }
-
-                if let pView = self?.progressView, error = error {
-                    let attrString = NSAttributedString(string: error.localizedDescription)
-                    pView.textStorage?.appendAttributedString(attrString)
-                    pView.scrollToEndOfDocument(self)
+                    self!.appIcon?.image = NSImage(named: "NSCaution")
+                    self!.titleLabel.stringValue = "Oops, I couldn't make recipes for this app."
                 }
 
                 if let sound = sound{
@@ -419,7 +383,7 @@ class ProcessingViewController: RecipeRobotViewController {
 
                 self?.gearsShouldRotate(false)
                 if let button = self?.cancelButton {
-                    button.title = "Do another?"
+                    button.title = "Let's Do Another!"
                 }
         })
     }
@@ -439,4 +403,29 @@ class ProcessingViewController: RecipeRobotViewController {
         }
         self.dismissController(sender)
     }
+
+    @IBAction private func showCompletionPopover(sender: NSButton){
+        var info: [String]? = nil
+        
+        if sender === recipeIndicator { /* Nothing here yet*/}
+        else if sender === iconIndicator { /* Nothing here yet*/}
+        else if sender === reminderIndicator {
+            info = completionInfo?[NoteType.Reminders.key] as? [String]
+        }
+        else if sender === warningIndicator {
+            info = completionInfo?[NoteType.Warnings.key] as? [String]
+        }
+        else if sender === errorIndicator {
+            info = completionInfo?[NoteType.Error.key] as? [String]
+        }
+
+        info = ["first message", "second message", "third message"]
+        if info != nil {
+            let message = info!.reduce(""){"\($0)* \($1)\n"}.trimmedFull
+            let popover = AHHelpPopover(sender: sender)
+            popover.helpText = message
+            popover.openPopover()
+        }
+    }
 }
+
