@@ -710,9 +710,7 @@ def inspect_download_url(input_path, args, facts):
     # Example:
     # http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
 
-    # Strip leading and trailing spaces, then change remaining spaces to
-    # "%20".
-    input_path = input_path.lstrip(" ").rstrip(" ").replace(" ", "%20")
+    input_path = input_path.strip().replace(" ", "%20")
 
     # Save the download URL to the dictionary of facts.
     robo_print("Download URL is: %s" % input_path, LogLevel.VERBOSE, 4)
