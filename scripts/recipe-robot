@@ -34,6 +34,9 @@ positional arguments:
 
 optional arguments:
   -h, --help         show this help message and exit
+  --app-mode         Strip colors from Recipe Robot output. Designed for
+                     improved interoperability with the Recipe Robot native OS
+                     X app.
   -c, --config       Adjust Recipe Robot preferences prior to generating
                      recipes.
   --debug            Generate extremely detailed output. Meant to help trace
@@ -188,6 +191,11 @@ def build_argument_parser():
         help="Path from which to derive AutoPkg recipes. This can be one of "
              "the following: existing app, Sparkle feed, GitHub URL, "
              "BitBucket URL, SourceForge URL, or direct download URL.")
+    parser.add_argument(
+        "--app-mode",
+        action="store_true",
+        help="Strip colors from Recipe Robot output. Designed for improved "
+             "interoperability with the Recipe Robot native OS X app.")
     parser.add_argument(
         "-c", "--config",
         action="store_true",
