@@ -25,6 +25,10 @@ create autopkg recipes for the specified app.
 """
 
 
+# TODO: refactor all usages of replace(" ", "")
+# TODO: refactor all os.path.join(os.path.expanduser( situations.
+# TODO: refactor code issuing warnings about missing processors/repos.
+
 import os
 
 from .exceptions import RoboError
@@ -35,8 +39,6 @@ from .tools import (create_dest_dirs, create_existing_recipe_list,
                     SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_INSTALL_FORMATS,
                     ALL_SUPPORTED_FORMATS, PREFS_FILE)
 
-# TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
-# Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
     from recipe_robot_lib import FoundationPlist
 except ImportError:
@@ -82,22 +84,28 @@ def generate_recipes(facts, prefs):
             "want to verify that and modify the recipes if necessary.")
         facts["version_key"] = "CFBundleShortVersionString"
 
-    # TODO(Elliot): Run `autopkg repo-list` once and store the resulting value for
-    # future use when detecting missing required repos, rather than running
+    # TODO(Elliot): Run `autopkg repo-list` once and store the resulting value
+    # for future use when detecting missing required repos, rather than running
     # `autopkg repo-list` separately during each check. (For example, the
     # FileWaveImporter repo must be present to run created filewave recipes.)
 
     # Prepare the destination directory.
-    if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"))
+    if ("developer" in facts and
+        prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
+        recipe_dest_dir = os.path.join(os.path.expanduser(
+            prefs["RecipeCreateLocation"]),
+            facts["developer"].replace("/", "-"))
     else:
-        recipe_dest_dir = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"))
+        recipe_dest_dir = os.path.join(
+            os.path.expanduser(prefs["RecipeCreateLocation"]),
+            facts["app_name"].replace("/", "-"))
     facts["recipe_dest_dir"] = recipe_dest_dir
     create_dest_dirs(recipe_dest_dir)
 
     build_recipes(facts, preferred, prefs)
 
-    # TODO (Shea): As far as I can tell, the only pref that changes is the recipe created count. Move out from here!
+    # TODO (Shea): As far as I can tell, the only pref that changes is the
+    # recipe created count. Move out from here!
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, PREFS_FILE)
 
@@ -136,7 +144,8 @@ def build_recipes(facts, preferred, prefs):
         keys["Input"]["NAME"] = facts["app_name"]
 
         # Set the recipe filename (spaces are OK).
-        recipe["filename"] = "%s.%s.recipe" % (facts["app_name"], recipe["type"])
+        recipe["filename"] = "%s.%s.recipe" % (facts["app_name"],
+                                               recipe["type"])
 
         # Set the recipe identifier.
         keys["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"],
@@ -225,7 +234,8 @@ def generate_download_recipe(facts, prefs, recipe):
             keys["Process"].append({
                 "Processor": "URLDownloader",
                 "Arguments": {
-                    "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"],
+                    "filename": ("%%NAME%%-%%version%%.%s" %
+                                 facts["download_format"]),
                     "request_headers": {
                         "user-agent": facts["user-agent"]
                     }
@@ -242,7 +252,8 @@ def generate_download_recipe(facts, prefs, recipe):
             keys["Process"].append({
                 "Processor": "URLDownloader",
                 "Arguments": {
-                    "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
+                    "filename": ("%%NAME%%-%%version%%.%s" %
+                                 facts["download_format"])
                 }
             })
 
@@ -261,10 +272,15 @@ def generate_download_recipe(facts, prefs, recipe):
             }
         })
     elif "sourceforge_id" in facts:
-        if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"]).replace("/", "-"))
+        if "developer" in facts and prefs.get(
+            "FollowOfficialJSSRecipesFormat", False) is not True:
+            create_SourceForgeURLProvider(
+                os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]),
+                             facts["developer"]).replace("/", "-"))
         else:
-            create_SourceForgeURLProvider(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"]).replace("/", "-"))
+            create_SourceForgeURLProvider(os.path.join(
+                os.path.expanduser(prefs["RecipeCreateLocation"]),
+                facts["app_name"]).replace("/", "-"))
         recipe["keys"]["Process"].append({
             "Processor": "SourceForgeURLProvider",
             "Arguments": {
@@ -285,8 +301,8 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Processor": "URLDownloader",
                 "Arguments": {
                     "url": "%DOWNLOAD_URL%",
-                    # TODO(Elliot): Explicit filename may not be necessary. (#35)
-                    # Example: http://www.sonnysoftware.com/Bookends.dmg
+                    # TODO(Elliot): Explicit filename may not be necessary.
+                    # (#35) Example: http://www.sonnysoftware.com/Bookends.dmg
                     # facts["specify_filename"] is intended to help with #35.
                     "filename": facts["download_filename"],
                     "request_headers": {
@@ -307,19 +323,22 @@ def generate_download_recipe(facts, prefs, recipe):
         "Processor": "EndOfCheckPhase"
     })
 
-    if facts.get("codesign_reqs", "") != "" or len(facts["codesign_authorities"]) > 0:
+    if (facts.get("codesign_reqs", "") != "" or
+            len(facts["codesign_authorities"]) > 0):
         # We encountered a signed app, and will use CodeSignatureVerifier on
         # the app.
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
             if facts.get("codesign_reqs", "") != "":
                 codesigverifier_args = {
-                        "input_path": "%%pathname%%/%s.app" % facts["app_name_key"],
+                        "input_path": ("%%pathname%%/%s.app" %
+                                       facts["app_name_key"]),
                         "requirement": facts["codesign_reqs"]
                 }
             elif len(facts["codesign_authorities"]) > 0:
                 codesigverifier_args = {
-                        "input_path": "%%pathname%%/%s.app" % facts["app_name_key"],
+                        "input_path": ("%%pathname%%/%s.app" %
+                                       facts["app_name_key"]),
                         "expected_authorities": facts["codesign_authorities"]
                 }
             keys["Process"].append({
@@ -340,7 +359,9 @@ def generate_download_recipe(facts, prefs, recipe):
                     keys["Process"].append({
                         "Processor": "Versioner",
                         "Arguments": {
-                            "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                            "input_plist_path":
+                            ("%%pathname%%/%s.app/Contents/Info.plist" %
+                             facts["app_name_key"]),
                             "plist_version_key": facts["version_key"]
                         }
                     })
@@ -350,18 +371,23 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
-                    "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                    "destination_path":
+                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                     "purge_destination": True
                 }
             })
             if facts["codesign_reqs"] != "":
                 codesigverifier_args = {
-                    "input_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" % facts["app_name_key"],
+                    "input_path":
+                        ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" %
+                        facts["app_name_key"]),
                     "requirement": facts["codesign_reqs"]
                 }
             elif len(facts["codesign_authorities"]) > 0:
                 codesigverifier_args = {
-                    "input_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" % facts["app_name_key"],
+                    "input_path":
+                        ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" %
+                        facts["app_name_key"]),
                     "expected_authorities": facts["codesign_authorities"]
                 }
             keys["Process"].append({
@@ -374,7 +400,10 @@ def generate_download_recipe(facts, prefs, recipe):
                 keys["Process"].append({
                     "Processor": "Versioner",
                     "Arguments": {
-                        "input_plist_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                        "input_plist_path":
+                            ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/"
+                             "%s.app/Contents/Info.plist" %
+                             facts["app_name_key"]),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -454,7 +483,9 @@ def generate_munki_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s "
                             "and imports it into "
                             "Munki." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
+    keys["ParentRecipe"] = ("%s.download.%s" %
+                            (prefs["RecipeIdentifierPrefix"],
+                             facts["app_name"].replace(" ", "")))
 
     keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
     keys["Input"]["pkginfo"] = {
@@ -477,7 +508,8 @@ def generate_munki_recipe(facts, prefs, recipe):
     import_file_var = "%pathname%"
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
+        if (facts.get("codesign_reqs", "") == "" and
+            len(facts["codesign_authorities"]) == 0):
             if facts["version_key"] == "CFBundleShortVersionString":
                 keys["Process"].append({
                     "Processor": "AppDmgVersioner",
@@ -489,20 +521,24 @@ def generate_munki_recipe(facts, prefs, recipe):
                 keys["Process"].append({
                     "Processor": "Versioner",
                     "Arguments": {
-                        "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                        "input_plist_path":
+                            ("%%pathname%%/%s.app/Contents/Info.plist" %
+                            facts["app_name_key"]),
                         "plist_version_key": facts["version_key"]
                     }
                 })
 
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
+        if (facts.get("codesign_reqs", "") == "" and
+            len(facts["codesign_authorities"]) == 0):
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
             keys["Process"].append({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
-                    "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                    "destination_path":
+                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                     "purge_destination": True
                 }
             })
@@ -520,7 +556,8 @@ def generate_munki_recipe(facts, prefs, recipe):
         # when the software is distributed inside a pkg. In this case, the
         # blocking applications must be set manually in the recipe.
         if len(facts["blocking_applications"]) > 0:
-            keys["Input"]["pkginfo"]["blocking_applications"] = facts["blocking_applications"]
+            keys["Input"]["pkginfo"]["blocking_applications"] = (
+                facts["blocking_applications"])
 
     if facts["version_key"] != "CFBundleShortVersionString":
         keys["Process"].append({
@@ -550,10 +587,17 @@ def generate_munki_recipe(facts, prefs, recipe):
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
-        if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"), facts["app_name"] + ".png")
+        if ("developer" in facts and
+            prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
+            extracted_icon = os.path.join(
+                os.path.expanduser(prefs["RecipeCreateLocation"]),
+                facts["developer"].replace("/", "-"),
+                facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
+            extracted_icon = os.path.join(
+                os.path.expanduser(prefs["RecipeCreateLocation"]),
+                facts["app_name"].replace("/", "-"),
+                facts["app_name"] + ".png")
         extract_app_icon(facts, extracted_icon)
     else:
         facts["warnings"].append(
@@ -617,13 +661,15 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s and "
                             "creates a package." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
+    keys["ParentRecipe"] = "%s.download.%s" % (
+        prefs["RecipeIdentifierPrefix"], facts["app_name"].replace( " ", ""))
 
     # Save bundle identifier.
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
+        if (facts.get("codesign_reqs", "") == "" and
+                len(facts["codesign_authorities"]) == 0):
             if facts["version_key"] == "CFBundleShortVersionString":
                 keys["Process"].append({
                     "Processor": "AppDmgVersioner",
@@ -635,7 +681,9 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 keys["Process"].append({
                     "Processor": "Versioner",
                     "Arguments": {
-                        "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                        "input_plist_path":
+                            ("%%pathname%%/%s.app/Contents/Info.plist" %
+                             facts["app_name_key"]),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -652,19 +700,22 @@ def generate_pkg_recipe(facts, prefs, recipe):
             "Processor": "Copier",
             "Arguments": {
                 "source_path": "%%pathname%%/%s.app" % facts["app_name_key"],
-                "destination_path": "%%pkgroot%%/Applications/%s.app" % facts["app_name_key"]
+                "destination_path": ("%%pkgroot%%/Applications/%s.app" %
+                                     facts["app_name_key"])
             }
         })
 
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
+        if (facts.get("codesign_reqs", "") == "" and
+            len(facts["codesign_authorities"]) == 0):
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet. Need to do that and version.
             keys["Process"].append({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
-                    "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                    "destination_path":
+                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                     "purge_destination": True
                 }
             })
@@ -674,7 +725,10 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 keys["Process"].append({
                     "Processor": "Versioner",
                     "Arguments": {
-                        "input_plist_path": "%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                        "input_plist_path":
+                            ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/"
+                             "%s.app/Contents/Info.plist" %
+                             facts["app_name_key"]),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -729,7 +783,9 @@ def generate_install_recipe(facts, prefs, recipe):
     keys["Description"] = ("Installs the latest version "
                             "of %s." % facts["app_name"])
 
-    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
+    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"],
+                                               facts["app_name"].replace(
+                                                   " ", ""))
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         keys["Process"].append({
@@ -744,12 +800,14 @@ def generate_install_recipe(facts, prefs, recipe):
         })
 
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
+        if (facts.get("codesign_reqs", "") == "" and
+                len(facts["codesign_authorities"]) == 0):
             keys["Process"].append({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
-                    "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                    "destination_path":
+                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                     "purge_destination": True
                 }
             })
@@ -805,7 +863,8 @@ def generate_jss_recipe(facts, prefs, recipe):
     robo_print("Generating %s recipe..." % recipe["type"])
 
     if prefs["FollowOfficialJSSRecipesFormat"] is True:
-        keys["Identifier"] = "com.github.jss-recipes.jss.%s" % facts["app_name"].replace(" ", "")
+        keys["Identifier"] = ("com.github.jss-recipes.jss.%s" %
+                              facts["app_name"].replace(" ", ""))
 
     # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s "
@@ -822,7 +881,9 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Input"]["POLICY_CATEGORY"] = "Testing"
     keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
     keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
-    if not os.path.exists(os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), "%s.png" % facts["app_name"])):
+    if (not os.path.exists(
+            os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]),
+                         "%s.png" % facts["app_name"]))):
         facts["reminders"].append(
             "Please make sure %s.png is in your AutoPkg search path." %
             facts["app_name"])
@@ -845,7 +906,8 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     # Set variables and arguments as necessary depending on version key.
     if facts["version_key"] == "CFBundleVersion":
-        keys["Input"]["GROUP_TEMPLATE"] = "CFBundleVersionSmartGroupTemplate.xml"
+        keys["Input"]["GROUP_TEMPLATE"] = (
+            "CFBundleVersionSmartGroupTemplate.xml")
         jssimporter_arguments["extension_attributes"] = [{
             "ext_attribute_path": "CFBundleVersionExtensionAttribute.xml"
         }]
@@ -858,10 +920,17 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
-        if "developer" in facts and prefs.get("FollowOfficialJSSRecipesFormat", False) is not True:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["developer"].replace("/", "-"), facts["app_name"] + ".png")
+        if ("developer" in facts and
+            prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
+            extracted_icon = os.path.join(
+                os.path.expanduser(prefs["RecipeCreateLocation"]),
+                facts["developer"].replace("/", "-"),
+                facts["app_name"] + ".png")
         else:
-            extracted_icon = os.path.join(os.path.expanduser(prefs["RecipeCreateLocation"]), facts["app_name"].replace("/", "-"), facts["app_name"] + ".png")
+            extracted_icon = os.path.join(
+                os.path.expanduser(prefs["RecipeCreateLocation"]),
+                facts["app_name"].replace("/", "-"),
+                facts["app_name"] + ".png")
         extract_app_icon(facts, extracted_icon)
     else:
         facts["warnings"].append(
@@ -903,23 +972,29 @@ def generate_absolute_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your Absolute Manage "
                             "Server." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
+    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"],
+                                          facts["app_name"])
 
     # Print a reminder if the required repo isn't present on disk.
+    amexport_url = "https://github.com/tburgin/AbsoluteManageExport"
     cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(https://github.com/tburgin/AbsoluteManageExport)") for line in out.split("\n")):
+    if not any(line.endswith("(%s)" % amexport_url) for line in
+               out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the AbsoluteManageExport repo in order to use "
             "this recipe:\nautopkg repo-add "
-            "\"https://github.com/tburgin/AbsoluteManageExport\"")
+            "\"%s\"" % amexport_url)
 
     keys["Process"].append({
-        "Processor": "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
-        "SharedProcessorRepoURL": "https://github.com/tburgin/AbsoluteManageExport",
+        "Processor":
+            "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
+        "SharedProcessorRepoURL": amexport_url,
         "Arguments": {
-            "dest_payload_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
-            "sdpackages_ampkgprops_path": "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
+            "dest_payload_path":
+                "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
+            "sdpackages_ampkgprops_path":
+                "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
             "source_payload_path": "%pkg_path%",
             "import_abman_to_servercenter": True
         }
@@ -954,20 +1029,23 @@ def generate_sccm_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it into your SCCM "
                             "Server." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
+    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"],
+                                          facts["app_name"])
 
     # Print a reminder if the required repo isn't present on disk.
+    cgerke_url = "https://github.com/autopkg/cgerke-recipes"
     cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(https://github.com/autopkg/cgerke-recipes)") for line in out.split("\n")):
+    if not any(line.endswith("(%s)" % cgerk_url) for line in out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the cgerke-recipes repo in order to use this "
             "recipe:\nautopkg repo-add "
-            "\"https://github.com/autopkg/cgerke-recipes\"")
+            "\"%s\"" % cgerk_url)
 
     keys["Process"].append({
-        "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
-        "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
+        "Processor":
+            "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
+        "SharedProcessorRepoURL": cgerke_url,
         "Arguments": {
             "source_file": "%pkg_path%",
             "destination_directory": "%RECIPE_CACHE_DIR%"
@@ -1003,26 +1081,31 @@ def generate_filewave_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s, creates a "
                            "fileset, and copies it into your FileWave "
                            "Server." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
+    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"],
+                                               facts["app_name"])
 
-    if facts["download_format"] in SUPPORTED_IMAGE_FORMATS and "sparkle_feed" not in facts:
+    if (facts["download_format"] in SUPPORTED_IMAGE_FORMATS and "sparkle_feed"
+        not in facts):
         # It's a dmg download, but not from Sparkle, so we need to version it.
         keys["Process"].append({
             "Processor": "Versioner",
             "Arguments": {
-                "input_plist_path": "%%pathname%%/%s.app/Contents/Info.plist" % facts["app_name_key"],
+                "input_plist_path": ("%%pathname%%/%s.app/Contents/Info.plist"
+                                     % facts["app_name_key"]),
                 "plist_version_key": facts["version_key"]
             }
         })
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
+        if (facts.get("codesign_reqs", "") == "" and
+            len(facts["codesign_authorities"]) == 0):
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
             keys["Process"].append({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
-                    "destination_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                    "destination_path":
+                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                     "purge_destination": True
                 }
             })
@@ -1033,13 +1116,15 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "downloads.")
 
     # Print a reminder if the required repo isn't present on disk.
+    clayton_url = "https://github.com/johncclayton/FileWaveImporter"
     cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(https://github.com/johncclayton/FileWaveImporter)") for line in out.split("\n")):
+    if not any(line.endswith("(%s)" % clayton_url) for line in
+               out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the FileWaveImporter repo in order to use "
             "this recipe:\nautopkg repo-add "
-            "\"https://github.com/johncclayton/FileWaveImporter\"")
+            "\"%s\"" % clayton_url)
 
     keys["Process"].append({
         "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
@@ -1082,7 +1167,8 @@ def generate_ds_recipe(facts, prefs, recipe):
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it to your DeployStudio "
                             "packages." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"], facts["app_name"])
+    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"],
+                                          facts["app_name"])
     keys["Input"]["DS_PKGS_PATH"] = prefs["DSPackagesPath"]
     keys["Input"]["DS_NAME"] = "%NAME%"
     keys["Process"].append({
