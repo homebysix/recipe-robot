@@ -26,32 +26,22 @@ enum RecipeType: Int {
     }
 
     var requiredTypes: [RecipeType] {
-        var types = [self]
+        var types = Set([self])
         switch self {
-        case .Download:
+        case Munki, Pkg, Install, Filewave:
+            // Requires Download
+            types.unionInPlace([Download])
+        case JSS, AbsoluteManage, SCCM, DS:
+            // Requires Package (inherits Download)
+            types.unionInPlace([Pkg])
+        default:
             break
-        case .Munki:
-            types.appendContentsOf([.Download])
-        case .Pkg:
-            types.appendContentsOf([.Download])
-        case .Install:
-            types.appendContentsOf([.Download])
-        case .JSS:
-            types.appendContentsOf([.Download])
-            types.appendContentsOf([.Pkg])
-        case .AbsoluteManage:
-            types.appendContentsOf([.Download])
-            types.appendContentsOf([.Pkg])
-        case .SCCM:
-            types.appendContentsOf([.Download])
-            types.appendContentsOf([.Pkg])
-        case .DS:
-            types.appendContentsOf([.Download])
-            types.appendContentsOf([.Pkg])
-        case .Filewave:
-            types.appendContentsOf([.Download])
         }
-        return types
+
+        for i in types where i != self {
+            types.unionInPlace(i.requiredTypes)
+        }
+        return Array(types)
     }
 
     var requiredTypeValues: [String] {
