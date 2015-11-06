@@ -8,10 +8,10 @@ __Table of contents__
 - [Mac App Usage](#mac-app-usage)
 - [Python Script Usage](#python-script-usage)
 - [Tips](#tips)
-  - [Compatibility](#compatibility)
-  - [Apps with existing AutoPkg recipes](#apps-with-existing-autopkg-recipes)
-  - [Things to tweak in Recipe Robot-produced recipes](#things-to-tweak-in-recipe-robot-produced-recipes)
-  - [App Store Apps](#app-store-apps)
+    - [Compatibility](#compatibility)
+    - [Apps with existing AutoPkg recipes](#apps-with-existing-autopkg-recipes)
+    - [Things to tweak in Recipe Robot-produced recipes](#things-to-tweak-in-recipe-robot-produced-recipes)
+    - [App Store Apps](#app-store-apps)
 - [Troubleshooting](#troubleshooting)
 - [Feedback](#feedback)
 
@@ -33,33 +33,23 @@ This two-pronged approach will allow AutoPkg novices to easily create recipes th
 
 :warning: The Mac app is still in heavy development. As such, some features may not work, and you may encounter a bug or two. Be patient; we're still building robot parts.
 
-When you first launch the app, the first thing you'll want to do is to set your preferences. Choose __Preferences__ from the __Recipe Robot__ menu, and select the following:
+1. When you first launch the app, the first thing you'll want to do is to set your preferences. Choose __Preferences__ from the __Recipe Robot__ menu, and select the following:
 
-- Your desired recipe types
-- Your preferred recipe identifier
-- Your recipe output location
+    - Your desired recipe types
+    - Your preferred recipe identifier
+    - Your recipe output location
 
-Then click __Good to Go__.
+    Then click __Good to Go__.
 
-![Mac App - Preferences](images/app-prefs.png)
+2. Now you're ready to build some recipes! Drag in an app that you want to create recipes for.
 
-Now you're ready to build some recipes! Drag in an app that you want to create recipes for.
+    IMPORTANT: The Recipe Robot app currently works best with apps that have a Sparkle feed, and for which there are no existing AutoPkg recipes.
 
-IMPORTANT: The Recipe Robot app currently works best with apps that have a Sparkle feed, and for which there are no existing AutoPkg recipes.
+3. You'll see some activity while Recipe Robot processes the app. If no errors are encountered, click __Reveal Recipes__ to see the finished product.
 
-![Mac App - Feed Me](images/app-feedme.png)
+Here's what the whole process looks like:
 
-You'll see some activity while Recipe Robot processes the app.
-
-![Mac App - Processing](images/app-processing.png)
-
-If no errors are encountered, you'll see a screen that looks like this:
-
-![Mac App - Done](images/app-done.png)
-
-And if you click on the folder icon, you'll be taken to the finished recipes.
-
-![Recipes](images/created-recipes.png)
+![Demo of Recipe Robot app](images/mountee-app-demo.gif)
 
 
 ## Python Script Usage
@@ -80,60 +70,13 @@ For `<input>`, you can use one of several types of information:
 
 The first time Recipe Robot runs, you'll be prompted for some information. On subsequent runs, you can use the `--config` argument to force this prompt to return.
 
-Here's what Recipe Robot looks like when it's working properly. The command I used was: `recipe-robot --verbose /Applications/coconutBattery.app`
+Here's what Recipe Robot looks like when it's working properly. The command I used was: `recipe-robot --verbose /Applications/Mountee.app`
 
-```
-                      -----------------------------------
-                     |  Welcome to Recipe Robot v0.2.1.  |
-                      -----------------------------------
-                                \   _[]_
-                                 \  [oo]
-                                   d-||-b
-                                     ||
-                                   _/  \_
+![Demo of Recipe Robot script](images/mountee-script-demo.gif)
 
-Processing /Applications/coconutBattery.app ...
-Input path looks like an app.
-Validating app...
-    App seems valid
-Getting app name...
-    App name is: coconutBattery
-Getting bundle identifier...
-    Bundle idenfitier is: com.coconut-flavour.coconutBattery
-Checking for a Sparkle feed...
-    Sparkle feed is: http://updates.coconut-flavour.com/coconutBatteryIntel.xml
-Getting information from Sparkle feed...
-    The Sparkle feed provides a version number
-    The latest version is 3.2.1
-    Download URL is: http://www.coconut-flavour.com/downloads/coconutBattery_3_2_1.zip
-Downloading file for further inspection...
-    Downloaded to ~/Library/Caches/Recipe Robot/2015-11-02_11-55-06_687672/coconutBattery_3_2_1.zip
-Determining download format...
-    File extension is zip
-Looking for version key...
-    Version key is: CFBundleShortVersionString (3.2.1)
-Looking for app icon...
-    App icon is: /Applications/coconutBattery.app/Contents/Resources/icon1024
-Getting app description from MacUpdate...
-    Description: Displays info about your laptop battery.
-Gathering code signature information...
-    Code signature verification requirements recorded
-    3 authority names recorded
-    Developer: Christoph Sinai
-Generating download recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.download.recipe
-Generating munki recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.png
-    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.munki.recipe
-Generating pkg recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.pkg.recipe
-Generating install recipe...
-    ~/Library/AutoPkg/Recipe Robot Output/Christoph Sinai/coconutBattery.install.recipe
+This animation hasn't been sped up. Recipe Robot really is that fast!
 
-You've now created 4 recipes with Recipe Robot. Round of applause for you!
-```
-
-It's fun to see the `--verbose` details, and it proves very useful for troubleshooting.
+I always use `--verbose` mode. It's fun to see the details, and it proves very useful for troubleshooting.
 
 
 ## Tips
