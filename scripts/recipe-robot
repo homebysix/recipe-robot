@@ -375,7 +375,7 @@ def get_recipe_identifier_prefix(prefs):
     Args:
         prefs: The preference dictionary, passed from init_prefs().
     """
-    prefs["RecipeIdentifierPrefix"] = "com.github.homebysix"
+    prefs["RecipeIdentifierPrefix"] = "com.github.your_name_here"
     robo_print("\nRecipe identifier prefix")
     robo_print("This is your default identifier, in reverse-domain "
                "notation.\n")
