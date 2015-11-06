@@ -128,7 +128,8 @@ class RecipeRobotTask: NSObject {
     }
 
     private func constructTaskEnvironment() -> Dictionary<String, String> {
-        let dict = NSProcessInfo.processInfo().environment
+        var dict = NSProcessInfo.processInfo().environment
+        dict["NSUnbufferedIO"] = "YES"
         /// Possibly do more here some day.
         return dict
     }
