@@ -70,7 +70,7 @@ For `<input>`, you can use one of several types of information:
 
 The first time Recipe Robot runs, you'll be prompted for some information. On subsequent runs, you can use the `--config` argument to force this prompt to return.
 
-Here's what Recipe Robot looks like when it's working properly. The command I used was: `recipe-robot --verbose /Applications/Mountee.app`
+Here's what Recipe Robot looks like when it's working properly. The command I used was: `/Applications/Recipe\ Robot.app/Contents/Resources/scripts/recipe-robot --verbose /Applications/Mountee.app`
 
 ![Demo of Recipe Robot script](images/mountee-script-demo.gif)
 
