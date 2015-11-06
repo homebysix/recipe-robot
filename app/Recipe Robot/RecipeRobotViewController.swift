@@ -251,8 +251,6 @@ class ProcessingViewController: RecipeRobotViewController {
 
     @IBOutlet weak var appIcon: NSButton?
 
-    @IBOutlet var gearContainerView: NSView!
-
     // MARK: Indicators
     @IBOutlet weak var recipeIndicator: NSButton?
     @IBOutlet weak var reminderIndicator: NSButton?
@@ -337,22 +335,7 @@ class ProcessingViewController: RecipeRobotViewController {
         super.awakeFromNib()
     }
 
-    func gearsShouldRotate(start: Bool){
-        for view in gearContainerView.subviews {
-            if let view = view as? GearImageView {
-                if start {
-                    let delay = NSTimeInterval(arc4random_uniform(2000)) / 1000.0
-                    NSTimer.scheduledTimerWithTimeInterval(delay, target: view, selector: "start", userInfo: nil, repeats: false)
-                }  else {
-                    view.stop()
-                }
-            }
-        }
-    }
-
     func processRecipes() {
-        gearsShouldRotate(true)
-
         // Do view setup here.
         self.task.createRecipes({
             [weak self] progress in /* Do nothing */
@@ -380,8 +363,7 @@ class ProcessingViewController: RecipeRobotViewController {
                 if let sound = sound{
                     sound.play()
                 }
-
-                self?.gearsShouldRotate(false)
+                
                 if let button = self?.cancelButton {
                     button.title = "Let's Do Another!"
                 }

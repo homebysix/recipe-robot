@@ -298,7 +298,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="none" columnReordering="NO" columnResizing="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" id="AZn-zL-NZB">
-                                            <rect key="frame" x="0.0" y="0.0" width="240" height="209"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="240" height="19"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <animations/>
                                             <size key="intercellSpacing" width="3" height="2"/>
@@ -621,163 +621,15 @@ DQ
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <customView alphaValue="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wpZ-ia-RPf" userLabel="Gears View">
-                                <rect key="frame" x="9" y="53" width="581" height="244"/>
-                                <subviews>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Tpb-YN-zJ4" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="48" y="85" width="29" height="14"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="29" id="yfZ-I8-IB3"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="2J8-P3-n8f"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="zt7-fw-Qw6" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="83" width="14" height="14"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="14" id="tTv-TZ-c6L"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="S5H-dD-6Om"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="f6b-5g-3dy" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="109" y="20" width="29" height="35"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="35" id="Pda-ff-urs"/>
-                                            <constraint firstAttribute="width" constant="29" id="VO4-p0-Kct"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IHB-cO-sMS"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Ldu-tF-onM" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="116" y="11" width="14" height="14"/>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oP9-jh-oF7"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="gn5-51-pkj" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="-40" y="0.0" width="21" height="55"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="55" id="9oS-Dc-Q1E"/>
-                                            <constraint firstAttribute="width" constant="21" id="x3o-xE-3ej"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="oi0-FE-bEc"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="igg-4Y-ndW" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="21" height="55"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="55" id="P7K-ik-Xip"/>
-                                            <constraint firstAttribute="width" constant="21" id="PmD-0E-1KO"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="vcY-2Q-9Jv"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="GSh-FL-Sh6" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="45" height="32"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="45" id="g9q-aw-Lca"/>
-                                            <constraint firstAttribute="height" constant="32" id="kMQ-fV-SfY"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="IvW-qr-Zlh"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Sbd-5F-qdT" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="47" y="0.0" width="45" height="32"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="45" id="AOJ-sR-a7i"/>
-                                            <constraint firstAttribute="height" constant="32" id="b13-8v-kYP"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="Wp3-Cv-F7H"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="8os-nw-rgn" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="217" y="107" width="35" height="20"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="35" id="1Cs-rW-iJJ"/>
-                                            <constraint firstAttribute="height" constant="20" id="tzL-7F-JHo"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="wIm-a0-6Pv"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="dvk-2x-EOV" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="67" y="0.0" width="29" height="35"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="35" id="Umf-7O-GGM"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="fD4-pL-GdL"/>
-                                    </imageView>
-                                    <imageView alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="Dy6-LB-UAX" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="25" y="0.0" width="14" height="14"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="14" id="m9h-sV-IZJ"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="NSActionTemplate" id="9lH-bv-WRD"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="pOy-P2-jOb" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="33" width="45" height="42"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="42" id="DtX-O5-UOP"/>
-                                            <constraint firstAttribute="width" constant="45" id="g5s-AT-Fxc"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="G5Y-F7-aax"/>
-                                    </imageView>
-                                    <imageView wantsLayer="YES" alphaValue="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="g0O-SY-tfW" customClass="GearImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="29" height="35"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="29" id="e4A-IP-V4P"/>
-                                            <constraint firstAttribute="height" constant="35" id="ruE-WD-VdN"/>
-                                        </constraints>
-                                        <animations/>
-                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="KSI-bE-DeQ"/>
-                                    </imageView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="dvk-2x-EOV" firstAttribute="leading" secondItem="zt7-fw-Qw6" secondAttribute="trailing" constant="53" id="2p7-WG-KWj"/>
-                                    <constraint firstItem="Dy6-LB-UAX" firstAttribute="top" secondItem="pOy-P2-jOb" secondAttribute="bottom" constant="19" id="3pd-u2-9yJ"/>
-                                    <constraint firstItem="pOy-P2-jOb" firstAttribute="leading" secondItem="wpZ-ia-RPf" secondAttribute="leading" id="5mh-NM-bvc"/>
-                                    <constraint firstAttribute="bottom" secondItem="f6b-5g-3dy" secondAttribute="bottom" constant="20" symbolic="YES" id="7KS-YE-kmG"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="top" secondItem="8os-nw-rgn" secondAttribute="bottom" constant="75" id="7PA-CB-LiG"/>
-                                    <constraint firstItem="pOy-P2-jOb" firstAttribute="top" secondItem="zt7-fw-Qw6" secondAttribute="bottom" constant="8" symbolic="YES" id="7gg-lc-gMB"/>
-                                    <constraint firstItem="zt7-fw-Qw6" firstAttribute="leading" secondItem="pOy-P2-jOb" secondAttribute="leading" id="9ZP-VR-fGp"/>
-                                    <constraint firstItem="Dy6-LB-UAX" firstAttribute="top" secondItem="Tpb-YN-zJ4" secondAttribute="bottom" constant="71" id="DmR-FF-sR2"/>
-                                    <constraint firstItem="pOy-P2-jOb" firstAttribute="leading" secondItem="igg-4Y-ndW" secondAttribute="leading" id="FzS-8p-mce"/>
-                                    <constraint firstItem="GSh-FL-Sh6" firstAttribute="leading" secondItem="igg-4Y-ndW" secondAttribute="leading" id="JA7-5h-Udd"/>
-                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="leading" secondItem="Tpb-YN-zJ4" secondAttribute="trailing" constant="39" id="M3s-fd-cqu"/>
-                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="leading" secondItem="dvk-2x-EOV" secondAttribute="trailing" constant="20" id="Q0E-T1-OYr"/>
-                                    <constraint firstItem="Ldu-tF-onM" firstAttribute="centerY" secondItem="dvk-2x-EOV" secondAttribute="centerY" id="TaZ-Tw-JDf"/>
-                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="bottom" secondItem="Dy6-LB-UAX" secondAttribute="bottom" id="UwN-5z-vOY"/>
-                                    <constraint firstItem="Dy6-LB-UAX" firstAttribute="leading" secondItem="gn5-51-pkj" secondAttribute="trailing" constant="44" id="YEe-m6-gSv"/>
-                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="centerX" secondItem="Ldu-tF-onM" secondAttribute="centerX" id="aFo-ez-9yh"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="leading" secondItem="igg-4Y-ndW" secondAttribute="trailing" constant="26" id="asY-09-fOn"/>
-                                    <constraint firstItem="8os-nw-rgn" firstAttribute="leading" secondItem="Ldu-tF-onM" secondAttribute="trailing" constant="87" id="bVk-Z1-KwV"/>
-                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="top" secondItem="gn5-51-pkj" secondAttribute="top" id="bjE-41-qLS"/>
-                                    <constraint firstItem="igg-4Y-ndW" firstAttribute="bottom" secondItem="g0O-SY-tfW" secondAttribute="bottom" id="h9L-Dx-g5B"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="top" secondItem="GSh-FL-Sh6" secondAttribute="top" id="jTE-5j-TRn"/>
-                                    <constraint firstItem="Tpb-YN-zJ4" firstAttribute="leading" secondItem="zt7-fw-Qw6" secondAttribute="trailing" constant="34" id="kXA-Qu-EF6"/>
-                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="leading" secondItem="Dy6-LB-UAX" secondAttribute="trailing" constant="70" id="lgs-QC-F5P"/>
-                                    <constraint firstItem="dvk-2x-EOV" firstAttribute="top" secondItem="g0O-SY-tfW" secondAttribute="top" id="mE7-en-eKr"/>
-                                    <constraint firstItem="Sbd-5F-qdT" firstAttribute="bottom" secondItem="Dy6-LB-UAX" secondAttribute="bottom" id="npy-Xa-0Xo"/>
-                                    <constraint firstItem="f6b-5g-3dy" firstAttribute="top" secondItem="gn5-51-pkj" secondAttribute="top" id="p9N-Cw-7yP"/>
-                                    <constraint firstItem="GSh-FL-Sh6" firstAttribute="leading" secondItem="g0O-SY-tfW" secondAttribute="leading" id="tAq-MP-Wc8"/>
-                                </constraints>
-                                <animations/>
-                            </customView>
                         </subviews>
                         <constraints>
                             <constraint firstItem="rMt-6n-gBl" firstAttribute="top" secondItem="tsZ-nv-LQm" secondAttribute="bottom" constant="10" id="1fy-oT-ghT"/>
-                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="trailing" secondItem="rMt-6n-gBl" secondAttribute="trailing" id="6yw-ml-ajm"/>
                             <constraint firstAttribute="trailing" secondItem="tsZ-nv-LQm" secondAttribute="trailing" constant="20" symbolic="YES" id="MTK-P9-Z1C"/>
                             <constraint firstItem="tsZ-nv-LQm" firstAttribute="top" secondItem="7XC-1Y-g29" secondAttribute="top" constant="13" id="Nuc-Bb-yPd"/>
                             <constraint firstItem="uhj-oq-9WR" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="123" id="Oeo-xx-KAn"/>
                             <constraint firstAttribute="bottom" secondItem="uHR-tD-pYY" secondAttribute="bottom" constant="20" id="Okn-hU-SuX"/>
                             <constraint firstAttribute="trailing" secondItem="uHR-tD-pYY" secondAttribute="trailing" constant="124" id="Sxx-cY-RF4"/>
-                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="top" secondItem="rMt-6n-gBl" secondAttribute="top" id="T16-2M-Uuf"/>
-                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="leading" secondItem="rMt-6n-gBl" secondAttribute="leading" id="WwY-hb-1kG"/>
                             <constraint firstItem="uHR-tD-pYY" firstAttribute="top" secondItem="rMt-6n-gBl" secondAttribute="bottom" constant="12" id="YDU-B2-w3O"/>
-                            <constraint firstItem="wpZ-ia-RPf" firstAttribute="bottom" secondItem="rMt-6n-gBl" secondAttribute="bottom" id="iKZ-p6-rMY"/>
                             <constraint firstAttribute="bottom" secondItem="uhj-oq-9WR" secondAttribute="bottom" constant="20" id="k9v-IH-uqx"/>
                             <constraint firstItem="tsZ-nv-LQm" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="20" symbolic="YES" id="pHD-Md-d1b"/>
                             <constraint firstItem="rMt-6n-gBl" firstAttribute="leading" secondItem="7XC-1Y-g29" secondAttribute="leading" constant="9" id="r9e-dd-4FL"/>
@@ -787,7 +639,6 @@ DQ
                     </view>
                     <connections>
                         <outlet property="cancelButton" destination="uhj-oq-9WR" id="vsK-DC-KXE"/>
-                        <outlet property="gearContainerView" destination="wpZ-ia-RPf" id="1uG-eZ-rat"/>
                         <outlet property="progressView" destination="THv-bG-5qD" id="GOE-RY-qiM"/>
                         <outlet property="showInFinderButton" destination="uHR-tD-pYY" id="W1r-MP-vqV"/>
                         <outlet property="titleLabel" destination="tsZ-nv-LQm" id="01k-VX-CzZ"/>
