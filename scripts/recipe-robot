@@ -290,7 +290,7 @@ def init_prefs(facts):
 
         # This seems to be necessary in order to avoid an error when reading
         # the plist back during subsequent runs.
-        prefs["RecipeCreateCount"] = int(prefs["RecipeCreateCount"])
+        prefs["RecipeCreateCount"] = int(prefs.get("RecipeCreateCount", 0))
 
     else:
         # TODO: Isn't this basically the same condition as the except above?
