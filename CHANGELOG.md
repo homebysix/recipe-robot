@@ -2,8 +2,12 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
 
-## [0.3.0] - 2015-11-06
+Nothing yet.
+
+
+## [0.2.1] - 2015-11-06
 
 ### Added
 - Prefs sheet now appears by default on first launch.
@@ -24,4 +28,5 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[0.3.0]: https://github.com/homebysix/recipe-robot/compare/v0.2.0...v0.3.0
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/homebysix/recipe-robot/compare/v0.2.0...v0.2.1
