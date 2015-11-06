@@ -2,17 +2,19 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][unreleased]
+
+## [0.3.0] - 2015-11-06
 
 ### Added
-- Added license header to each source file.
 - Prefs sheet now appears by default on first launch.
 - Help menu now opens README.md in default web browser. (#57)
+- Added license header to each source file.
 
 ### Changed
 - The app now displays the raw script output, including all warnings, reminders, and errors.
 - Selecting a given recipe type in the preferences window (or `--config` prompts) now automatically selects its required parent recipe types.
 - Changed readme to point to the version of `recipe-robot` Python script embedded in the Recipe Robot app.
+- Code simplification and refactoring.
 
 ### Fixed
 - Adjusted layout of Mac app.
@@ -22,4 +24,4 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[unreleased]: https://github.com/homebysix/recipe-robot/compare/v0.2.0...HEAD
+[0.3.0]: https://github.com/homebysix/recipe-robot/compare/v0.2.0...v0.3.0
