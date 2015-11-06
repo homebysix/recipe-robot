@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. This projec
 
 Nothing yet.
 
+## [0.2.2] - 2015-11-06
+
+### Fixed
+- Fixed an issue where the script output doesn't flush when run via the app.
+
 
 ## [0.2.1] - 2015-11-06
 
@@ -28,5 +33,6 @@ Nothing yet.
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/homebysix/recipe-robot/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/homebysix/recipe-robot/compare/v0.2.0...v0.2.1
