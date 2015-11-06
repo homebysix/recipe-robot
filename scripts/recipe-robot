@@ -413,8 +413,6 @@ def get_preferred_recipe_types(prefs, recipes):
     robo_print("\nPreferred recipe types")
     robo_print("Choose which recipe types will be offered to you by "
                "default.\n")
-    # TODO(Elliot): Make this interactive while retaining scrollback. (#17)
-    # Maybe with curses module?
     while True:
         i = 0
         for recipe in recipes:
