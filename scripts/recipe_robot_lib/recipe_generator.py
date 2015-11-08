@@ -204,11 +204,7 @@ def generate_download_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    # Can't make this recipe if the app is from the App Store.
-    if facts["is_from_app_store"] is True:
-        facts["warnings"].append(
-            "Skipping %s recipe, because this app was downloaded from the "
-            "App Store." % recipe["type"])
+    if is_from_app_store(facts):
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -417,6 +413,17 @@ def generate_download_recipe(facts, prefs, recipe):
                 }
             })
     # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
+
+
+def is_from_app_store(facts):
+    """Can't make this recipe if the app is from the App Store."""
+    result = False
+    if facts["is_from_app_store"]:
+        facts["warnings"].append(
+            "Skipping %s recipe, because this app was downloaded from the "
+            "App Store." % recipe["type"])
+        result = True
+    return result
 
 
 def generate_app_store_munki_recipe(facts, prefs, recipe):
@@ -769,11 +776,7 @@ def generate_install_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    # Can't make this recipe if the app is from the App Store.
-    if facts["is_from_app_store"] is True:
-        facts["warnings"].append(
-            "Skipping %s recipe, because this app was downloaded from the "
-            "App Store." % recipe["type"])
+    if is_from_app_store(facts):
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
