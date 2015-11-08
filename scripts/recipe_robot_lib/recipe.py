@@ -34,6 +34,19 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
+RECIPE_TYPES = {
+    "download": "Downloads an app in whatever format the developer provides.",
+    "munki": "Imports into your Munki repository.",
+    "pkg": "Creates a standard pkg installer file.",
+    "install": "Installs the app on the computer running AutoPkg.",
+    "jss": ("Imports into your Casper JSS and creates necessary groups, "
+            "policies, etc."),
+    "absolute": "Imports into your Absolute Manage server.",
+    "sccm": "Creates a cmmac package for deploying via Microsoft SCCM.",
+    "ds": "Imports into your DeployStudio Packages folder.",
+    "filewave": "Imports a fileset into your FileWave server."}
+
+
 class Recipe(RoboDict):
     """An AutoPkg Recipe."""
 
@@ -60,9 +73,19 @@ class Recipe(RoboDict):
         if len(self["keys"]["Process"]) > 0:
             FoundationPlist.writePlist(self["keys"], path)
 
-def set_description(self, description):
-    """Save a description that explains what this recipe does."""
-    self["keys"]["Description"] = description
+    def set_description(self, description):
+        """Save a description that explains what this recipe does."""
+        self["keys"]["Description"] = description
+
+    def set_parent(self, parent):
+        """Set the parent recipe key to parent."""
+        self["keys"]["ParentRecipe"] = parent.replace(" ", "")
+
+    def set_parent_from(self, prefs, facts, recipe_type):
+        """Set parent recipe based on prefs, facts, and a type."""
+        elements = (prefs["RecipeIdentifierPrefix"], recipe_type,
+                    facts["app_name"])
+        self["keys"]["ParentRecipe"] = ".".join(elements).replace(" ", "")
 
 
 class Recipes(RoboList):
@@ -71,18 +94,5 @@ class Recipes(RoboList):
     def __init__(self):
         """Store information related to each supported recipe type."""
         super(Recipes, self).__init__()
-        recipes_meta = (
-            ("download", "Downloads an app in whatever format the developer "
-                         "provides."),
-            ("munki", "Imports into your Munki repository."),
-            ("pkg", "Creates a standard pkg installer file."),
-            ("install", "Installs the app on the computer running AutoPkg."),
-            ("jss", "Imports into your Casper JSS and creates necessary "
-                    "groups, policies, etc."),
-            ("absolute", "Imports into your Absolute Manage server."),
-            ("sccm", "Creates a cmmac package for deploying via Microsoft "
-                     "SCCM."),
-            ("ds", "Imports into your DeployStudio Packages folder."),
-            ("filewave", "Imports a fileset into your FileWave server."))
-
-        self.extend([Recipe(*recipe) for recipe in recipes_meta])
+        self.extend([Recipe(recipe, desc) for recipe, desc in
+                     RECIPE_TYPES.items() ])
