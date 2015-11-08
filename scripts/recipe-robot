@@ -124,10 +124,10 @@ def main():
         message = ("Recipe Robot exploded with unexpected error: %s" %
                    error.message)
         if facts["args"].verbose:
-            message += traceback.format_exc(error)
+            message += "\n%s" % traceback.format_exc(error)
         else:
             # TODO: Is this overkill?
-            message += "Run with -v/--verbose for more info."
+            message += "\nRun with -v/--verbose for more info."
         facts["errors"].append(message)
         print_death_text()
         sys.exit(1)
