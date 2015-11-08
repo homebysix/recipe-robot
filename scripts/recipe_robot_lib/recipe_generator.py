@@ -209,9 +209,8 @@ def generate_download_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version "
-                            "of %s." % facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s." %
+                           facts["app_name"])
 
     if "sparkle_feed" in facts:
         keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
@@ -441,11 +440,10 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version of "
-                            "%s from the Mac App Store and "
-                            "imports it into "
-                            "Munki." % facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s from the Mac "
+                           "App Store and imports it into Munki." %
+                           facts["app_name"])
+
     keys["ParentRecipe"] = "com.github.nmcspadden.munki.appstore"
     keys["Input"]["PATH"] = facts["app_path"]
     recipe["filename"] = "MAS-" + recipe["filename"]
@@ -485,10 +483,8 @@ def generate_munki_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version of %s "
-                            "and imports it into "
-                            "Munki." % facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s and imports it "
+                           "into Munki." % facts["app_name"])
     keys["ParentRecipe"] = ("%s.download.%s" %
                             (prefs["RecipeIdentifierPrefix"],
                              facts["app_name"].replace(" ", "")))
@@ -626,10 +622,10 @@ def generate_app_store_pkg_recipe(facts, prefs, recipe):
     keys = recipe["keys"]
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version of "
-                            "%s from the Mac App Store and "
-                            "creates a package." % facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s from the Mac "
+                           "App Store and creates a package." %
+                           facts["app_name"])
+
     keys["ParentRecipe"] = "com.github.nmcspadden.pkg.appstore"
     keys["Input"]["PATH"] = facts["app_path"]
     recipe["filename"] = "MAS-" + recipe["filename"]
@@ -664,9 +660,9 @@ def generate_pkg_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version of %s and "
-                            "creates a package." % facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s and "
+                           "creates a package." % facts["app_name"])
+
     keys["ParentRecipe"] = "%s.download.%s" % (
         prefs["RecipeIdentifierPrefix"], facts["app_name"].replace( " ", ""))
 
@@ -781,9 +777,8 @@ def generate_install_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Installs the latest version "
-                            "of %s." % facts["app_name"])
+    recipe.set_description("Installs the latest version of %s." %
+                           facts["app_name"])
 
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"],
                                                facts["app_name"].replace(
@@ -868,10 +863,8 @@ def generate_jss_recipe(facts, prefs, recipe):
         keys["Identifier"] = ("com.github.jss-recipes.jss.%s" %
                               facts["app_name"].replace(" ", ""))
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version of %s "
-                            "and imports it into your JSS." %
-                            facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s and imports it "
+                           "into your JSS." % facts["app_name"])
     keys["ParentRecipe"] = "%s.pkg.%s" % (
         prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
 
@@ -969,10 +962,10 @@ def generate_absolute_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version of %s and "
-                            "copies it into your Absolute Manage "
-                            "Server." % facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s and copies it "
+                           "into your Absolute Manage Server." %
+                           facts["app_name"])
+
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"],
                                           facts["app_name"])
 
@@ -1026,10 +1019,8 @@ def generate_sccm_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version of %s and "
-                            "copies it into your SCCM "
-                            "Server." % facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s and copies it "
+                           "into your SCCM Server." % facts["app_name"])
     keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"],
                                           facts["app_name"])
 
@@ -1078,10 +1069,10 @@ def generate_filewave_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
-    keys["Description"] = ("Downloads the latest version of %s, creates a "
+    recipe.set_description("Downloads the latest version of %s, creates a "
                            "fileset, and copies it into your FileWave "
                            "Server." % facts["app_name"])
+
     keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"],
                                                facts["app_name"])
 
@@ -1164,7 +1155,6 @@ def generate_ds_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    # Save a description that explains what this recipe does.
     keys["Description"] = ("Downloads the latest version of %s and "
                             "copies it to your DeployStudio "
                             "packages." % facts["app_name"])

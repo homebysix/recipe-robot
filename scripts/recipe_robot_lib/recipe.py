@@ -60,6 +60,10 @@ class Recipe(RoboDict):
         if len(self["keys"]["Process"]) > 0:
             FoundationPlist.writePlist(self["keys"], path)
 
+def set_description(self, description):
+    """Save a description that explains what this recipe does."""
+    self["keys"]["Description"] = description
+
 
 class Recipes(RoboList):
     """A List-like object of Recipe objects."""
