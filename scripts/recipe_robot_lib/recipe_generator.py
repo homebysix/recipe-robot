@@ -1018,18 +1018,18 @@ def generate_sccm_recipe(facts, prefs, recipe):
 
     recipe.set_description("Downloads the latest version of %s and copies it "
                            "into your SCCM Server." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"],
-                                          facts["app_name"])
+    recipe.set_parent_from(prefs, facts, "pkg")
 
     # Print a reminder if the required repo isn't present on disk.
     cgerke_url = "https://github.com/autopkg/cgerke-recipes"
     cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % cgerk_url) for line in out.splitlines()):
+    if not any(line.endswith("(%s)" % cgerke_url) for line in
+               out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the cgerke-recipes repo in order to use this "
             "recipe:\nautopkg repo-add "
-            "\"%s\"" % cgerk_url)
+            "\"%s\"" % cgerke_url)
 
     keys["Process"].append({
         "Processor":
