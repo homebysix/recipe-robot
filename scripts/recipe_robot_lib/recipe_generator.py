@@ -440,7 +440,8 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
                            "App Store and imports it into Munki." %
                            facts["app_name"])
 
-    keys["ParentRecipe"] = "com.github.nmcspadden.munki.appstore"
+    recipe.set_parent("com.github.nmcspadden.munki.appstore")
+
     keys["Input"]["PATH"] = facts["app_path"]
     recipe["filename"] = "MAS-" + recipe["filename"]
 
@@ -481,9 +482,7 @@ def generate_munki_recipe(facts, prefs, recipe):
 
     recipe.set_description("Downloads the latest version of %s and imports it "
                            "into Munki." % facts["app_name"])
-    keys["ParentRecipe"] = ("%s.download.%s" %
-                            (prefs["RecipeIdentifierPrefix"],
-                             facts["app_name"].replace(" ", "")))
+    recipe.set_parent_from(prefs, facts, "download")
 
     keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
     keys["Input"]["pkginfo"] = {
@@ -622,7 +621,8 @@ def generate_app_store_pkg_recipe(facts, prefs, recipe):
                            "App Store and creates a package." %
                            facts["app_name"])
 
-    keys["ParentRecipe"] = "com.github.nmcspadden.pkg.appstore"
+    recipe.set_parent("com.github.nmcspadden.pkg.appstore")
+
     keys["Input"]["PATH"] = facts["app_path"]
     recipe["filename"] = "MAS-" + recipe["filename"]
 
@@ -659,8 +659,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
     recipe.set_description("Downloads the latest version of %s and "
                            "creates a package." % facts["app_name"])
 
-    keys["ParentRecipe"] = "%s.download.%s" % (
-        prefs["RecipeIdentifierPrefix"], facts["app_name"].replace( " ", ""))
+    recipe.set_parent_from(prefs, facts, "download")
 
     # Save bundle identifier.
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
@@ -777,9 +776,7 @@ def generate_install_recipe(facts, prefs, recipe):
     recipe.set_description("Installs the latest version of %s." %
                            facts["app_name"])
 
-    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"],
-                                               facts["app_name"].replace(
-                                                   " ", ""))
+    recipe.set_parent_from(prefs, facts, "download")
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         keys["Process"].append({
@@ -862,8 +859,8 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     recipe.set_description("Downloads the latest version of %s and imports it "
                            "into your JSS." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.pkg.%s" % (
-        prefs["RecipeIdentifierPrefix"], facts["app_name"].replace(" ", ""))
+
+    recipe.set_parent_from(prefs, facts, "pkg")
 
     keys["Input"]["CATEGORY"] = "Productivity"
     facts["reminders"].append(
@@ -963,8 +960,7 @@ def generate_absolute_recipe(facts, prefs, recipe):
                            "into your Absolute Manage Server." %
                            facts["app_name"])
 
-    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"],
-                                          facts["app_name"])
+    recipe.set_parent_from(prefs, facts, "pkg")
 
     # Print a reminder if the required repo isn't present on disk.
     amexport_url = "https://github.com/tburgin/AbsoluteManageExport"
@@ -1070,8 +1066,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                            "fileset, and copies it into your FileWave "
                            "Server." % facts["app_name"])
 
-    keys["ParentRecipe"] = "%s.download.%s" % (prefs["RecipeIdentifierPrefix"],
-                                               facts["app_name"])
+    recipe.set_parent_from(prefs, facts, "download")
 
     if (facts["download_format"] in SUPPORTED_IMAGE_FORMATS and "sparkle_feed"
         not in facts):
@@ -1152,11 +1147,12 @@ def generate_ds_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    keys["Description"] = ("Downloads the latest version of %s and "
-                            "copies it to your DeployStudio "
-                            "packages." % facts["app_name"])
-    keys["ParentRecipe"] = "%s.pkg.%s" % (prefs["RecipeIdentifierPrefix"],
-                                          facts["app_name"])
+    recipe.set_description("Downloads the latest version of %s and copies it "
+                           "to your DeployStudio packages." %
+                           facts["app_name"])
+
+    recipe.set_parent_from(prefs, facts, "pkg")
+
     keys["Input"]["DS_PKGS_PATH"] = prefs["DSPackagesPath"]
     keys["Input"]["DS_NAME"] = "%NAME%"
     keys["Process"].append({
