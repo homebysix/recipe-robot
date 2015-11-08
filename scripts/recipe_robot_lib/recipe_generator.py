@@ -216,7 +216,7 @@ def generate_download_recipe(facts, prefs, recipe):
         keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
         if "user-agent" in facts:
             # Sparkle feed with a special user-agent.
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "SparkleUpdateInfoProvider",
                 "Arguments": {
                     "appcast_request_headers": {
@@ -225,7 +225,7 @@ def generate_download_recipe(facts, prefs, recipe):
                     "appcast_url": "%SPARKLE_FEED_URL%"
                 }
             })
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "URLDownloader",
                 "Arguments": {
                     "filename": ("%%NAME%%-%%version%%.%s" %
@@ -237,13 +237,13 @@ def generate_download_recipe(facts, prefs, recipe):
             })
         else:
             # Sparkle feed with the default user-agent.
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "SparkleUpdateInfoProvider",
                 "Arguments": {
                     "appcast_url": "%SPARKLE_FEED_URL%"
                 }
             })
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "URLDownloader",
                 "Arguments": {
                     "filename": ("%%NAME%%-%%version%%.%s" %
@@ -259,7 +259,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 "github_repo": "%GITHUB_REPO%"
             }
         })
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "URLDownloader",
             "Arguments": {
                 "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
@@ -282,7 +282,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 "SOURCEFORGE_PROJECT_ID": facts["sourceforge_id"]
             }
         })
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "URLDownloader",
             "Arguments": {
                 "filename": "%%NAME%%.%s" % facts["download_format"]
@@ -291,7 +291,7 @@ def generate_download_recipe(facts, prefs, recipe):
     elif "download_url" in facts:
         if "user-agent" in facts:
             keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "URLDownloader",
                 "Arguments": {
                     "url": "%DOWNLOAD_URL%",
@@ -306,14 +306,14 @@ def generate_download_recipe(facts, prefs, recipe):
             })
         else:
             keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "URLDownloader",
                 "Arguments": {
                     "url": "%DOWNLOAD_URL%",
                     "filename": facts["download_filename"]
                 }
             })
-    keys["Process"].append({
+    recipe.append_processor({
         "Processor": "EndOfCheckPhase"
     })
 
@@ -335,7 +335,7 @@ def generate_download_recipe(facts, prefs, recipe):
                                        facts["app_name_key"]),
                         "expected_authorities": facts["codesign_authorities"]
                 }
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": codesigverifier_args
             })
@@ -343,14 +343,14 @@ def generate_download_recipe(facts, prefs, recipe):
                 # Either the Sparkle feed doesn't provide version, or there's
                 # no Sparkle feed. We must determine the version manually.
                 if facts["version_key"] == "CFBundleShortVersionString":
-                    keys["Process"].append({
+                    recipe.append_processor({
                         "Processor": "AppDmgVersioner",
                         "Arguments": {
                             "dmg_path": "%pathname%"
                         }
                     })
                 else:
-                    keys["Process"].append({
+                    recipe.append_processor({
                         "Processor": "Versioner",
                         "Arguments": {
                             "input_plist_path":
@@ -361,7 +361,7 @@ def generate_download_recipe(facts, prefs, recipe):
                     })
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             # We're assuming that the app is at the root level of the zip.
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
@@ -384,14 +384,14 @@ def generate_download_recipe(facts, prefs, recipe):
                         facts["app_name_key"]),
                     "expected_authorities": facts["codesign_authorities"]
                 }
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": codesigverifier_args
             })
             if facts.get("sparkle_provides_version", False) is False:
                 # Either the Sparkle feed doesn't provide version, or there's
                 # no Sparkle feed. We must determine the version manually.
-                keys["Process"].append({
+                recipe.append_processor({
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
@@ -404,7 +404,7 @@ def generate_download_recipe(facts, prefs, recipe):
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
             # TODO(Elliot): Need a few test cases to prove this works.
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": {
                     "input_path": "%pathname%",
@@ -508,14 +508,14 @@ def generate_munki_recipe(facts, prefs, recipe):
         if (facts.get("codesign_reqs", "") == "" and
             len(facts["codesign_authorities"]) == 0):
             if facts["version_key"] == "CFBundleShortVersionString":
-                keys["Process"].append({
+                recipe.append_processor({
                     "Processor": "AppDmgVersioner",
                     "Arguments": {
                         "dmg_path": "%pathname%"
                     }
                 })
             else:
-                keys["Process"].append({
+                recipe.append_processor({
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
@@ -530,7 +530,7 @@ def generate_munki_recipe(facts, prefs, recipe):
             len(facts["codesign_authorities"]) == 0):
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
@@ -539,7 +539,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                     "purge_destination": True
                 }
             })
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "DmgCreator",
             "Arguments": {
                 "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
@@ -557,7 +557,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                 facts["blocking_applications"])
 
     if facts["version_key"] != "CFBundleShortVersionString":
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "MunkiPkginfoMerger",
             "Arguments": {
                 "additional_pkginfo": {
@@ -565,7 +565,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                 }
             }
         })
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "MunkiImporter",
             "Arguments": {
                 "pkg_path": import_file_var,
@@ -574,7 +574,7 @@ def generate_munki_recipe(facts, prefs, recipe):
             }
         })
     else:
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "MunkiImporter",
             "Arguments": {
                 "pkg_path": import_file_var,
@@ -668,14 +668,14 @@ def generate_pkg_recipe(facts, prefs, recipe):
         if (facts.get("codesign_reqs", "") == "" and
                 len(facts["codesign_authorities"]) == 0):
             if facts["version_key"] == "CFBundleShortVersionString":
-                keys["Process"].append({
+                recipe.append_processor({
                     "Processor": "AppDmgVersioner",
                     "Arguments": {
                         "dmg_path": "%pathname%"
                     }
                 })
             else:
-                keys["Process"].append({
+                recipe.append_processor({
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
@@ -684,7 +684,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                         "plist_version_key": facts["version_key"]
                     }
                 })
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "PkgRootCreator",
             "Arguments": {
                 "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
@@ -693,7 +693,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 }
             }
         })
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "Copier",
             "Arguments": {
                 "source_path": "%%pathname%%/%s.app" % facts["app_name_key"],
@@ -707,7 +707,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             len(facts["codesign_authorities"]) == 0):
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet. Need to do that and version.
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
@@ -719,7 +719,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             if facts.get("sparkle_provides_version", False) is False:
                 # Either the Sparkle feed doesn't provide version, or there's
                 # no Sparkle feed. We must determine the version manually.
-                keys["Process"].append({
+                recipe.append_processor({
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
@@ -735,7 +735,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             "Skipping pkg recipe, since the download format is already pkg.")
         return
 
-    keys["Process"].append({
+    recipe.append_processor({
         "Processor": "PkgCreator",
         "Arguments": {
             "pkg_request": {
@@ -779,7 +779,7 @@ def generate_install_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "download")
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "InstallFromDMG",
             "Arguments": {
                 "dmg_path": "%pathname%",
@@ -793,7 +793,7 @@ def generate_install_recipe(facts, prefs, recipe):
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
         if (facts.get("codesign_reqs", "") == "" and
                 len(facts["codesign_authorities"]) == 0):
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
@@ -802,14 +802,14 @@ def generate_install_recipe(facts, prefs, recipe):
                     "purge_destination": True
                 }
             })
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "DmgCreator",
             "Arguments": {
                 "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
                 "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg"
             }
         })
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "InstallFromDMG",
             "Arguments": {
                 "dmg_path": "%dmg_path%",
@@ -821,7 +821,7 @@ def generate_install_recipe(facts, prefs, recipe):
         })
 
     elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "Installer",
             "Arguments": {
                 "pkg_path": "%pathname%"
@@ -926,7 +926,7 @@ def generate_jss_recipe(facts, prefs, recipe):
             "app.")
 
     # Put fully constructed JSSImporter arguments into the process list.
-    keys["Process"].append({
+    recipe.append_processor({
         "Processor": "JSSImporter",
         "Arguments": jssimporter_arguments
     })
@@ -973,7 +973,7 @@ def generate_absolute_recipe(facts, prefs, recipe):
             "this recipe:\nautopkg repo-add "
             "\"%s\"" % amexport_url)
 
-    keys["Process"].append({
+    recipe.append_processor({
         "Processor":
             "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
         "SharedProcessorRepoURL": amexport_url,
@@ -1027,7 +1027,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
             "recipe:\nautopkg repo-add "
             "\"%s\"" % cgerke_url)
 
-    keys["Process"].append({
+    recipe.append_processor({
         "Processor":
             "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
         "SharedProcessorRepoURL": cgerke_url,
@@ -1071,7 +1071,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
     if (facts["download_format"] in SUPPORTED_IMAGE_FORMATS and "sparkle_feed"
         not in facts):
         # It's a dmg download, but not from Sparkle, so we need to version it.
-        keys["Process"].append({
+        recipe.append_processor({
             "Processor": "Versioner",
             "Arguments": {
                 "input_plist_path": ("%%pathname%%/%s.app/Contents/Info.plist"
@@ -1084,7 +1084,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             len(facts["codesign_authorities"]) == 0):
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
-            keys["Process"].append({
+            recipe.append_processor({
                 "Processor": "Unarchiver",
                 "Arguments": {
                     "archive_path": "%pathname%",
@@ -1110,7 +1110,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "this recipe:\nautopkg repo-add "
             "\"%s\"" % clayton_url)
 
-    keys["Process"].append({
+    recipe.append_processor({
         "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
         "Arguments": {
             "fw_app_bundle_id": facts["bundle_id"],
@@ -1155,13 +1155,13 @@ def generate_ds_recipe(facts, prefs, recipe):
 
     keys["Input"]["DS_PKGS_PATH"] = prefs["DSPackagesPath"]
     keys["Input"]["DS_NAME"] = "%NAME%"
-    keys["Process"].append({
+    recipe.append_processor({
         "Processor": "StopProcessingIf",
         "Arguments": {
             "predicate": "new_package_request == FALSE"
         }
     })
-    keys["Process"].append({
+    recipe.append_processor({
         "Processor": "Copier",
         "Arguments": {
             "source_path": "%pkg_path%",

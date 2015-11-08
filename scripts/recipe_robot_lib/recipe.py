@@ -87,6 +87,9 @@ class Recipe(RoboDict):
                     facts["app_name"])
         self["keys"]["ParentRecipe"] = ".".join(elements).replace(" ", "")
 
+    def append_processor(self, val):
+        self["keys"]["Process"].append(val)
+
 
 class Recipes(RoboList):
     """A List-like object of Recipe objects."""
