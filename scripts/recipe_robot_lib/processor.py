@@ -47,6 +47,12 @@ class AbstractProcessor(object):
     def __init__(self, classtype):
         self._type = classtype
 
+    def to_dict(self):
+        """Return self as a dictionary for inclusion in recipes."""
+        arguments = {attr: getattr(self, attr) for attr in
+                     self._input_variables if getattr(self, attr) is not None}
+        return {"Processor": self._type, "Arguments": arguments}
+
 
 def ProcessorFactory(name, attributes, base_class=AbstractProcessor):
     """Build a new class from a name, and the desired attributes."""
