@@ -233,8 +233,8 @@ def generate_download_recipe(facts, prefs, recipe):
         recipe.append_processor(gh_release_info_provider.to_dict())
 
     elif "sourceforge_id" in facts:
-        if "developer" in facts and prefs.get(
-            "FollowOfficialJSSRecipesFormat", False) is not True:
+        if "developer" in facts and not prefs.get(
+                "FollowOfficialJSSRecipesFormat"):
             create_SourceForgeURLProvider(
                 robo_join(prefs["RecipeCreateLocation"],
                           facts["developer"]).replace("/", "-"))
@@ -242,16 +242,14 @@ def generate_download_recipe(facts, prefs, recipe):
             create_SourceForgeURLProvider(robo_join(
                 prefs["RecipeCreateLocation"],
                 facts["app_name"]).replace("/", "-"))
-        recipe["keys"]["Process"].append({
-            "Processor": "SourceForgeURLProvider",
-            "Arguments": {
-                "SOURCEFORGE_FILE_PATTERN": "\\.%s" % facts["download_format"],
-                "SOURCEFORGE_PROJECT_ID": facts["sourceforge_id"]
-            }
-        })
+        SourceForgeURLProvider = processor.ProcessorFactory(
+            "SourceForgeURLProvider", ("SOURCEFORGE_FILE_PATTERN",
+                                       "SOURCEFORGE_PROJECT_ID"))
+        sf_url_provider = SourceForgeURLProvider(
+            SOURCEFORGE_FILE_PATTHER="\\.%s" % facts["download_format"],
+            SOURCEFORGE_PROJECT_ID=facts["sourceforge_id"])
 
-    url_downloader = processor.URLDownloader(
-        filename="%NAME%-%version%.{}".format(facts["download_format"]))
+        recipe.append_processor(sf_url_provider.to_dict())
 
     if "user-agent" in facts:
         url_downloader.request_headers = {
