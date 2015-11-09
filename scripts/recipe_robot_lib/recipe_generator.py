@@ -251,6 +251,9 @@ def generate_download_recipe(facts, prefs, recipe):
 
         recipe.append_processor(sf_url_provider.to_dict())
 
+    url_downloader = processor.URLDownloader(
+        filename="%NAME%-%version%.{}".format(facts["download_format"]))
+
     if "user-agent" in facts:
         url_downloader.request_headers = {
             "user-agent": facts["user-agent"]}
@@ -260,7 +263,7 @@ def generate_download_recipe(facts, prefs, recipe):
     end_of_check_phase = processor.EndOfCheckPhase()
     recipe.append_processor(end_of_check_phase.to_dict())
 
-    if facts.get("codesign_reqs") or len(facts["codesign_authorities"]) > 0):
+    if facts.get("codesign_reqs") or len(facts["codesign_authorities"]) > 0:
         # We encountered a signed app, and will use
         # CodeSignatureVerifier on the app.
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
@@ -282,45 +285,38 @@ def generate_download_recipe(facts, prefs, recipe):
                 if facts["version_key"] == "CFBundleShortVersionString":
                     app_dmg_versioner = processor.AppDmgVersioner(
                         dmg_path="%pathname%")
-                    recipe.append_processor(app_dmg_versioner)
+                    recipe.append_processor(app_dmg_versioner.to_dict())
                 else:
                     versioner = processor.Versioner()
                     versioner.input_plist_path = (
                         "%pathname%/{}.app/Contents/Info.plist".format(
                             facts["app_name_key"]))
                     versioner.plist_version_key = facts["version_key"]
-                    recipe.append_processor(versioner)
+                    recipe.append_processor(versioner.to_dict())
 
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             # We're assuming that the app is at the root level of the
             # zip.
-            recipe.append_processor({
-                "Processor": "Unarchiver",
-                "Arguments": {
-                    "archive_path": "%pathname%",
-                    "destination_path":
-                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
-                    "purge_destination": True
-                }
-            })
+            unarchiver = processor.Unarchiver()
+            unarchiver.archive_path = "%pathname%"
+            unarchiver.destination_path = (
+                "%RECIPE_CACHE_DIR%/%NAME%/Applications")
+            unarchiver.purge_destination = True
+            recipe.append_processor(unarchiver.to_dict())
+
+            # TODO (Shea): This can be factored up.
+            codesigverifier = processor.CodeSignatureVerifier()
+            codesigverifier.input_path = (
+                "%RECIPE_CACHE_DIR%/%NAME%/Applications/{}.app".format(
+                    facts["app_name_key"]))
+
             if facts.get("codesign_reqs"):
-                codesigverifier_args = {
-                    "input_path":
-                        ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" %
-                        facts["app_name_key"]),
-                    "requirement": facts["codesign_reqs"]
-                }
+                codesigverifier.requirement = facts["codesign_reqs"]
             elif len(facts["codesign_authorities"]) > 0:
-                codesigverifier_args = {
-                    "input_path":
-                        ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" %
-                        facts["app_name_key"]),
-                    "expected_authorities": facts["codesign_authorities"]
-                }
-            recipe.append_processor({
-                "Processor": "CodeSignatureVerifier",
-                "Arguments": codesigverifier_args
-            })
+                codesigverifier.expected_authorities = (
+                    facts["codesign_authorities"])
+            recipe.append_processor(codesigverifier.to_dict())
+
             if not facts.get("sparkle_provides_version"):
                 # Either the Sparkle feed doesn't provide version, or
                 # there's no Sparkle feed. We must determine the version
