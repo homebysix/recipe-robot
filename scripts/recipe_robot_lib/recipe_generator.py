@@ -265,22 +265,16 @@ def generate_download_recipe(facts, prefs, recipe):
         # CodeSignatureVerifier on the app.
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
+            codesigverifier = processor.CodeSignatureVerifier()
+            codesigverifier.input_path = (
+                "%pathname%/{}.app".format(facts["app_name_key"]))
             if facts.get("codesign_reqs"):
-                codesigverifier_args = {
-                        "input_path": ("%%pathname%%/%s.app" %
-                                       facts["app_name_key"]),
-                        "requirement": facts["codesign_reqs"]
-                }
+                codesigverifier.requirement = facts["codesign_reqs"]
             elif len(facts["codesign_authorities"]) > 0:
-                codesigverifier_args = {
-                        "input_path": ("%%pathname%%/%s.app" %
-                                       facts["app_name_key"]),
-                        "expected_authorities": facts["codesign_authorities"]
-                }
-            recipe.append_processor({
-                "Processor": "CodeSignatureVerifier",
-                "Arguments": codesigverifier_args
-            })
+                codesigverifier.expected_authorities = (
+                    facts["codesign_authorities"])
+            recipe.append_processor(codesigverifier.to_dict())
+
             if not facts.get("sparkle_provides_version"):
                 # Either the Sparkle feed doesn't provide version, or
                 # there's no Sparkle feed. We must determine the version
