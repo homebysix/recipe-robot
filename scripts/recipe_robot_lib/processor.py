@@ -59,7 +59,20 @@ class AbstractProcessor(object):
 
 
 def ProcessorFactory(name, attributes, base_class=AbstractProcessor):
-    """Build a new class from a name, and the desired attributes."""
+    """Build a new class from a name, and the desired attributes.
+
+    Returned class inherits from AbstractProcessor.
+
+    Args:
+        name (str): Name of class.
+        attributes (iterable of strings): Attribute names to create on
+            class
+        base_class (class): Class to use for calling __init__ on at the
+            conclusion of factory process.
+
+    Returns:
+        AbstractProcessor subclass with name Name.
+    """
 
     def __init__(self, **kwargs):
         """Init processor. Input variables are accepted as kwargs."""
