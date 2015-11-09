@@ -117,7 +117,7 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
         raise RoboError("Sorry, no recipes available to generate.")
 
     # We don't have enough information to create a recipe set.
-    if (not facts.is_from_app_store and
+    if (not facts.is_from_app_store() and
         not any([key in facts for key in (
             "sparkle_feed", "github_repo", "sourceforge_id",
             "download_url")])):
@@ -126,7 +126,7 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
             "angle? If you provided an app, try providing the Sparkle feed "
             "for the app instead. Or maybe the app's developers offer a "
             "direct download URL on their website.")
-    if not facts.is_from_app_store and "download_format" not in facts:
+    if not facts.is_from_app_store() and "download_format" not in facts:
         raise RoboError(
             "Sorry, I can't tell what format to download this app in. Maybe "
             "try another angle? If you provided an app, try providing the "
@@ -184,7 +184,7 @@ def get_generation_func(facts, prefs, recipe):
 
     func_name = ["generate", recipe["type"], "recipe"]
 
-    if recipe["type"] in ("munki", "pkg") and facts.is_from_app_store:
+    if recipe["type"] in ("munki", "pkg") and facts.is_from_app_store():
         func_name.insert(1, "app_store")
 
     # TODO (Shea): This is a hack until I can use AbstractFactory for this.
@@ -204,7 +204,7 @@ def generate_download_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    if facts.is_from_app_store:
+    if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
         return
 
@@ -747,7 +747,7 @@ def generate_install_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    if facts.is_from_app_store:
+    if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
         return
 
