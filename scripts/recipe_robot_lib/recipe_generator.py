@@ -33,6 +33,7 @@ create autopkg recipes for the specified app.
 import os
 
 from .exceptions import RoboError
+import processor
 from .tools import (create_dest_dirs, create_existing_recipe_list,
                     create_SourceForgeURLProvider, extract_app_icon,
                     robo_print, robo_join, LogLevel, __version__,
@@ -214,42 +215,21 @@ def generate_download_recipe(facts, prefs, recipe):
 
     if "sparkle_feed" in facts:
         keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
+        sparkle_processor = processor.SparkleUpdateInfoProvider(
+            appcast_url="%SPARKLE_FEED_URL%")
+
+        url_downloader = processor.URLDownloader(
+            filename="%NAME%-%version%.{}".format(facts["download_format"]))
+
         if "user-agent" in facts:
-            # Sparkle feed with a special user-agent.
-            recipe.append_processor({
-                "Processor": "SparkleUpdateInfoProvider",
-                "Arguments": {
-                    "appcast_request_headers": {
-                        "user-agent": facts["user-agent"]
-                    },
-                    "appcast_url": "%SPARKLE_FEED_URL%"
-                }
-            })
-            recipe.append_processor({
-                "Processor": "URLDownloader",
-                "Arguments": {
-                    "filename": ("%%NAME%%-%%version%%.%s" %
-                                 facts["download_format"]),
-                    "request_headers": {
-                        "user-agent": facts["user-agent"]
-                    }
-                }
-            })
-        else:
-            # Sparkle feed with the default user-agent.
-            recipe.append_processor({
-                "Processor": "SparkleUpdateInfoProvider",
-                "Arguments": {
-                    "appcast_url": "%SPARKLE_FEED_URL%"
-                }
-            })
-            recipe.append_processor({
-                "Processor": "URLDownloader",
-                "Arguments": {
-                    "filename": ("%%NAME%%-%%version%%.%s" %
-                                 facts["download_format"])
-                }
-            })
+            sparkle_processor.appcast_request_headers = {
+                "user-agent": facts["user-agent"]}
+
+            url_downloader.request_headers = {
+                "user-agent": facts["user-agent"]}
+
+        recipe.append_processor(sparkle_processor.to_dict())
+        recipe.append_processor(url_downloader.to_dict())
 
     elif "github_repo" in facts:
         keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
