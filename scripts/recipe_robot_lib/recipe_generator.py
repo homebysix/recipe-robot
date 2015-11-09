@@ -321,26 +321,23 @@ def generate_download_recipe(facts, prefs, recipe):
                 # Either the Sparkle feed doesn't provide version, or
                 # there's no Sparkle feed. We must determine the version
                 # manually.
-                recipe.append_processor({
-                    "Processor": "Versioner",
-                    "Arguments": {
-                        "input_plist_path":
-                            ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/"
-                             "%s.app/Contents/Info.plist" %
-                             facts["app_name_key"]),
-                        "plist_version_key": facts["version_key"]
-                    }
-                })
+                versioner = processor.Versioner()
+                versioner.input_plist_path = (
+                    "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
+                    "{}.app/Contents/Info.plist".format(
+                        facts["app_name_key"]))
+                versioner.plist_version_key = facts["version_key"]
+                recipe.append_processor(versioner.to_dict())
+
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
             # TODO(Elliot): Need a few test cases to prove this works.
-            recipe.append_processor({
-                "Processor": "CodeSignatureVerifier",
-                "Arguments": {
-                    "input_path": "%pathname%",
-                    "expected_authorities": facts["codesign_authorities"]
-                }
-            })
+            codesigverifier = processor.CodeSignatureVerifier()
+            codesigverifier.input_path = "%pathname%"
+            codesigverifier.expected_authorities = (
+                facts["codesign_authorities"])
+            recipe.append_processor(codesigverifier.to_dict())
+
     # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
 
 
