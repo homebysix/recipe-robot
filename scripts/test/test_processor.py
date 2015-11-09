@@ -30,6 +30,32 @@ from recipe_robot_lib import processor
 
 
 class TestProcessor(object):
+    """Tests for the AbstractProcessor subclasses."""
+
+    def test_set_via_constructor_kwargs(self):
+        """See if processor constructor correctly sets attr vals."""
+        val = "/test"
+        app_dmg_versioner = processor.AppDmgVersioner(dmg_path=val)
+        assert_equal(app_dmg_versioner.dmg_path, val)
+
+    def test_set_via_attribute(self):
+        """Test that setting attribute values works."""
+        val = "/test"
+        app_dmg_versioner = processor.AppDmgVersioner()
+        app_dmg_versioner.dmg_path = val
+        assert_equal(app_dmg_versioner.dmg_path, val)
+
+    def test_input_variables(self):
+        """Ensure a processor gets input vars setup correctly."""
+        munki_importer = processor.MunkiImporter()
+        expected_variables = (
+            "MUNKI_REPO", "pkg_path", "munkiimport_pkgname",
+            "munkiimport_appname", "repo_subdirectory", "pkginfo",
+            "force_munkiimport", "additional_makepkginfo_options",
+            "version_comparison_key", "MUNKI_PKGINFO_FILE_EXTENSION")
+
+        assert_sequence_equal(sorted(munki_importer._input_variables),
+                              sorted(expected_variables))
 
     def test_empty_to_dict(self):
         """Ensure a processor's dict repr is correct with no values."""
@@ -48,28 +74,4 @@ class TestProcessor(object):
                          "dmg_path": "~/Downloads/Awesome.dmg"}}
 
         assert_dict_equal(output_dict, test_dict)
-
-    def test_input_variables(self):
-        """Ensure a processor gets input vars setup correctly."""
-        munki_importer = processor.MunkiImporter()
-        expected_variables = (
-            "MUNKI_REPO", "pkg_path", "munkiimport_pkgname",
-            "munkiimport_appname", "repo_subdirectory", "pkginfo",
-            "force_munkiimport", "additional_makepkginfo_options",
-            "version_comparison_key", "MUNKI_PKGINFO_FILE_EXTENSION")
-
-        assert_sequence_equal(sorted(munki_importer._input_variables),
-                              sorted(expected_variables))
-
-    def test_set_via_constructor_kwargs(self):
-        """See if processor constructor correctly sets attr vals."""
-        val = "/test"
-        app_dmg_versioner = processor.AppDmgVersioner(dmg_path=val)
-        assert_equal(app_dmg_versioner.dmg_path, val)
-
-    def test_set_via_attribute(self):
-        val = "/test"
-        app_dmg_versioner = processor.AppDmgVersioner()
-        app_dmg_versioner.dmg_path = val
-        assert_equal(app_dmg_versioner.dmg_path, val)
 
