@@ -52,22 +52,28 @@ def ProcessorFactory(name, attributes, base_class=AbstractProcessor):
     """Build a new class from a name, and the desired attributes."""
 
     def __init__(self, **kwargs):
-        """Dynamically init a Processor."""
+        """Init processor. Input variables are accepted as kwargs."""
+        self._input_variables = []
         for attr in attributes:
             setattr(self, attr, None)
+            self._input_variables.append(attr)
         for key, val in kwargs.items():
             setattr(self, key, val)
-        base_class.__init__(self, name[:-len("Class")])
+        base_class.__init__(self, name)
 
     newclass = type(name, (AbstractProcessor, ), {"__init__": __init__})
 
     return newclass
 
+
+# Processors without input_variables are meant to be used as base
+# classes.
 processor_classes = [
     ProcessorFactory(proc_type,
                      autopkglib.get_processor(proc_type).input_variables)
     for proc_type in autopkglib.processor_names() if
     hasattr(autopkglib.get_processor(proc_type), "input_variables")]
 
+# Add classes to this module for each AutoPkg processor.
 for processor in processor_classes:
     globals()[processor.__name__] = processor
