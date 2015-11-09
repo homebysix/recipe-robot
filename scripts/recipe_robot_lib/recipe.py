@@ -25,6 +25,7 @@ Recipes: Container class for Recipe objects.
 """
 
 
+from recipe_robot_lib import processor
 from recipe_robot_lib.roboabc import RoboDict, RoboList
 from recipe_robot_lib.tools import (robo_print, LogLevel, __version__)
 try:
@@ -88,6 +89,8 @@ class Recipe(RoboDict):
         self["keys"]["ParentRecipe"] = ".".join(elements).replace(" ", "")
 
     def append_processor(self, val):
+        if isinstance(val, processor.AbstractProcessor):
+            val = val.to_dict()
         self["keys"]["Process"].append(val)
 
 
