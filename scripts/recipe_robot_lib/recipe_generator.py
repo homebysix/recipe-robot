@@ -224,13 +224,13 @@ def generate_download_recipe(facts, prefs, recipe):
             sparkle_processor.appcast_request_headers = {
                 "user-agent": facts["user-agent"]}
 
-        recipe.append_processor(sparkle_processor.to_dict())
+        recipe.append_processor(sparkle_processor)
 
     elif "github_repo" in facts:
         keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
         gh_release_info_provider = processor.GitHubReleasesInfoProvider(
             github_repo="%GITHUB_REPO%")
-        recipe.append_processor(gh_release_info_provider.to_dict())
+        recipe.append_processor(gh_release_info_provider)
 
     elif "sourceforge_id" in facts:
         if "developer" in facts and not prefs.get(
@@ -249,7 +249,7 @@ def generate_download_recipe(facts, prefs, recipe):
             SOURCEFORGE_FILE_PATTHER="\\.%s" % facts["download_format"],
             SOURCEFORGE_PROJECT_ID=facts["sourceforge_id"])
 
-        recipe.append_processor(sf_url_provider.to_dict())
+        recipe.append_processor(sf_url_provider)
 
     url_downloader = processor.URLDownloader(
         filename="%NAME%-%version%.{}".format(facts["download_format"]))
@@ -258,10 +258,10 @@ def generate_download_recipe(facts, prefs, recipe):
         url_downloader.request_headers = {
             "user-agent": facts["user-agent"]}
 
-    recipe.append_processor(url_downloader.to_dict())
+    recipe.append_processor(url_downloader)
 
     end_of_check_phase = processor.EndOfCheckPhase()
-    recipe.append_processor(end_of_check_phase.to_dict())
+    recipe.append_processor(end_of_check_phase)
 
     if facts.get("codesign_reqs") or len(facts["codesign_authorities"]) > 0:
         # We encountered a signed app, and will use
@@ -276,7 +276,7 @@ def generate_download_recipe(facts, prefs, recipe):
             elif len(facts["codesign_authorities"]) > 0:
                 codesigverifier.expected_authorities = (
                     facts["codesign_authorities"])
-            recipe.append_processor(codesigverifier.to_dict())
+            recipe.append_processor(codesigverifier)
 
             if not facts.get("sparkle_provides_version"):
                 # Either the Sparkle feed doesn't provide version, or
@@ -285,14 +285,14 @@ def generate_download_recipe(facts, prefs, recipe):
                 if facts["version_key"] == "CFBundleShortVersionString":
                     app_dmg_versioner = processor.AppDmgVersioner(
                         dmg_path="%pathname%")
-                    recipe.append_processor(app_dmg_versioner.to_dict())
+                    recipe.append_processor(app_dmg_versioner)
                 else:
                     versioner = processor.Versioner()
                     versioner.input_plist_path = (
                         "%pathname%/{}.app/Contents/Info.plist".format(
                             facts["app_name_key"]))
                     versioner.plist_version_key = facts["version_key"]
-                    recipe.append_processor(versioner.to_dict())
+                    recipe.append_processor(versioner)
 
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             # We're assuming that the app is at the root level of the
@@ -302,7 +302,7 @@ def generate_download_recipe(facts, prefs, recipe):
             unarchiver.destination_path = (
                 "%RECIPE_CACHE_DIR%/%NAME%/Applications")
             unarchiver.purge_destination = True
-            recipe.append_processor(unarchiver.to_dict())
+            recipe.append_processor(unarchiver)
 
             # TODO (Shea): This can be factored up.
             codesigverifier = processor.CodeSignatureVerifier()
@@ -315,7 +315,7 @@ def generate_download_recipe(facts, prefs, recipe):
             elif len(facts["codesign_authorities"]) > 0:
                 codesigverifier.expected_authorities = (
                     facts["codesign_authorities"])
-            recipe.append_processor(codesigverifier.to_dict())
+            recipe.append_processor(codesigverifier)
 
             if not facts.get("sparkle_provides_version"):
                 # Either the Sparkle feed doesn't provide version, or
@@ -327,7 +327,7 @@ def generate_download_recipe(facts, prefs, recipe):
                     "{}.app/Contents/Info.plist".format(
                         facts["app_name_key"]))
                 versioner.plist_version_key = facts["version_key"]
-                recipe.append_processor(versioner.to_dict())
+                recipe.append_processor(versioner)
 
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
@@ -336,7 +336,7 @@ def generate_download_recipe(facts, prefs, recipe):
             codesigverifier.input_path = "%pathname%"
             codesigverifier.expected_authorities = (
                 facts["codesign_authorities"])
-            recipe.append_processor(codesigverifier.to_dict())
+            recipe.append_processor(codesigverifier)
 
     # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
 
