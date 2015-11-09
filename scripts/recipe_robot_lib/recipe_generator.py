@@ -280,22 +280,17 @@ def generate_download_recipe(facts, prefs, recipe):
                 # there's no Sparkle feed. We must determine the version
                 # manually.
                 if facts["version_key"] == "CFBundleShortVersionString":
-                    recipe.append_processor({
-                        "Processor": "AppDmgVersioner",
-                        "Arguments": {
-                            "dmg_path": "%pathname%"
-                        }
-                    })
+                    app_dmg_versioner = processor.AppDmgVersioner(
+                        dmg_path="%pathname%")
+                    recipe.append_processor(app_dmg_versioner)
                 else:
-                    recipe.append_processor({
-                        "Processor": "Versioner",
-                        "Arguments": {
-                            "input_plist_path":
-                            ("%%pathname%%/%s.app/Contents/Info.plist" %
-                             facts["app_name_key"]),
-                            "plist_version_key": facts["version_key"]
-                        }
-                    })
+                    versioner = processor.Versioner()
+                    versioner.input_plist_path = (
+                        "%pathname%/{}.app/Contents/Info.plist".format(
+                            facts["app_name_key"]))
+                    versioner.plist_version_key = facts["version_key"]
+                    recipe.append_processor(versioner)
+
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             # We're assuming that the app is at the root level of the
             # zip.
