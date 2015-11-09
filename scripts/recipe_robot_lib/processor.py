@@ -51,7 +51,11 @@ class AbstractProcessor(object):
         """Return self as a dictionary for inclusion in recipes."""
         arguments = {attr: getattr(self, attr) for attr in
                      self._input_variables if getattr(self, attr) is not None}
-        return {"Processor": self._type, "Arguments": arguments}
+        processor = {"Processor": self._type}
+        if arguments:
+            processor["Arguments"] = arguments
+
+        return processor
 
 
 def ProcessorFactory(name, attributes, base_class=AbstractProcessor):

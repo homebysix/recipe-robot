@@ -35,8 +35,7 @@ class TestProcessor(object):
         """Ensure a processor's dict repr is correct with no values."""
         adv = processor.AppDmgVersioner()
         output_dict = adv.to_dict()
-        test_dict = {"Processor": "AppDmgVersioner",
-                     "Arguments": {}}
+        test_dict = {"Processor": "AppDmgVersioner"}
 
         assert_dict_equal(output_dict, test_dict)
 
