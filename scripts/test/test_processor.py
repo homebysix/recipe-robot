@@ -68,3 +68,9 @@ class TestProcessor(object):
         app_dmg_versioner = processor.AppDmgVersioner(dmg_path=val)
         assert_equal(app_dmg_versioner.dmg_path, val)
 
+    def test_set_via_attribute(self):
+        val = "/test"
+        app_dmg_versioner = processor.AppDmgVersioner()
+        app_dmg_versioner.dmg_path = val
+        assert_equal(app_dmg_versioner.dmg_path, val)
+
