@@ -67,6 +67,14 @@ class TestAppInput(object):
         assert_in("Process", download_recipe)
         assert_equals("https://update.evernote.com/public/ENMacSMD/EvernoteMacUpdate.xml",
                     download_recipe["Input"]["SPARKLE_FEED_URL"])
+        assert_in("URLDownloader", [processor["Processor"] for processor
+                                    in download_recipe["Process"]])
+        url_downloader = [processor for processor in
+                          download_recipe["Process"] if
+                          processor["Processor"] == "URLDownloader"][0]
+
+        args = url_downloader["Arguments"]
+        assert_dict_equal({"filename": "%NAME%-%version%.zip"}, dict(args))
 
 
 def get_output_path(prefs, app_name, recipe_type=None):
