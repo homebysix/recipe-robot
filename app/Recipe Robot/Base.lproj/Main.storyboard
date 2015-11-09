@@ -587,8 +587,7 @@ Gw
 </string>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="dismissController:" target="DLx-gp-7HF" id="4gg-pW-UN5"/>
-                                    <segue destination="XfG-lQ-9wD" kind="custom" identifier="processingSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="50X-tC-H7B"/>
+                                    <action selector="cancelTask:" target="DLx-gp-7HF" id="f47-LC-haB"/>
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uHR-tD-pYY">
@@ -638,10 +637,11 @@ DQ
                         <animations/>
                     </view>
                     <connections>
-                        <outlet property="cancelButton" destination="uhj-oq-9WR" id="vsK-DC-KXE"/>
+                        <outlet property="cancelButton" destination="uhj-oq-9WR" id="idC-ym-KSK"/>
                         <outlet property="progressView" destination="THv-bG-5qD" id="GOE-RY-qiM"/>
                         <outlet property="showInFinderButton" destination="uHR-tD-pYY" id="W1r-MP-vqV"/>
                         <outlet property="titleLabel" destination="tsZ-nv-LQm" id="01k-VX-CzZ"/>
+                        <segue destination="XfG-lQ-9wD" kind="custom" identifier="ProcessingSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="Iwp-Z9-6lj"/>
                     </connections>
                 </viewController>
                 <customObject id="MNt-61-K9k" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -654,7 +654,7 @@ DQ
         <image name="NSActionTemplate" width="14" height="14"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="50X-tC-H7B"/>
+        <segue reference="Iwp-Z9-6lj"/>
         <segue reference="5DS-F9-XQ4"/>
     </inferredMetricsTieBreakers>
 </document>

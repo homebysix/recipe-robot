@@ -261,9 +261,9 @@ class ProcessingViewController: RecipeRobotViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        var traits =  NSFontSymbolicTraits(0)
-        let green = StatusImage.Available.image
-        let red = StatusImage.Unavailable.image
+//        var traits =  NSFontSymbolicTraits(0)
+//        let green = StatusImage.Available.image
+//        let red = StatusImage.Unavailable.image
 
         infoLabel?.textColor = Color.White.ns
         infoLabel?.stringValue = "Preping..."
@@ -321,43 +321,54 @@ class ProcessingViewController: RecipeRobotViewController {
         showInFinderButton.action = "openFolder:"
     }
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-    }
-
     func processRecipes() {
         // Do view setup here.
-        self.task.createRecipes({
-            [weak self] progress in /* Do nothing */
-                if let pView = self?.progressView {
-                    pView.textStorage?.appendString(progress, color: progress.color)
-                    pView.scrollToEndOfDocument(self)
-                }
-            }, completion: {[weak self]
-                error in
+        
+        func showProgress(progress: String) {
+            guard let progressView = progressView else {
+                return
+            }
+            progressView.textStorage?.appendString(progress, color: progress.color)
+            progressView.scrollToEndOfDocument(self)
+        }
 
-                let success = (error == nil || error!.code == 0)
-                self!.showInFinderButton.enabled = success
-                
-                if success {
-                    self!.titleLabel.stringValue = "Ding! All done."
-                    self!.appIcon?.image = NSImage(named: "NSFolder")
+        func completed(error: ErrorType?) {
+            let success = (error == nil)
+            self.showInFinderButton.enabled = success
 
-                    self!.appIcon?.action = "openFolder:"
-                    self!.appIcon?.target = self
-                } else {
-                    self!.appIcon?.image = NSImage(named: "NSCaution")
-                    self!.titleLabel.stringValue = "Oops, I couldn't make recipes for this app."
-                }
+            if success {
+                self.titleLabel.stringValue = "Ding! All done."
+                self.appIcon?.image = NSImage(named: "NSFolder")
 
-                if let sound = sound{
-                    sound.play()
-                }
-                
-                if let button = self?.cancelButton {
-                    button.title = "Let's Do Another!"
-                }
-        })
+                self.appIcon?.action = "openFolder:"
+                self.appIcon?.target = self
+            } else {
+                self.appIcon?.image = NSImage(named: "NSCaution")
+                self.titleLabel.stringValue = "Oops, I couldn't make recipes for this app."
+            }
+
+            if let sound = sound {
+                sound.play()
+            }
+
+            if let cancelButton = self.cancelButton {
+                cancelButton.title = "Let's Do Another!"
+                cancelButton.identifier = "Alldone"
+            }
+        }
+
+        task.stdout {
+            message in
+                showProgress(message)
+        }.stderr {
+            message in
+                showProgress(message)
+        }.completed {
+            error in
+                completed(error)
+        }.cancelled {
+            print("Task cancelled")
+        }.run()
     }
 
     // MARK: IBActions
@@ -369,35 +380,10 @@ class ProcessingViewController: RecipeRobotViewController {
     }
 
     @IBAction private func cancelTask(sender: NSButton){
-        if self.task.isProcessing {
-            cancelButton = sender
+        if (cancelButton.identifier != "Alldone") {
             self.task.cancel()
         }
-        self.dismissController(sender)
-    }
-
-    @IBAction private func showCompletionPopover(sender: NSButton){
-        var info: [String]? = nil
-        
-        if sender === recipeIndicator { /* Nothing here yet*/}
-        else if sender === iconIndicator { /* Nothing here yet*/}
-        else if sender === reminderIndicator {
-            info = completionInfo?[NoteType.Reminders.key] as? [String]
-        }
-        else if sender === warningIndicator {
-            info = completionInfo?[NoteType.Warnings.key] as? [String]
-        }
-        else if sender === errorIndicator {
-            info = completionInfo?[NoteType.Error.key] as? [String]
-        }
-
-        info = ["first message", "second message", "third message"]
-        if info != nil {
-            let message = info!.reduce(""){"\($0)* \($1)\n"}.trimmedFull
-            let popover = AHHelpPopover(sender: sender)
-            popover.helpText = message
-            popover.openPopover()
-        }
+        self.performSegueWithIdentifier("ProcessingSegue", sender: self)
     }
 }
 

@@ -27,6 +27,8 @@
 		BE8997431B61D05300BBBEB5 /* RecipeRobotTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */; };
 		BE9965AF1BE7BAC000FE4113 /* TextStorageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9965AE1BE7BAC000FE4113 /* TextStorageExtensions.swift */; };
 		BE9965B11BE7BDE400FE4113 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9965B01BE7BDE400FE4113 /* DictionaryExtensions.swift */; };
+		BEB280081BF0D40B0084DA0F /* Taskable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB280071BF0D40B0084DA0F /* Taskable.swift */; };
+		BEB280091BF0E7600084DA0F /* Taskable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB280071BF0D40B0084DA0F /* Taskable.swift */; };
 		BEB732831BE3F1AC00EA375C /* Storyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB732821BE3F1AC00EA375C /* Storyboard.swift */; };
 		BEDA880E1BE536E500DBC59B /* AHHelpPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = BEDA880D1BE536E500DBC59B /* AHHelpPopover.m */; };
 		BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE6A1B81BB88A080050653A /* CustomSegues.swift */; };
@@ -67,6 +69,7 @@
 		BE8997421B61D05300BBBEB5 /* RecipeRobotTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeRobotTask.swift; sourceTree = "<group>"; };
 		BE9965AE1BE7BAC000FE4113 /* TextStorageExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextStorageExtensions.swift; sourceTree = "<group>"; };
 		BE9965B01BE7BDE400FE4113 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
+		BEB280071BF0D40B0084DA0F /* Taskable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Taskable.swift; sourceTree = "<group>"; };
 		BEB732821BE3F1AC00EA375C /* Storyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storyboard.swift; sourceTree = "<group>"; };
 		BEDA880C1BE536E500DBC59B /* AHHelpPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AHHelpPopover.h; sourceTree = "<group>"; };
 		BEDA880D1BE536E500DBC59B /* AHHelpPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AHHelpPopover.m; sourceTree = "<group>"; };
@@ -119,7 +122,6 @@
 				BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */,
 				BE49EB8E1BDFD33C001AA9CF /* FeedMeDropImageView.swift */,
 				BEB732821BE3F1AC00EA375C /* Storyboard.swift */,
-				BEE6A1B81BB88A080050653A /* CustomSegues.swift */,
 				BE007DB91BE93CFE00E31479 /* RecipeType.swift */,
 				BE49EB8C1BDFCB03001AA9CF /* Images.swift */,
 				BE76397D1BCB602A00589695 /* Colors.swift */,
@@ -129,6 +131,8 @@
 				BE76397B1BCB42EC00589695 /* StringExtensions.swift */,
 				BE9965B01BE7BDE400FE4113 /* DictionaryExtensions.swift */,
 				BE9965AE1BE7BAC000FE4113 /* TextStorageExtensions.swift */,
+				BEE6A1B81BB88A080050653A /* CustomSegues.swift */,
+				BEB280071BF0D40B0084DA0F /* Taskable.swift */,
 				BEDA880C1BE536E500DBC59B /* AHHelpPopover.h */,
 				BEDA880D1BE536E500DBC59B /* AHHelpPopover.m */,
 				8B42AC851B5C5BEC0058A814 /* Images.xcassets */,
@@ -273,6 +277,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEB280081BF0D40B0084DA0F /* Taskable.swift in Sources */,
 				BE328F181BDC0DFD00EAF2E5 /* NotificationListener.swift in Sources */,
 				BE76397C1BCB42EC00589695 /* StringExtensions.swift in Sources */,
 				BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */,
@@ -295,6 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEB280091BF0E7600084DA0F /* Taskable.swift in Sources */,
 				8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
