@@ -218,33 +218,18 @@ def generate_download_recipe(facts, prefs, recipe):
         sparkle_processor = processor.SparkleUpdateInfoProvider(
             appcast_url="%SPARKLE_FEED_URL%")
 
-        url_downloader = processor.URLDownloader(
-            filename="%NAME%-%version%.{}".format(facts["download_format"]))
-
         if "user-agent" in facts:
             sparkle_processor.appcast_request_headers = {
                 "user-agent": facts["user-agent"]}
 
-            url_downloader.request_headers = {
-                "user-agent": facts["user-agent"]}
-
         recipe.append_processor(sparkle_processor.to_dict())
-        recipe.append_processor(url_downloader.to_dict())
 
     elif "github_repo" in facts:
         keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
-        recipe["keys"]["Process"].append({
-            "Processor": "GitHubReleasesInfoProvider",
-            "Arguments": {
-                "github_repo": "%GITHUB_REPO%"
-            }
-        })
-        recipe.append_processor({
-            "Processor": "URLDownloader",
-            "Arguments": {
-                "filename": "%%NAME%%-%%version%%.%s" % facts["download_format"]
-            }
-        })
+        gh_release_info_provider = processor.GitHubReleasesInfoProvider(
+            github_repo="%GITHUB_REPO%")
+        recipe.append_processor(gh_release_info_provider.to_dict())
+
     elif "sourceforge_id" in facts:
         if "developer" in facts and prefs.get(
             "FollowOfficialJSSRecipesFormat", False) is not True:
@@ -262,40 +247,18 @@ def generate_download_recipe(facts, prefs, recipe):
                 "SOURCEFORGE_PROJECT_ID": facts["sourceforge_id"]
             }
         })
-        recipe.append_processor({
-            "Processor": "URLDownloader",
-            "Arguments": {
-                "filename": "%%NAME%%.%s" % facts["download_format"]
-            }
-        })
-    elif "download_url" in facts:
-        if "user-agent" in facts:
-            keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-            recipe.append_processor({
-                "Processor": "URLDownloader",
-                "Arguments": {
-                    "url": "%DOWNLOAD_URL%",
-                    # TODO(Elliot): Explicit filename may not be necessary.
-                    # (#35) Example: http://www.sonnysoftware.com/Bookends.dmg
-                    # facts["specify_filename"] is intended to help with #35.
-                    "filename": facts["download_filename"],
-                    "request_headers": {
-                        "user-agent": facts["user-agent"]
-                    }
-                }
-            })
-        else:
-            keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-            recipe.append_processor({
-                "Processor": "URLDownloader",
-                "Arguments": {
-                    "url": "%DOWNLOAD_URL%",
-                    "filename": facts["download_filename"]
-                }
-            })
-    recipe.append_processor({
-        "Processor": "EndOfCheckPhase"
-    })
+
+    url_downloader = processor.URLDownloader(
+        filename="%NAME%-%version%.{}".format(facts["download_format"]))
+
+    if "user-agent" in facts:
+        url_downloader.request_headers = {
+            "user-agent": facts["user-agent"]}
+
+    recipe.append_processor(url_downloader.to_dict())
+
+    end_of_check_phase = processor.EndOfCheckPhase()
+    recipe.append_processor(end_of_check_phase.to_dict())
 
     if (facts.get("codesign_reqs", "") != "" or
             len(facts["codesign_authorities"]) > 0):
