@@ -40,10 +40,6 @@ class RecipeRobotViewController: NSViewController {
     override func awakeFromNib() {
         super.awakeFromNib()
         self.view.wantsLayer = true
-//        if view.layer != nil {
-//            view.layer = CAGradientLayer().baseGradient()
-//            view.layer!.needsDisplay()
-//        }
     }
 
     override var representedObject: AnyObject? {
@@ -187,13 +183,14 @@ extension PreferenceViewController {
         panel.beginSheetModalForWindow(self.view.window!) {
             [weak self] result in
             if (result == NSFileHandlingPanelOKButton) {
-                if let path = panel.URL?.path {
-                    if sender === self!.recipeFolderPathButton {
-                        d.recipeCreateLocation = path
-                    }
-                    else if sender === self!.dsFolderPathButton {
-                        d.dsPackagePath = path
-                    }
+                guard let path = panel.URL?.path else {
+                    return
+                }
+                if sender === self!.recipeFolderPathButton {
+                    d.recipeCreateLocation = path
+                }
+                else if sender === self!.dsFolderPathButton {
+                    d.dsPackagePath = path
                 }
             }
         }
@@ -271,37 +268,30 @@ class ProcessingViewController: RecipeRobotViewController {
         infoLabel?.textColor = Color.White.ns
         infoLabel?.stringValue = "Preping..."
 
-        listener.notificationHandler = {
-            [weak self] noteType, info in
-
-            var color = NSColor.blackColor()
-            switch noteType {
-            case .Info:
-                break
-            case .Recipes:
-                self!.warningIndicator?.cell?.image = green
-            case .Reminders:
-                self!.reminderIndicator?.cell?.image = green
-            case .Icons:
-                self!.iconIndicator?.cell?.image = green
-            case .Warnings:
-                color = Color.Yellow.ns
-                traits = (traits & NSFontSymbolicTraits(NSFontItalicTrait))
-                self!.warningIndicator?.cell?.image = red
-            case .Error:
-                color = Color.Red.ns
-                self!.errorIndicator?.cell?.image = red
-            case .Complete:
-                self!.completionInfo = info
-            }
-
-//            if let string = info["message"] as? String {
-//                if let pView = self?.progressView {
-//                    pView.textStorage?.appendString("\(noteType.prefix) \(string)\n\n", color: noteType.color.ns)
-//                    pView.scrollToEndOfDocument(self)
-//                }
+//        listener.notificationHandler = {
+//            [weak self] noteType, info in
+//
+//            var color = NSColor.blackColor()
+//            switch noteType {
+//            case .Info:
+//                break
+//            case .Recipes:
+//                self!.warningIndicator?.cell?.image = green
+//            case .Reminders:
+//                self!.reminderIndicator?.cell?.image = green
+//            case .Icons:
+//                self!.iconIndicator?.cell?.image = green
+//            case .Warnings:
+//                color = Color.Yellow.ns
+//                traits = (traits & NSFontSymbolicTraits(NSFontItalicTrait))
+//                self!.warningIndicator?.cell?.image = red
+//            case .Error:
+//                color = Color.Red.ns
+//                self!.errorIndicator?.cell?.image = red
+//            case .Complete:
+//                self!.completionInfo = info
 //            }
-        }
+//        }
     }
 
     override func viewWillAppear() {

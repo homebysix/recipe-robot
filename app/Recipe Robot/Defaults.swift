@@ -18,21 +18,6 @@
 
 import Foundation
 
-//enum Defs: Int {
-//    case RecipeTypes, IgnoreExisting, RecipeCreateLocation, DSPackagePath
-//
-//    var key: String {
-//        switch self {
-//        case .RecipeTypes: return "RecipeTypes"
-//        case .IgnoreExisting: return "IgnoreExisting"
-//        case .RecipeCreateLocation: return "RecipeCreateLocation"
-//        case .DSPackagePath: return "DSPackagePath"
-//        }
-//    }
-//
-//    func set()
-//}
-
 class Defaults: NSObject {
     static let sharedInstance = Defaults()
 

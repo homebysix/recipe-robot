@@ -18,10 +18,40 @@
 
 import Cocoa
 
-class RecipeRobotTask: NSObject {
+
+
+class RecipeRobotTask: Task {
+
+    // Task Overrides
+    override var executable: String {
+        return "/usr/bin/python"
+    }
+
+    override var args: [String]? {
+        get {
+            var args = [String]()
+
+            if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
+
+                args.appendContentsOf([recipeRobotPy, "-v", "--app-mode"])
+
+                // Honor the ignoreExisting of the instance first
+                // If that's unset apply the setting from defaults.
+                if let ignore = self.ignoreExisting {
+                    if ignore {
+                        args.append("--ignore-existing")
+                    }
+                } else if Defaults.sharedInstance.ignoreExisting {
+                    args.append("--ignore-existing")
+                }
+                args.append(self.appOrRecipe)
+            }
+            return args
+        }
+        set {}
+    }
 
     // MARK: Private
-    private var task = NSTask()
     private var appBundle: NSBundle?
 
     // MARK: Public
@@ -61,101 +91,6 @@ class RecipeRobotTask: NSObject {
     var recipeTypes = []
     var output: String = "~/Library/AutoPkg/Recipe Robot Output/"
     var includeExisting : Bool = false
-
-    var isProcessing: Bool {
-        return self.task.running
-    }
-
-    func cancel(){
-        if self.task.running {
-            self.task.terminate()
-        }
-    }
-
-    func createRecipes(progress: (progress: String) -> Void,
-                       completion: (error: NSError? ) -> Void) {
-
-        task.launchPath = "/usr/bin/python"
-        task.arguments = constructTaskArgs()
-        task.environment = constructTaskEnvironment()
-
-        let out = NSPipe()
-        task.standardOutput = out
-
-        let err = NSPipe()
-        task.standardError = err
-
-        out.fileHandleForReading.readabilityHandler = {
-            handle in
-                let data = handle.availableData
-                if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as? String {
-                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                        progress(progress: str)
-                    })
-                }
-        }
-
-        let errData = NSMutableData()
-        err.fileHandleForReading.readabilityHandler = {
-            handle in
-                let data = handle.availableData
-                errData.appendData(data)
-                if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as? String {
-                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                        progress(progress: str)
-                    })
-                }
-        }
-
-
-        task.terminationHandler = {
-            aTask in
-                // nil out the readabilityHandlers to prevent retension.
-                out.fileHandleForReading.readabilityHandler = nil
-                err.fileHandleForReading.readabilityHandler = nil
-
-                var error: NSError?
-                if let dataString = NSString(data: errData, encoding:NSUTF8StringEncoding) as? String {
-                    error = RecipeRobotTask.taskError(dataString, exitCode: aTask.terminationStatus)
-                }
-
-                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                    completion(error: error)
-                })
-        }
-
-        task.launch()
-    }
-
-    private func constructTaskEnvironment() -> Dictionary<String, String> {
-        var dict = NSProcessInfo.processInfo().environment
-        dict["NSUnbufferedIO"] = "YES"
-        /// Possibly do more here some day.
-        return dict
-    }
-
-    private func constructTaskArgs() -> [String] {
-        var args = [String]()
-
-        if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
-
-            args.appendContentsOf([recipeRobotPy, "-v", "--app-mode"])
-
-            // Honor the ignoreExisting of the instance first
-            // If that's unset apply the setting from defaults.
-            if let ignore = self.ignoreExisting {
-                if ignore {
-                    args.append("--ignore-existing")
-                }
-            } else if Defaults.sharedInstance.ignoreExisting {
-                args.append("--ignore-existing")
-            }
-
-            args.append(self.appOrRecipe)
-        }
-
-        return args
-    }
 
     private class func taskError(string: String, exitCode: Int32) -> NSError {
         print(string)

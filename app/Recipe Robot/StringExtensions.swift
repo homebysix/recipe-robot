@@ -43,52 +43,6 @@ extension String {
     }
 }
 
-
-//let ANSIColorDict = [
-//        "[0m" :  Color.Black.ns,
-//        "[91m" : Color.Red.ns,
-//        "[93m" : Color.Yellow.ns,
-//        "[94m" : Color.Green.ns,
-//    ]
-//
-//
-//extension String {
-//    public func decodedANSI() -> (String, NSColor) {
-//        var matchFound = false
-//        var color = NSColor.blackColor()
-//
-//        let string = NSMutableString(string: self)
-//        string.replaceCharactersInRange(NSMakeRange(0, 1), withString: "")
-//
-//        for (k, v) in ANSIColorDict {
-//            if string.hasPrefix(k){
-//                matchFound = true
-//                color = v
-//                string.replaceOccurrencesOfString(k,
-//                    withString: "",
-//                    options: NSStringCompareOptions.LiteralSearch,
-//                    range: NSMakeRange(0, string.length))
-//                break
-//            }
-//        }
-//
-//        // Also replace the reset text
-//        string.replaceOccurrencesOfString("[0m", withString: "",
-//            options: NSStringCompareOptions.DiacriticInsensitiveSearch,
-//            range: NSMakeRange(0, string.length)
-//        )
-//
-//        let str = matchFound ? string as AnyObject as! String : self
-//        return (str, color)
-//    }
-//
-//    public func parseANSI() -> NSAttributedString {
-//        let (string, color) = self.decodedANSI()
-//        let attrString = NSAttributedString(string: string, attributes: [NSForegroundColorAttributeName: color])
-//        return attrString
-//    }
-//}
-
 // MARK: Brackets
 private let BracketedColorDict = [
     "[ERROR]": Color.Red.ns,

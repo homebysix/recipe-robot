@@ -46,7 +46,6 @@ class FadeSegue: NSStoryboardSegue {
 }
 
 class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
-
     func animatePresentationOfViewController(toViewController: NSViewController, fromViewController: NSViewController) {
 
         if let tvc = toViewController as? RecipeRobotViewController,

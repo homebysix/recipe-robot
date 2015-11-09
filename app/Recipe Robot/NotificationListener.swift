@@ -67,13 +67,11 @@ enum NoteType: Int {
 
     static var cases: [NoteType]{
         var all = [NoteType]()
-
         var idx = 0
         while let noteType = NoteType(rawValue: idx){
             all.append(noteType)
             idx++
         }
-
         return all
     }
 }
