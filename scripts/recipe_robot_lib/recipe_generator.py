@@ -260,13 +260,12 @@ def generate_download_recipe(facts, prefs, recipe):
     end_of_check_phase = processor.EndOfCheckPhase()
     recipe.append_processor(end_of_check_phase.to_dict())
 
-    if (facts.get("codesign_reqs", "") != "" or
-            len(facts["codesign_authorities"]) > 0):
+    if facts.get("codesign_reqs") or len(facts["codesign_authorities"]) > 0):
         # We encountered a signed app, and will use
         # CodeSignatureVerifier on the app.
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
-            if facts.get("codesign_reqs", "") != "":
+            if facts.get("codesign_reqs"):
                 codesigverifier_args = {
                         "input_path": ("%%pathname%%/%s.app" %
                                        facts["app_name_key"]),
@@ -282,7 +281,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": codesigverifier_args
             })
-            if facts.get("sparkle_provides_version", False) is False:
+            if not facts.get("sparkle_provides_version"):
                 # Either the Sparkle feed doesn't provide version, or
                 # there's no Sparkle feed. We must determine the version
                 # manually.
@@ -315,7 +314,7 @@ def generate_download_recipe(facts, prefs, recipe):
                     "purge_destination": True
                 }
             })
-            if facts["codesign_reqs"] != "":
+            if facts.get("codesign_reqs"):
                 codesigverifier_args = {
                     "input_path":
                         ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/%s.app" %
@@ -333,7 +332,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Processor": "CodeSignatureVerifier",
                 "Arguments": codesigverifier_args
             })
-            if facts.get("sparkle_provides_version", False) is False:
+            if not facts.get("sparkle_provides_version"):
                 # Either the Sparkle feed doesn't provide version, or
                 # there's no Sparkle feed. We must determine the version
                 # manually.
