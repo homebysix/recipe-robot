@@ -92,6 +92,8 @@ def generate_recipes(facts, prefs):
     # FileWaveImporter repo must be present to run created filewave recipes.)
 
     # Prepare the destination directory.
+    # TODO (Shea): This JSS Recipe format code is repeated all over.
+    # Smells like a refactor.
     if ("developer" in facts and
         prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
         recipe_dest_dir = robo_join(prefs["RecipeCreateLocation"],
@@ -262,8 +264,8 @@ def generate_download_recipe(facts, prefs, recipe):
 
     if (facts.get("codesign_reqs", "") != "" or
             len(facts["codesign_authorities"]) > 0):
-        # We encountered a signed app, and will use CodeSignatureVerifier on
-        # the app.
+        # We encountered a signed app, and will use
+        # CodeSignatureVerifier on the app.
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
             if facts.get("codesign_reqs", "") != "":
@@ -283,8 +285,9 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Arguments": codesigverifier_args
             })
             if facts.get("sparkle_provides_version", False) is False:
-                # Either the Sparkle feed doesn't provide version, or there's
-                # no Sparkle feed. We must determine the version manually.
+                # Either the Sparkle feed doesn't provide version, or
+                # there's no Sparkle feed. We must determine the version
+                # manually.
                 if facts["version_key"] == "CFBundleShortVersionString":
                     recipe.append_processor({
                         "Processor": "AppDmgVersioner",
@@ -303,7 +306,8 @@ def generate_download_recipe(facts, prefs, recipe):
                         }
                     })
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-            # We're assuming that the app is at the root level of the zip.
+            # We're assuming that the app is at the root level of the
+            # zip.
             recipe.append_processor({
                 "Processor": "Unarchiver",
                 "Arguments": {
@@ -332,8 +336,9 @@ def generate_download_recipe(facts, prefs, recipe):
                 "Arguments": codesigverifier_args
             })
             if facts.get("sparkle_provides_version", False) is False:
-                # Either the Sparkle feed doesn't provide version, or there's
-                # no Sparkle feed. We must determine the version manually.
+                # Either the Sparkle feed doesn't provide version, or
+                # there's no Sparkle feed. We must determine the version
+                # manually.
                 recipe.append_processor({
                     "Processor": "Versioner",
                     "Arguments": {
