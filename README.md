@@ -1,12 +1,11 @@
-![Recipe Robot](images/header.jpg)
-
-__Table of contents__
+![Recipe Robot](images/header.png)
 
 <!-- MarkdownTOC autolink=true depth=3 bracket=round -->
 
 - [Overview](#overview)
 - [Mac App Usage](#mac-app-usage)
 - [Python Script Usage](#python-script-usage)
+- [Video Tutorials](#video-tutorials)
 - [Tips](#tips)
     - [Compatibility](#compatibility)
     - [Apps with existing AutoPkg recipes](#apps-with-existing-autopkg-recipes)
@@ -26,17 +25,17 @@ Recipe Robot is the easiest way to create new AutoPkg recipes for simple Mac app
 
 - A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
 
-This two-pronged approach will allow AutoPkg novices to easily create recipes that follow community-accepted guidelines, and will still provide a command-line tool for more advanced AutoPkg users. Also, ensuring that all program logic is written in Python encourages community contribution to this project.
+This two-pronged approach allows AutoPkg novices to easily create recipes that follow community-accepted guidelines, and still provides a command-line tool for more advanced AutoPkg users. Also, using Python for program logic encourages community contribution to this project.
 
 
 ## Mac App Usage
 
 :warning: The Mac app is still in heavy development. As such, some features may not work, and you may encounter a bug or two. Be patient; we're still building robot parts.
 
-1. When you first launch the app, the first thing you'll want to do is to set your preferences. Choose __Preferences__ from the __Recipe Robot__ menu, and select the following:
+1. When you first launch the app, you'll be prompted to select the following:
 
     - Your desired recipe types
-    - Your preferred recipe identifier
+    - Your preferred recipe identifier (e.g. com.github.your_name_here)
     - Your recipe output location
 
     Then click __Good to Go__.
@@ -74,10 +73,21 @@ Here's what Recipe Robot looks like when it's working properly. The command I us
 
 ![Demo of Recipe Robot script](images/mountee-script-demo.gif)
 
-This animation hasn't been sped up. Recipe Robot really is that fast!
+This animation hasn't been sped up. Recipe Robot really is that fast! Most of the time, the longest part of the process is the app download, which will depend on your individual internet connection speed.
 
 I always use `--verbose` mode. It's fun to see the details, and it proves very useful for troubleshooting.
 
+
+## Video Tutorials
+
+I've produced a series of video tutorials to demonstrate various features of Recipe Robot.
+
+- [Introducing Recipe Robot](https://www.youtube.com/watch?v=E531jJLovhc)
+- [Using Recipe Robot with a Download URL](https://www.youtube.com/watch?v=JnmLktTdh1s)
+- [Using Recipe Robot with a GitHub URL](https://www.youtube.com/watch?v=ifqv-j45AWU)
+- [Combining Recipe Robot with URLTextSearcher](https://www.youtube.com/watch?v=3UWKBQWZp3A)
+
+https://www.youtube.com/watch?v=3UWKBQWZp3A
 
 ## Tips
 
@@ -93,7 +103,7 @@ By default, Recipe Robot does _not_ generate recipes for an app if any AutoPkg r
 
 1. It's difficult to parse a ParentRecipe and determine exactly which processors will be needed and which file paths we can rely on. Your brain is still the best tool for that.
 
-2. Many AutoPkg recipe authors put a lot of work into the recipes they write, and it's important that we respect that by refraining from uploading duplicate recipes to GitHub.
+2. Many AutoPkg recipe authors put a lot of work into creating and maintaining their recipes, and it's important that we respect that by refraining from uploading duplicate recipes to GitHub.
 
 You can override this etiquette, but please only post a duplicate set of recipes to GitHub if they meet these guidelines:
 
