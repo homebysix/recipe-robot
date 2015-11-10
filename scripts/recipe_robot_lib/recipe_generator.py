@@ -348,6 +348,26 @@ def warn_about_app_store_generation(facts, recipe_type):
         "App Store." % recipe_type)
 
 
+def get_code_signature_verifier(input_path, facts):
+    """Build a CodeSignatureVerifier.
+
+    Args:
+        input_path (str): Path to signed code.
+        facts (Facts): Shared facts object.
+
+    Returns:
+        CodeSignatureVerifier
+    """
+    codesigverifier = processor.CodeSignatureVerifier()
+    codesigverifier.input_path = input_path
+    if facts.get("codesign_reqs"):
+        codesigverifier.requirement = facts["codesign_reqs"]
+    elif len(facts["codesign_authorities"]):
+        codesigverifier.expected_authority_names = (
+            facts["codesign_authorities"])
+    return codesigverifier
+
+
 def generate_app_store_munki_recipe(facts, prefs, recipe):
     """Generate a munki recipe on passed recipe dict.
 
