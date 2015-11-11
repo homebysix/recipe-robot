@@ -255,12 +255,21 @@ def generate_download_recipe(facts, prefs, recipe):
 
         recipe.append_processor(sf_url_provider)
 
-    url_downloader = processor.URLDownloader(
-        filename="%NAME%-%version%.{}".format(facts["download_format"]))
+    elif "download_url" in facts:
+        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
+        url_downloader = processor.URLDownloader(
+            url="%DOWNLOAD_URL%",
+            filename=facts["download_filename"])
+        if "user-agent" in facts:
+            url_downloader.request_headers = {
+                "user-agent": facts["user-agent"]}
 
-    if "user-agent" in facts:
-        url_downloader.request_headers = {
-            "user-agent": facts["user-agent"]}
+    if "DOWNLOAD_URL" not in keys["Input"]:
+        url_downloader = processor.URLDownloader(
+            filename="%NAME%-%version%.{}".format(facts["download_format"]))
+        if "user-agent" in facts:
+            url_downloader.request_headers = {
+                "user-agent": facts["user-agent"]}
 
     recipe.append_processor(url_downloader)
 
