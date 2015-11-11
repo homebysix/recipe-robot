@@ -60,10 +60,18 @@ class TestRecipeGenerator(object):
 
     def test_needs_versioner(self):
         for format in SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS:
-            image_facts = {"download_format": format,
+            true_facts = {"download_format": format,
                            "sparkle_provides_version": False}
-            assert_true(recipe_generator.needs_versioner(image_facts))
+            assert_true(recipe_generator.needs_versioner(true_facts))
         for format in SUPPORTED_INSTALL_FORMATS:
-            image_facts = {"download_format": format,
+            install_facts = {"download_format": format,
                            "sparkle_provides_version": False}
-            assert_false(recipe_generator.needs_versioner(image_facts))
+            assert_false(recipe_generator.needs_versioner(install_facts))
+
+    def test_is_dynamic_url_source(self):
+        for source in ("sparkle_feed", "github_repo", "sourceforge_id"):
+            true_facts = {source: None}
+            assert_true(recipe_generator.is_dynamic_url_source(true_facts))
+        for source in ("download_url", "Unexpected"):
+            false_facts = {source: None}
+            assert_false(recipe_generator.is_dynamic_url_source(false_facts))
