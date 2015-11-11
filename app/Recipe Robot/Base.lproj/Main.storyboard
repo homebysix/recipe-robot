@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
+        <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -177,21 +179,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="350"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
-                                <rect key="frame" x="17" y="36" width="566" height="297"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="297" id="QFK-Vp-lgi"/>
-                                </constraints>
-                                <animations/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="DropZone" id="96G-6b-REq"/>
-                                <connections>
-                                    <action selector="paste:" target="rPt-NT-nkU" id="NYC-ou-PdW"/>
-                                </connections>
-                            </imageView>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
-                                <rect key="frame" x="16" y="182" width="566" height="21"/>
+                                <rect key="frame" x="18" y="309" width="564" height="21"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="1TA-Cr-SLz"/>
+                                    <constraint firstAttribute="height" constant="21" id="PCB-gq-NQz"/>
                                 </constraints>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="fMo-Ix-2ju">
@@ -200,22 +191,11 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
-                                <rect key="frame" x="18" y="148" width="564" height="26"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="26" id="dN3-74-ruK"/>
-                                </constraints>
-                                <animations/>
-                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Drag in an app to start processing." id="A3b-Bf-P3c">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="2Pa-uM-zOX">
                                 <rect key="frame" x="566" y="12" width="17" height="17"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="17" id="ylp-pf-yNh"/>
+                                    <constraint firstAttribute="width" constant="17" id="aoA-lB-MDl"/>
+                                    <constraint firstAttribute="height" constant="17" id="zvs-qA-Sje"/>
                                 </constraints>
                                 <animations/>
                                 <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSActionTemplate" imagePosition="only" alignment="center" alternateImage="NSActionTemplate" imageScaling="proportionallyUpOrDown" inset="2" id="eTm-xf-5Ir">
@@ -227,11 +207,14 @@
                                 </connections>
                             </button>
                             <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
-                                <rect key="frame" x="169" y="124" width="261" height="18"/>
+                                <rect key="frame" x="182" y="17" width="235" height="24"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="230" id="Nbb-bM-pko"/>
+                                </constraints>
                                 <animations/>
-                                <buttonCell key="cell" type="check" title="Ignore existing recipes for this run only" bezelStyle="regularSquare" imagePosition="left" inset="2" id="zO6-wJ-Rb7">
+                                <buttonCell key="cell" type="check" title="Ignore existing recipes for this run only" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="zO6-wJ-Rb7">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
                                 <connections>
                                     <binding destination="56H-yK-n2G" name="value" keyPath="values.FollowOfficialJSSRecipesFormat" id="MnX-7M-dV7">
@@ -242,22 +225,75 @@
                                     </binding>
                                 </connections>
                             </button>
+                            <textField verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nae-fQ-RX1">
+                                <rect key="frame" x="207" y="64" width="280" height="18"/>
+                                <animations/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingHead" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="QJy-gY-tAg">
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.DSPackagesPath" id="c4j-7J-WkG">
+                                        <dictionary key="options">
+                                            <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </textField>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                                <rect key="frame" x="50" y="103" width="500" height="180"/>
+                                <animations/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="Feed Me Drop Zone" id="96G-6b-REq"/>
+                                <connections>
+                                    <action selector="paste:" target="rPt-NT-nkU" id="NYC-ou-PdW"/>
+                                </connections>
+                            </imageView>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
+                                <rect key="frame" x="163" y="176" width="275" height="22"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="22" id="qp5-XL-cnt"/>
+                                    <constraint firstAttribute="width" constant="271" id="yHY-Dk-cSV"/>
+                                </constraints>
+                                <animations/>
+                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Drag in an app to start processing." id="A3b-Bf-P3c">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2e9-vU-ycb">
+                                <rect key="frame" x="76" y="63" width="125" height="18"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="18" id="NWG-gA-gSR"/>
+                                    <constraint firstAttribute="width" constant="121" id="dTO-kb-45O"/>
+                                </constraints>
+                                <animations/>
+                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Or paste a URL here:" id="c74-37-7j6">
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="147" id="8zp-da-azK"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="top" secondItem="oXK-h1-XrJ" secondAttribute="bottom" constant="8" symbolic="YES" id="EsH-ZQ-ygU"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="17" id="FEp-sM-AVy"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="K3S-OG-86B"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="Ma0-Bq-xDA"/>
-                            <constraint firstItem="PTd-IR-P4B" firstAttribute="top" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="8" symbolic="YES" id="RpR-Qe-uIX"/>
-                            <constraint firstItem="2Pa-uM-zOX" firstAttribute="top" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="7" id="Xft-Fv-0f9"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="17" id="aLf-bU-fMH"/>
-                            <constraint firstAttribute="bottom" secondItem="2Pa-uM-zOX" secondAttribute="bottom" constant="12" id="gbZ-aC-aax"/>
-                            <constraint firstItem="2Pa-uM-zOX" firstAttribute="trailing" secondItem="aep-eh-Csg" secondAttribute="trailing" id="jJu-Dt-gRv"/>
-                            <constraint firstItem="PTd-IR-P4B" firstAttribute="centerX" secondItem="Jyu-oi-lVv" secondAttribute="centerX" id="ozf-37-Mp8"/>
-                            <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="ppl-pT-Gbm"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="centerX" secondItem="PTd-IR-P4B" secondAttribute="centerX" id="rsj-il-Mex"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="centerX" secondItem="PTd-IR-P4B" secondAttribute="centerX" id="ul4-uO-d8G"/>
+                            <constraint firstAttribute="bottom" secondItem="2Pa-uM-zOX" secondAttribute="bottom" constant="12" id="3dV-WG-xEQ"/>
+                            <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="8gp-8E-GYs"/>
+                            <constraint firstItem="nae-fQ-RX1" firstAttribute="top" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="94" id="BGX-D6-GMB"/>
+                            <constraint firstItem="2e9-vU-ycb" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="78" id="Bhh-HL-s2N"/>
+                            <constraint firstItem="PTd-IR-P4B" firstAttribute="top" secondItem="2e9-vU-ycb" secondAttribute="bottom" constant="25" id="Dp8-eI-ecr"/>
+                            <constraint firstAttribute="trailing" secondItem="2Pa-uM-zOX" secondAttribute="trailing" constant="17" id="EVp-gI-PVZ"/>
+                            <constraint firstItem="nae-fQ-RX1" firstAttribute="baseline" secondItem="2e9-vU-ycb" secondAttribute="firstBaseline" id="GU3-K9-wSy"/>
+                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="oXK-h1-XrJ" secondAttribute="bottom" constant="26" id="H0c-xH-RhB"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="oXK-h1-XrJ" secondAttribute="centerX" id="Kdg-qF-S8R"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="aep-eh-Csg" secondAttribute="centerX" id="Lre-68-zgY"/>
+                            <constraint firstAttribute="bottom" secondItem="PTd-IR-P4B" secondAttribute="bottom" constant="20" symbolic="YES" id="PMK-Ua-m3W"/>
+                            <constraint firstItem="nae-fQ-RX1" firstAttribute="top" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="21" id="coJ-EN-qBV"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="gJI-bT-Fps"/>
+                            <constraint firstItem="2e9-vU-ycb" firstAttribute="top" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="22" id="rrE-YM-5bh"/>
+                            <constraint firstItem="nae-fQ-RX1" firstAttribute="leading" secondItem="2e9-vU-ycb" secondAttribute="trailing" constant="8" symbolic="YES" id="tVy-RD-2F8"/>
+                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="PTd-IR-P4B" secondAttribute="centerX" id="wGa-cb-nvw"/>
+                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="zxz-zl-ZhF"/>
                         </constraints>
                         <animations/>
                     </view>
@@ -348,7 +384,7 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="N79-I0-u6a">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N79-I0-u6a">
                                 <rect key="frame" x="298" y="271" width="190" height="17"/>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Your prefered recipe identifier:" id="V1m-98-geR">
@@ -357,7 +393,7 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HFT-6C-ZYU">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HFT-6C-ZYU">
                                 <rect key="frame" x="298" y="162" width="188" height="17"/>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="DeployStudio Package folder:" id="wGl-U4-p4w">
@@ -366,7 +402,7 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="w0f-h9-2tF">
+                            <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w0f-h9-2tF">
                                 <rect key="frame" x="244" y="13" width="113" height="32"/>
                                 <animations/>
                                 <buttonCell key="cell" type="push" title="Good to Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="de0-CZ-msm">
@@ -426,7 +462,7 @@ DQ
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="UuS-iq-Uqh">
+                            <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UuS-iq-Uqh">
                                 <rect key="frame" x="298" y="106" width="207" height="18"/>
                                 <animations/>
                                 <buttonCell key="cell" type="check" title="Use jss-recipes identifier style" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="HFu-ur-ANn">
@@ -442,7 +478,7 @@ DQ
                                     </binding>
                                 </connections>
                             </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="NBs-I5-hN8">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NBs-I5-hN8">
                                 <rect key="frame" x="298" y="215" width="192" height="17"/>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Recipe Robot Output Location" id="ipS-2F-aYF">
@@ -650,7 +686,7 @@ DQ
         </scene>
     </scenes>
     <resources>
-        <image name="DropZone" width="555" height="302"/>
+        <image name="Feed Me Drop Zone" width="500" height="180"/>
         <image name="NSActionTemplate" width="14" height="14"/>
     </resources>
     <inferredMetricsTieBreakers>
