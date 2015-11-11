@@ -306,39 +306,20 @@ def generate_download_recipe(facts, prefs, recipe):
             codesigverifier = get_code_signature_verifier(input_path, facts)
             recipe.append_processor(codesigverifier)
 
-        # TODO (Shea): Refactor out split versioning.
         # TODO (Shea): Extract method -> get_versioner
-        if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-            if not facts.get("sparkle_provides_version"):
-                versioner = processor.Versioner()
-
-                # Either the Sparkle feed doesn't provide version, or
-                # there's no Sparkle feed. We must determine the version
-                # manually.
-                if facts["version_key"] == "CFBundleShortVersionString":
-                    app_dmg_versioner = processor.AppDmgVersioner(
-                        dmg_path="%pathname%")
-                    recipe.append_processor(app_dmg_versioner)
-                else:
-                    versioner = processor.Versioner()
-                    versioner.input_plist_path = (
-                        "%pathname%/{}.app/Contents/Info.plist".format(
-                            facts["app_name_key"]))
-                    versioner.plist_version_key = facts["version_key"]
-                    recipe.append_processor(versioner)
-
-        elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-            if not facts.get("sparkle_provides_version"):
-                # Either the Sparkle feed doesn't provide version, or
-                # there's no Sparkle feed. We must determine the version
-                # manually.
-                versioner = processor.Versioner()
+        if needs_versioner(facts):
+            versioner = processor.Versioner()
+            if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
+                versioner.input_plist_path = (
+                    "%pathname%/{}.app/Contents/Info.plist".format(
+                        facts["app_name_key"]))
+            else:
                 versioner.input_plist_path = (
                     "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
                     "{}.app/Contents/Info.plist".format(
                         facts["app_name_key"]))
-                versioner.plist_version_key = facts["version_key"]
-                recipe.append_processor(versioner)
+            versioner.plist_version_key = facts["version_key"]
+            recipe.append_processor(versioner)
 
 
 def warn_about_app_store_generation(facts, recipe_type):
@@ -367,12 +348,14 @@ def get_code_signature_verifier(input_path, facts):
             facts["codesign_authorities"])
     return codesigverifier
 
+
 def needs_versioner(facts):
     format = facts["download_format"]
     sparkle_version = facts.get("sparkle_provides_version", False)
     format_needs_versioner = any(format in formats for formats in (
         SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS))
     return format_needs_versioner and not sparkle_version
+
 
 def generate_app_store_munki_recipe(facts, prefs, recipe):
     """Generate a munki recipe on passed recipe dict.
