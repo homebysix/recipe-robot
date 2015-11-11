@@ -4,38 +4,10 @@ Some scattered notes to assist in the design and development of Recipe Robot.
 
 <!-- MarkdownTOC autolink=true depth=4 bracket=round -->
 
-- [Planned script workflow](#planned-script-workflow)
 - [Facts](#facts)
 - [Interesting examples and edge cases to use for testing:](#interesting-examples-and-edge-cases-to-use-for-testing)
-- [App interface](#app-interface)
 
 <!-- /MarkdownTOC -->
-
----
-
-## Planned script workflow
-
-Script takes the following as input:
-
-- Input path, which can be one of the following
-    - Path to an app
-    - Path to a zip containing an app
-    - Path to a dmg containing an app
-    - Path to a pkg installer
-    - GitHub URL
-    - BitBucket URL
-    - SourceForge URL
-    - Sparkle feed URL
-    - Direct download URL
-- Desired recipe identifier (e.g. com.github.homebysix)
-- Desired recipe types (e.g. download, munki, pkg, etc.)
-- Desired recipe save location
-- For DeployStudio recipes, path to DS packages
-
-And produces the following as output:
-
-- One recipe for each selected recipe type that doesn't already exist
-- A plist with meta-information about the recipe creation process, including errors
 
 ---
 
@@ -259,42 +231,4 @@ A prefpane within a dmg:
 ```
 recipe-robot --verbose https://bahoom.com/hyperdock/HyperDock.dmg
 ```
-
----
-
-## App interface
-
-Here's what we're thinking about for the app interface, for now:
-
-1. Upon first launch, if the preference file doesn't already exist, the user is prompted for a few pieces of information:
-
-    - preferred identifier
-    - preferred formats
-    - path to save recipes to
-    - (if DS is preferred) path to DS packages
-    - (if JSS is preferred) whether to follow jss-recipes style
-
-    The user can get back to this screen at any time by choosing __Preferences__ from the __Recipe Robot__ menu.
-
-    The options in the app also respect changes made by running the Python script (e.g. `recipe-robot --config`) and vice versa. They both reference the same plist file.
-
-    ![app00.png](images/app00.png)
-
-    &nbsp;
-
-2. Upon saving the preferences (and upon each subsequent launch), main window appears, prompting the user to drag in an app or paste a URL.
-
-    ![app01.png](images/app01.png)
-
-    &nbsp;
-
-3. Upon dragging an app on or pasting a URL, Recipe Robot starts processing facts about the app. It displays the output of `recipe-robot --verbose`.
-
-    ![app02.png](images/app02.png)
-
-    &nbsp;
-
-4. Recipes for all preferred formats are created by calling the Python scripts, and the resulting files are placed into a cache folder, which can be accessed by double-clicking the folder icon.
-
-    ![app03.png](images/app03.png)
 

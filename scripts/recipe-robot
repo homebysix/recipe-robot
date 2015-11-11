@@ -57,6 +57,7 @@ optional arguments:
 import argparse
 import os
 import pprint
+import pwd
 import shutil
 import sys
 import traceback
@@ -375,10 +376,15 @@ def get_recipe_identifier_prefix(prefs):
     Args:
         prefs: The preference dictionary, passed from init_prefs().
     """
-    prefs["RecipeIdentifierPrefix"] = "com.github.your_name_here"
+    default_username = pwd.getpwuid(os.getuid())[0]
+    if default_username != "":
+        prefs["RecipeIdentifierPrefix"] = "com.github.%s" % default_username
+    else:
+        prefs["RecipeIdentifierPrefix"] = "com.github.your_name_here"
     robo_print("\nRecipe identifier prefix")
     robo_print("This is your default identifier, in reverse-domain "
-               "notation.\n")
+               "notation.\n(If you have a GitHub account, it's customary to "
+               "use com.github.<your GitHub username>.)\n")
     choice = raw_input(
         "[%s]: " % prefs["RecipeIdentifierPrefix"])
     if choice != "":
