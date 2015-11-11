@@ -4,10 +4,15 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+Nothing yet.
+
+
+## [0.2.4] - 2015-11-11
+
 ### Added
 - Sweet new icon!
 - [Short video tutorials](https://www.youtube.com/playlist?list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq) for Recipe Robot are now available.
-- We've started building unit tests for Recipe Robot, so we can minimize the number of bugs that find their way into future releaes.
+- We've started building unit tests for Recipe Robot, so we can minimize the number of bugs that find their way into future releases.
 - Added requirements to readme.
 
 ### Changed
