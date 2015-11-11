@@ -50,6 +50,7 @@ Nothing yet.
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v0.2.2...HEAD
-[0.2.2]: https://github.com/homebysix/recipe-robot/compare/v0.2.1...v0.2.2
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/0.2.4...HEAD
+[0.2.4]: https://github.com/homebysix/recipe-robot/compare/0.2.2...0.2.4
+[0.2.2]: https://github.com/homebysix/recipe-robot/compare/v0.2.1...0.2.2
 [0.2.1]: https://github.com/homebysix/recipe-robot/compare/v0.2.0...v0.2.1
