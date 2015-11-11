@@ -205,6 +205,7 @@ def generate_download_recipe(facts, prefs, recipe):
         recipe: The recipe to operate on. This recipe will be mutated
             by this function!
     """
+    # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
     keys = recipe["keys"]
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -215,6 +216,7 @@ def generate_download_recipe(facts, prefs, recipe):
     recipe.set_description("Downloads the latest version of %s." %
                            facts["app_name"])
 
+    # TODO (Shea): Extract method(s) to get_source_processor()
     if "sparkle_feed" in facts:
         keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
         sparkle_processor = processor.SparkleUpdateInfoProvider(
@@ -226,12 +228,14 @@ def generate_download_recipe(facts, prefs, recipe):
 
         recipe.append_processor(sparkle_processor)
 
+    # TODO (Shea): Extract method(s) to get_source_processor()
     elif "github_repo" in facts:
         keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
         gh_release_info_provider = processor.GitHubReleasesInfoProvider(
             github_repo="%GITHUB_REPO%")
         recipe.append_processor(gh_release_info_provider)
 
+    # TODO (Shea): Extract method(s) to get_source_processor()
     elif "sourceforge_id" in facts:
         if "developer" in facts and not prefs.get(
                 "FollowOfficialJSSRecipesFormat"):
@@ -263,21 +267,42 @@ def generate_download_recipe(facts, prefs, recipe):
     end_of_check_phase = processor.EndOfCheckPhase()
     recipe.append_processor(end_of_check_phase)
 
+    # TODO (Shea): Refactor to get_codesigning and get_unarchiver funcs.
     if facts.get("codesign_reqs") or len(facts["codesign_authorities"]) > 0:
-        # We encountered a signed app, and will use
-        # CodeSignatureVerifier on the app.
+
+        if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
+            # We're assuming that the app is at the root level of the
+            # zip.
+            unarchiver = processor.Unarchiver()
+            unarchiver.archive_path = "%pathname%"
+            unarchiver.destination_path = (
+                "%RECIPE_CACHE_DIR%/%NAME%/Applications")
+            unarchiver.purge_destination = True
+            recipe.append_processor(unarchiver)
+
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
-            codesigverifier = processor.CodeSignatureVerifier()
-            codesigverifier.input_path = (
-                "%pathname%/{}.app".format(facts["app_name_key"]))
-            if facts.get("codesign_reqs"):
-                codesigverifier.requirement = facts["codesign_reqs"]
-            elif len(facts["codesign_authorities"]) > 0:
-                codesigverifier.expected_authorities = (
-                    facts["codesign_authorities"])
+            input_path = "%pathname%/{}.app".format(facts["app_name_key"])
+        elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
+            input_path = (
+                "%RECIPE_CACHE_DIR%/%NAME%/Applications/{}.app".format(
+                    facts["app_name_key"]))
+        elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
+            # The download is in pkg format, and the pkg is signed.
+            # TODO(Elliot): Need a few test cases to prove this works.
+            input_path = "%pathname%"
+        else:
+            facts.warnings.append("CodeSignatureVerifier cannot be created! "
+                                  "The download format is not recognized")
+            input_path = None
+
+        if input_path:
+            codesigverifier = get_code_signature_verifier(input_path, facts)
             recipe.append_processor(codesigverifier)
 
+        # TODO (Shea): Refactor out split versioning.
+        # TODO (Shea): Extract method -> get_versioner
+        if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             if not facts.get("sparkle_provides_version"):
                 # Either the Sparkle feed doesn't provide version, or
                 # there's no Sparkle feed. We must determine the version
@@ -295,28 +320,6 @@ def generate_download_recipe(facts, prefs, recipe):
                     recipe.append_processor(versioner)
 
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-            # We're assuming that the app is at the root level of the
-            # zip.
-            unarchiver = processor.Unarchiver()
-            unarchiver.archive_path = "%pathname%"
-            unarchiver.destination_path = (
-                "%RECIPE_CACHE_DIR%/%NAME%/Applications")
-            unarchiver.purge_destination = True
-            recipe.append_processor(unarchiver)
-
-            # TODO (Shea): This can be factored up.
-            codesigverifier = processor.CodeSignatureVerifier()
-            codesigverifier.input_path = (
-                "%RECIPE_CACHE_DIR%/%NAME%/Applications/{}.app".format(
-                    facts["app_name_key"]))
-
-            if facts.get("codesign_reqs"):
-                codesigverifier.requirement = facts["codesign_reqs"]
-            elif len(facts["codesign_authorities"]) > 0:
-                codesigverifier.expected_authorities = (
-                    facts["codesign_authorities"])
-            recipe.append_processor(codesigverifier)
-
             if not facts.get("sparkle_provides_version"):
                 # Either the Sparkle feed doesn't provide version, or
                 # there's no Sparkle feed. We must determine the version
@@ -328,17 +331,6 @@ def generate_download_recipe(facts, prefs, recipe):
                         facts["app_name_key"]))
                 versioner.plist_version_key = facts["version_key"]
                 recipe.append_processor(versioner)
-
-        elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
-            # The download is in pkg format, and the pkg is signed.
-            # TODO(Elliot): Need a few test cases to prove this works.
-            codesigverifier = processor.CodeSignatureVerifier()
-            codesigverifier.input_path = "%pathname%"
-            codesigverifier.expected_authorities = (
-                facts["codesign_authorities"])
-            recipe.append_processor(codesigverifier)
-
-    # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
 
 
 def warn_about_app_store_generation(facts, recipe_type):
