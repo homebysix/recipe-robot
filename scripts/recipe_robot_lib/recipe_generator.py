@@ -252,24 +252,21 @@ def generate_download_recipe(facts, prefs, recipe):
         sf_url_provider = SourceForgeURLProvider(
             SOURCEFORGE_FILE_PATTERN="\\.%s" % facts["download_format"],
             SOURCEFORGE_PROJECT_ID=facts["sourceforge_id"])
-
         recipe.append_processor(sf_url_provider)
 
-    elif "download_url" in facts:
-        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-        url_downloader = processor.URLDownloader(
-            url="%DOWNLOAD_URL%",
-            filename=facts["download_filename"])
-        if "user-agent" in facts:
-            url_downloader.request_headers = {
-                "user-agent": facts["user-agent"]}
+    url_downloader = processor.URLDownloader()
 
-    if "DOWNLOAD_URL" not in keys["Input"]:
-        url_downloader = processor.URLDownloader(
-            filename="%NAME%-%version%.{}".format(facts["download_format"]))
-        if "user-agent" in facts:
-            url_downloader.request_headers = {
-                "user-agent": facts["user-agent"]}
+    if "download_url" in facts:
+        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
+        url_downloader.url = "%DOWNLOAD_URL%"
+        url_downloader.filename = facts["download_filename"]
+    else:
+        url_downloader.filename="%NAME%-%version%.{}".format(
+            facts["download_format"])
+
+    if "user-agent" in facts:
+        url_downloader.request_headers = {
+            "user-agent": facts["user-agent"]}
 
     recipe.append_processor(url_downloader)
 
