@@ -27,6 +27,9 @@ Unit tests for recipe_generator.
 from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from recipe_robot_lib import recipe_generator, facts
+from recipe_robot_lib.tools import (SUPPORTED_IMAGE_FORMATS,
+                                    SUPPORTED_ARCHIVE_FORMATS,
+                                    SUPPORTED_INSTALL_FORMATS)
 
 class TestRecipeGenerator(object):
     """Tests for the recipe_generator functions."""
@@ -54,3 +57,13 @@ class TestRecipeGenerator(object):
         assert_equal(codesigverifier.input_path, input_path)
         assert_is_none(codesigverifier.requirement)
         assert_sequence_equal(codesigverifier.expected_authority_names, req)
+
+    def test_needs_versioner(self):
+        for format in SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS:
+            image_facts = {"download_format": format,
+                           "sparkle_provides_version": False}
+            assert_true(recipe_generator.needs_versioner(image_facts))
+        for format in SUPPORTED_INSTALL_FORMATS:
+            image_facts = {"download_format": format,
+                           "sparkle_provides_version": False}
+            assert_false(recipe_generator.needs_versioner(image_facts))

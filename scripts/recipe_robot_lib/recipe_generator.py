@@ -310,6 +310,8 @@ def generate_download_recipe(facts, prefs, recipe):
         # TODO (Shea): Extract method -> get_versioner
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             if not facts.get("sparkle_provides_version"):
+                versioner = processor.Versioner()
+
                 # Either the Sparkle feed doesn't provide version, or
                 # there's no Sparkle feed. We must determine the version
                 # manually.
@@ -365,6 +367,12 @@ def get_code_signature_verifier(input_path, facts):
             facts["codesign_authorities"])
     return codesigverifier
 
+def needs_versioner(facts):
+    format = facts["download_format"]
+    sparkle_version = facts.get("sparkle_provides_version", False)
+    format_needs_versioner = any(format in formats for formats in (
+        SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS))
+    return format_needs_versioner and not sparkle_version
 
 def generate_app_store_munki_recipe(facts, prefs, recipe):
     """Generate a munki recipe on passed recipe dict.
