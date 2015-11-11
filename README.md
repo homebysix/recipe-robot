@@ -3,6 +3,7 @@
 <!-- MarkdownTOC autolink=true depth=3 bracket=round -->
 
 - [Overview](#overview)
+- [Requirements](#requirements)
 - [Mac App Usage](#mac-app-usage)
 - [Python Script Usage](#python-script-usage)
 - [Video Tutorials](#video-tutorials)
@@ -26,6 +27,11 @@ Recipe Robot is the easiest way to create new AutoPkg recipes for simple Mac app
 - A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
 
 This two-pronged approach allows AutoPkg novices to easily create recipes that follow community-accepted guidelines, and still provides a command-line tool for more advanced AutoPkg users. Also, using Python for program logic encourages community contribution to this project.
+
+
+## Requirements
+
+In order to run Recipe Robot, you need [AutoPkg](https://autopkg.github.io/autopkg/) 0.5.0 or later installed.
 
 
 ## Mac App Usage
