@@ -46,7 +46,7 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-__version__ = '0.2.4'
+__version__ = '0.2.5'
 ENDC = "\033[0m"
 PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
