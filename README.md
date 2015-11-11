@@ -90,17 +90,13 @@ I've produced a series of video tutorials to demonstrate various features of Rec
 
 Also see the [Tips](#tips) section below for more timesavers.
 
-- [Introducing Recipe Robot](https://www.youtube.com/watch?v=E531jJLovhc)
-    [![Introducing Recipe Robot](images/tutorial-intro.png)](https://www.youtube.com/watch?v=E531jJLovhc)
+[![Introducing Recipe Robot](images/tutorial-intro.jpg)](https://www.youtube.com/watch?v=E531jJLovhc)
 
-- [Using Recipe Robot with a Download URL](https://www.youtube.com/watch?v=JnmLktTdh1s)
-    [![Using Recipe Robot with a Download URL](images/tutorial-download.png)](https://www.youtube.com/watch?v=JnmLktTdh1s)
+[![Using Recipe Robot with a Download URL](images/tutorial-download.jpg)](https://www.youtube.com/watch?v=JnmLktTdh1s)
 
-- [Using Recipe Robot with a GitHub URL](https://www.youtube.com/watch?v=ifqv-j45AWU)
-    [![Using Recipe Robot with a GitHub URL](images/tutorial-github.png)](https://www.youtube.com/watch?v=ifqv-j45AWU)
+[![Using Recipe Robot with a GitHub URL](images/tutorial-github.jpg)](https://www.youtube.com/watch?v=ifqv-j45AWU)
 
-- [Combining Recipe Robot with URLTextSearcher](https://www.youtube.com/watch?v=3UWKBQWZp3A)
-    [![Combining Recipe Robot with URLTextSearcher](images/tutorial-urltextsearcher.png)](https://www.youtube.com/watch?v=3UWKBQWZp3A)
+[![Combining Recipe Robot with URLTextSearcher](images/tutorial-urltextsearcher.jpg)](https://www.youtube.com/watch?v=3UWKBQWZp3A)
 
 
 ## Tips
