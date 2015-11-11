@@ -2,8 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
-        <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
-        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -179,11 +177,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="350"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oXK-h1-XrJ">
                                 <rect key="frame" x="18" y="309" width="564" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="PCB-gq-NQz"/>
-                                </constraints>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Feed me!" id="fMo-Ix-2ju">
                                     <font key="font" metaFont="systemBold" size="20"/>
@@ -191,12 +186,8 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="2Pa-uM-zOX">
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Pa-uM-zOX">
                                 <rect key="frame" x="566" y="12" width="17" height="17"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="17" id="aoA-lB-MDl"/>
-                                    <constraint firstAttribute="height" constant="17" id="zvs-qA-Sje"/>
-                                </constraints>
                                 <animations/>
                                 <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSActionTemplate" imagePosition="only" alignment="center" alternateImage="NSActionTemplate" imageScaling="proportionallyUpOrDown" inset="2" id="eTm-xf-5Ir">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -206,11 +197,8 @@
                                     <segue destination="ESu-qZ-Dbn" kind="sheet" id="5DS-F9-XQ4"/>
                                 </connections>
                             </button>
-                            <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
+                            <button hidden="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PTd-IR-P4B">
                                 <rect key="frame" x="182" y="17" width="235" height="24"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="230" id="Nbb-bM-pko"/>
-                                </constraints>
                                 <animations/>
                                 <buttonCell key="cell" type="check" title="Ignore existing recipes for this run only" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="zO6-wJ-Rb7">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -225,8 +213,8 @@
                                     </binding>
                                 </connections>
                             </button>
-                            <textField verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nae-fQ-RX1">
-                                <rect key="frame" x="207" y="64" width="280" height="18"/>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nae-fQ-RX1">
+                                <rect key="frame" x="177" y="64" width="296" height="18"/>
                                 <animations/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingHead" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="QJy-gY-tAg">
                                     <font key="font" metaFont="smallSystem"/>
@@ -241,7 +229,7 @@
                                     </binding>
                                 </connections>
                             </textField>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
                                 <rect key="frame" x="50" y="103" width="500" height="180"/>
                                 <animations/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="Feed Me Drop Zone" id="96G-6b-REq"/>
@@ -249,12 +237,8 @@
                                     <action selector="paste:" target="rPt-NT-nkU" id="NYC-ou-PdW"/>
                                 </connections>
                             </imageView>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jyu-oi-lVv">
                                 <rect key="frame" x="163" y="176" width="275" height="22"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="22" id="qp5-XL-cnt"/>
-                                    <constraint firstAttribute="width" constant="271" id="yHY-Dk-cSV"/>
-                                </constraints>
                                 <animations/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Drag in an app to start processing." id="A3b-Bf-P3c">
                                     <font key="font" metaFont="system"/>
@@ -262,12 +246,8 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2e9-vU-ycb">
-                                <rect key="frame" x="76" y="63" width="125" height="18"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="18" id="NWG-gA-gSR"/>
-                                    <constraint firstAttribute="width" constant="121" id="dTO-kb-45O"/>
-                                </constraints>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2e9-vU-ycb">
+                                <rect key="frame" x="48" y="63" width="125" height="18"/>
                                 <animations/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Or paste a URL here:" id="c74-37-7j6">
                                     <font key="font" metaFont="smallSystem"/>
@@ -275,26 +255,18 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gTU-Dj-JzO">
+                                <rect key="frame" x="476" y="57" width="67" height="28"/>
+                                <animations/>
+                                <buttonCell key="cell" type="push" title="Do It!" bezelStyle="rounded" alignment="center" controlSize="small" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2dF-1f-sJL">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                                </buttonCell>
+                            </button>
                         </subviews>
-                        <constraints>
-                            <constraint firstAttribute="bottom" secondItem="2Pa-uM-zOX" secondAttribute="bottom" constant="12" id="3dV-WG-xEQ"/>
-                            <constraint firstAttribute="trailing" secondItem="oXK-h1-XrJ" secondAttribute="trailing" constant="20" symbolic="YES" id="8gp-8E-GYs"/>
-                            <constraint firstItem="nae-fQ-RX1" firstAttribute="top" secondItem="Jyu-oi-lVv" secondAttribute="bottom" constant="94" id="BGX-D6-GMB"/>
-                            <constraint firstItem="2e9-vU-ycb" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="78" id="Bhh-HL-s2N"/>
-                            <constraint firstItem="PTd-IR-P4B" firstAttribute="top" secondItem="2e9-vU-ycb" secondAttribute="bottom" constant="25" id="Dp8-eI-ecr"/>
-                            <constraint firstAttribute="trailing" secondItem="2Pa-uM-zOX" secondAttribute="trailing" constant="17" id="EVp-gI-PVZ"/>
-                            <constraint firstItem="nae-fQ-RX1" firstAttribute="baseline" secondItem="2e9-vU-ycb" secondAttribute="firstBaseline" id="GU3-K9-wSy"/>
-                            <constraint firstItem="aep-eh-Csg" firstAttribute="top" secondItem="oXK-h1-XrJ" secondAttribute="bottom" constant="26" id="H0c-xH-RhB"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="oXK-h1-XrJ" secondAttribute="centerX" id="Kdg-qF-S8R"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="aep-eh-Csg" secondAttribute="centerX" id="Lre-68-zgY"/>
-                            <constraint firstAttribute="bottom" secondItem="PTd-IR-P4B" secondAttribute="bottom" constant="20" symbolic="YES" id="PMK-Ua-m3W"/>
-                            <constraint firstItem="nae-fQ-RX1" firstAttribute="top" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="21" id="coJ-EN-qBV"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="gJI-bT-Fps"/>
-                            <constraint firstItem="2e9-vU-ycb" firstAttribute="top" secondItem="aep-eh-Csg" secondAttribute="bottom" constant="22" id="rrE-YM-5bh"/>
-                            <constraint firstItem="nae-fQ-RX1" firstAttribute="leading" secondItem="2e9-vU-ycb" secondAttribute="trailing" constant="8" symbolic="YES" id="tVy-RD-2F8"/>
-                            <constraint firstItem="Jyu-oi-lVv" firstAttribute="centerX" secondItem="PTd-IR-P4B" secondAttribute="centerX" id="wGa-cb-nvw"/>
-                            <constraint firstItem="oXK-h1-XrJ" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="zxz-zl-ZhF"/>
-                        </constraints>
                         <animations/>
                     </view>
                     <connections>
