@@ -4,7 +4,19 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+- Sweet new icon!
+- [Short video tutorials](https://www.youtube.com/playlist?list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq) for Recipe Robot are now available.
+- We've started building unit tests for Recipe Robot, so we can minimize the number of bugs that find their way into future releaes.
+- Added requirements to readme.
+
+### Changed
+- Default recipe identifier is now based on your local username. (#63)
+- Significant simplification and refactoring of the recipe generation code.
+
+### Fixed
+- A few typo fixes.
+
 
 ## [0.2.2] - 2015-11-06
 
