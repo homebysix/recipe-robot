@@ -256,12 +256,13 @@ def generate_download_recipe(facts, prefs, recipe):
 
     url_downloader = processor.URLDownloader()
 
-    if "download_url" in facts:
+    if not is_dynamic_url_source() and "download_url" in facts:
         keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
         url_downloader.url = "%DOWNLOAD_URL%"
-        url_downloader.filename = facts["download_filename"]
+        url_downloader.filename = "%NAME%.{}".format(
+            facts["download_format"])
     else:
-        url_downloader.filename="%NAME%-%version%.{}".format(
+        url_downloader.filename = "%NAME%-%version%.{}".format(
             facts["download_format"])
 
     if "user-agent" in facts:
@@ -328,6 +329,10 @@ def warn_about_app_store_generation(facts, recipe_type):
         "Skipping %s recipe, because this app was downloaded from the "
         "App Store." % recipe_type)
 
+
+def is_dynamic_url_source(facts):
+    return any(url_type in facts for url_type in (
+        "sparkle_feed", "github_repo", "sourceforge_id"))
 
 def get_code_signature_verifier(input_path, facts):
     """Build a CodeSignatureVerifier.
