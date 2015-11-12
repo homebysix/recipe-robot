@@ -256,7 +256,7 @@ def generate_download_recipe(facts, prefs, recipe):
 
     url_downloader = processor.URLDownloader()
 
-    if not is_dynamic_url_source() and "download_url" in facts:
+    if not is_dynamic_url_source(facts) and "download_url" in facts:
         keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
         url_downloader.url = "%DOWNLOAD_URL%"
         url_downloader.filename = "%NAME%.{}".format(
