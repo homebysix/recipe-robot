@@ -460,8 +460,8 @@ def generate_munki_recipe(facts, prefs, recipe):
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
-                            ("%%pathname%%/%s.app/Contents/Info.plist" %
-                            facts["app_name_key"]),
+                            ("%pathname%/{}.app/Contents/Info.plist".format(
+                                facts["app_name_key"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -620,8 +620,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
-                            ("%%pathname%%/%s.app/Contents/Info.plist" %
-                             facts["app_name_key"]),
+                            ("%pathname%/{}.app/Contents/Info.plist".format(
+                                facts["app_name_key"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -637,9 +637,10 @@ def generate_pkg_recipe(facts, prefs, recipe):
         recipe.append_processor({
             "Processor": "Copier",
             "Arguments": {
-                "source_path": "%%pathname%%/%s.app" % facts["app_name_key"],
-                "destination_path": ("%%pkgroot%%/Applications/%s.app" %
-                                     facts["app_name_key"])
+                "source_path": "%pathname%/{}.app".format(
+                    facts["app_name_key"]),
+                "destination_path": ("%pkgroot%/Applications/{}.app".format(
+                    facts["app_name_key"]))
             }
         })
 
@@ -664,9 +665,9 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
-                            ("%%RECIPE_CACHE_DIR%%/%%NAME%%/Applications/"
-                             "%s.app/Contents/Info.plist" %
-                             facts["app_name_key"]),
+                            ("%RECIPE_CACHE_DIR%/%NAME%/Applications/"
+                             "{}.app/Contents/Info.plist".format(
+                             facts["app_name_key"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -1015,8 +1016,9 @@ def generate_filewave_recipe(facts, prefs, recipe):
         recipe.append_processor({
             "Processor": "Versioner",
             "Arguments": {
-                "input_plist_path": ("%%pathname%%/%s.app/Contents/Info.plist"
-                                     % facts["app_name_key"]),
+                "input_plist_path": (
+                    "%pathname%/{}.app/Contents/Info.plist".format(
+                        facts["app_name_key"])),
                 "plist_version_key": facts["version_key"]
             }
         })
