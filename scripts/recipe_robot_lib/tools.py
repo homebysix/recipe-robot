@@ -61,6 +61,7 @@ ALL_SUPPORTED_FORMATS = (SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS +
 # Global variables.
 CACHE_DIR = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
                          datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
+color_setting = False
 
 
 class LogLevel(object):
@@ -113,7 +114,7 @@ def timed(func):
     return run_func
 
 
-def robo_print(message, log_level=LogLevel.LOG, indent=0, report=None):
+def robo_print(message, log_level=LogLevel.LOG, indent=0):
     """Print the specified message in an appropriate color, and only print
     debug output if debug_mode is True.
 
@@ -121,13 +122,13 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0, report=None):
         log_level: LogLevel property for desired loglevel.
         message: String to be printed to output.
     """
-    color = log_level[0]
+    color = log_level[0] if color_setting else ""
     indents = indent * " "
     if log_level[1]:
         prefix = "[%s] " % log_level[1]
     else:
         prefix = ""
-    suffix = ENDC
+    suffix = ENDC if color_setting else ""
 
     line = color + indents + prefix + message + suffix
 
