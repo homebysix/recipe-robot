@@ -69,6 +69,8 @@ class RecipeRobotViewController: NSViewController {
 class FeedMeViewController: RecipeRobotViewController {
 
     @IBOutlet var ignoreButton: NSButton!
+    @IBOutlet var urlTextField: NSTextField!
+
     var eventMonitor: AnyObject?
 
     deinit {
@@ -111,6 +113,14 @@ class FeedMeViewController: RecipeRobotViewController {
         if sender === ignoreButton {
             task.ignoreExisting = (sender?.state == NSOnState)
         }
+    }
+
+    @IBAction func processRecipe(sender: NSButton?){
+        guard let url = NSURL(string: urlTextField.stringValue) else {
+            return
+        }
+        task.appOrRecipe = url.absoluteString
+        performSegueWithIdentifier("FeedMeSegue", sender: self)
     }
 }
 
@@ -261,37 +271,29 @@ class ProcessingViewController: RecipeRobotViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-//        var traits =  NSFontSymbolicTraits(0)
-//        let green = StatusImage.Available.image
-//        let red = StatusImage.Unavailable.image
-
         infoLabel?.textColor = Color.White.ns
         infoLabel?.stringValue = "Preping..."
 
-//        listener.notificationHandler = {
-//            [weak self] noteType, info in
-//
-//            var color = NSColor.blackColor()
-//            switch noteType {
-//            case .Info:
-//                break
-//            case .Recipes:
-//                self!.warningIndicator?.cell?.image = green
-//            case .Reminders:
-//                self!.reminderIndicator?.cell?.image = green
-//            case .Icons:
-//                self!.iconIndicator?.cell?.image = green
-//            case .Warnings:
-//                color = Color.Yellow.ns
-//                traits = (traits & NSFontSymbolicTraits(NSFontItalicTrait))
-//                self!.warningIndicator?.cell?.image = red
-//            case .Error:
-//                color = Color.Red.ns
-//                self!.errorIndicator?.cell?.image = red
-//            case .Complete:
-//                self!.completionInfo = info
-//            }
-//        }
+        listener.notificationHandler = {
+            [weak self] noteType, info in
+
+            switch noteType {
+            case .Info:
+                break
+            case .Recipes:
+                break
+            case .Reminders:
+                break
+            case .Icons:
+                break
+            case .Warnings:
+                break
+            case .Error:
+                break
+            case .Complete:
+                self!.completionInfo = info
+            }
+        }
     }
 
     override func viewWillAppear() {
@@ -323,7 +325,8 @@ class ProcessingViewController: RecipeRobotViewController {
 
     func processRecipes() {
         // Do view setup here.
-        
+        NSApplication.sharedApplication().activateIgnoringOtherApps(true)
+
         func showProgress(progress: String) {
             guard let progressView = progressView else {
                 return

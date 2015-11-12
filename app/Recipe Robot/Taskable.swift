@@ -18,7 +18,7 @@
 
 import Foundation
 
-protocol Taskable: Taskchainable {
+protocol Taskable: ChainableTask {
     var executable: String { get }
     var args: [String]? { get set }
     var env: [String: String]? { get set }
@@ -30,20 +30,32 @@ protocol InteractableTaskable: Taskable {
     func isInteractive(string: String) -> Bool
 }
 
-protocol Taskchainable {
+protocol ChainableTask {
     func stdout(message: (String) -> (Void)) -> Self
     func stderr(message: (String) -> (Void)) -> Self
     func completed(complete: (ErrorType)? -> (Void)) -> Self
     func run() -> Self
 }
 
+protocol CancelableTask {
+    var cancelledHandle:((Void) -> (Void))? { get set }
+    func cancelled(cancelled:(Void) -> (Void)) -> Self
+    func cancel()
+}
+
+extension CancelableTask {
+    mutating func cancelled(cancelled:(Void) -> (Void)) -> Self {
+        cancelledHandle = cancelled
+        return self
+    }
+}
 extension Taskable where Self: InteractableTaskable {
     var expectedPrompts: [String] {
         return [ "y/n: ", "Y/N: ", "Password: " ]
     }
 }
 
-extension NSTask: Taskchainable {
+extension NSTask: ChainableTask {
     func stderr(message: (String) -> (Void)) -> Self {
         standardError = NSPipe()
         standardError?.fileHandleForReading.readabilityHandler = {
@@ -88,7 +100,7 @@ extension NSTask: Taskchainable {
     }
 }
 
-class Task: Taskable {
+class Task: Taskable, CancelableTask {
     enum Error: ErrorType {
         case NotExecutable, BadInput, BadOutput, NonZeroExit
 
@@ -195,7 +207,7 @@ class Task: Taskable {
         return self
     }
 
-    private var cancelledHandle:((Void) -> (Void))?
+    internal var cancelledHandle:((Void) -> (Void))?
     func cancelled(cancelled:(Void) -> (Void)) -> Self {
         cancelledHandle = cancelled
         return self
