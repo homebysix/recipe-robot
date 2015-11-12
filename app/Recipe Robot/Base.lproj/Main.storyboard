@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -256,7 +256,7 @@
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gTU-Dj-JzO">
-                                <rect key="frame" x="476" y="57" width="67" height="28"/>
+                                <rect key="frame" x="476" y="58" width="67" height="28"/>
                                 <animations/>
                                 <buttonCell key="cell" type="push" title="Do It!" bezelStyle="rounded" alignment="center" controlSize="small" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2dF-1f-sJL">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -265,12 +265,16 @@
 DQ
 </string>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="processRecipe:" target="XfG-lQ-9wD" id="bHu-Cl-TIT"/>
+                                </connections>
                             </button>
                         </subviews>
                         <animations/>
                     </view>
                     <connections>
                         <outlet property="ignoreButton" destination="PTd-IR-P4B" id="VEQ-ge-daK"/>
+                        <outlet property="urlTextField" destination="nae-fQ-RX1" id="3Bb-6i-bf5"/>
                         <segue destination="DLx-gp-7HF" kind="custom" identifier="FeedMeSegue" customClass="ReplaceSegue" customModule="Recipe_Robot" customModuleProvider="target" id="uhZ-iq-Ne8"/>
                     </connections>
                 </viewController>
@@ -356,7 +360,7 @@ DQ
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N79-I0-u6a">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="N79-I0-u6a">
                                 <rect key="frame" x="298" y="271" width="190" height="17"/>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Your prefered recipe identifier:" id="V1m-98-geR">
@@ -365,7 +369,7 @@ DQ
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HFT-6C-ZYU">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HFT-6C-ZYU">
                                 <rect key="frame" x="298" y="162" width="188" height="17"/>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="DeployStudio Package folder:" id="wGl-U4-p4w">
@@ -374,7 +378,7 @@ DQ
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w0f-h9-2tF">
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="w0f-h9-2tF">
                                 <rect key="frame" x="244" y="13" width="113" height="32"/>
                                 <animations/>
                                 <buttonCell key="cell" type="push" title="Good to Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="de0-CZ-msm">
@@ -434,7 +438,7 @@ DQ
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                             </button>
-                            <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UuS-iq-Uqh">
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="UuS-iq-Uqh">
                                 <rect key="frame" x="298" y="106" width="207" height="18"/>
                                 <animations/>
                                 <buttonCell key="cell" type="check" title="Use jss-recipes identifier style" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="HFu-ur-ANn">
@@ -450,7 +454,7 @@ DQ
                                     </binding>
                                 </connections>
                             </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NBs-I5-hN8">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="NBs-I5-hN8">
                                 <rect key="frame" x="298" y="215" width="192" height="17"/>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Recipe Robot Output Location" id="ipS-2F-aYF">
