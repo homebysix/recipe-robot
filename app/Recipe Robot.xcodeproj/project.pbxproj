@@ -181,6 +181,7 @@
 				8B42AC7A1B5C5BEC0058A814 /* Sources */,
 				8B42AC7B1B5C5BEC0058A814 /* Frameworks */,
 				8B42AC7C1B5C5BEC0058A814 /* Resources */,
+				8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */,
 			);
 			buildRules = (
 			);
@@ -271,6 +272,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script: Set build number to commit count";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Update build number with number of git commits if in release mode\n\n[[ ${CONFIGURATION} != \"Release\" ]] && exit 0\n\nbuildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8B42AC7A1B5C5BEC0058A814 /* Sources */ = {

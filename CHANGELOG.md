@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-Nothing yet.
+### Changed
+- Build number now tracks the Git commit count.
 
 
 ## [0.2.4] - 2015-11-11
