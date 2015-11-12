@@ -87,15 +87,12 @@ except ImportError:
 
 def main():
     """Make the magic happen."""
-    # Print welcome and version number.
-    print_welcome_text()
 
     facts = Facts()
 
     try:
         setup(facts)
-
-        # Read or create the user preferences.
+        print_welcome_text()
         prefs = init_prefs(facts)
 
         # Collect facts from the input path, based on the type of path.
@@ -163,6 +160,8 @@ def setup(facts):
     argparser = build_argument_parser()
     args = argparser.parse_args()
 
+    tools.color_setting = not args.app_mode
+
     # If no input path nor --config arg was specified, print help
     # and exit.
     if not args.input_path and not args.config:
@@ -177,8 +176,6 @@ def setup(facts):
 
     # Make someplace to cache things.
     create_dest_dirs(CACHE_DIR)
-
-    tools.color_setting = not args.app_mode
 
 
 def build_argument_parser():
