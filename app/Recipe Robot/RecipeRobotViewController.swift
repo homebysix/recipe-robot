@@ -323,7 +323,8 @@ class ProcessingViewController: RecipeRobotViewController {
 
     func processRecipes() {
         // Do view setup here.
-        
+        NSApplication.sharedApplication().activateIgnoringOtherApps(true)
+
         func showProgress(progress: String) {
             guard let progressView = progressView else {
                 return
