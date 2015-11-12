@@ -73,6 +73,7 @@ from recipe_robot_lib.exceptions import RoboException, RoboError
 from recipe_robot_lib.facts import Facts
 from recipe_robot_lib.inspect import process_input_path
 from recipe_robot_lib.recipe import Recipes
+from recipe_robot_lib import tools
 from recipe_robot_lib.tools import (
     create_dest_dirs, robo_print, LogLevel, OutputMode, print_welcome_text,
     __version__, ALL_SUPPORTED_FORMATS, PREFS_FILE, print_death_text,
@@ -176,6 +177,8 @@ def setup(facts):
 
     # Make someplace to cache things.
     create_dest_dirs(CACHE_DIR)
+
+    tools.color_setting = not args.app_mode
 
 
 def build_argument_parser():
