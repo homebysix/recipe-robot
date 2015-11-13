@@ -19,6 +19,12 @@
 
 """
 create_jss_from_pkg.py
+
+Given a valid pkg recipe as input, this script generates a jss recipe that
+uses the pkg recipe as a parent.
+
+The resulting jss recipe will conform to the jss-recipes repo guidelines:
+https://github.com/autopkg/jss-recipes#jss-recipes
 """
 
 # Read the pkg recipe using FoundationPlist.

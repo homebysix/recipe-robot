@@ -19,6 +19,9 @@
 
 """
 create_filewave_from_download.py
+
+Given a valid download recipe as input, this script generates a filewave recipe
+that uses the download recipe as a parent.
 """
 
 # Read the download recipe using FoundationPlist.
