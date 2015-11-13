@@ -171,12 +171,13 @@ def build_recipes(facts, preferred, prefs):
         else:
             generation_func(facts, prefs, recipe)
 
-        dest_path = robo_join(recipe_dest_dir, recipe["filename"])
-        if not os.path.exists(dest_path):
-            prefs["RecipeCreateCount"] += 1
-        recipe.write(dest_path)
-        robo_print(dest_path, LogLevel.LOG, 4)
-        facts["recipes"].append(dest_path)
+        if "Process" in recipe or recipe["filename"].startswith("MAS-"):
+            dest_path = robo_join(recipe_dest_dir, recipe["filename"])
+            if not os.path.exists(dest_path):
+                prefs["RecipeCreateCount"] += 1
+            recipe.write(dest_path)
+            robo_print(dest_path, LogLevel.LOG, 4)
+            facts["recipes"].append(dest_path)
 
 
 def get_generation_func(facts, prefs, recipe):
