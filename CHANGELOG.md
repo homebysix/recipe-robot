@@ -4,8 +4,24 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+### Added
+- Hooray! The Recipe Robot app can now accept URLs as input, just like the script.
+
 ### Changed
 - Build number now tracks the Git commit count.
+- Default preference value uses the existing value whenever possible. (#68)
+- Updated URL of FileWave recipe repository.
+- The Recipe Robot script now warns you about `cfprefsd` after modifying the preference files directly. This is a stopgap measure. (#70)
+- When you create AppStoreApp recipes, Recipe Robot only nags you once about adding Nick's repo and installing pyasn1.
+
+### Fixed
+- Fixed a bug that caused the app to display a "can't be found" error when clicking on the __Reveal Recipes__ button. (#60)
+- Characters related to ANSI colors no longer appear in the app output.
+- Resolved issue that prevented creation of AppStoreApp recipes.
+- Recipe Robot handles curly quotes in app descriptions better now.
+
+### Removed
+- Removed unused MacUpdate description scraper that was simpler but had dependencies.
 
 
 ## [0.2.4] - 2015-11-11
