@@ -169,9 +169,9 @@ def build_recipes(facts, preferred, prefs):
                 "to generate a %s recipe. Sorry about that." %
                 recipe["type"])
         else:
-            generation_func(facts, prefs, recipe)
+            recipe = generation_func(facts, prefs, recipe)
 
-        if "Process" in recipe or recipe["filename"].startswith("MAS-"):
+        if recipe:
             dest_path = robo_join(recipe_dest_dir, recipe["filename"])
             if not os.path.exists(dest_path):
                 prefs["RecipeCreateCount"] += 1
@@ -323,6 +323,8 @@ def generate_download_recipe(facts, prefs, recipe):
             versioner.plist_version_key = facts["version_key"]
             recipe.append_processor(versioner)
 
+    return recipe
+
 
 def warn_about_app_store_generation(facts, recipe_type):
     """Can't make this recipe if the app is from the App Store."""
@@ -406,6 +408,7 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
         keys["Input"]["pkginfo"]["description"] = " "
 
     warn_about_appstoreapp_pyasn(facts)
+    return recipe
 
 
 def generate_munki_recipe(facts, prefs, recipe):
@@ -544,6 +547,8 @@ def generate_munki_recipe(facts, prefs, recipe):
             "I don't have enough information to create a PNG icon for this "
             "app.")
 
+    return recipe
+
 
 def generate_app_store_pkg_recipe(facts, prefs, recipe):
     """Generate a pkg recipe on passed recipe dict.
@@ -570,6 +575,7 @@ def generate_app_store_pkg_recipe(facts, prefs, recipe):
     recipe["filename"] = "MAS-" + recipe["filename"]
 
     warn_about_appstoreapp_pyasn(facts)
+    return recipe
 
 
 def generate_pkg_recipe(facts, prefs, recipe):
@@ -697,6 +703,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
         }
     })
 
+    return recipe
+
 
 def generate_install_recipe(facts, prefs, recipe):
     """Generate an install recipe on passed recipe dict.
@@ -771,6 +779,8 @@ def generate_install_recipe(facts, prefs, recipe):
                 "pkg_path": "%pathname%"
             }
         })
+
+    return recipe
 
 
 def generate_jss_recipe(facts, prefs, recipe):
@@ -875,6 +885,8 @@ def generate_jss_recipe(facts, prefs, recipe):
         "Arguments": jssimporter_arguments
     })
 
+    return recipe
+
 
 def generate_absolute_recipe(facts, prefs, recipe):
     """Generate an Absolute Manage recipe on passed recipe dict.
@@ -889,6 +901,10 @@ def generate_absolute_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    # TODO: Until we get it working.
+    if facts.is_from_app_store():
+        warn_about_app_store_generation(facts, recipe["type"])
+        return
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
         facts["warnings"].append(
@@ -931,6 +947,8 @@ def generate_absolute_recipe(facts, prefs, recipe):
         }
     })
 
+    return recipe
+
 
 def generate_sccm_recipe(facts, prefs, recipe):
     """Generate an SCCM recipe on passed recipe dict.
@@ -945,6 +963,10 @@ def generate_sccm_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    # TODO: Until we get it working.
+    if facts.is_from_app_store():
+        warn_about_app_store_generation(facts, recipe["type"])
+        return
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
         facts["warnings"].append(
@@ -981,6 +1003,8 @@ def generate_sccm_recipe(facts, prefs, recipe):
         }
     })
 
+    return recipe
+
 
 def generate_filewave_recipe(facts, prefs, recipe):
     """Generate a FileWave recipe on passed recipe dict.
@@ -995,6 +1019,10 @@ def generate_filewave_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    # TODO: Until we get it working.
+    if facts.is_from_app_store():
+        warn_about_app_store_generation(facts, recipe["type"])
+        return
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
         facts["warnings"].append(
@@ -1067,6 +1095,8 @@ def generate_filewave_recipe(facts, prefs, recipe):
         }
     })
 
+    return recipe
+
 
 def generate_ds_recipe(facts, prefs, recipe):
     """Generate a DeployStudio recipe on passed recipe dict.
@@ -1081,6 +1111,10 @@ def generate_ds_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    # TODO: Until we get it working.
+    if facts.is_from_app_store():
+        warn_about_app_store_generation(facts, recipe["type"])
+        return
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
         facts["warnings"].append(
@@ -1114,6 +1148,8 @@ def generate_ds_recipe(facts, prefs, recipe):
             "overwrite": True
         }
     })
+
+    return recipe
 
 
 def warn_about_appstoreapp_pyasn(facts):
