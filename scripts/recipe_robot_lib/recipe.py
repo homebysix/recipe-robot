@@ -71,8 +71,7 @@ class Recipe(RoboDict):
 
     def write(self, path):
         """Write the recipe to disk."""
-        if len(self["keys"]["Process"]) > 0:
-            FoundationPlist.writePlist(self["keys"], path)
+        FoundationPlist.writePlist(self["keys"], path)
 
     def set_description(self, description):
         """Save a description that explains what this recipe does."""

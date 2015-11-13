@@ -334,6 +334,7 @@ def is_dynamic_url_source(facts):
     return any(url_type in facts for url_type in (
         "sparkle_feed", "github_repo", "sourceforge_id"))
 
+
 def get_code_signature_verifier(input_path, facts):
     """Build a CodeSignatureVerifier.
 
