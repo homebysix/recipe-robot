@@ -353,7 +353,8 @@ def set_recipe_preferences(prefs, recipes):
             # If DeployStudio recipes are among the preferred types,
             # prompt for the path of the Packages folder.
             if recipe["type"] == "ds":
-                prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
+                if "DSPackagesPath" not in prefs:
+                    prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
                 robo_print("\nLocation of your DeployStudio packages:")
                 robo_print("This where packages will be copied in order to "
                            "appear in DeployStudio.\n")
@@ -363,14 +364,19 @@ def set_recipe_preferences(prefs, recipes):
                     prefs["DSPackagesPath"] = str(choice).rstrip("/ ")
 
             if recipe["type"] == "jss":
-                prefs["FollowOfficialJSSRecipesFormat"] = False
+                if prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
+                    follow_jss_recipes_format = "N"
+                else:
+                    follow_jss_recipes_format = "Y"
                 robo_print("\nFollow official jss-recipes style format? (Y/N)")
                 robo_print("See details here: "
                            "https://github.com/autopkg/jss-recipes"
                            "#style-guide\n")
-                choice = raw_input("[N]: ")
+                choice = raw_input("[%s]: " % follow_jss_recipes_format)
                 if choice.lower() in ("y", "yes", "true", "ok", "yep", "sure"):
                     prefs["FollowOfficialJSSRecipesFormat"] = True
+                else:
+                    prefs["FollowOfficialJSSRecipesFormat"] = False
 
 
 def get_recipe_identifier_prefix(prefs):
@@ -379,17 +385,16 @@ def get_recipe_identifier_prefix(prefs):
     Args:
         prefs: The preference dictionary, passed from init_prefs().
     """
-    default_username = pwd.getpwuid(os.getuid())[0]
-    if default_username != "":
+    if "RecipeIdentifierPrefix" not in prefs:
+        default_username = pwd.getpwuid(os.getuid())[0]
+        if default_username == "":
+            default_username = "your_name_here"
         prefs["RecipeIdentifierPrefix"] = "com.github.%s" % default_username
-    else:
-        prefs["RecipeIdentifierPrefix"] = "com.github.your_name_here"
     robo_print("\nRecipe identifier prefix")
     robo_print("This is your default identifier, in reverse-domain "
                "notation.\n(If you have a GitHub account, it's customary to "
                "use com.github.<your GitHub username>.)\n")
-    choice = raw_input(
-        "[%s]: " % prefs["RecipeIdentifierPrefix"])
+    choice = raw_input("[%s]: " % prefs["RecipeIdentifierPrefix"])
     if choice != "":
         prefs["RecipeIdentifierPrefix"] = str(choice).rstrip(". ")
 
@@ -400,8 +405,9 @@ def get_recipe_creation_location(prefs):
     Args:
         prefs: The preference dictionary, passed from init_prefs().
     """
-    prefs["RecipeCreateLocation"] = os.path.expanduser(
-        "~/Library/AutoPkg/Recipe Robot Output")
+    if "RecipeCreateLocation" not in prefs:
+        prefs["RecipeCreateLocation"] = os.path.expanduser(
+            "~/Library/AutoPkg/Recipe Robot Output")
     robo_print("\nLocation to save new recipes")
     robo_print("This is where on disk your newly created recipes will be "
                "saved.\n")
