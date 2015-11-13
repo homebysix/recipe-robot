@@ -35,6 +35,7 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
+# TODO(Elliot): Create a way to specify the display order of this list. (#67)
 RECIPE_TYPES = {
     "download": "Downloads an app in whatever format the developer provides.",
     "munki": "Imports into your Munki repository.",
