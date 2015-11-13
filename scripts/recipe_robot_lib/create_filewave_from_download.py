@@ -20,3 +20,11 @@
 """
 create_filewave_from_download.py
 """
+
+# Read the download recipe using FoundationPlist.
+
+# Make sure there are no existing filewave recies using `autopkg search`.
+
+# Create a dictionary representing the filewave recipe.
+
+# Write the filewave recipe to disk.

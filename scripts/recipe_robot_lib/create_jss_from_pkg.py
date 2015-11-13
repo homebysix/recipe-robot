@@ -20,3 +20,11 @@
 """
 create_jss_from_pkg.py
 """
+
+# Read the pkg recipe using FoundationPlist.
+
+# Make sure there are no existing jss recies using `autopkg search`.
+
+# Create a dictionary representing the jss recipe.
+
+# Write the jss recipe to disk.
