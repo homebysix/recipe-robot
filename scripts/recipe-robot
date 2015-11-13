@@ -304,6 +304,9 @@ def init_prefs(facts):
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, PREFS_FILE)
+    robo_print("Preferences modified. If you want the new settings to be "
+               "available to the Recipe Robot app immediately, run "
+               "`killall cfprefsd`.", LogLevel.REMINDER)
 
     return prefs
 
