@@ -199,7 +199,10 @@ class Task: Taskable, CancelableTask {
                 environment[key] = val
             }
         }
-        environment["NSUnbuffeedIO"] = "YES"
+
+        environment["NSUnbufferedIO"] = "YES"
+        task.environment = environment
+
         if !task.running && NSFileManager.defaultManager().isExecutableFileAtPath(executable){
             task.launch()
         }
