@@ -1043,15 +1043,15 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "downloads.")
 
     # Print a reminder if the required repo isn't present on disk.
-    clayton_url = "https://github.com/johncclayton/FileWaveImporter"
+    filewave_repo = "https://github.com/autopkg/filewave"
     cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % clayton_url) for line in
+    if not any(line.endswith("(%s)" % filewave_repo) for line in
                out.splitlines()):
         facts["reminders"].append(
-            "You'll need to add the FileWaveImporter repo in order to use "
+            "You'll need to add the FileWave repo in order to use "
             "this recipe:\nautopkg repo-add "
-            "\"%s\"" % clayton_url)
+            "\"%s\"" % filewave_repo)
 
     recipe.append_processor({
         "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
