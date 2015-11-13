@@ -21,7 +21,7 @@
 facts.py
 
 Facts is a dictionary-like object that defines recipe-robot specific
-MutableSequnces; NotifyingList and NoisyNotifyingList.
+MutableSequences; NotifyingList and NoisyNotifyingList.
 
 The NotifyingList is used to post a NSNotification whenever a value is
 set or inserted.
@@ -61,7 +61,7 @@ class Facts(RoboDict):
     """Dictionary-like object for holding all of recipe-robot's data.
 
     To aid in intercommunication with the App, all dictionary values
-    are cast to notification-sending subclassed-varients of that type.
+    are cast to notification-sending subclassed-variants of that type.
 
     i.e. lists -> NotifyingList, str -> NotifyingString.
     """
