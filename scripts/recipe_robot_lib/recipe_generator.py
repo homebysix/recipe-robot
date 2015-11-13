@@ -1010,7 +1010,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
 
     recipe.set_parent_from(prefs, facts, "download")
 
-    if (facts["download_format"] in SUPPORTED_IMAGE_FORMATS and "sparkle_feed"
+    if (facts.get("download_format") in SUPPORTED_IMAGE_FORMATS and "sparkle_feed"
         not in facts):
         # It's a dmg download, but not from Sparkle, so we need to version it.
         recipe.append_processor({
@@ -1022,7 +1022,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                 "plist_version_key": facts["version_key"]
             }
         })
-    elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
+    elif facts.get("download_format") in SUPPORTED_ARCHIVE_FORMATS:
         if (facts.get("codesign_reqs", "") == "" and
             len(facts["codesign_authorities"]) == 0):
             # If unsigned, that means the download recipe hasn't
@@ -1036,7 +1036,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                     "purge_destination": True
                 }
             })
-    elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
+    elif facts.get("download_format") in SUPPORTED_INSTALL_FORMATS:
         # TODO(Elliot): Fix this. (#41)
         facts["warnings"].append(
             "Sorry, I don't yet know how to create filewave recipes from pkg "
