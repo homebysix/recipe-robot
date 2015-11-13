@@ -407,7 +407,6 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
             "manually add one to the munki recipe.")
         keys["Input"]["pkginfo"]["description"] = " "
 
-    warn_about_appstoreapp_pyasn(facts)
     return recipe
 
 
