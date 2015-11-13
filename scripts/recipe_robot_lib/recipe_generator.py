@@ -826,8 +826,8 @@ def generate_jss_recipe(facts, prefs, recipe):
     if (not os.path.exists( robo_join(prefs["RecipeCreateLocation"],
                                       "%s.png" % facts["app_name"]))):
         facts["reminders"].append(
-            "Please make sure %s.png is in your AutoPkg search path." %
-            facts["app_name"])
+            "Please make sure %s.png is in your AutoPkg search path so "
+            "JSSImporter can refer to it." % facts["app_name"])
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
@@ -1079,7 +1079,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the FileWave repo in order to use "
-            "this recipe:\nautopkg repo-add "
+            "this recipe:\n           autopkg repo-add "
             "\"%s\"" % filewave_repo)
 
     recipe.append_processor({
