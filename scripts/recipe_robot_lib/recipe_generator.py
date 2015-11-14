@@ -806,7 +806,7 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    if prefs["FollowOfficialJSSRecipesFormat"] is True:
+    if prefs.get("FollowOfficialJSSRecipesFormat", False) is True:
         keys["Identifier"] = ("com.github.jss-recipes.jss.%s" %
                               facts["app_name"].replace(" ", ""))
 
