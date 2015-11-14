@@ -116,6 +116,10 @@ class FeedMeViewController: RecipeRobotViewController {
     }
 
     @IBAction func processRecipe(sender: NSButton?){
+        if urlTextField.stringValue.isEmpty {
+            return
+        }
+        
         guard let url = NSURL(string: urlTextField.stringValue) else {
             return
         }
