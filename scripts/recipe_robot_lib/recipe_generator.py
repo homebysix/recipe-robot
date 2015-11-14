@@ -1152,7 +1152,7 @@ def generate_ds_recipe(facts, prefs, recipe):
 
 #TODO: Not completed, does not function yet
 def generate_bigfix_recipe(facts, prefs, recipe):
-    """Generate a DeployStudio recipe on passed recipe dict.
+    """Generate a BigFix recipe on passed recipe dict.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -1175,6 +1175,11 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     					   "Downloads the latest version of %s and imports it "
                            "into your BigFix server." %
                            facts["app_name"])
+
+    # TODO: Once everything is working, only give this reminder if missing
+    facts["reminders"].append(
+        "You'll need to have the BES Engine installed and configured. "
+        "https://github.com/autopkg/hansen-m-recipes/tree/master/BESEngine")
 
     return recipe
 
