@@ -1163,6 +1163,11 @@ def generate_bigfix_recipe(facts, prefs, recipe):
         recipe: The recipe to operate on. This recipe will be mutated
             by this function!
     """
+
+    # TODO: Windows download examples to work from for future functionality:
+    # - https://github.com/autopkg/hansen-m-recipes/tree/master/Box
+    # - https://github.com/autopkg/hansen-m-recipes/tree/master/Google
+    # - https://github.com/autopkg/hansen-m-recipes/search?utf8=%E2%9C%93&q=win.download
     keys = recipe["keys"]
     # TODO: Until we get it working.
     if facts.is_from_app_store():
