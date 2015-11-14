@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+Nothing yet.
+
+
+## [0.2.5] - 2015-11-13
+
 ### Added
 - Hooray! The Recipe Robot app can now accept URLs as input, just like the script.
 
@@ -11,7 +16,7 @@ All notable changes to this project will be documented in this file. This projec
 - Build number now tracks the Git commit count.
 - Default preference value uses the existing value whenever possible. (#68)
 - Updated URL of FileWave recipe repository.
-- The Recipe Robot script now warns you about `cfprefsd` after modifying the preference files directly. This is a stopgap measure. (#70)
+- The Recipe Robot script now prints a debug message about `cfprefsd` after modifying the preference files directly. This is a stopgap measure until we switch to better handling of preferences. (#70)
 - When you create AppStoreApp recipes, Recipe Robot only nags you once about adding Nick's repo and installing pyasn1.
 
 ### Fixed
@@ -19,6 +24,8 @@ All notable changes to this project will be documented in this file. This projec
 - Characters related to ANSI colors no longer appear in the app output.
 - Resolved issue that prevented creation of AppStoreApp recipes.
 - Recipe Robot handles curly quotes in app descriptions better now.
+- Fixed an error that could occur when writing a jss recipe with a missing preference key.
+- Spelling fixes, because we care!
 
 ### Removed
 - Removed unused MacUpdate description scraper that was simpler but had dependencies.
@@ -67,7 +74,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/0.2.4...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/homebysix/recipe-robot/compare/0.2.4...v0.2.5
 [0.2.4]: https://github.com/homebysix/recipe-robot/compare/0.2.2...0.2.4
 [0.2.2]: https://github.com/homebysix/recipe-robot/compare/v0.2.1...0.2.2
 [0.2.1]: https://github.com/homebysix/recipe-robot/compare/v0.2.0...v0.2.1

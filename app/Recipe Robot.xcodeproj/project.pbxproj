@@ -10,7 +10,7 @@
 		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
-		8B8F78D31BF3D5DB008F2440 /* Feed Me Drop Zone.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B8F78D21BF3D5DB008F2440 /* Feed Me Drop Zone.png */; settings = {ASSET_TAGS = (); }; };
+		8B8F78D31BF3D5DB008F2440 /* Feed Me Drop Zone.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B8F78D21BF3D5DB008F2440 /* Feed Me Drop Zone.png */; };
 		8BC7598F1BE413190074040F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7598E1BE413190074040F /* Credits.rtf */; };
 		BE007DBA1BE93CFE00E31479 /* RecipeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE007DB91BE93CFE00E31479 /* RecipeType.swift */; };
 		BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */ = {isa = PBXBuildFile; fileRef = BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */; };
