@@ -1150,7 +1150,8 @@ def generate_ds_recipe(facts, prefs, recipe):
 
     return recipe
 
-#TODO: Not completed, does not function yet
+
+# TODO: Not completed, does not function yet
 def generate_bigfix_recipe(facts, prefs, recipe):
     """Generate a BigFix recipe on passed recipe dict.
 
@@ -1164,10 +1165,16 @@ def generate_bigfix_recipe(facts, prefs, recipe):
             by this function!
     """
 
+    robo_print("Sorry, I don't know how to make a BigFix recipe yet. I'm a "
+               "fast learner, though. Stay tuned.", LogLevel.WARNING)
+    return
+
     # TODO: Windows download examples to work from for future functionality:
     # - https://github.com/autopkg/hansen-m-recipes/tree/master/Box
     # - https://github.com/autopkg/hansen-m-recipes/tree/master/Google
     # - https://github.com/autopkg/hansen-m-recipes/search?utf8=%E2%9C%93&q=win.download
+    # And a BigFix recipe example:
+    # - https://github.com/CLCMacTeam/AutoPkgBESEngine/blob/dd1603c3fc39c1b9530b49e2a08d3eb0bbeb19a1/Examples/TextWrangler.bigfix.recipe
     keys = recipe["keys"]
     # TODO: Until we get it working.
     if facts.is_from_app_store():
@@ -1176,10 +1183,14 @@ def generate_bigfix_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    recipe.set_description("WARNING: Does Not Function, work in progress "
-    					   "Downloads the latest version of %s and imports it "
+    recipe.set_description("Downloads the latest version of %s and imports it "
                            "into your BigFix server." %
                            facts["app_name"])
+
+    recipe.append_processor({
+        "Processor": "BESUploader"
+        # TODO: Which arguments do we need to specify here?
+    })
 
     # TODO: Once everything is working, only give this reminder if missing
     facts["reminders"].append(

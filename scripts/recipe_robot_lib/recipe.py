@@ -47,7 +47,9 @@ RECIPE_TYPES = {
     "sccm": "Creates a cmmac package for deploying via Microsoft SCCM.",
     "ds": "Imports into your DeployStudio Packages folder.",
     "filewave": "Imports a fileset into your FileWave server.",
-    "bigfix": "Not Functional, WORK IN PROGRESS"}
+    "bigfix": ("Builds a .bes deployment file and imports it into your "
+               "BigFix console")
+}
 
 
 class Recipe(RoboDict):
