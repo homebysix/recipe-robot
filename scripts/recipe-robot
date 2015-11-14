@@ -145,7 +145,7 @@ def main():
                 "Supported file formats": ALL_SUPPORTED_FORMATS,
                 "Preferences for this session": prefs,
                 "Recipe information": facts["recipes"],
-                # TODO: This is redundent. Perhaps just pull out other
+                # TODO: This is redundant. Perhaps just pull out other
                 # keys we're interested in.
                 "Facts we have collected": facts})
 
@@ -273,6 +273,7 @@ def init_prefs(facts):
         try:
             prefs = FoundationPlist.readPlist(PREFS_FILE)
         except FoundationPlist.NSPropertyListSerializationException:
+            # The prefs file can't be parsed by FoundationPlist.
             message = ("There was a problem opening the prefs file. Building "
                        "new preferences.")
             facts["warnings"].append(message)
@@ -294,7 +295,7 @@ def init_prefs(facts):
         prefs["RecipeCreateCount"] = int(prefs.get("RecipeCreateCount", 0))
 
     else:
-        # TODO: Isn't this basically the same condition as the except above?
+        # The prefs file doesn't exist.
         message = "No prefs file found. Building new preferences..."
         facts["warnings"].append(message)
         prefs = build_prefs({}, facts)
@@ -304,9 +305,9 @@ def init_prefs(facts):
 
     # Save preferences to disk for next time.
     FoundationPlist.writePlist(prefs, PREFS_FILE)
-    robo_print("Preferences modified. If you want the new settings to be "
-               "available to the Recipe Robot app immediately, run "
-               "`killall cfprefsd`.", LogLevel.REMINDER)
+    robo_print("Preferences modified on disk, but not in memory. If you want "
+               "the new settings to be available to the Recipe Robot app "
+               "immediately, run `killall cfprefsd`.", LogLevel.DEBUG)
 
     return prefs
 

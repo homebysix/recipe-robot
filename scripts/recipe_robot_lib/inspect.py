@@ -200,7 +200,7 @@ def inspect_app(input_path, args, facts):
         bundle_id = info_plist["CFBundleIdentifier"]
     else:
         raise RoboError("Strange, this app doesn't have a bundle identifier.")
-    robo_print("Bundle idenfitier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
+    robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
     facts["bundle_id"] = bundle_id
 
     # Attempt to determine how to download this app.
@@ -433,8 +433,7 @@ def inspect_archive(input_path, args, facts):
             # Locate and inspect any enclosed apps or pkgs.
             for this_file in os.listdir(os.path.join(CACHE_DIR, "unpacked")):
                 if this_file.endswith(".app"):
-                    # TODO(Elliot): What if .app isn't on root of zip?
-                    # (#26)
+                    # TODO(Elliot): What if .app isn't on root of zip? (#26)
                     # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
                     facts = inspect_app(os.path.join(CACHE_DIR, "unpacked", this_file), args, facts)
                     break
@@ -1377,7 +1376,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 raw_xml = urlopen(files_rss)
             except Exception as err:
                 facts["warnings"].append(
-                    "Error occured while inspecting SourceForge RSS feed: "
+                    "Error occurred while inspecting SourceForge RSS feed: "
                     "%s" % err)
             doc = parse(raw_xml)
 
@@ -1457,7 +1456,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
                 facts["warnings"].append(
-                    "Error occured while downloading Sparkle feed (%s)" % err)
+                    "Error occurred while downloading Sparkle feed (%s)" % err)
                 # Remove Sparkle feed if it's not usable.
                 facts.pop("sparkle_feed", None)
                 return facts
@@ -1493,7 +1492,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         doc = parse(raw_xml)
     except ParseError as err:
         facts["warnings"].append(
-            "Error occured while parsing Sparkle feed (%s)" % err)
+            "Error occurred while parsing Sparkle feed (%s)" % err)
         facts.pop("sparkle_feed", None)
         return facts
 
