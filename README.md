@@ -1,4 +1,4 @@
-![Recipe Robot](images/header.png)
+[![Recipe Robot](images/header.png)](#)
 
 <!-- MarkdownTOC autolink=true depth=3 bracket=round -->
 
@@ -24,7 +24,7 @@ Recipe Robot is the easiest way to create new AutoPkg recipes for simple Mac app
 
 - A __[Python script](#python-script-usage)__ that takes various types of input and automatically outputs AutoPkg recipes.
 
-- A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
+- A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping. You can [download the latest version of the app here](https://github.com/homebysix/recipe-robot/releases/latest).
 
 This two-pronged approach allows AutoPkg novices to easily create recipes that follow community-accepted guidelines, and still provides a command-line tool for more advanced AutoPkg users. Also, using Python for program logic encourages community contribution to this project.
 
@@ -35,6 +35,8 @@ In order to run Recipe Robot, you need [AutoPkg](https://autopkg.github.io/autop
 
 
 ## Mac App Usage
+
+You can [download the latest version of the app here](https://github.com/homebysix/recipe-robot/releases/latest).
 
 :warning: The Mac app is still in heavy development. As such, some features may not work, and you may encounter a bug or two. Be patient; we're still building robot parts.
 
