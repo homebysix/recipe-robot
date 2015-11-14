@@ -46,7 +46,8 @@ RECIPE_TYPES = {
     "absolute": "Imports into your Absolute Manage server.",
     "sccm": "Creates a cmmac package for deploying via Microsoft SCCM.",
     "ds": "Imports into your DeployStudio Packages folder.",
-    "filewave": "Imports a fileset into your FileWave server."}
+    "filewave": "Imports a fileset into your FileWave server.",
+    "bigfix": "Not Functional, WORK IN PROGRESS"}
 
 
 class Recipe(RoboDict):

@@ -475,7 +475,7 @@ def get_preferred_recipe_types(prefs, recipes):
             # Automatically enable download recipe type if required.
             if recipes[choice]["type"] in ("munki", "pkg", "install", "jss",
                                            "absolute", "ds", "sccm",
-                                           "filewave"):
+                                           "filewave", "bigfix"):
                 for recipe in recipes:
                     if recipe["type"] == "download":
                         recipe["preferred"] = True
