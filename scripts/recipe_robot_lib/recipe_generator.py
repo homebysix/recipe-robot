@@ -1150,6 +1150,43 @@ def generate_ds_recipe(facts, prefs, recipe):
 
     return recipe
 
+#TODO: Not completed, does not function yet
+def generate_bigfix_recipe(facts, prefs, recipe):
+    """Generate a BigFix recipe on passed recipe dict.
+
+    Args:
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs: The dictionary containing a key/value pair for each
+            preference.
+        recipe: The recipe to operate on. This recipe will be mutated
+            by this function!
+    """
+
+    # TODO: Windows download examples to work from for future functionality:
+    # - https://github.com/autopkg/hansen-m-recipes/tree/master/Box
+    # - https://github.com/autopkg/hansen-m-recipes/tree/master/Google
+    # - https://github.com/autopkg/hansen-m-recipes/search?utf8=%E2%9C%93&q=win.download
+    keys = recipe["keys"]
+    # TODO: Until we get it working.
+    if facts.is_from_app_store():
+        warn_about_app_store_generation(facts, recipe["type"])
+        return
+
+    robo_print("Generating %s recipe..." % recipe["type"])
+
+    recipe.set_description("WARNING: Does Not Function, work in progress "
+    					   "Downloads the latest version of %s and imports it "
+                           "into your BigFix server." %
+                           facts["app_name"])
+
+    # TODO: Once everything is working, only give this reminder if missing
+    facts["reminders"].append(
+        "You'll need to have the BES Engine installed and configured. "
+        "https://github.com/autopkg/hansen-m-recipes/tree/master/BESEngine")
+
+    return recipe
 
 def warn_about_appstoreapp_pyasn(facts):
     """Print warning reminding user of dependencies for AppStoreApps.
