@@ -1200,7 +1200,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
             "bes_category": "Software Installers",
             "bes_relevance": ['mac of operating system','system version >= "10.6.8"',
                 'not exists folder "/Applications/%NAME%.app" whose (version of it >= "%version%" as version)'],
-            "bes_actions": ""
+            "bes_actions": { "1":{ "ActionName":"DefaultAction" } }
         }
     })
 
