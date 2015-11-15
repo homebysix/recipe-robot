@@ -9,7 +9,7 @@
 import Foundation
 
 enum RecipeType: Int {
-    case Download, Munki, Pkg, Install, JSS, AbsoluteManage, SCCM, DS, Filewave
+    case Download, Munki, Pkg, Install, JSS, AbsoluteManage, SCCM, DS, Filewave, BigFix
 
     var value: String {
         switch self {
@@ -22,13 +22,14 @@ enum RecipeType: Int {
         case SCCM: return "sccm"
         case DS: return "ds"
         case Filewave: return "filewave"
+        case BigFix: return "bigfix"
         }
     }
 
     var requiredTypes: [RecipeType] {
         var types = Set([self])
         switch self {
-        case Munki, Pkg, Install, Filewave:
+        case Munki, Pkg, Install, Filewave, BigFix:
             // Requires Download
             types.unionInPlace([Download])
         case JSS, AbsoluteManage, SCCM, DS:

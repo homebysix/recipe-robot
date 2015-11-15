@@ -160,9 +160,11 @@ def inspect_app(input_path, args, facts):
     # Read the app's Info.plist.
     robo_print("Validating app...", LogLevel.VERBOSE)
     try:
-        info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
+        info_plist = FoundationPlist.readPlist(
+            input_path + "/Contents/Info.plist")
         robo_print("App seems valid", LogLevel.VERBOSE, 4)
-    except Exception as error:
+    except ((ValueError, FoundationPlist.NSPropertyListSerializationException)
+            as error):
         raise RoboError("%s doesn't look like a valid app to me." % input_path,
                         error)
 
