@@ -1188,8 +1188,20 @@ def generate_bigfix_recipe(facts, prefs, recipe):
                            facts["app_name"])
 
     recipe.append_processor({
-        "Processor": "BESUploader"
+        "Processor": "AutoPkgBESEngine",
         # TODO: Which arguments do we need to specify here?
+        # - https://github.com/homebysix/recipe-robot/issues/74
+        "Arguments": {
+            "bes_filename": "%NAME%.???",
+            "bes_version": "%version%",
+            "bes_title": "Install/Upgrade: Bare Bones %NAME% %version% - Mac OS X",
+            # TODO: Might be a problem with <![CDATA[ being escaped incorrectly in resulting recipe
+            "bes_description": "<![CDATA[<P>This task will install/upgrade: %NAME% %version%</p>]]>",
+            "bes_category": "Software Installers",
+            "bes_relevance": ['mac of operating system','system version >= "10.6.8"',
+                'not exists folder "/Applications/%NAME%.app" whose (version of it >= "%version%" as version)'],
+            "bes_actions": ""
+        }
     })
 
     # TODO: Once everything is working, only give this reminder if missing
