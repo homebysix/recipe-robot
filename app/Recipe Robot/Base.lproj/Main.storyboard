@@ -414,18 +414,11 @@ DQ
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="taG-FT-CNb">
                                 <rect key="frame" x="300" y="135" width="178" height="22"/>
                                 <animations/>
-                                <textFieldCell key="cell" lineBreakMode="truncatingHead" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1zr-Ad-yDY">
+                                <textFieldCell key="cell" lineBreakMode="truncatingHead" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="justified" placeholderString="/path/to/ds/folder" drawsBackground="YES" id="1zr-Ad-yDY">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
-                                <connections>
-                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.DSPackagesPath" id="tw5-AS-xQ0">
-                                        <dictionary key="options">
-                                            <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                        </dictionary>
-                                    </binding>
-                                </connections>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eiD-vS-YGE">
                                 <rect key="frame" x="486" y="133" width="74" height="25"/>
@@ -471,13 +464,6 @@ DQ
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
-                                <connections>
-                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.RecipeCreateLocation" id="Y8G-F0-FQI">
-                                        <dictionary key="options">
-                                            <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                        </dictionary>
-                                    </binding>
-                                </connections>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Mba-Fp-Bf1">
                                 <rect key="frame" x="486" y="186" width="74" height="25"/>
@@ -525,8 +511,12 @@ DQ
                         <animations/>
                     </view>
                     <connections>
-                        <outlet property="dsFolderPathButton" destination="eiD-vS-YGE" id="FNY-Ol-3yh"/>
+                        <outlet property="dsFolderPathButton" destination="eiD-vS-YGE" id="4Cp-Zd-NTk"/>
+                        <outlet property="dsLabel" destination="HFT-6C-ZYU" id="d3A-66-pYA"/>
+                        <outlet property="dsTextField" destination="taG-FT-CNb" id="tD1-jm-axG"/>
+                        <outlet property="jssCheckBox" destination="UuS-iq-Uqh" id="U3D-1g-1y5"/>
                         <outlet property="recipeFolderPathButton" destination="Mba-Fp-Bf1" id="DJ2-9i-Zl9"/>
+                        <outlet property="recipeLocation" destination="dM0-Kr-Oni" id="JAD-Ga-r0f"/>
                         <outlet property="scrollView" destination="R1z-2V-fNs" id="ZQS-8e-G7Y"/>
                         <outlet property="tableView" destination="AZn-zL-NZB" id="XXc-k4-1QK"/>
                     </connections>

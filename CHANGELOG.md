@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-Nothing yet.
+- App now validates the path specified is a valid directory for recipe locations, and DS Packages.
+- UI elements in preferences are hidden/shown only when required. (#69)
 
 
 ## [0.2.5] - 2015-11-13

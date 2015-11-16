@@ -136,7 +136,15 @@ class PreferenceViewController: RecipeRobotViewController {
     @IBOutlet var scrollView: NSScrollView!
 
     @IBOutlet var dsFolderPathButton: NSButton!
+    @IBOutlet weak var dsLabel: NSTextField!
+    @IBOutlet weak var dsTextField: NSTextField!
+
     @IBOutlet var recipeFolderPathButton: NSButton!
+
+    @IBOutlet weak var recipeLocation: NSTextField!
+
+    @IBOutlet weak var jssCheckBox: NSButton!
+
 
     private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? Set<String>()
 
@@ -151,7 +159,38 @@ class PreferenceViewController: RecipeRobotViewController {
         self.recipeFolderPathButton.target = self
         self.dsFolderPathButton.action = "chooseFilePath:"
         self.dsFolderPathButton.target = self
-        // Do view setup here.
+
+        let jssHidden = !enabledRecipeTypes.contains(RecipeType.JSS.value)
+        jssCheckBox.hidden = jssHidden
+
+        let dsHidden = !enabledRecipeTypes.contains(RecipeType.DS.value)
+        dsLabel.hidden = dsHidden
+        dsTextField.hidden = dsHidden
+        dsFolderPathButton.hidden = dsHidden
+
+        if let dsPath = Defaults.sharedInstance.dsPackagePath {
+            dsTextField.stringValue = dsPath
+        }
+
+        dsTextField.stringChanged {
+            textField in
+            if textField.markAsValidDirectory() {
+                Defaults.sharedInstance.dsPackagePath = textField.path
+            }
+        }
+
+
+        if let recipePath = Defaults.sharedInstance.recipeCreateLocation {
+            recipeLocation.stringValue = recipePath
+        }
+
+        recipeLocation.stringChanged {
+            textField in
+            if textField.markAsValidDirectory() {
+                Defaults.sharedInstance.recipeCreateLocation = textField.path
+            }
+        }
+
     }
 
     override func viewWillDisappear() {
@@ -160,8 +199,13 @@ class PreferenceViewController: RecipeRobotViewController {
     }
 
     @IBAction func close(sender: AnyObject) {
-        self.dismissController(sender)
-        self.view.window?.close()
+        if enabledRecipeTypes.contains(RecipeType.DS.value) &&
+            !dsTextField.markAsValidDirectory() {
+                // pass
+        } else {
+            self.dismissController(sender)
+            self.view.window?.close()
+        }
     }
 }
 
@@ -202,9 +246,13 @@ extension PreferenceViewController {
                 }
                 if sender === self!.recipeFolderPathButton {
                     d.recipeCreateLocation = path
+                    self!.recipeLocation.stringValue = path
+                    self!.recipeLocation.markAsValidDirectory()
                 }
                 else if sender === self!.dsFolderPathButton {
                     d.dsPackagePath = path
+                    self!.dsTextField.stringValue = path
+                    self!.dsTextField.markAsValidDirectory()
                 }
             }
         }
@@ -234,8 +282,20 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
         guard let value = object as? Int else {
             return
         }
+        let enabled = (value == NSOnState)
 
         let type = RecipeType.cases[row]
+        switch type {
+        case .JSS:
+            jssCheckBox.hidden = !enabled
+        case .DS:
+            dsLabel.hidden = !enabled
+            dsTextField.hidden = !enabled
+            dsFolderPathButton.hidden = !enabled
+        default:
+            break
+        }
+
         if (value == NSOnState) {
             enabledRecipeTypes.unionInPlace(type.requiredTypeValues)
         } else if (value == NSOffState){
