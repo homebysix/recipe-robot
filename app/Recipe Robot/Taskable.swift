@@ -58,39 +58,39 @@ extension Taskable where Self: InteractableTaskable {
 extension NSTask: ChainableTask {
     func stderr(message: (String) -> (Void)) -> Self {
         standardError = NSPipe()
-        standardError?.fileHandleForReading.readabilityHandler = {
+        standardError?.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
             guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
                 return
             }
             message(decoded)
-        }
+        })
         return self
     }
 
     func stdout(message: (String) -> (Void)) -> Self {
         standardOutput = NSPipe()
-        standardOutput?.fileHandleForReading.readabilityHandler = {
+        standardOutput?.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
             guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
                 return
             }
             message(decoded)
-        }
+        })
         return self
     }
 
     func completed(complete: (ErrorType)? -> (Void)) -> Self {
-        terminationHandler = {
+        terminationHandler = ({
             aTask in
             if ( aTask.terminationStatus != 0 ){
                 complete(nil)
             } else {
                 complete(Task.Error.NonZeroExit)
             }
-        }
+        })
         return self
     }
 
@@ -140,7 +140,7 @@ class Task: Taskable, CancelableTask {
 
     func stderr(message:(String) -> (Void)) -> Self {
         self.task.standardError = NSPipe()
-        task.standardError?.fileHandleForReading.readabilityHandler = {
+        task.standardError?.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
             guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
@@ -149,16 +149,15 @@ class Task: Taskable, CancelableTask {
             dispatch_async(dispatch_get_main_queue(), {
                 message(decoded)
             })
-        }
+        })
         return self
     }
 
     func stdout(message: (String) -> (Void)) -> Self {
         self.task.standardOutput = NSPipe()
 
-        task.standardOutput?.fileHandleForReading.readabilityHandler = {
+        task.standardOutput?.fileHandleForReading.readabilityHandler = ({
             fh in
-
             let data = fh.availableData
             guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
                 return
@@ -166,12 +165,12 @@ class Task: Taskable, CancelableTask {
             dispatch_async(dispatch_get_main_queue(), {
                 message(decoded)
             })
-        }
+        })
         return self
     }
 
     func completed(complete: (ErrorType)? -> (Void)) -> Self {
-        task.terminationHandler = {
+        task.terminationHandler = ({
             aTask in
 
             let error: ErrorType? = ( aTask.terminationStatus == 0 ) ? nil : Task.Error.NonZeroExit
@@ -182,7 +181,7 @@ class Task: Taskable, CancelableTask {
 
             aTask.standardError?.fileHandleForReading.readabilityHandler = nil
             aTask.standardOutput?.fileHandleForReading.readabilityHandler = nil
-        }
+        })
         return self
     }
 
@@ -243,8 +242,7 @@ class InteractiveTask: Task, InteractableTaskable {
 
     override func stdout(message: (String) -> (Void)) -> Self {
         self.task.standardOutput = NSPipe()
-
-        task.standardOutput?.fileHandleForReading.readabilityHandler = { [weak self]
+        task.standardOutput?.fileHandleForReading.readabilityHandler = ({ [weak self]
             fh in
             guard let _self = self else {
                 return
@@ -270,7 +268,7 @@ class InteractiveTask: Task, InteractableTaskable {
             } else {
                 message(decoded)
             }
-        }
+        })
         return self
     }
 }
