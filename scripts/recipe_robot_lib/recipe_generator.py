@@ -1188,8 +1188,40 @@ def generate_bigfix_recipe(facts, prefs, recipe):
                            facts["app_name"])
 
     recipe.append_processor({
-        "Processor": "BESUploader"
+        "Processor": "AutoPkgBESEngine",
         # TODO: Which arguments do we need to specify here?
+        # - https://github.com/homebysix/recipe-robot/issues/74
+        "Arguments": {
+            "bes_filename": "%NAME%.???",
+            "bes_version": "%version%",
+            "bes_title": "Install/Upgrade: Bare Bones %NAME% %version% - Mac OS X",
+            # TODO: Might be a problem with <![CDATA[ being escaped incorrectly in resulting recipe
+            "bes_description": "<![CDATA[<P>This task will install/upgrade: %NAME% %version%</p>]]>",
+            "bes_category": "Software Installers",
+            "bes_relevance": ['mac of operating system','system version >= "10.6.8"',
+                'not exists folder "/Applications/%NAME%.app" whose (version of it >= "%version%" as version)'],
+            "bes_actions": { 
+                "1":{ 
+                    "ActionName":"DefaultAction",
+            		"ActionNumber":"Action1",
+            		# TODO: The following ActionScript needs to made universal
+            		"ActionScript":"""
+delete "/tmp/%NAME%.???"
+move "__Download/%NAME%.???" "/tmp/%NAME%.???"
+
+wait /usr/bin/hdiutil attach -quiet -nobrowse -mountpoint "/tmp/%NAME%" "/tmp/%NAME%.???"
+
+continue if {exists folder "/tmp/%NAME%/TextWrangler.app"}
+
+wait /bin/rm -rf "/Applications/TextWrangler.app"
+wait /bin/cp -Rfp "/tmp/%NAME%/TextWrangler.app" "/Applications"
+
+wait /usr/bin/hdiutil detach -force "/tmp/%NAME%"
+delete "/tmp/%NAME%.???"
+                    """
+                } 
+            }
+        }
     })
 
     # TODO: Once everything is working, only give this reminder if missing
