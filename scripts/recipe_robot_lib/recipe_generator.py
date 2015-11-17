@@ -1168,7 +1168,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     robo_print("Sorry, I don't know how to make a BigFix recipe yet. I'm a "
                "fast learner, though. Stay tuned.", LogLevel.WARNING)
     #print(facts)
-    #return
+    return
 
     # TODO: Windows download examples to work from for future functionality:
     # - https://github.com/autopkg/hansen-m-recipes/tree/master/Box
