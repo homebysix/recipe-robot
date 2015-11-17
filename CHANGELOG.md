@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-### Added
-- Started working on compatibility with BigFix recipes. It's not functional yet, but might be soon!
+
+## [1.0] - 2015-11-17
 
 ### Changed
+- Put extra polish on things for MacBrained introduction demo.
 - App now validates the path specified is a valid directory for recipe locations, and DS Packages.
 - UI elements in preferences are hidden/shown only when required. (#69)
-
+- Updated screenshots and demo animations in readme file.
 
 ## [0.2.5] - 2015-11-13
 
@@ -79,7 +80,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0...HEAD
+[0.2.5]: https://github.com/homebysix/recipe-robot/compare/0.2.5...v1.0
 [0.2.5]: https://github.com/homebysix/recipe-robot/compare/0.2.4...v0.2.5
 [0.2.4]: https://github.com/homebysix/recipe-robot/compare/0.2.2...0.2.4
 [0.2.2]: https://github.com/homebysix/recipe-robot/compare/v0.2.1...0.2.2
