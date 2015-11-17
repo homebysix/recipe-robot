@@ -1230,7 +1230,7 @@ parameter "FILENAME" = "%NAME%.{parameter "download_format"}"
 delete "/tmp/{parameter "FILENAME"}"
 move "__Download/{parameter "FILENAME"}" "/tmp/{parameter "FILENAME"}"
 
-wait /usr/bin/hdiutil attach -quiet -nobrowse -mountpoint "/tmp/%NAME%" "/tmp/{parameter "FILENAME"}"
+wait /usr/bin/hdiutil attach -quiet -nobrowse -private -mountpoint "/tmp/%NAME%" "/tmp/{parameter "FILENAME"}"
 
 continue if {exists folder "/tmp/%NAME%/TextWrangler.app"}
 
