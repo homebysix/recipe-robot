@@ -1188,16 +1188,18 @@ def generate_bigfix_recipe(facts, prefs, recipe):
                            "into your BigFix server." %
                            facts["app_name"])
 
+    recipe.set_parent_from(prefs, facts, "download")
+
     recipe.append_processor({
         "Processor": "EndOfCheckPhase"})
 
     # TODO: If DMG, Add AppDmgVersioner processor (When is Versioner used instead?)
-    recipe.append_processor({
-        "Processor": "AppDmgVersioner",
-        "Arguments": {
-            "dmg_path":"%pathname%"
-        }
-    })
+    #recipe.append_processor({
+    #    "Processor": "AppDmgVersioner",
+    #    "Arguments": {
+    #        "dmg_path":"%pathname%"
+    #    }
+    #})
 
     recipe.append_processor({
         "Processor": "AutoPkgBESEngine",
@@ -1208,7 +1210,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
             "bes_version": "%version%",
             "bes_title": "Install/Upgrade: "+facts["developer"]+" %NAME% %version% - Mac OS X",
             # TODO: Might be a problem with <![CDATA[ being escaped incorrectly in resulting recipe
-            "bes_description": "<![CDATA[<P>This task will install/upgrade: %NAME% %version%</p>]]>",
+            "bes_description": "<p>This task will install/upgrade: %NAME% %version%</p>",
             "bes_category": "Software Installers",
             "bes_relevance": ['mac of operating system','system version >= "10.6.8"',
                 'not exists folder "/Applications/%NAME%.app" whose (version of it >= "%version%" as version)'],
