@@ -26,19 +26,17 @@ Recipe Robot is the easiest way to create new AutoPkg recipes for simple Mac app
 
 - A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping. You can [download the latest version of the app here](https://github.com/homebysix/recipe-robot/releases/latest).
 
-This two-pronged approach allows AutoPkg novices to easily create recipes that follow community-accepted guidelines, and still provides a command-line tool for more advanced AutoPkg users. Also, using Python for program logic encourages community contribution to this project.
+This two-pronged approach allows AutoPkg novices to easily create recipes that follow community-accepted guidelines, and still provides a command-line tool for more advanced AutoPkg users. Also, using Python for program logic fosters community contribution to this project.
 
 
 ## Requirements
 
-In order to run Recipe Robot, you need [AutoPkg](https://autopkg.github.io/autopkg/) 0.5.0 or later installed.
+In order to run Recipe Robot, you need [AutoPkg](https://github.com/autopkg/autopkg/releases/latest) 0.5.0 or later installed.
 
 
 ## Mac App Usage
 
 You can [download the latest version of the app here](https://github.com/homebysix/recipe-robot/releases/latest).
-
-:warning: The Mac app is still in heavy development. As such, some features may not work, and you may encounter a bug or two. Be patient; we're still building robot parts.
 
 1. When you first launch the app, you'll be prompted to select the following:
 
@@ -61,7 +59,7 @@ Here's what the whole process looks like:
 
 ## Python Script Usage
 
-Recipe Robot's Mac app is designed to be easy to use, but it's the Python script that contains the real horsepower. To use it, just install the latest version of Recipe Robot in your Applications folder, open Terminal, and type:
+Recipe Robot's Mac app is designed to be easy to use, but it's the command-line Python script that contains the real horsepower. To use it, just install the latest version of Recipe Robot in your Applications folder, open Terminal, and type:
 
 ```
 /Applications/Recipe\ Robot.app/Contents/Resources/scripts/recipe-robot <input>
@@ -77,7 +75,7 @@ For `<input>`, you can use one of several types of information:
 
 The first time Recipe Robot runs, you'll be prompted for some information. On subsequent runs, you can use the `--config` argument to force this prompt to return.
 
-Here's what Recipe Robot looks like when it's working properly. The command I used was: `/Applications/Recipe\ Robot.app/Contents/Resources/scripts/recipe-robot --verbose /Applications/Mountee.app`
+Here's what the Recipe Robot command-line script looks like in action. The command I used was: `/Applications/Recipe\ Robot.app/Contents/Resources/scripts/recipe-robot --verbose /Applications/Mountee.app`
 
 ![Demo of Recipe Robot script](images/mountee-script-demo.gif)
 
