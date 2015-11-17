@@ -46,7 +46,7 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-__version__ = '0.2.6'
+__version__ = '1.0'
 ENDC = "\033[0m"
 PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
@@ -261,7 +261,7 @@ def print_welcome_text():
     """Print the text that appears when you run Recipe Robot."""
     welcome_text = """
                       -----------------------------------
-                     |  Welcome to Recipe Robot v%s.  |
+                     |   Welcome to Recipe Robot v%s.   |
                       -----------------------------------
                                 \   _[]_
                                  \  [oo]
