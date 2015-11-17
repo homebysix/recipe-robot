@@ -1168,7 +1168,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     robo_print("Sorry, I don't know how to make a BigFix recipe yet. I'm a "
                "fast learner, though. Stay tuned.", LogLevel.WARNING)
     #print(facts)
-    return
+    #return
 
     # TODO: Windows download examples to work from for future functionality:
     # - https://github.com/autopkg/hansen-m-recipes/tree/master/Box
@@ -1187,6 +1187,17 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     recipe.set_description("Downloads the latest version of %s and imports it "
                            "into your BigFix server." %
                            facts["app_name"])
+
+    recipe.append_processor({
+        "Processor": "EndOfCheckPhase"})
+
+    # TODO: If DMG, Add AppDmgVersioner processor (When is Versioner used instead?)
+    recipe.append_processor({
+        "Processor": "AppDmgVersioner",
+        "Arguments": {
+            "dmg_path":"%pathname%"
+        }
+    })
 
     recipe.append_processor({
         "Processor": "AutoPkgBESEngine",
@@ -1212,6 +1223,8 @@ def generate_bigfix_recipe(facts, prefs, recipe):
                     # 		- facts["app_name"]
                     # 		- facts["description"]
                     # 		- facts["bundle_id"]
+                    #
+                    # http://www.pythonforbeginners.com/concatenation/string-concatenation-and-formatting-in-python
                     "ActionScript":"""
 parameter "download_format" = "{}"
 parameter "download_filename" = "{}"
@@ -1234,7 +1247,7 @@ wait /bin/rm -rf "/Applications/TextWrangler.app"
 wait /bin/cp -Rfp "/tmp/%NAME%/TextWrangler.app" "/Applications"
 
 wait /usr/bin/hdiutil detach -force "/tmp/%NAME%"
-delete "/tmp/%NAME%.???"
+delete "/tmp/{parameter "FILENAME"}"
                     """
                 }
             }

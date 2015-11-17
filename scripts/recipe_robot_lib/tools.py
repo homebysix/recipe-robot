@@ -358,7 +358,7 @@ def create_existing_recipe_list(facts):
                         recipe["existing"] = True
                         robo_print("Found existing %s" % recipe_name,
                                    LogLevel.LOG, 4)
-                        is_existing = True
+                        #is_existing = True
                         break
             if is_existing is True:
                 raise RoboError(
