@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+### Added
+- Started working on compatibility with BigFix recipes. It's not functional yet, but might be soon!
+
+### Changed
 - App now validates the path specified is a valid directory for recipe locations, and DS Packages.
 - UI elements in preferences are hidden/shown only when required. (#69)
 
