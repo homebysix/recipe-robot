@@ -24,7 +24,7 @@ class Defaults: NSObject {
     override init() {
         super.init()
         defaults.registerDefaults(["RecipeCreateCount": 0,
-                                    "RecipeCreateLocation": "\(NSHomeDirectory())/Library/AutoPkg/RecipeRobot"])
+                                    "RecipeCreateLocation": "\(NSHomeDirectory())/Library/AutoPkg/Recipe Robot Output"])
     }
 
     private let defaults = NSUserDefaults.standardUserDefaults()
