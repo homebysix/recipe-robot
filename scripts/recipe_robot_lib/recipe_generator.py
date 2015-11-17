@@ -1191,17 +1191,6 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "download")
 
     recipe.append_processor({
-        "Processor": "EndOfCheckPhase"})
-
-    # TODO: If DMG, Add AppDmgVersioner processor (When is Versioner used instead?)
-    #recipe.append_processor({
-    #    "Processor": "AppDmgVersioner",
-    #    "Arguments": {
-    #        "dmg_path":"%pathname%"
-    #    }
-    #})
-
-    recipe.append_processor({
         "Processor": "AutoPkgBESEngine",
         # TODO: Which arguments do we need to specify here?
         # - https://github.com/homebysix/recipe-robot/issues/74
@@ -1258,8 +1247,10 @@ delete "/tmp/{parameter "FILENAME"}"
 
     # TODO: Once everything is working, only give this reminder if missing
     facts["reminders"].append(
-        "You'll need to have the BES Engine installed and configured. "
-        "https://github.com/autopkg/hansen-m-recipes/tree/master/BESEngine")
+        "You'll need to have the AutoPkgBESEngine installed and configured:\n"
+        "autopkg repo-add https://github.com/autopkg/hansen-m-recipes.git\n"
+        "autopkg install BESEngine\n"
+        "autopkg install QnA\n")
 
     return recipe
 
