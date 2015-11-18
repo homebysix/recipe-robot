@@ -103,7 +103,7 @@ Also see the [Tips](#tips) section below for more timesavers.
 
 ### Compatibility
 
-My goal is _not_ to make Recipe Robot generate perfect recipes 100% of the time. There will certainly be apps that Recipe Robot chokes on, and some recipe types are more complex to build than others. I hope Recipe Robot will make the process of writing _standard_ recipes for _simple_ apps much faster and more consistent. The recipes created by Recipe Robot should serve as a platform that you can customize before using and sharing.
+My goal is _not_ to make Recipe Robot generate perfect recipes 100% of the time. There will be apps that Recipe Robot may not be able to generate recipes for, and some recipe types are more complex to build than others. I hope Recipe Robot will make the process of writing recipes for _simple_ apps much faster and more consistent. The recipes created by Recipe Robot should serve as a platform that you can customize before using and sharing.
 
 You may still need to make a recipe the old fashioned way, if the Robot comes up empty.
 
@@ -153,7 +153,7 @@ If you provide Recipe Robot with the path to an app that came from the Mac App S
     3. If that still doesn't work, maybe the app has a GitHub or SourceForge project page? Try providing that to the Recipe Robot [script](#python-script-usage).
     4. Still no luck? Write a recipe from scratch like the good old days. It builds character.
 
-- Run again with `--verbose` when errors occur, and you'll usually see why. It's often because Recipe Robot couldn't determine how to download the app. As I said, the Robot won't work for all apps.
+- Run again with `--verbose` when errors occur, and you'll usually see why. It's often because Recipe Robot couldn't determine how to download the app.
 
 - If you get Python exceptions while using Recipe Robot, I invite you to [create an issue on GitHub](https://github.com/homebysix/recipe-robot/issues/new) so I can track the problem. Include full traceback plus whatever input (URL, path, etc) you provided when you ran Recipe Robot.
 
@@ -161,7 +161,5 @@ If you provide Recipe Robot with the path to an app that came from the Mac App S
 
 
 ## Feedback
-
-Recipe Robot is in public beta now, so please be gentle when reporting errors. There are many bugs, and we're actively working on them.
 
 The best way to get in touch is by opening an [issue](https://github.com/homebysix/recipe-robot/issues) on GitHub.
