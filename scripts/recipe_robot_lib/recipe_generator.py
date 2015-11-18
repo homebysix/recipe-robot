@@ -1167,6 +1167,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
 
     robo_print("Sorry, I don't know how to make a BigFix recipe yet. I'm a "
                "fast learner, though. Stay tuned.", LogLevel.WARNING)
+    #print(facts)
     return
 
     # TODO: Windows download examples to work from for future functionality:
@@ -1187,29 +1188,49 @@ def generate_bigfix_recipe(facts, prefs, recipe):
                            "into your BigFix server." %
                            facts["app_name"])
 
+    recipe.set_parent_from(prefs, facts, "download")
+
     recipe.append_processor({
         "Processor": "AutoPkgBESEngine",
         # TODO: Which arguments do we need to specify here?
         # - https://github.com/homebysix/recipe-robot/issues/74
         "Arguments": {
-            "bes_filename": "%NAME%.???",
+            "bes_filename": "%NAME%." + facts["download_format"],
             "bes_version": "%version%",
-            "bes_title": "Install/Upgrade: Bare Bones %NAME% %version% - Mac OS X",
+            "bes_title": "Install/Upgrade: "+facts["developer"]+" %NAME% %version% - Mac OS X",
             # TODO: Might be a problem with <![CDATA[ being escaped incorrectly in resulting recipe
-            "bes_description": "<![CDATA[<P>This task will install/upgrade: %NAME% %version%</p>]]>",
+            "bes_description": "<p>This task will install/upgrade: %NAME% %version%</p>",
             "bes_category": "Software Installers",
             "bes_relevance": ['mac of operating system','system version >= "10.6.8"',
                 'not exists folder "/Applications/%NAME%.app" whose (version of it >= "%version%" as version)'],
             "bes_actions": { 
                 "1":{ 
                     "ActionName":"DefaultAction",
-            		"ActionNumber":"Action1",
-            		# TODO: The following ActionScript needs to made universal
-            		"ActionScript":"""
-delete "/tmp/%NAME%.???"
-move "__Download/%NAME%.???" "/tmp/%NAME%.???"
+                    "ActionNumber":"Action1",
+                    # TODO: The following ActionScript needs to be made universal
+                    # 		- facts["download_format"]
+                    # 		- facts["download_filename"]
+                    # 		- facts["app_name_key"]
+                    # 		- facts["app_name"]
+                    # 		- facts["description"]
+                    # 		- facts["bundle_id"]
+                    #
+                    # http://www.pythonforbeginners.com/concatenation/string-concatenation-and-formatting-in-python
+                    "ActionScript":"""
+parameter "download_format" = "{}"
+parameter "download_filename" = "{}"
+parameter "app_name_key" = "{}"
+parameter "app_name" = "{}"
+parameter "bundle_id" = "{}"
+                    """.format( facts["download_format"], facts["download_filename"], 
+                    	        facts["app_name_key"], facts["app_name"], facts["bundle_id"] ) +
+                    """
+parameter "NAME" = "%NAME%"
+parameter "FILENAME" = "%NAME%.{parameter "download_format"}"
+delete "/tmp/{parameter "FILENAME"}"
+move "__Download/{parameter "FILENAME"}" "/tmp/{parameter "FILENAME"}"
 
-wait /usr/bin/hdiutil attach -quiet -nobrowse -mountpoint "/tmp/%NAME%" "/tmp/%NAME%.???"
+wait /usr/bin/hdiutil attach -quiet -nobrowse -private -mountpoint "/tmp/%NAME%" "/tmp/{parameter "FILENAME"}"
 
 continue if {exists folder "/tmp/%NAME%/TextWrangler.app"}
 
@@ -1217,17 +1238,19 @@ wait /bin/rm -rf "/Applications/TextWrangler.app"
 wait /bin/cp -Rfp "/tmp/%NAME%/TextWrangler.app" "/Applications"
 
 wait /usr/bin/hdiutil detach -force "/tmp/%NAME%"
-delete "/tmp/%NAME%.???"
+delete "/tmp/{parameter "FILENAME"}"
                     """
-                } 
+                }
             }
         }
     })
 
     # TODO: Once everything is working, only give this reminder if missing
     facts["reminders"].append(
-        "You'll need to have the BES Engine installed and configured. "
-        "https://github.com/autopkg/hansen-m-recipes/tree/master/BESEngine")
+        "You'll need to have the AutoPkgBESEngine installed and configured:\n"
+        "autopkg repo-add https://github.com/autopkg/hansen-m-recipes.git\n"
+        "autopkg install BESEngine\n"
+        "autopkg install QnA\n")
 
     return recipe
 
