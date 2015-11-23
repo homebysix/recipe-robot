@@ -90,13 +90,21 @@ I've produced a series of video tutorials to demonstrate various features of Rec
 
 Also see the [Tips](#tips) section below for more timesavers.
 
-[![Introducing Recipe Robot](images/tutorial-intro.jpg)](https://www.youtube.com/watch?v=E531jJLovhc)
+[![Introducing Recipe Robot](images/tutorial-intro.jpg)](https://www.youtube.com/watch?v=E531jJLovhc&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=1)
 
-[![Using Recipe Robot with a Download URL](images/tutorial-download.jpg)](https://www.youtube.com/watch?v=JnmLktTdh1s)
+[![Using Recipe Robot with a Download URL](images/tutorial-download.jpg)](https://www.youtube.com/watch?v=JnmLktTdh1s&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=2)
 
-[![Using Recipe Robot with a GitHub URL](images/tutorial-github.jpg)](https://www.youtube.com/watch?v=ifqv-j45AWU)
+[![Using Recipe Robot with a GitHub URL](images/tutorial-github.jpg)](https://www.youtube.com/watch?v=ifqv-j45AWU&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=3)
 
-[![Combining Recipe Robot with URLTextSearcher](images/tutorial-urltextsearcher.jpg)](https://www.youtube.com/watch?v=3UWKBQWZp3A)
+[![Combining Recipe Robot with URLTextSearcher](images/tutorial-urltextsearcher.jpg)](https://www.youtube.com/watch?v=3UWKBQWZp3A&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=4)
+
+[![Use a Bash Profile Alias to Save Time Running Recipe Robot](images/tutorial-bashprofile.jpg)](https://www.youtube.com/watch?v=5WF5rl0H3hQ&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=5)
+
+[![Creating AppStoreApp Overrides With Recipe Robot](images/tutorial-appstoreapp.jpg)](https://www.youtube.com/watch?v=dWBPKhMIWZI&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=6)
+
+[![Using Recipe Robot to Add Icons to Your Munki Repo](images/tutorial-munkiicons.jpg)](https://www.youtube.com/watch?v=3hn7yNWuUPA&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=7)
+
+[![Auditing Existing AutoPkg Recipes Using Recipe Robot](images/tutorial-auditing.jpg)](https://www.youtube.com/watch?v=sItavxHraRQ&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=8)
 
 
 ## Tips
