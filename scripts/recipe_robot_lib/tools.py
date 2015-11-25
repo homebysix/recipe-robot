@@ -67,11 +67,11 @@ color_setting = False
 class LogLevel(object):
     """Specify colors that are used in Terminal output."""
     DEBUG = ("\033[95m", "DEBUG")
-    ERROR = ("\033[91m", "ERROR")
+    ERROR = ("\033[1;38;5;196m", "ERROR")
     LOG = ("", "")
-    REMINDER = ("\033[94m", "REMINDER")
+    REMINDER = ("\033[1;38;5;33m", "REMINDER")
     VERBOSE = ("\033[0m", "")
-    WARNING = ("\033[93m", "WARNING")
+    WARNING = ("\033[1;38;5;208m", "WARNING")
 
 
 class OutputMode(object):
