@@ -840,7 +840,8 @@ def inspect_download_url(input_path, args, facts):
             p = float(file_size_dl) / file_size
             status = r"    {0:.2%}".format(p)
             status = status + chr(8)*(len(status)+1)
-            sys.stdout.write(status)
+            if not args.app_mode:
+                sys.stdout.write(status)
     robo_print("Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4)
 
     # Just in case the "download" was actually a Sparkle feed.
