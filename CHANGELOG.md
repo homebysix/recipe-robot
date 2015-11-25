@@ -5,11 +5,12 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 ### Added
-- If a dmg is supplied as input, Recipe Robot inspects the file metadata in order to detect possible download URLs (#81, credit to @gregneagle for the idea).
+- If a dmg is supplied as input, Recipe Robot inspects the file metadata in order to detect possible download URLs (#81, thanks to @gregneagle).
+- The script now displays a simple progress percentage during file downloads. (#24, #72)
 - Added more [video tutorials](https://www.youtube.com/playlist?list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq)!
 
 ### Fixed
-- Adjusted colors so that they'll be more readable on both bright and dark backgrounds.
+- Adjusted colors so that they'll be more readable on both bright and dark backgrounds. (#79)
 
 
 ## [1.0] - 2015-11-17
