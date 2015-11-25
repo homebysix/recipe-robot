@@ -825,10 +825,24 @@ def inspect_download_url(input_path, args, facts):
         filename = "download"
     facts["download_filename"] = filename
 
-    # Write the downloaded file to the cache folder.
+    # Write the downloaded file to the cache folder, showing progress.
+    file_size = int(raw_download.info().getheaders("Content-Length")[0])
     with open(os.path.join(CACHE_DIR, filename), "wb") as download_file:
-        download_file.write(raw_download.read())
-        robo_print("Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4)
+        file_size_dl = 0
+        block_sz = 8192
+        while True:
+            buffer = raw_download.read(block_sz)
+            if not buffer:
+                break
+
+            file_size_dl += len(buffer)
+            download_file.write(buffer)
+            p = float(file_size_dl) / file_size
+            status = r"    {0:.2%}".format(p)
+            status = status + chr(8)*(len(status)+1)
+            if not args.app_mode:
+                sys.stdout.write(status)
+    robo_print("Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4)
 
     # Just in case the "download" was actually a Sparkle feed.
     hidden_sparkle = False
