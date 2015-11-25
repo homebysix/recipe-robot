@@ -616,7 +616,7 @@ def inspect_disk_image(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        cmd = "xattr -p com.apple.metadata:kMDItemWhereFroms \"%s\"" % input_path
+        cmd = "/usr/bin/xattr -p com.apple.metadata:kMDItemWhereFroms \"%s\"" % input_path
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             # Save the hex output as a file.
@@ -624,12 +624,12 @@ def inspect_disk_image(input_path, args, facts):
             with open(where_froms_path, "wb") as where_froms_file:
                 where_froms_file.write(out)
             # Convert the hex to a binary plist.
-            cmd = "xxd -r -p -g 1 -c 16 \"%s\" -" % where_froms_path
+            cmd = "/usr/bin/xxd -r -p -g 1 -c 16 \"%s\" -" % where_froms_path
             exitcode, out, err = get_exitcode_stdout_stderr(cmd)
             with open(where_froms_path, "wb") as where_froms_file:
                 where_froms_file.write(out)
             # Convert the binary plist to xml1 plain text.
-            cmd = "plutil -convert xml1 \"%s\"" % where_froms_path
+            cmd = "/usr/bin/plutil -convert xml1 \"%s\"" % where_froms_path
             exitcode, out, err = get_exitcode_stdout_stderr(cmd)
             # Read the plist.
             where_froms = FoundationPlist.readPlist(where_froms_path)
