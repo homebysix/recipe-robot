@@ -410,6 +410,14 @@ def inspect_archive(input_path, args, facts):
     else:
         facts["inspections"].append("archive")
 
+    # See if we can determine the download URL from the file metadata.
+    if "download_url" not in facts:
+        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
+        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+        if len(where_froms) > 0:
+            facts["download_url"] = where_froms[0]
+            robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+
     # Unzip the zip and look for an app. (If this fails, we try tgz
     # next.)
     archive_cmds = ({
@@ -1090,6 +1098,14 @@ def inspect_pkg(input_path, args, facts):
         return facts
     else:
         facts["inspections"].append("pkg")
+
+    # See if we can determine the download URL from the file metadata.
+    if "download_url" not in facts:
+        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
+        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+        if len(where_froms) > 0:
+            facts["download_url"] = where_froms[0]
+            robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
 
     # Check whether package is signed.
     robo_print("Checking whether package is signed...", LogLevel.VERBOSE)
