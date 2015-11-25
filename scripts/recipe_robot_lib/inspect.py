@@ -614,6 +614,29 @@ def inspect_disk_image(input_path, args, facts):
     else:
         facts["inspections"].append("disk_image")
 
+    # See if we can determine the download URL from the file metadata.
+    if "download_url" not in facts:
+        cmd = "/usr/bin/xattr -p com.apple.metadata:kMDItemWhereFroms \"%s\"" % input_path
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+        if exitcode == 0:
+            # Save the hex output as a file.
+            where_froms_path = os.path.join(CACHE_DIR, "kMDItemWhereFroms.plist")
+            with open(where_froms_path, "wb") as where_froms_file:
+                where_froms_file.write(out)
+            # Convert the hex to a binary plist.
+            cmd = "/usr/bin/xxd -r -p -g 1 -c 16 \"%s\" -" % where_froms_path
+            exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+            with open(where_froms_path, "wb") as where_froms_file:
+                where_froms_file.write(out)
+            # Convert the binary plist to xml1 plain text.
+            cmd = "/usr/bin/plutil -convert xml1 \"%s\"" % where_froms_path
+            exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+            # Read the plist.
+            where_froms = FoundationPlist.readPlist(where_froms_path)
+            if len(where_froms) > 0:
+                facts["download_url"] = where_froms[0]
+                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+
     # Determine whether the dmg has a software license agreement.
     # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
     dmg_has_sla = False

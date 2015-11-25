@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+- If a dmg is supplied as input, Recipe Robot inspects the file metadata in order to detect possible download URLs.
+- Added more [video tutorials](https://www.youtube.com/playlist?list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq)!
 
 
 ## [1.0] - 2015-11-17
