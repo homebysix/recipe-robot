@@ -23,8 +23,6 @@ class Defaults: NSObject {
 
     override init() {
         super.init()
-        defaults.registerDefaults(["RecipeCreateCount": 0,
-                                    "RecipeCreateLocation": "\(NSHomeDirectory())/Library/AutoPkg/Recipe Robot Output"])
     }
 
     private let defaults = NSUserDefaults.standardUserDefaults()
@@ -55,7 +53,11 @@ class Defaults: NSObject {
 
     var recipeCreateLocation: String? {
         get {
-            return defaults.stringForKey("RecipeCreateLocation")
+            guard let recipeCreateLocation = defaults.stringForKey("RecipeCreateLocation") else {
+                self.recipeCreateLocation = "\(NSHomeDirectory())/Library/AutoPkg/Recipe Robot Output"
+                return self.recipeCreateLocation
+            }
+            return recipeCreateLocation
         }
         set {
             defaults.setValue(newValue, forKey: "RecipeCreateLocation")
