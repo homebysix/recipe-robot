@@ -36,16 +36,12 @@ from .exceptions import RoboError
 import processor
 from .tools import (create_dest_dirs, create_existing_recipe_list,
                     create_SourceForgeURLProvider, extract_app_icon,
-                    robo_print, robo_join, LogLevel, __version__,
-                    get_exitcode_stdout_stderr, timed, SUPPORTED_IMAGE_FORMATS,
-                    SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_INSTALL_FORMATS,
-                    ALL_SUPPORTED_FORMATS, PREFS_FILE)
+                    robo_print, robo_join, get_user_defaults, save_user_defaults,
+                    LogLevel, __version__, get_exitcode_stdout_stderr, timed,
+                    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
+                    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS)
 
-try:
-    from recipe_robot_lib import FoundationPlist
-except ImportError:
-    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
-    import plistlib as FoundationPlist
+
 
 
 @timed
@@ -109,7 +105,7 @@ def generate_recipes(facts, prefs):
     # TODO (Shea): As far as I can tell, the only pref that changes is the
     # recipe created count. Move out from here!
     # Save preferences to disk for next time.
-    FoundationPlist.writePlist(prefs, PREFS_FILE)
+    save_user_defaults(prefs)
 
 
 def raise_if_recipes_cannot_be_generated(facts, preferred):
@@ -1203,8 +1199,8 @@ def generate_bigfix_recipe(facts, prefs, recipe):
             "bes_category": "Software Installers",
             "bes_relevance": ['mac of operating system','system version >= "10.6.8"',
                 'not exists folder "/Applications/%NAME%.app" whose (version of it >= "%version%" as version)'],
-            "bes_actions": { 
-                "1":{ 
+            "bes_actions": {
+                "1":{
                     "ActionName":"DefaultAction",
                     "ActionNumber":"Action1",
                     # TODO: The following ActionScript needs to be made universal
@@ -1222,7 +1218,7 @@ parameter "download_filename" = "{}"
 parameter "app_name_key" = "{}"
 parameter "app_name" = "{}"
 parameter "bundle_id" = "{}"
-                    """.format( facts["download_format"], facts["download_filename"], 
+                    """.format( facts["download_format"], facts["download_filename"],
                     	        facts["app_name_key"], facts["app_name"], facts["bundle_id"] ) +
                     """
 parameter "NAME" = "%NAME%"
