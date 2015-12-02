@@ -826,7 +826,11 @@ def inspect_download_url(input_path, args, facts):
     facts["download_filename"] = filename
 
     # Write the downloaded file to the cache folder, showing progress.
-    file_size = int(raw_download.info().getheaders("Content-Length")[0])
+    if len(raw_download.info().getheaders("Content-Length")) > 0:
+        file_size = int(raw_download.info().getheaders("Content-Length")[0])
+    else:
+        # File size is unknown, so we can't show progress.
+        file_size = 0
     with open(os.path.join(CACHE_DIR, filename), "wb") as download_file:
         file_size_dl = 0
         block_sz = 8192
@@ -834,14 +838,16 @@ def inspect_download_url(input_path, args, facts):
             buffer = raw_download.read(block_sz)
             if not buffer:
                 break
-
+            # Write downloaded chunk.
             file_size_dl += len(buffer)
             download_file.write(buffer)
-            p = float(file_size_dl) / file_size
-            status = r"    {0:.2%}".format(p)
-            status = status + chr(8)*(len(status)+1)
-            if not args.app_mode:
-                sys.stdout.write(status)
+            # Show progress if file size is known.
+            if file_size > 0:
+                p = float(file_size_dl) / file_size
+                status = r"    {0:.2%}".format(p)
+                status = status + chr(8)*(len(status)+1)
+                if not args.app_mode:
+                    sys.stdout.write(status)
     robo_print("Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4)
 
     # Just in case the "download" was actually a Sparkle feed.
