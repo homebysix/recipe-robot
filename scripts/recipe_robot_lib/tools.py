@@ -35,6 +35,7 @@ from subprocess import Popen, PIPE
 import sys
 import timeit
 from urllib2 import urlopen
+from Foundation import NSUserDefaults
 
 from .exceptions import RoboError
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
@@ -293,6 +294,15 @@ def reset_term_colors():
 def write_report(report, report_file):
     FoundationPlist.writePlist(report, report_file)
 
+def get_user_defaults():
+    defaults = NSUserDefaults.alloc().initWithSuiteName_('com.elliotjordan.recipe-robot')
+    default_dict = defaults.dictionaryRepresentation()
+    return default_dict if len(default_dict) else None
+
+def save_user_defaults(prefs):
+    defaults = NSUserDefaults.alloc().initWithSuiteName_('com.elliotjordan.recipe-robot')
+    for key, value in prefs.iteritems():
+		defaults.setValue_forKey_(value, key)
 
 def any_item_in_string(items, test_string):
     """Return true if any item in items is in test_string"""
