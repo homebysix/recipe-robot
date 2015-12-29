@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+Nothing yet.
+
+
+## [1.0.1] - 2015-12-28
+
 ### Added
 - If a dmg is supplied as input, Recipe Robot inspects the file metadata in order to detect possible download URLs (#81, thanks to @gregneagle).
 - The script now displays a simple progress percentage during file downloads. (#24, #72)
@@ -11,6 +16,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Fixed
 - Adjusted colors so that they'll be more readable on both bright and dark backgrounds. (#79)
+
+### Changed
+- Now uses NSUserDefaults for preference handling. (#80)
 
 
 ## [1.0] - 2015-11-17
@@ -20,6 +28,7 @@ All notable changes to this project will be documented in this file. This projec
 - App now validates the path specified is a valid directory for recipe locations, and DS Packages.
 - UI elements in preferences are hidden/shown only when required. (#69)
 - Updated screenshots and demo animations in readme file.
+
 
 ## [0.2.5] - 2015-11-13
 
@@ -88,7 +97,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/homebysix/recipe-robot/compare/v1.0...v1.0.1
 [1.0]: https://github.com/homebysix/recipe-robot/compare/v0.2.5...v1.0
 [0.2.5]: https://github.com/homebysix/recipe-robot/compare/0.2.4...v0.2.5
 [0.2.4]: https://github.com/homebysix/recipe-robot/compare/0.2.2...0.2.4
