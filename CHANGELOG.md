@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-Nothing yet.
+### Changes
+- `MinimumVersion` of AutoPkg on generated recipes is now 0.5.2.
 
 
 ## [1.0.1] - 2015-12-28
