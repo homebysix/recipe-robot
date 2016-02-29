@@ -929,7 +929,7 @@ def generate_absolute_recipe(facts, prefs, recipe):
                out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the AbsoluteManageExport repo in order to use "
-            "this recipe:\nautopkg repo-add "
+            "this recipe:\n        autopkg repo-add "
             "\"%s\"" % amexport_url)
 
     recipe.append_processor({
@@ -943,6 +943,68 @@ def generate_absolute_recipe(facts, prefs, recipe):
                 "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
             "source_payload_path": "%pkg_path%",
             "import_abman_to_servercenter": True
+        }
+    })
+
+    return recipe
+
+
+def generate_lanrev_recipe(facts, prefs, recipe):
+    """Generate an LANrev recipe on passed recipe dict.
+
+    Args:
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs: The dictionary containing a key/value pair for each
+            preference.
+        recipe: The recipe to operate on. This recipe will be mutated
+            by this function!
+    """
+    keys = recipe["keys"]
+    # TODO: Until we get it working.
+    if facts.is_from_app_store():
+        warn_about_app_store_generation(facts, recipe["type"])
+        return
+    # Can't make this recipe without a bundle identifier.
+    if "bundle_id" not in facts:
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input."
+            % recipe["type"])
+        return
+
+    robo_print("Generating %s recipe..." % recipe["type"])
+
+    recipe.set_description("Downloads the latest version of %s and copies it "
+                           "into your LANrev Server." %
+                           facts["app_name"])
+
+    recipe.set_parent_from(prefs, facts, "pkg")
+
+    # Print a reminder if the required repo isn't present on disk.
+    lanrevimporter_url = "https://github.com/jbaker10/LANrevImporter"
+    cmd = "/usr/local/bin/autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any(line.endswith("(%s)" % lanrevimporter_url) for line in
+               out.splitlines()):
+        facts["reminders"].append(
+            "You'll need to add the LANrevImporter repo in order to use "
+            "this recipe:\n        autopkg repo-add "
+            "\"%s\"" % lanrevimporter_url)
+
+    recipe.append_processor({
+        "Processor":
+            "com.github.jbaker10.LANrevImporter/LANrevImporter",
+        "SharedProcessorRepoURL": lanrevimporter_url,
+        "Arguments": {
+            "dest_payload_path":
+                "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
+            "sdpackages_ampkgprops_path":
+                "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
+            "source_payload_path": "%pkg_path%",
+            "import_pkg_to_servercenter": True
         }
     })
 
@@ -989,7 +1051,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
                out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the cgerke-recipes repo in order to use this "
-            "recipe:\nautopkg repo-add "
+            "recipe:\n        autopkg repo-add "
             "\"%s\"" % cgerke_url)
 
     recipe.append_processor({
@@ -1079,7 +1141,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the FileWave repo in order to use "
-            "this recipe:\n           autopkg repo-add "
+            "this recipe:\n        autopkg repo-add "
             "\"%s\"" % filewave_repo)
 
     recipe.append_processor({

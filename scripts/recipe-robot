@@ -230,7 +230,8 @@ def configure_from_args(facts):
     if args.ignore_existing is True:
         facts["warnings"].append(
             "Will build recipes even if they already exist in \"autopkg "
-            "search\" results. Please don't upload duplicate recipes.")
+            "search\" results. Please don't upload duplicate recipes to "
+            "public AutoPkg repos on GitHub.")
 
     # If --verbose was specified, set verbose mode to True.
     if args.verbose is True or OutputMode.verbose_mode is True:
@@ -455,13 +456,14 @@ def get_preferred_recipe_types(prefs, recipes):
 
             # Automatically enable download recipe type if required.
             if recipes[choice]["type"] in ("munki", "pkg", "install", "jss",
-                                           "absolute", "ds", "sccm",
+                                           "absolute", "lanrev", "ds", "sccm",
                                            "filewave", "bigfix"):
                 for recipe in recipes:
                     if recipe["type"] == "download":
                         recipe["preferred"] = True
             # Automatically enable pkg recipe type if required.
-            if recipes[choice]["type"] in ("jss", "absolute", "ds", "sccm"):
+            if recipes[choice]["type"] in ("jss", "absolute", "lanrev", "ds",
+                                           "sccm"):
                 for recipe in recipes:
                     if recipe["type"] == "pkg":
                         recipe["preferred"] = True

@@ -1,7 +1,8 @@
 //
 //  Filepathable.swift
-//  Created by Eldon on 11/8/15.
-//  Copyright © 2015 EEAapps.
+//
+//  Recipe Robot
+//  Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.

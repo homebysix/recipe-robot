@@ -1,9 +1,8 @@
 //
 //  DictionaryExtensions.swift
-//  Recipe Robot
 //
-//  Created by Eldon on 11/2/15.
-//  Copyright © 2015 Linde Group. All rights reserved.
+//  Recipe Robot
+//  Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 
 import Foundation
