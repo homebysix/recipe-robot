@@ -929,7 +929,7 @@ def generate_absolute_recipe(facts, prefs, recipe):
                out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the AbsoluteManageExport repo in order to use "
-            "this recipe:\nautopkg repo-add "
+            "this recipe:\n        autopkg repo-add "
             "\"%s\"" % amexport_url)
 
     recipe.append_processor({
@@ -991,7 +991,7 @@ def generate_lanrev_recipe(facts, prefs, recipe):
                out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the LANrevImporter repo in order to use "
-            "this recipe:\nautopkg repo-add "
+            "this recipe:\n        autopkg repo-add "
             "\"%s\"" % lanrevimporter_url)
 
     recipe.append_processor({
@@ -1051,7 +1051,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
                out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the cgerke-recipes repo in order to use this "
-            "recipe:\nautopkg repo-add "
+            "recipe:\n        autopkg repo-add "
             "\"%s\"" % cgerke_url)
 
     recipe.append_processor({
@@ -1141,7 +1141,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                out.splitlines()):
         facts["reminders"].append(
             "You'll need to add the FileWave repo in order to use "
-            "this recipe:\n           autopkg repo-add "
+            "this recipe:\n        autopkg repo-add "
             "\"%s\"" % filewave_repo)
 
     recipe.append_processor({
