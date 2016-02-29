@@ -275,8 +275,6 @@ def generate_download_recipe(facts, prefs, recipe):
     if facts.get("codesign_reqs") or len(facts["codesign_authorities"]) > 0:
 
         if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-            # We're assuming that the app is at the root level of the
-            # zip.
             unarchiver = processor.Unarchiver()
             unarchiver.archive_path = "%pathname%"
             unarchiver.destination_path = (
@@ -286,11 +284,12 @@ def generate_download_recipe(facts, prefs, recipe):
 
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
-            input_path = "%pathname%/{}.app".format(facts["app_name_key"])
+            input_path = "%pathname%/{0}{1}.app".format(
+                facts.get("relative_path", ""), facts["app_name_key"])
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             input_path = (
-                "%RECIPE_CACHE_DIR%/%NAME%/Applications/{}.app".format(
-                    facts["app_name_key"]))
+                "%RECIPE_CACHE_DIR%/%NAME%/Applications/{0}{1}.app".format(
+                    facts.get("relative_path", ""), facts["app_name_key"]))
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
             # TODO(Elliot): Need a few test cases to prove this works.
@@ -309,13 +308,13 @@ def generate_download_recipe(facts, prefs, recipe):
             versioner = processor.Versioner()
             if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
                 versioner.input_plist_path = (
-                    "%pathname%/{}.app/Contents/Info.plist".format(
-                        facts["app_name_key"]))
+                    "%pathname%/{0}{1}.app/Contents/Info.plist".format(
+                        facts.get("relative_path", ""), facts["app_name_key"]))
             else:
                 versioner.input_plist_path = (
                     "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
-                    "{}.app/Contents/Info.plist".format(
-                        facts["app_name_key"]))
+                    "{0}{1}.app/Contents/Info.plist".format(
+                        facts.get("relative_path", ""), facts["app_name_key"]))
             versioner.plist_version_key = facts["version_key"]
             recipe.append_processor(versioner)
 
@@ -460,8 +459,8 @@ def generate_munki_recipe(facts, prefs, recipe):
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
-                            ("%pathname%/{}.app/Contents/Info.plist".format(
-                                facts["app_name_key"])),
+                            ("%pathname%/{0}{1}.app/Contents/Info.plist".format(
+                                facts.get("relative_path", ""), facts["app_name_key"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -623,8 +622,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
-                            ("%pathname%/{}.app/Contents/Info.plist".format(
-                                facts["app_name_key"])),
+                            ("%pathname%/{0}{1}.app/Contents/Info.plist".format(
+                                facts.get("relative_path", ""), facts["app_name_key"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -640,10 +639,15 @@ def generate_pkg_recipe(facts, prefs, recipe):
         recipe.append_processor({
             "Processor": "Copier",
             "Arguments": {
-                "source_path": "%pathname%/{}.app".format(
-                    facts["app_name_key"]),
-                "destination_path": ("%pkgroot%/Applications/{}.app".format(
-                    facts["app_name_key"]))
+                "source_path": "%pathname%/{0}{1}.app".format(
+                    facts.get("relative_path", ""), facts["app_name_key"]),
+                # TODO(Elliot): Should probably copy the app into the
+                # Applications folder instead of leaving it in its enclosed
+                # relative_path.
+                # Example: https://download-chromium.appspot.com/dl/Mac?type=snapshots
+                # Installs as: /Applications/chrome-mac/Chromium.app
+                "destination_path": ("%pkgroot%/Applications/{0}{1}.app".format(
+                    facts.get("relative_path", ""), facts["app_name_key"]))
             }
         })
 
@@ -669,8 +673,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "Arguments": {
                         "input_plist_path":
                             ("%RECIPE_CACHE_DIR%/%NAME%/Applications/"
-                             "{}.app/Contents/Info.plist".format(
-                             facts["app_name_key"])),
+                             "{0}{1}.app/Contents/Info.plist".format(
+                             facts.get("relative_path", ""), facts["app_name_key"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -731,7 +735,7 @@ def generate_install_recipe(facts, prefs, recipe):
             "Arguments": {
                 "dmg_path": "%pathname%",
                 "items_to_copy": [{
-                    "source_item": "%s.app" % facts["app_name_key"],
+                    "source_item": "{0}{1}.app".format(facts.get("relative_path", ""), facts["app_name_key"]),
                     "destination_path": "/Applications"
                 }]
             }
@@ -761,7 +765,7 @@ def generate_install_recipe(facts, prefs, recipe):
             "Arguments": {
                 "dmg_path": "%dmg_path%",
                 "items_to_copy": [{
-                    "source_item": "%s.app" % facts["app_name_key"],
+                    "source_item": "{0}{1}.app".format(facts.get("relative_path", ""), facts["app_name_key"]),
                     "destination_path": "/Applications"
                 }]
             }
@@ -1042,8 +1046,8 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "Processor": "Versioner",
             "Arguments": {
                 "input_plist_path": (
-                    "%pathname%/{}.app/Contents/Info.plist".format(
-                        facts["app_name_key"])),
+                    "%pathname%/{0}{1}.app/Contents/Info.plist".format(
+                        facts.get("relative_path", ""), facts["app_name_key"])),
                 "plist_version_key": facts["version_key"]
             }
         })

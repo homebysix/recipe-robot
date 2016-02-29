@@ -440,16 +440,44 @@ def inspect_archive(input_path, args, facts):
             if not facts.get("download_filename", input_path).endswith(SUPPORTED_ARCHIVE_FORMATS):
                 facts["download_filename"] = "%s.%s" % (facts.get("download_filename", os.path.basename(input_path)), this_format["format"])
 
-            # Locate and inspect any enclosed apps or pkgs.
+            # Locate and inspect any apps or pkgs on the root level.
+            stop_searching_archive = False
             for this_file in os.listdir(os.path.join(CACHE_DIR, "unpacked")):
                 if this_file.endswith(".app"):
-                    # TODO(Elliot): What if .app isn't on root of zip? (#26)
-                    # Example: https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
                     facts = inspect_app(os.path.join(CACHE_DIR, "unpacked", this_file), args, facts)
-                    break
-                if this_file.endswith(SUPPORTED_INSTALL_FORMATS):
+                    stop_searching_archive = True
+                    return facts
+                elif this_file.endswith(SUPPORTED_INSTALL_FORMATS):
                     facts = inspect_pkg(os.path.join(CACHE_DIR, "unpacked", this_file), args, facts)
-                    break
+                    stop_searching_archive = True
+                    return facts
+
+            # Didn't find an app or pkg on the root level? Look deeper.
+            # TODO(Elliot): Pass the relative app/pkg path into the recipe generator.
+            if stop_searching_archive is False:
+                for dirpath, dirnames, filenames in os.walk(os.path.join(CACHE_DIR, "unpacked")):
+                    for dirname in dirnames:
+                        if dirname.startswith("."):
+                            dirnames.remove(dirname)
+                        elif dirname.endswith(".app"):
+                            facts = inspect_app(os.path.join(dirpath, dirname), args, facts)
+                            facts["relative_path"] = os.path.relpath(
+                                os.path.join(dirpath), os.path.join(
+                                    CACHE_DIR, "unpacked")) + "/"
+                            return facts
+                        elif dirname.endswith(".pkg"):  # bundle packages
+                            facts = inspect_pkg(os.path.join(dirpath, dirname), args, facts)
+                            facts["relative_path"] = os.path.relpath(
+                                os.path.join(dirpath), os.path.join(
+                                    CACHE_DIR, "unpacked")) + "/"
+                            return facts
+                    for filename in filenames:
+                        if filename.endswith(".pkg"):  # flat packages
+                            facts = inspect_pkg(os.path.join(dirpath, filename), args, facts)
+                            facts["relative_path"] = os.path.relpath(
+                                os.path.join(dirpath), os.path.join(
+                                    CACHE_DIR, "unpacked")) + "/"
+                            return facts
 
             return facts
 
@@ -1181,7 +1209,7 @@ def inspect_pkg(input_path, args, facts):
         # Locate and inspect the app.
         robo_print("Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"), LogLevel.VERBOSE, 4)
         install_filename = ""
-        for dirpath, dirnames, filenames in os.walk("%s" % os.path.join(CACHE_DIR, "expanded")):
+        for dirpath, dirnames, filenames in os.walk(os.path.join(CACHE_DIR, "expanded")):
             for dirname in dirnames:
                 if dirname.startswith("."):
                     dirnames.remove(dirname)
