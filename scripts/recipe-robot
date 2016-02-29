@@ -230,7 +230,8 @@ def configure_from_args(facts):
     if args.ignore_existing is True:
         facts["warnings"].append(
             "Will build recipes even if they already exist in \"autopkg "
-            "search\" results. Please don't upload duplicate recipes.")
+            "search\" results. Please don't upload duplicate recipes to "
+            "public recipe repos on GitHub.")
 
     # If --verbose was specified, set verbose mode to True.
     if args.verbose is True or OutputMode.verbose_mode is True:
