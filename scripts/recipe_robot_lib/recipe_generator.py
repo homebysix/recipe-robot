@@ -887,68 +887,6 @@ def generate_jss_recipe(facts, prefs, recipe):
     return recipe
 
 
-def generate_absolute_recipe(facts, prefs, recipe):
-    """Generate an Absolute Manage recipe on passed recipe dict.
-
-    Args:
-        facts: A continually-updated dictionary containing all the
-            information we know so far about the app associated with the
-            input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
-    """
-    keys = recipe["keys"]
-    # TODO: Until we get it working.
-    if facts.is_from_app_store():
-        warn_about_app_store_generation(facts, recipe["type"])
-        return
-    # Can't make this recipe without a bundle identifier.
-    if "bundle_id" not in facts:
-        facts["warnings"].append(
-            "Skipping %s recipe, because I wasn't able to determine the "
-            "bundle identifier of this app. You may want to actually download "
-            "the app and try again, using the .app file itself as input."
-            % recipe["type"])
-        return
-
-    robo_print("Generating %s recipe..." % recipe["type"])
-
-    recipe.set_description("Downloads the latest version of %s and copies it "
-                           "into your Absolute Manage Server." %
-                           facts["app_name"])
-
-    recipe.set_parent_from(prefs, facts, "pkg")
-
-    # Print a reminder if the required repo isn't present on disk.
-    amexport_url = "https://github.com/tburgin/AbsoluteManageExport"
-    cmd = "/usr/local/bin/autopkg repo-list"
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % amexport_url) for line in
-               out.splitlines()):
-        facts["reminders"].append(
-            "You'll need to add the AbsoluteManageExport repo in order to use "
-            "this recipe:\n        autopkg repo-add "
-            "\"%s\"" % amexport_url)
-
-    recipe.append_processor({
-        "Processor":
-            "com.github.tburgin.AbsoluteManageExport/AbsoluteManageExport",
-        "SharedProcessorRepoURL": amexport_url,
-        "Arguments": {
-            "dest_payload_path":
-                "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
-            "sdpackages_ampkgprops_path":
-                "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
-            "source_payload_path": "%pkg_path%",
-            "import_abman_to_servercenter": True
-        }
-    })
-
-    return recipe
-
-
 def generate_lanrev_recipe(facts, prefs, recipe):
     """Generate an LANrev recipe on passed recipe dict.
 

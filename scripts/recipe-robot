@@ -456,14 +456,13 @@ def get_preferred_recipe_types(prefs, recipes):
 
             # Automatically enable download recipe type if required.
             if recipes[choice]["type"] in ("munki", "pkg", "install", "jss",
-                                           "absolute", "lanrev", "ds", "sccm",
+                                           "lanrev", "ds", "sccm",
                                            "filewave", "bigfix"):
                 for recipe in recipes:
                     if recipe["type"] == "download":
                         recipe["preferred"] = True
             # Automatically enable pkg recipe type if required.
-            if recipes[choice]["type"] in ("jss", "absolute", "lanrev", "ds",
-                                           "sccm"):
+            if recipes[choice]["type"] in ("jss", "lanrev", "ds", "sccm"):
                 for recipe in recipes:
                     if recipe["type"] == "pkg":
                         recipe["preferred"] = True
