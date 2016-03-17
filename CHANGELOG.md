@@ -2,15 +2,18 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.0.2] - 2016-03-17
 
 ### Added
 - Added support for LANrev recipe type.
 - Better support of disk images where the target app lives in an enclosed folder. (#90)
 
 ### Changes
-- `MinimumVersion` of AutoPkg on generated recipes is now 0.5.2.
+- `MinimumVersion` of AutoPkg on generated recipes is now 0.6.0.
 - Minor typo fixes, standardizations, and semi-obsessive tweaks.
+
+### Removed
+- Removed ability to create Absolute Manage recipe type. (Use LANrev instead.)
 
 
 ## [1.0.1] - 2015-12-28
@@ -103,7 +106,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/homebysix/recipe-robot/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/homebysix/recipe-robot/compare/v1.0...v1.0.1
 [1.0]: https://github.com/homebysix/recipe-robot/compare/v0.2.5...v1.0
 [0.2.5]: https://github.com/homebysix/recipe-robot/compare/0.2.4...v0.2.5
