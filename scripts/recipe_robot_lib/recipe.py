@@ -65,7 +65,7 @@ class Recipe(RoboDict):
              "existing": False})
         self["keys"] = {
             "Identifier": "",
-            "MinimumVersion": "0.6.0",
+            "MinimumVersion": "0.6.1",
             "Input": {
                 "NAME": ""},
             "Process": [],
