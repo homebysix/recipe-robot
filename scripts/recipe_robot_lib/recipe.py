@@ -43,7 +43,7 @@ RECIPE_TYPES = {
     "install": "Installs the app on the computer running AutoPkg.",
     "jss": ("Imports into your Casper JSS and creates necessary groups, "
             "policies, etc."),
-    "absolute": "Imports into your Absolute Manage server.",
+    "lanrev": "Imports into your LANrev server.",
     "sccm": "Creates a cmmac package for deploying via Microsoft SCCM.",
     "ds": "Imports into your DeployStudio Packages folder.",
     "filewave": "Imports a fileset into your FileWave server.",
@@ -65,7 +65,7 @@ class Recipe(RoboDict):
              "existing": False})
         self["keys"] = {
             "Identifier": "",
-            "MinimumVersion": "0.5.0",
+            "MinimumVersion": "0.6.1",
             "Input": {
                 "NAME": ""},
             "Process": [],

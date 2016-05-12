@@ -1,15 +1,14 @@
 //
 //  RecipeType.swift
-//  Recipe Robot
 //
-//  Created by Eldon on 11/3/15.
-//  Copyright © 2015 Linde Group. All rights reserved.
+//  Recipe Robot
+//  Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 
 import Foundation
 
 enum RecipeType: Int {
-    case Download, Munki, Pkg, Install, JSS, AbsoluteManage, SCCM, DS, Filewave, BigFix
+    case Download, Munki, Pkg, Install, JSS, LANrev, SCCM, DS, Filewave, BigFix
 
     var value: String {
         switch self {
@@ -18,7 +17,7 @@ enum RecipeType: Int {
         case Pkg: return "pkg"
         case Install: return "install"
         case JSS: return "jss"
-        case AbsoluteManage: return "absolute"
+        case LANrev: return "lanrev"
         case SCCM: return "sccm"
         case DS: return "ds"
         case Filewave: return "filewave"
@@ -32,7 +31,7 @@ enum RecipeType: Int {
         case Munki, Pkg, Install, Filewave, BigFix:
             // Requires Download
             types.unionInPlace([Download])
-        case JSS, AbsoluteManage, SCCM, DS:
+        case JSS, LANrev, SCCM, DS:
             // Requires Package (inherits Download)
             types.unionInPlace([Pkg])
         default:

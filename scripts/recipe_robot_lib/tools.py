@@ -47,7 +47,7 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 ENDC = "\033[0m"
 PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
@@ -376,9 +376,8 @@ def create_existing_recipe_list(facts):
                     "I can't blend new recipes with existing recipes.\n\nHere "
                     "are my suggestions:\n\t- See if one of the above recipes "
                     "meets your needs, either as-is or using an override."
-                    "\n\t- Write your own recipe using one of the above as "
-                    "the ParentRecipe.\n\t- Or if you must, write your own "
-                    "recipe from scratch.")
+                    "\n\t- Or write your own recipe using one of the above as "
+                    "the ParentRecipe.")
             if not is_existing:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
