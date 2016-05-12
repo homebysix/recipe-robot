@@ -783,6 +783,25 @@ def inspect_download_url(input_path, args, facts):
             "Careful, this might be a version-specific URL. Better to give me "
             "a \"-latest\" URL or a Sparkle feed.")
 
+    # Warn if it looks like we're using a temporary CDN URL.
+    aws_expire_match = re.search(r"\:\/\/.*Expires\=", input_path)
+    if aws_expire_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
+                                       "github_url" not in facts["inspections"] and
+                                       "sourceforge_url" not in facts["inspections"] and
+                                       "bitbucket_url" not in facts["inspections"]):
+        facts["warnings"].append(
+            "This is a CDN-cached URL, and it may expire. Try feeding me a "
+            "permanent URL instead.")
+
+    # Warn if it looks like we're using an AWS URL with an access key.
+    aws_key_match = re.search(r"\:\/\/.*AWSAccessKeyId\=", input_path)
+    if aws_key_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
+                                       "github_url" not in facts["inspections"] and
+                                       "sourceforge_url" not in facts["inspections"] and
+                                       "bitbucket_url" not in facts["inspections"]):
+        facts["warnings"].append(
+            "This URL contains an AWSAccessKeyId parameter.")
+
     # Determine filename from input URL (will be overridden later if a
     # better candidate is found.)
     parsed_url = urlparse(input_path)
