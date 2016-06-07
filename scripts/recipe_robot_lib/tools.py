@@ -180,7 +180,8 @@ def create_SourceForgeURLProvider(dest_dir):
             robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"),
                        LogLevel.VERBOSE, 4)
     except:
-        # TODO(Elliot):  Copy SourceForgeURLProvider from local file. (#46)
+        # TODO (Elliot): Instead of copying, simply reference shared processor.
+        # TODO (Elliot):  Copy SourceForgeURLProvider from local file. (#46)
         # TODO: This doesn't notify or update the facts object.
         robo_print("Unable to download SourceForgeURLProvider from GitHub.",
                    LogLevel.WARNING)
