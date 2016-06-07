@@ -1531,6 +1531,17 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     robo_print("Sparkle feed is: %s" % input_path, LogLevel.VERBOSE, 4)
     facts["sparkle_feed"] = input_path
 
+    # Warn if the Sparkle feed is not HTTPS.
+    if input_path.startswith("http:"):
+        # TODO (Elliot): Automatically test for HTTPS feed and use that if it
+        # exists. (#92)
+        facts["warnings"].append(
+            "This Sparkle feed is not using HTTPS. I'd recommend trying again "
+            "with an HTTPS feed, if one is available. If no HTTPS feed is "
+            "available, contact the developer and politely suggest that they "
+            "secure their Sparkle feeds. "
+            "(https://twitter.com/homebysix/status/714508127228403712)")
+
     # Download the Sparkle feed.
     try:
         raw_xml = urlopen(input_path)

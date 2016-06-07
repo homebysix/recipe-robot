@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Added
 - Now detects and warns when using URLs that contain `Expires` or `AWSAccessKeyId` parameters. In the case of Amazon Web Services, these URLs are not permenant and therefore not useful for creating AutoPkg recipes. (#97)
+- Recipe Robot now complains if a Sparkle feed is not using HTTPS, although this does not prevent it from generating recipes. (#92)
 
 ## [1.0.2] - 2016-03-23
 
