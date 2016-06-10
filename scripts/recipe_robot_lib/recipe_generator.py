@@ -1087,7 +1087,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
         "Arguments": {
             "fw_app_bundle_id": facts["bundle_id"],
             "fw_app_version": "%version%",
-            "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app",
+            "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app",
             "fw_fileset_name": "%NAME% - %version%",
             "fw_fileset_group": "Testing",
             "fw_destination_root": "/Applications/%NAME%.app"
