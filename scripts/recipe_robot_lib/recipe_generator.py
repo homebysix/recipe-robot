@@ -1083,7 +1083,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "\"%s\"" % filewave_repo)
 
     recipe.append_processor({
-        "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
+        "Processor": "com.github.autopkg.filewave.FWTool/FileWaveImporter",
         "Arguments": {
             "fw_app_bundle_id": facts["bundle_id"],
             "fw_app_version": "%version%",
