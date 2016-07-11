@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Fixed
 - Corrected the FileWaveImporter processor identifier path used by FileWave recipes. (#104)
-- Corrected the `fw_import_source` path referenced by FileWave recipes. (#104)
+- Corrected the `fw_import_source` path referenced by FileWave recipes. (#104, thanks to @cv-rao)
 
 
 ## [1.0.2] - 2016-03-23
