@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file. This projec
 - Corrected the FileWaveImporter processor identifier path used by FileWave recipes. (#104)
 - Corrected the `fw_import_source` path referenced by FileWave recipes. (#104, thanks to @cv-rao)
 
+### Changed
+- `MinimumVersion` of AutoPkg on generated recipes is now 0.6.2 (in order to support new AppPkgCreator processor).
+
 
 ## [1.0.2] - 2016-03-23
 
@@ -19,7 +22,7 @@ All notable changes to this project will be documented in this file. This projec
 - Added support for LANrev recipe type.
 - Better support of disk images where the target app lives in an enclosed folder. (#90)
 
-### Changes
+### Changed
 - `MinimumVersion` of AutoPkg on generated recipes is now 0.6.1.
 - Minor typo fixes, standardizations, and semi-obsessive tweaks.
 
