@@ -329,6 +329,7 @@ def warn_about_app_store_generation(facts, recipe_type):
 
 
 def is_dynamic_url_source(facts):
+    """Returns True if the URL source is Sparkle, GitHub, or SourceForge."""
     return any(url_type in facts for url_type in (
         "sparkle_feed", "github_repo", "sourceforge_id"))
 
@@ -364,7 +365,7 @@ def needs_versioner(facts):
 def generate_app_store_munki_recipe(facts, prefs, recipe):
     """Generate a munki recipe on passed recipe dict.
 
-    This function is for app-store apps.
+    This function is for Mac App Store apps.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -407,6 +408,8 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
 
 def generate_munki_recipe(facts, prefs, recipe):
     """Generate a munki recipe on passed recipe dict.
+
+    This function is for non Mac App Store apps.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -547,7 +550,7 @@ def generate_munki_recipe(facts, prefs, recipe):
 def generate_app_store_pkg_recipe(facts, prefs, recipe):
     """Generate a pkg recipe on passed recipe dict.
 
-    This function is for app-store apps.
+    This function is for Mac App Store apps.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -573,7 +576,9 @@ def generate_app_store_pkg_recipe(facts, prefs, recipe):
 
 
 def generate_pkg_recipe(facts, prefs, recipe):
-    """Generate a munki recipe on passed recipe dict.
+    """Generate a pkg recipe on passed recipe dict.
+
+    This function is for non Mac App Store apps.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -888,7 +893,7 @@ def generate_jss_recipe(facts, prefs, recipe):
 
 
 def generate_lanrev_recipe(facts, prefs, recipe):
-    """Generate an LANrev recipe on passed recipe dict.
+    """Generate a LANrev recipe on passed recipe dict.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -1255,7 +1260,7 @@ delete "/tmp/{parameter "FILENAME"}"
     return recipe
 
 def warn_about_appstoreapp_pyasn(facts):
-    """Print warning reminding user of dependencies for AppStoreApps.
+    """Print warning reminding user of dependencies for AppStoreApp overrides.
 
     Args:
         facts: Facts object with required key: "reminders".
