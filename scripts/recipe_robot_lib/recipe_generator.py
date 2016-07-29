@@ -58,8 +58,9 @@ def generate_recipes(facts, prefs):
         if not facts["args"].ignore_existing:
             create_existing_recipe_list(facts)
     else:
-        raise RoboError("I wasn't able to determine the name of this app, so I "
-                      "can't make any recipes.")
+        raise RoboError("I wasn't able to gather enough information about "
+                        "this app to make recipes. If you saw any warnings "
+                        "above, they may contain more specific information.")
 
     preferred = [recipe for recipe in recipes if recipe["preferred"]]
 
