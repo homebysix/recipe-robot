@@ -359,19 +359,19 @@ def create_existing_recipe_list(facts):
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
         if exitcode == 0:
-            # TODO(Elliot): There's probably a more efficient way to do this.
-            # For each recipe type, see if it exists in the search
-            # results.
+            # Set to False by default. If found, set True.
             is_existing = False
+            # For each recipe type, see if it exists in the search results.
             for recipe in recipes:
                 recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
                 for line in out:
                     if line.lower().startswith(recipe_name.lower()):
-                        # Set to False by default. If found, set True.
-                        recipe["existing"] = True
-                        robo_print("Found existing %s" % recipe_name,
-                                   LogLevel.LOG, 4)
-                        is_existing = True
+                        # An existing recipe was found.
+                        if is_existing is False:
+                            robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
+                            is_existing = True
+                            recipe["existing"] = True
+                        robo_print(recipe_name, LogLevel.LOG, 8)
                         break
             if is_existing is True:
                 raise RoboError(
