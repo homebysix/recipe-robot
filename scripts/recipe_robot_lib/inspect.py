@@ -205,6 +205,12 @@ def inspect_app(input_path, args, facts):
     robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
     facts["bundle_id"] = bundle_id
 
+    # Leave a hint for people testing Recipe Robot on itself.
+    if bundle_id == "com.elliotjordan.recipe-robot" and "github_url" not in facts["inspections"]:
+        facts["warnings"].append(
+            "Try using my GitHub URL as input instead of the app itself. "
+            "You may also need to use --ignore-existing.")
+
     # Attempt to determine how to download this app.
     if "sparkle_feed" not in facts:
         sparkle_feed = ""
@@ -1006,6 +1012,16 @@ def inspect_github_url(input_path, args, facts):
     if github_repo != "":
         robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
         facts["github_repo"] = github_repo
+
+        # Leave a hint for people testing Recipe Robot on itself.
+        if github_repo == "homebysix/recipe-robot":
+            if args.ignore_existing is True:
+                facts["reminders"].append("Congratulations! You've achieved "
+                "Recipe Robot recursion.")
+            else:
+                facts["warnings"].append(
+                    "Try using the --ignore-existing flag if you want me to "
+                    "create recipes for myself.")
 
         # TODO(Elliot): How can we use GitHub tokens to prevent rate
         # limiting? (#18)
