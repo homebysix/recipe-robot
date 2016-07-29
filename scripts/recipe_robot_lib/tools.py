@@ -35,6 +35,7 @@ from subprocess import Popen, PIPE
 import sys
 import timeit
 from urllib2 import urlopen
+from urllib import quote_plus
 from Foundation import NSUserDefaults
 
 from .exceptions import RoboError
@@ -324,25 +325,26 @@ def create_existing_recipe_list(facts):
     recipes = facts["recipes"]
     use_github_token = facts["args"].github_token
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
-    recipe_searches = []
-    recipe_searches.append(app_name)
 
-    app_name_no_space = "".join(app_name.split())
-    if app_name_no_space != app_name:
+    # Generate an array to run through `autopkg search`.
+    recipe_searches = [quote_plus(app_name)]
+
+    app_name_no_space = quote_plus("".join(app_name.split()))
+    if app_name_no_space not in recipe_searches:
         recipe_searches.append(app_name_no_space)
 
-    app_name_no_symbol = re.sub(r'[^\w]', '', app_name)
-    if app_name_no_symbol not in (app_name, app_name_no_space):
+    app_name_no_symbol = quote_plus(re.sub(r'[^\w]', '', app_name))
+    if app_name_no_symbol not in recipe_searches:
         recipe_searches.append(app_name_no_symbol)
 
     for this_search in recipe_searches:
-        robo_print("Searching for existing AutoPkg recipes for \"%s\"..." %
+        robo_print("Searching for existing AutoPkg recipes for %s..." %
                    this_search, LogLevel.VERBOSE)
         if use_github_token:
             if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
                 facts["warnings"].append(
                     "I couldn't find a GitHub token to use.")
-                cmd = ("/usr/local/bin/autopkg search --path-only \"%s\"" %
+                cmd = ("/usr/local/bin/autopkg search --path-only %s" %
                        this_search)
             else:
                 # TODO(Elliot): Learn how to use the GitHub token. (#18) https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
@@ -350,9 +352,9 @@ def create_existing_recipe_list(facts):
                     "I found a GitHub token, but I'm still learning how to "
                     "use it.")
                 cmd = ("/usr/local/bin/autopkg search --path-only --use-token "
-                       "\"%s\"" % this_search)
+                       "%s" % this_search)
         else:
-            cmd = ("/usr/local/bin/autopkg search --path-only \"%s\"" %
+            cmd = ("/usr/local/bin/autopkg search --path-only %s" %
                    this_search)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
