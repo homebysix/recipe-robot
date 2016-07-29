@@ -225,7 +225,7 @@
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0700;
-				ORGANIZATIONNAME = "Linde Group";
+				ORGANIZATIONNAME = "Elliot Jordan";
 				TargetAttributes = {
 					8B42AC7D1B5C5BEC0058A814 = {
 						CreatedOnToolsVersion = 6.3.2;
