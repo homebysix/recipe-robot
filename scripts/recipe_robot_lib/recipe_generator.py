@@ -121,16 +121,13 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
             "sparkle_feed", "github_repo", "sourceforge_id",
             "download_url")])):
         raise RoboError(
-            "Sorry, I don't know how to download this app. Maybe try another "
-            "angle? If you provided an app, try providing the Sparkle feed "
-            "for the app instead. Or maybe the app's developers offer a "
-            "direct download URL on their website.")
+            "Sorry, I don't know how to download this app. Maybe "
+            "try another angle? The app's developer might have a direct "
+            "download URL on their website, for example.")
     if not facts.is_from_app_store() and "download_format" not in facts:
         raise RoboError(
-            "Sorry, I can't tell what format to download this app in. Maybe "
-            "try another angle? If you provided an app, try providing the "
-            "Sparkle feed for the app instead. Or maybe the app's developers "
-            "offer a direct download URL on their website.")
+            "Sorry, I can't tell what format this app downloads in. It "
+            "doesn't seem to be a dmg, zip, or pkg.")
 
 
 def build_recipes(facts, preferred, prefs):
@@ -1260,6 +1257,7 @@ delete "/tmp/{parameter "FILENAME"}"
 
     return recipe
 
+
 def warn_about_appstoreapp_pyasn(facts):
     """Print warning reminding user of dependencies for AppStoreApp overrides.
 
@@ -1269,8 +1267,8 @@ def warn_about_appstoreapp_pyasn(facts):
     facts["reminders"].append(
         "I've created at least one AppStoreApp override for you. Be sure to "
         "add the nmcspadden-recipes repo and install pyasn1, if you haven't "
-        "already. (More information: "
-        "https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe)")
+        "already. More information:\n"
+        "https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe")
 
 
 def main():
