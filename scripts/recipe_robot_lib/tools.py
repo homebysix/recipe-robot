@@ -379,9 +379,11 @@ def create_existing_recipe_list(facts):
                     "I can't blend new recipes with existing recipes.\n\nHere "
                     "are my suggestions:\n\t- See if one of the above recipes "
                     "meets your needs, either as-is or using an override."
-                    "\n\t- Or write your own recipe using one of the above as "
-                    "the ParentRecipe.")
-            if not is_existing:
+                    "\n\t- Write your own recipe using one of the above as "
+                    "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
+                    "the creation of a new child recipe, as seen here:\n\t  "
+                    "https://youtu.be/5VKDzY8bBxI?t=2829")
+            else:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
             raise RoboError(err.message)
