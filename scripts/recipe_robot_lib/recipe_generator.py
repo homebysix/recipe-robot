@@ -831,8 +831,8 @@ def generate_jss_recipe(facts, prefs, recipe):
     if (not os.path.exists( robo_join(prefs["RecipeCreateLocation"],
                                       "%s.png" % facts["app_name"]))):
         facts["reminders"].append(
-            "Please make sure %s.png is in your AutoPkg search path so "
-            "JSSImporter can refer to it." % facts["app_name"])
+            "Make sure to keep %s.png with the jss recipe so JSSImporter can "
+            "use it." % facts["app_name"])
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
