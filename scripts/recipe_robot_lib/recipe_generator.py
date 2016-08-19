@@ -283,11 +283,11 @@ def generate_download_recipe(facts, prefs, recipe):
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
             input_path = "%pathname%/{0}{1}.app".format(
-                facts.get("relative_path", ""), facts["app_name_key"])
+                facts.get("relative_path", ""), facts["app_name"])
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             input_path = (
                 "%RECIPE_CACHE_DIR%/%NAME%/Applications/{0}{1}.app".format(
-                    facts.get("relative_path", ""), facts["app_name_key"]))
+                    facts.get("relative_path", ""), facts["app_name"]))
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
             # TODO(Elliot): Need a few test cases to prove this works.
