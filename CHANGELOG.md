@@ -12,11 +12,12 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Fixed
 - Corrected the FileWaveImporter processor identifier path used by FileWave recipes. (#104)
-- Corrected the `fw_import_source` path referenced by FileWave recipes. (#104, thanks to @cv-rao)
+- Corrected the `fw_import_source` path referenced by FileWave recipes. (#104, thanks to [@cv-rao](https://github.com/cv-rao))
 - Fixed a bug that prevented detection of existing recipes when the app name contained a space.
 
 ### Changed
 - Clarified and improved a few error and warning messages.
+- Recipe Robot will now use the actual app name for CodeSignatureVerifier, rather than using `%NAME%`. This should allow administrators to override the name without breaking code signature verification. (thanks to [@gregneagle](https://github.com/gregneagle) and [@chilcote](https://github.com/chilcote))
 
 
 ## [1.0.2] - 2016-03-23
