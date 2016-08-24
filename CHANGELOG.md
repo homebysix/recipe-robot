@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Changed
 - Clarified and improved a few error and warning messages.
 - Recipe Robot will now use the actual app name for CodeSignatureVerifier, rather than using `%NAME%`. This should allow administrators to override the name without breaking code signature verification. (thanks to [@gregneagle](https://github.com/gregneagle) and [@chilcote](https://github.com/chilcote))
+- Uses HTTPS to check MacUpdate for app description.
 
 
 ## [1.0.2] - 2016-03-23

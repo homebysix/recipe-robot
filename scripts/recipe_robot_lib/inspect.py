@@ -371,7 +371,7 @@ def get_app_description(app_name):
     # MacUpdate search results page.
     description_marker = "-shortdescrip\">"
 
-    cmd = "curl --silent \"http://www.macupdate.com/find/mac/%s\"" % app_name
+    cmd = "curl --silent \"https://www.macupdate.com/find/mac/%s\"" % app_name
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
 
     # For each line in the resulting text, look for the description
