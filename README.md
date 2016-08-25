@@ -33,6 +33,8 @@ This two-pronged approach allows AutoPkg novices to easily create recipes that f
 
 In order to run Recipe Robot, you need [AutoPkg](https://github.com/autopkg/autopkg/releases/latest) 0.5.0 or later installed.
 
+The version of AutoPkg required to run recipes created by Recipe Robot may be newer than that.
+
 
 ## Mac App Usage
 
