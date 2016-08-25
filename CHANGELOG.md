@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## [1.0.3] - 2016-08-25
+
+### Added
+- Now detects and warns when using URLs that contain `Expires` or `AWSAccessKeyId` parameters. In the case of Amazon Web Services, these URLs are not permanent and therefore not useful for creating AutoPkg recipes. (#97)
+- Recipe Robot now complains if a Sparkle feed is not using HTTPS, although this does not prevent recipe creation. (#92)
+- Outputs useful hints for people who want to test Recipe Robot by creating recipes for Recipe Robot.
+
+### Fixed
+- Corrected the FileWaveImporter processor identifier path used by FileWave recipes. (#104)
+- Corrected the `fw_import_source` path referenced by FileWave recipes. (#104, thanks to [@cv-rao](https://github.com/cv-rao))
+- Fixed a bug that prevented detection of existing recipes when the app name contained a space.
+
+### Changed
+- Clarified and improved a few error and warning messages.
+- Recipe Robot will now use the actual app name for CodeSignatureVerifier, rather than using `%NAME%`. This should allow administrators to override the name without breaking code signature verification. (thanks to [@gregneagle](https://github.com/gregneagle) and [@chilcote](https://github.com/chilcote))
+- Uses HTTPS to check MacUpdate for app description.
+
+
 ## [1.0.2] - 2016-03-23
 
 ### Added
@@ -106,7 +125,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/homebysix/recipe-robot/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/homebysix/recipe-robot/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/homebysix/recipe-robot/compare/v1.0...v1.0.1
 [1.0]: https://github.com/homebysix/recipe-robot/compare/v0.2.5...v1.0

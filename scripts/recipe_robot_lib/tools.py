@@ -35,6 +35,7 @@ from subprocess import Popen, PIPE
 import sys
 import timeit
 from urllib2 import urlopen
+from urllib import quote_plus
 from Foundation import NSUserDefaults
 
 from .exceptions import RoboError
@@ -47,7 +48,7 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 ENDC = "\033[0m"
 PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
@@ -180,7 +181,8 @@ def create_SourceForgeURLProvider(dest_dir):
             robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"),
                        LogLevel.VERBOSE, 4)
     except:
-        # TODO(Elliot):  Copy SourceForgeURLProvider from local file. (#46)
+        # TODO (Elliot): Instead of copying, simply reference shared processor.
+        # TODO (Elliot):  Copy SourceForgeURLProvider from local file. (#46)
         # TODO: This doesn't notify or update the facts object.
         robo_print("Unable to download SourceForgeURLProvider from GitHub.",
                    LogLevel.WARNING)
@@ -323,25 +325,26 @@ def create_existing_recipe_list(facts):
     recipes = facts["recipes"]
     use_github_token = facts["args"].github_token
     # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
-    recipe_searches = []
-    recipe_searches.append(app_name)
 
-    app_name_no_space = "".join(app_name.split())
-    if app_name_no_space != app_name:
+    # Generate an array to run through `autopkg search`.
+    recipe_searches = [quote_plus(app_name)]
+
+    app_name_no_space = quote_plus("".join(app_name.split()))
+    if app_name_no_space not in recipe_searches:
         recipe_searches.append(app_name_no_space)
 
-    app_name_no_symbol = re.sub(r'[^\w]', '', app_name)
-    if app_name_no_symbol not in (app_name, app_name_no_space):
+    app_name_no_symbol = quote_plus(re.sub(r'[^\w]', '', app_name))
+    if app_name_no_symbol not in recipe_searches:
         recipe_searches.append(app_name_no_symbol)
 
     for this_search in recipe_searches:
-        robo_print("Searching for existing AutoPkg recipes for \"%s\"..." %
+        robo_print("Searching for existing AutoPkg recipes for %s..." %
                    this_search, LogLevel.VERBOSE)
         if use_github_token:
             if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
                 facts["warnings"].append(
                     "I couldn't find a GitHub token to use.")
-                cmd = ("/usr/local/bin/autopkg search --path-only \"%s\"" %
+                cmd = ("/usr/local/bin/autopkg search --path-only %s" %
                        this_search)
             else:
                 # TODO(Elliot): Learn how to use the GitHub token. (#18) https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
@@ -349,26 +352,26 @@ def create_existing_recipe_list(facts):
                     "I found a GitHub token, but I'm still learning how to "
                     "use it.")
                 cmd = ("/usr/local/bin/autopkg search --path-only --use-token "
-                       "\"%s\"" % this_search)
+                       "%s" % this_search)
         else:
-            cmd = ("/usr/local/bin/autopkg search --path-only \"%s\"" %
+            cmd = ("/usr/local/bin/autopkg search --path-only %s" %
                    this_search)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
         if exitcode == 0:
-            # TODO(Elliot): There's probably a more efficient way to do this.
-            # For each recipe type, see if it exists in the search
-            # results.
+            # Set to False by default. If found, set True.
             is_existing = False
+            # For each recipe type, see if it exists in the search results.
             for recipe in recipes:
                 recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
                 for line in out:
                     if line.lower().startswith(recipe_name.lower()):
-                        # Set to False by default. If found, set True.
-                        recipe["existing"] = True
-                        robo_print("Found existing %s" % recipe_name,
-                                   LogLevel.LOG, 4)
-                        is_existing = True
+                        # An existing recipe was found.
+                        if is_existing is False:
+                            robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
+                            is_existing = True
+                            recipe["existing"] = True
+                        robo_print(recipe_name, LogLevel.LOG, 8)
                         break
             if is_existing is True:
                 raise RoboError(
@@ -376,9 +379,11 @@ def create_existing_recipe_list(facts):
                     "I can't blend new recipes with existing recipes.\n\nHere "
                     "are my suggestions:\n\t- See if one of the above recipes "
                     "meets your needs, either as-is or using an override."
-                    "\n\t- Or write your own recipe using one of the above as "
-                    "the ParentRecipe.")
-            if not is_existing:
+                    "\n\t- Write your own recipe using one of the above as "
+                    "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
+                    "the creation of a new child recipe, as seen here:\n\t  "
+                    "https://youtu.be/5VKDzY8bBxI?t=2829")
+            else:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
             raise RoboError(err.message)

@@ -58,8 +58,9 @@ def generate_recipes(facts, prefs):
         if not facts["args"].ignore_existing:
             create_existing_recipe_list(facts)
     else:
-        raise RoboError("I wasn't able to determine the name of this app, so I "
-                      "can't make any recipes.")
+        raise RoboError("I wasn't able to gather enough information about "
+                        "this app to make recipes. If you saw any warnings "
+                        "above, they may contain more specific information.")
 
     preferred = [recipe for recipe in recipes if recipe["preferred"]]
 
@@ -120,16 +121,13 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
             "sparkle_feed", "github_repo", "sourceforge_id",
             "download_url")])):
         raise RoboError(
-            "Sorry, I don't know how to download this app. Maybe try another "
-            "angle? If you provided an app, try providing the Sparkle feed "
-            "for the app instead. Or maybe the app's developers offer a "
-            "direct download URL on their website.")
+            "Sorry, I don't know how to download this app. Maybe "
+            "try another angle? The app's developer might have a direct "
+            "download URL on their website, for example.")
     if not facts.is_from_app_store() and "download_format" not in facts:
         raise RoboError(
-            "Sorry, I can't tell what format to download this app in. Maybe "
-            "try another angle? If you provided an app, try providing the "
-            "Sparkle feed for the app instead. Or maybe the app's developers "
-            "offer a direct download URL on their website.")
+            "Sorry, I can't tell what format this app downloads in. It "
+            "doesn't seem to be a dmg, zip, or pkg.")
 
 
 def build_recipes(facts, preferred, prefs):
@@ -285,11 +283,11 @@ def generate_download_recipe(facts, prefs, recipe):
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
             input_path = "%pathname%/{0}{1}.app".format(
-                facts.get("relative_path", ""), facts["app_name_key"])
+                facts.get("relative_path", ""), facts["app_name"])
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             input_path = (
                 "%RECIPE_CACHE_DIR%/%NAME%/Applications/{0}{1}.app".format(
-                    facts.get("relative_path", ""), facts["app_name_key"]))
+                    facts.get("relative_path", ""), facts["app_name"]))
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
             # TODO(Elliot): Need a few test cases to prove this works.
@@ -309,12 +307,12 @@ def generate_download_recipe(facts, prefs, recipe):
             if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
                 versioner.input_plist_path = (
                     "%pathname%/{0}{1}.app/Contents/Info.plist".format(
-                        facts.get("relative_path", ""), facts["app_name_key"]))
+                        facts.get("relative_path", ""), facts["app_name"]))
             else:
                 versioner.input_plist_path = (
                     "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
                     "{0}{1}.app/Contents/Info.plist".format(
-                        facts.get("relative_path", ""), facts["app_name_key"]))
+                        facts.get("relative_path", ""), facts["app_name"]))
             versioner.plist_version_key = facts["version_key"]
             recipe.append_processor(versioner)
 
@@ -329,6 +327,7 @@ def warn_about_app_store_generation(facts, recipe_type):
 
 
 def is_dynamic_url_source(facts):
+    """Returns True if the URL source is Sparkle, GitHub, or SourceForge."""
     return any(url_type in facts for url_type in (
         "sparkle_feed", "github_repo", "sourceforge_id"))
 
@@ -364,7 +363,7 @@ def needs_versioner(facts):
 def generate_app_store_munki_recipe(facts, prefs, recipe):
     """Generate a munki recipe on passed recipe dict.
 
-    This function is for app-store apps.
+    This function is for Mac App Store apps.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -407,6 +406,8 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
 
 def generate_munki_recipe(facts, prefs, recipe):
     """Generate a munki recipe on passed recipe dict.
+
+    This function is for non Mac App Store apps.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -460,7 +461,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                     "Arguments": {
                         "input_plist_path":
                             ("%pathname%/{0}{1}.app/Contents/Info.plist".format(
-                                facts.get("relative_path", ""), facts["app_name_key"])),
+                                facts.get("relative_path", ""), facts["app_name"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -547,7 +548,7 @@ def generate_munki_recipe(facts, prefs, recipe):
 def generate_app_store_pkg_recipe(facts, prefs, recipe):
     """Generate a pkg recipe on passed recipe dict.
 
-    This function is for app-store apps.
+    This function is for Mac App Store apps.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -573,7 +574,9 @@ def generate_app_store_pkg_recipe(facts, prefs, recipe):
 
 
 def generate_pkg_recipe(facts, prefs, recipe):
-    """Generate a munki recipe on passed recipe dict.
+    """Generate a pkg recipe on passed recipe dict.
+
+    This function is for non Mac App Store apps.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -623,7 +626,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "Arguments": {
                         "input_plist_path":
                             ("%pathname%/{0}{1}.app/Contents/Info.plist".format(
-                                facts.get("relative_path", ""), facts["app_name_key"])),
+                                facts.get("relative_path", ""), facts["app_name"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -640,14 +643,14 @@ def generate_pkg_recipe(facts, prefs, recipe):
             "Processor": "Copier",
             "Arguments": {
                 "source_path": "%pathname%/{0}{1}.app".format(
-                    facts.get("relative_path", ""), facts["app_name_key"]),
+                    facts.get("relative_path", ""), facts["app_name"]),
                 # TODO(Elliot): Should probably copy the app into the
                 # Applications folder instead of leaving it in its enclosed
                 # relative_path.
                 # Example: https://download-chromium.appspot.com/dl/Mac?type=snapshots
                 # Installs as: /Applications/chrome-mac/Chromium.app
                 "destination_path": ("%pkgroot%/Applications/{0}{1}.app".format(
-                    facts.get("relative_path", ""), facts["app_name_key"]))
+                    facts.get("relative_path", ""), facts["app_name"]))
             }
         })
 
@@ -674,7 +677,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                         "input_plist_path":
                             ("%RECIPE_CACHE_DIR%/%NAME%/Applications/"
                              "{0}{1}.app/Contents/Info.plist".format(
-                             facts.get("relative_path", ""), facts["app_name_key"])),
+                             facts.get("relative_path", ""), facts["app_name"])),
                         "plist_version_key": facts["version_key"]
                     }
                 })
@@ -735,7 +738,7 @@ def generate_install_recipe(facts, prefs, recipe):
             "Arguments": {
                 "dmg_path": "%pathname%",
                 "items_to_copy": [{
-                    "source_item": "{0}{1}.app".format(facts.get("relative_path", ""), facts["app_name_key"]),
+                    "source_item": "{0}{1}.app".format(facts.get("relative_path", ""), facts["app_name"]),
                     "destination_path": "/Applications"
                 }]
             }
@@ -765,7 +768,7 @@ def generate_install_recipe(facts, prefs, recipe):
             "Arguments": {
                 "dmg_path": "%dmg_path%",
                 "items_to_copy": [{
-                    "source_item": "{0}{1}.app".format(facts.get("relative_path", ""), facts["app_name_key"]),
+                    "source_item": "{0}{1}.app".format(facts.get("relative_path", ""), facts["app_name"]),
                     "destination_path": "/Applications"
                 }]
             }
@@ -826,8 +829,8 @@ def generate_jss_recipe(facts, prefs, recipe):
     if (not os.path.exists( robo_join(prefs["RecipeCreateLocation"],
                                       "%s.png" % facts["app_name"]))):
         facts["reminders"].append(
-            "Please make sure %s.png is in your AutoPkg search path so "
-            "JSSImporter can refer to it." % facts["app_name"])
+            "Make sure to keep %s.png with the jss recipe so JSSImporter can "
+            "use it." % facts["app_name"])
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
 
@@ -888,7 +891,7 @@ def generate_jss_recipe(facts, prefs, recipe):
 
 
 def generate_lanrev_recipe(facts, prefs, recipe):
-    """Generate an LANrev recipe on passed recipe dict.
+    """Generate a LANrev recipe on passed recipe dict.
 
     Args:
         facts: A continually-updated dictionary containing all the
@@ -1047,7 +1050,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "Arguments": {
                 "input_plist_path": (
                     "%pathname%/{0}{1}.app/Contents/Info.plist".format(
-                        facts.get("relative_path", ""), facts["app_name_key"])),
+                        facts.get("relative_path", ""), facts["app_name"])),
                 "plist_version_key": facts["version_key"]
             }
         })
@@ -1083,11 +1086,11 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "\"%s\"" % filewave_repo)
 
     recipe.append_processor({
-        "Processor": "com.github.johncclayton.filewave.FWTool/FileWaveImporter",
+        "Processor": "com.github.autopkg.filewave.FWTool/FileWaveImporter",
         "Arguments": {
             "fw_app_bundle_id": facts["bundle_id"],
             "fw_app_version": "%version%",
-            "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app",
+            "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app",
             "fw_fileset_name": "%NAME% - %version%",
             "fw_fileset_group": "Testing",
             "fw_destination_root": "/Applications/%NAME%.app"
@@ -1254,8 +1257,9 @@ delete "/tmp/{parameter "FILENAME"}"
 
     return recipe
 
+
 def warn_about_appstoreapp_pyasn(facts):
-    """Print warning reminding user of dependencies for AppStoreApps.
+    """Print warning reminding user of dependencies for AppStoreApp overrides.
 
     Args:
         facts: Facts object with required key: "reminders".
@@ -1263,8 +1267,8 @@ def warn_about_appstoreapp_pyasn(facts):
     facts["reminders"].append(
         "I've created at least one AppStoreApp override for you. Be sure to "
         "add the nmcspadden-recipes repo and install pyasn1, if you haven't "
-        "already. (More information: "
-        "https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe)")
+        "already. More information:\n"
+        "https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe")
 
 
 def main():

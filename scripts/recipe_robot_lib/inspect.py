@@ -205,6 +205,12 @@ def inspect_app(input_path, args, facts):
     robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
     facts["bundle_id"] = bundle_id
 
+    # Leave a hint for people testing Recipe Robot on itself.
+    if bundle_id == "com.elliotjordan.recipe-robot" and "github_url" not in facts["inspections"]:
+        facts["warnings"].append(
+            "Try using my GitHub URL as input instead of the app itself. "
+            "You may also need to use --ignore-existing.")
+
     # Attempt to determine how to download this app.
     if "sparkle_feed" not in facts:
         sparkle_feed = ""
@@ -365,7 +371,7 @@ def get_app_description(app_name):
     # MacUpdate search results page.
     description_marker = "-shortdescrip\">"
 
-    cmd = "curl --silent \"http://www.macupdate.com/find/mac/%s\"" % app_name
+    cmd = "curl --silent \"https://www.macupdate.com/find/mac/%s\"" % app_name
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
 
     # For each line in the resulting text, look for the description
@@ -781,7 +787,26 @@ def inspect_download_url(input_path, args, facts):
                                       "bitbucket_url" not in facts["inspections"]):
         facts["warnings"].append(
             "Careful, this might be a version-specific URL. Better to give me "
-            "a \"-latest\" URL or a Sparkle feed.")
+            "a \"latest\" URL or a Sparkle feed.")
+
+    # Warn if it looks like we're using a temporary CDN URL.
+    aws_expire_match = re.search(r"\:\/\/.*Expires\=", input_path)
+    if aws_expire_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
+                                       "github_url" not in facts["inspections"] and
+                                       "sourceforge_url" not in facts["inspections"] and
+                                       "bitbucket_url" not in facts["inspections"]):
+        facts["warnings"].append(
+            "This is a CDN-cached URL, and it may expire. Try feeding me a "
+            "permanent URL instead.")
+
+    # Warn if it looks like we're using an AWS URL with an access key.
+    aws_key_match = re.search(r"\:\/\/.*AWSAccessKeyId\=", input_path)
+    if aws_key_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
+                                       "github_url" not in facts["inspections"] and
+                                       "sourceforge_url" not in facts["inspections"] and
+                                       "bitbucket_url" not in facts["inspections"]):
+        facts["warnings"].append(
+            "This URL contains an AWSAccessKeyId parameter.")
 
     # Determine filename from input URL (will be overridden later if a
     # better candidate is found.)
@@ -987,6 +1012,16 @@ def inspect_github_url(input_path, args, facts):
     if github_repo != "":
         robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
         facts["github_repo"] = github_repo
+
+        # Leave a hint for people testing Recipe Robot on itself.
+        if github_repo == "homebysix/recipe-robot":
+            if args.ignore_existing is True:
+                facts["reminders"].append("Congratulations! You've achieved "
+                "Recipe Robot recursion.")
+            else:
+                facts["warnings"].append(
+                    "Try using the --ignore-existing flag if you want me to "
+                    "create recipes for myself.")
 
         # TODO(Elliot): How can we use GitHub tokens to prevent rate
         # limiting? (#18)
@@ -1511,6 +1546,17 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Save the Sparkle feed URL to the dictionary of facts.
     robo_print("Sparkle feed is: %s" % input_path, LogLevel.VERBOSE, 4)
     facts["sparkle_feed"] = input_path
+
+    # Warn if the Sparkle feed is not HTTPS.
+    if input_path.startswith("http:"):
+        # TODO (Elliot): Automatically test for HTTPS feed and use that if it
+        # exists. (#92)
+        facts["warnings"].append(
+            "This Sparkle feed is not using HTTPS.\n\t- If an HTTPS feed is "
+            "available, I strongly recommend using that.\n\t- If not, "
+            "contact the developer and politely suggest that they secure "
+            "their Sparkle feeds:\n\t  "
+            "https://twitter.com/homebysix/status/714508127228403712")
 
     # Download the Sparkle feed.
     try:
