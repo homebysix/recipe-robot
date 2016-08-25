@@ -787,7 +787,7 @@ def inspect_download_url(input_path, args, facts):
                                       "bitbucket_url" not in facts["inspections"]):
         facts["warnings"].append(
             "Careful, this might be a version-specific URL. Better to give me "
-            "a \"-latest\" URL or a Sparkle feed.")
+            "a \"latest\" URL or a Sparkle feed.")
 
     # Warn if it looks like we're using a temporary CDN URL.
     aws_expire_match = re.search(r"\:\/\/.*Expires\=", input_path)
