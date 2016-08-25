@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [1.0.3] - 2016-07-29
+## [1.0.3] - 2016-08-25
 
 ### Added
 - Now detects and warns when using URLs that contain `Expires` or `AWSAccessKeyId` parameters. In the case of Amazon Web Services, these URLs are not permanent and therefore not useful for creating AutoPkg recipes. (#97)
