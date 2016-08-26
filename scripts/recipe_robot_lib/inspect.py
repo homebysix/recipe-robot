@@ -796,6 +796,7 @@ def inspect_download_url(input_path, args, facts):
     # Example:
     # http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
 
+    # TODO (Elliot): Proper URL encoding.
     input_path = input_path.strip().replace(" ", "%20")
 
     # Save the download URL to the dictionary of facts.
@@ -912,6 +913,7 @@ def inspect_download_url(input_path, args, facts):
         facts["warnings"].append(
             "There seems to be a problem with the developer's SSL "
             "certificate. (%s)" % err)
+            # TODO: If input path was HTTP, revert to that and try again.
         return facts
 
     # Get the actual filename from the server, if it exists.
@@ -1656,6 +1658,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts["warnings"].append(
             "There seems to be a problem with the developer's SSL "
             "certificate. (%s)" % err)
+            # TODO: If input path was HTTP, revert to that and try again.
         return facts
 
     # Parse the Sparkle feed.
