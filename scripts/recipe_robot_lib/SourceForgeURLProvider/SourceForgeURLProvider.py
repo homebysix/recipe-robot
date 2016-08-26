@@ -9,7 +9,7 @@ from autopkglib import Processor, ProcessorError
 
 __all__ = ["SourceForgeURLProvider"]
 
-FILE_INDEX_URL = 'http://sourceforge.net/api/file/index/project-id/%s/rss'
+FILE_INDEX_URL = 'https://sourceforge.net/api/file/index/project-id/%s/rss'
 
 class SourceForgeURLProvider(Processor):
     '''Provides URL to the latest file that matches a pattern for a particular SourceForge project.'''

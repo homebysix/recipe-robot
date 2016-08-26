@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased]
+
+### Changed
+- Now using HTTPS for all SourceForge API calls.
+
+
 ## [1.0.3] - 2016-08-25
 
 ### Added

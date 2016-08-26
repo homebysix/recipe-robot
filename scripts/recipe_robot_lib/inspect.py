@@ -1369,9 +1369,9 @@ def inspect_sourceforge_url(input_path, args, facts):
     # Determine the name of the SourceForge project.
     proj_name = ""
     if  "/projects/" in input_path:
-        # Example: http://sourceforge.net/projects/adium/?source=recommended
-        # Example: http://sourceforge.net/projects/grandperspectiv
-        # Example: http://sourceforge.net/projects/grandperspectiv/
+        # Example: https://sourceforge.net/projects/adium/?source=recommended
+        # Example: https://sourceforge.net/projects/grandperspectiv
+        # Example: https://sourceforge.net/projects/grandperspectiv/
         marker = "/projects/"
         proj_str = input_path[input_path.find(marker) + len(marker):]
         if proj_str.find("/") > 0:
@@ -1379,7 +1379,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         else:
             proj_name = proj_str
     elif "/p/" in input_path:
-        # Example: http://sourceforge.net/p/grandperspectiv/wiki/Home/
+        # Example: https://sourceforge.net/p/grandperspectiv/wiki/Home/
         marker = "/p/"
         proj_str = input_path[input_path.find(marker) + len(marker):]
         if proj_str.find("/") > 0:
@@ -1478,9 +1478,9 @@ def inspect_sourceforge_url(input_path, args, facts):
         if "download_url" not in facts:
 
             # Download the RSS feed and parse it.
-            # Example: http://sourceforge.net/projects/grandperspectiv/rss
-            # Example: http://sourceforge.net/projects/cord/rss
-            files_rss = "http://sourceforge.net/projects/%s/rss" % proj_name
+            # Example: https://sourceforge.net/projects/grandperspectiv/rss
+            # Example: https://sourceforge.net/projects/cord/rss
+            files_rss = "https://sourceforge.net/projects/%s/rss" % proj_name
             try:
                 raw_xml = urlopen(files_rss)
             except Exception as err:
@@ -1496,7 +1496,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 # TODO(Elliot): The extra-info tag is not a reliable
                 # indicator of which item should actually be downloaded.
                 # (#21) Example:
-                # http://sourceforge.net/projects/grandperspectiv/rss
+                # https://sourceforge.net/projects/grandperspectiv/rss
                 search = "{https://sourceforge.net/api/files.rdf#}extra-info"
                 if item.find(search).text.startswith("data"):
                     download_url = item.find("link").text.rstrip("/download")
