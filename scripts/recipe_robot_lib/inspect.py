@@ -141,26 +141,31 @@ def check_url(url):
             provided as input (e.g. switching from HTTP to HTTPS).
         code: The HTTP status code returned by the URL header check.
     """
-    if url.startswith("http:"):
-        # Try switching to HTTPS.
-        robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
-        https_url = url.replace("http:", "https:")
-        p = urlparse(https_url)
-        conn = httplib.HTTPConnection(p.netloc)
-        conn.request('HEAD', p.path)
-        resp = conn.getresponse()
-        if resp.status < 400:
-            robo_print("Found HTTPS URL: %s" % https_url, LogLevel.VERBOSE, 4)
-            return https_url, resp.status
-        else:
-            robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
-
     p = urlparse(url)
-    conn = httplib.HTTPConnection(p.netloc)
-    conn.request('HEAD', p.path)
-    resp = conn.getresponse()
+    if p.scheme == "http":
+        robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
+        try:
+            # Try switching to HTTPS.
+            c = httplib.HTTPSConnection(p.netloc)
+            c.request("HEAD", p.path)
+            r = c.getresponse()
+            if r.status < 400:
+                url = url.replace("http:", "https:")
+                robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
+                return url
+            else:
+                robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
+        except CertificateError as err:
+            robo_print("Domain does not have a valid SSL certificate.",
+                       LogLevel.VERBOSE, 4)
 
-    return url, resp.status
+    # Use HTTP if HTTPS fails.
+    c = httplib.HTTPConnection(p.netloc)
+    c.request("HEAD", p.path)
+    r = c.getresponse()
+    # TODO (Elliot): Mitigation of errors based on r.status.
+
+    return url
 
 
 def inspect_app(input_path, args, facts):
@@ -858,7 +863,7 @@ def inspect_download_url(input_path, args, facts):
         facts["specify_filename"] = False
 
     # Check to make sure URL is valid, and switch to HTTPS if possible.
-    checked_url, status_code = check_url(input_path)
+    checked_url = check_url(input_path)
     if checked_url.startswith("http:"):
         facts["warnings"].append(
             "This download URL is not using HTTPS. I recommend contacting "
@@ -1599,7 +1604,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     facts["sparkle_feed"] = input_path
 
     # Check to make sure URL is valid, and switch to HTTPS if possible.
-    checked_url, status_code = check_url(input_path)
+    checked_url = check_url(input_path)
     if checked_url.startswith("http:"):
         facts["warnings"].append(
             "This Sparkle feed is not using HTTPS. I recommend contacting "
