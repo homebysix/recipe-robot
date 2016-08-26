@@ -25,7 +25,7 @@ Look at a path or URL for an app and generate facts about it.
 
 
 from distutils.version import StrictVersion, LooseVersion
-from ssl import CertificateError
+from ssl import CertificateError, SSLError
 import httplib
 import json
 import os
@@ -150,12 +150,12 @@ def check_url(url):
             c.request("HEAD", p.path)
             r = c.getresponse()
             if r.status < 400:
-                url = url.replace("http:", "https:")
+                url = "https" + url[5:]
                 robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
                 return url
             else:
                 robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
-        except CertificateError as err:
+        except (CertificateError, SSLError) as err:
             robo_print("Domain does not have a valid SSL certificate.",
                        LogLevel.VERBOSE, 4)
 
