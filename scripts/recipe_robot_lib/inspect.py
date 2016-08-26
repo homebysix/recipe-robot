@@ -25,6 +25,8 @@ Look at a path or URL for an app and generate facts about it.
 
 
 from distutils.version import StrictVersion, LooseVersion
+from ssl import CertificateError
+import httplib
 import json
 import os
 import re
@@ -126,6 +128,39 @@ def process_input_path(facts):
 
     if inspect_func:
         facts = inspect_func(input_path, args, facts)
+
+
+def check_url(url):
+    """Test a URL's headers, and switch to HTTPS if available.
+
+    Args:
+        url: The URL to check.
+
+    Returns:
+        url: The URL that was tested, which may not be the same as the URL
+            provided as input (e.g. switching from HTTP to HTTPS).
+        code: The HTTP status code returned by the URL header check.
+    """
+    if url.startswith("http:"):
+        # Try switching to HTTPS.
+        robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
+        https_url = url.replace("http:", "https:")
+        p = urlparse(https_url)
+        conn = httplib.HTTPConnection(p.netloc)
+        conn.request('HEAD', p.path)
+        resp = conn.getresponse()
+        if resp.status < 400:
+            robo_print("Found HTTPS URL: %s" % https_url, LogLevel.VERBOSE, 4)
+            return https_url, resp.status
+        else:
+            robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
+
+    p = urlparse(url)
+    conn = httplib.HTTPConnection(p.netloc)
+    conn.request('HEAD', p.path)
+    resp = conn.getresponse()
+
+    return url, resp.status
 
 
 def inspect_app(input_path, args, facts):
@@ -821,6 +856,15 @@ def inspect_download_url(input_path, args, facts):
     else:
         facts["specify_filename"] = False
 
+    # Check to make sure URL is valid, and switch to HTTPS if possible.
+    checked_url, status_code = check_url(input_path)
+    if checked_url.startswith("http:"):
+        facts["warnings"].append(
+            "This download URL is not using HTTPS. I recommend contacting "
+            "the developer and politely suggesting that they secure "
+            "their download URL:\n\t  "
+            "https://twitter.com/homebysix/status/714508127228403712")
+
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading
     # big files? https://gist.github.com/gourneau/1430932 (#24)
@@ -828,14 +872,14 @@ def inspect_download_url(input_path, args, facts):
 
     # Actually download the file.
     try:
-        raw_download = urlopen(input_path)
+        raw_download = urlopen(checked_url)
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
                 opener = build_opener()
                 opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                raw_download = opener.open(input_path)
+                raw_download = opener.open(checked_url)
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to "
                     "download this file. If you run the recipes and get a "
@@ -864,6 +908,11 @@ def inspect_download_url(input_path, args, facts):
             facts["warnings"].append("Error encountered during file download. "
                                      "(%s)" % err.reason)
             return facts
+    except CertificateError as err:
+        facts["warnings"].append(
+            "There seems to be a problem with the developer's SSL "
+            "certificate. (%s)" % err)
+        return facts
 
     # Get the actual filename from the server, if it exists.
     if "Content-Disposition" in raw_download.info():
@@ -912,7 +961,7 @@ def inspect_download_url(input_path, args, facts):
             hidden_sparkle = True
     if hidden_sparkle is True:
         os.remove(os.path.join(CACHE_DIR, filename))
-        facts = inspect_sparkle_feed_url(input_path, args, facts)
+        facts = inspect_sparkle_feed_url(checked_url, args, facts)
         return facts
 
     # Try to determine the type of file downloaded. (Overwrites any
@@ -1547,27 +1596,25 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     robo_print("Sparkle feed is: %s" % input_path, LogLevel.VERBOSE, 4)
     facts["sparkle_feed"] = input_path
 
-    # Warn if the Sparkle feed is not HTTPS.
-    if input_path.startswith("http:"):
-        # TODO (Elliot): Automatically test for HTTPS feed and use that if it
-        # exists. (#92)
+    # Check to make sure URL is valid, and switch to HTTPS if possible.
+    checked_url, status_code = check_url(input_path)
+    if checked_url.startswith("http:"):
         facts["warnings"].append(
-            "This Sparkle feed is not using HTTPS.\n\t- If an HTTPS feed is "
-            "available, I strongly recommend using that.\n\t- If not, "
-            "contact the developer and politely suggest that they secure "
-            "their Sparkle feeds:\n\t  "
+            "This Sparkle feed is not using HTTPS. I recommend contacting "
+            "the developer and politely suggesting that they secure "
+            "their Sparkle feed:\n\t  "
             "https://twitter.com/homebysix/status/714508127228403712")
 
     # Download the Sparkle feed.
     try:
-        raw_xml = urlopen(input_path)
+        raw_xml = urlopen(checked_url)
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
                 opener = build_opener()
                 opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                raw_xml = opener.open(input_path)
+                raw_xml = opener.open(checked_url)
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to read "
                     "this Sparkle feed. If you run the recipes and get a "
@@ -1605,6 +1652,11 @@ def inspect_sparkle_feed_url(input_path, args, facts):
                 "Sparkle feed. (%s)" % err)
             facts.pop("sparkle_feed", None)
             return facts
+    except CertificateError as err:
+        facts["warnings"].append(
+            "There seems to be a problem with the developer's SSL "
+            "certificate. (%s)" % err)
+        return facts
 
     # Parse the Sparkle feed.
     xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
@@ -1647,11 +1699,11 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # If Sparkle feed is hosted on GitHub or SourceForge, we can gather
     # more information.
-    if "github.com" in input_path or "githubusercontent.com" in input_path:
+    if "github.com" in checked_url or "githubusercontent.com" in checked_url:
         if "github_repo" not in facts:
-            facts = inspect_github_url(input_path, args, facts)
-    if "sourceforge.net" in input_path:
+            facts = inspect_github_url(checked_url, args, facts)
+    if "sourceforge.net" in checked_url:
         if "sourceforge_id" not in facts:
-            facts = inspect_sourceforge_url(input_path, args, facts)
+            facts = inspect_sourceforge_url(checked_url, args, facts)
 
     return facts
