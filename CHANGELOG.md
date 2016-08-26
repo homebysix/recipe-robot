@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+### Added
+- Recipe Robot now automatically switches download URLs and Sparkle feeds from HTTP to HTTPS, if possible. (#92)
+
 ### Changed
 - Now using HTTPS for all SourceForge API calls.
 
