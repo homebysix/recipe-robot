@@ -868,8 +868,7 @@ def inspect_download_url(input_path, args, facts):
         facts["warnings"].append(
             "This download URL is not using HTTPS. I recommend contacting "
             "the developer and politely suggesting that they secure "
-            "their download URL:\n\t  "
-            "https://twitter.com/homebysix/status/714508127228403712")
+            "their download URL. (Example: " "https://twitter.com/homebysix/status/714508127228403712)")
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading
@@ -1609,8 +1608,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts["warnings"].append(
             "This Sparkle feed is not using HTTPS. I recommend contacting "
             "the developer and politely suggesting that they secure "
-            "their Sparkle feed:\n\t  "
-            "https://twitter.com/homebysix/status/714508127228403712")
+            "their Sparkle feed. (Example: " "https://twitter.com/homebysix/status/714508127228403712)")
 
     # Download the Sparkle feed.
     try:
