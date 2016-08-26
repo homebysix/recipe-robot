@@ -42,8 +42,6 @@ from .tools import (create_dest_dirs, create_existing_recipe_list,
                     SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS)
 
 
-
-
 @timed
 def generate_recipes(facts, prefs):
     """Generate the selected types of recipes.
