@@ -337,6 +337,7 @@ def inspect_app(input_path, args, facts):
         robo_print("Getting app description from MacUpdate...", LogLevel.VERBOSE)
         description, warning = get_app_description(app_name)
         if description:
+            description = unicode(description, 'utf-8')
             robo_print("Description: %s" % description, LogLevel.VERBOSE, 4)
             facts["description"] = description
         if warning:
