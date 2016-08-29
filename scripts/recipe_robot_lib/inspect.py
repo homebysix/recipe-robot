@@ -158,6 +158,9 @@ def check_url(url):
         except (CertificateError, SSLError) as err:
             robo_print("Domain does not have a valid SSL certificate.",
                        LogLevel.VERBOSE, 4)
+        except Exception as err:
+            robo_print("An error occurred while checking for an HTTPS "
+                       "URL: %s" % err, LogLevel.VERBOSE, 4)
 
     # Use HTTP if HTTPS fails.
     c = httplib.HTTPConnection(p.netloc)
