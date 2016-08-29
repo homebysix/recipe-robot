@@ -150,7 +150,7 @@ def check_url(url):
             c.request("HEAD", p.path)
             r = c.getresponse()
             if r.status < 400:
-                url = "https" + url[5:]
+                url = "https" + url[4:]
                 robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
                 return url
             else:
