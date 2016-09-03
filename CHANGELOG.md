@@ -10,9 +10,11 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Changed
 - Uses HTTPS for all SourceForge API calls.
+- General readability and formatting improvements to Python code.
 
 ### Fixed
 - Handles unicode characters in MacUpdate app descriptions.
+- Handles missing "where from" metadata in downloaded files more gracefully.
 
 
 ## [1.0.3] - 2016-08-25
