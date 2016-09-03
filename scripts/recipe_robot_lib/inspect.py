@@ -535,7 +535,9 @@ def inspect_archive(input_path, args, facts):
 
             return facts
 
-    robo_print("Unable to unpack this archive: %s\n(You can ignore this message if the previous attempt to mount the downloaded file as a disk image succeeded.)" % input_path, LogLevel.DEBUG)
+    robo_print("Unable to unpack this archive: %s\n(You can ignore this "
+               "message if the previous attempt to mount the downloaded file "
+               "as a disk image succeeded.)" % input_path, LogLevel.DEBUG)
     return facts
 
 
@@ -784,7 +786,9 @@ def inspect_disk_image(input_path, args, facts):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
-        robo_print("Unable to mount %s. (%s)\n(You can ignore this message if the upcoming attempt to unzip the downloaded file as an archive succeeds.)" % (input_path, err), LogLevel.DEBUG)
+        robo_print("Unable to mount %s. (%s)\n(You can ignore this message if "
+                   "the upcoming attempt to unzip the downloaded file as an "
+                   "archive succeeds.)" % (input_path, err), LogLevel.DEBUG)
 
     return facts
 
