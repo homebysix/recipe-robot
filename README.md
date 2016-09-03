@@ -33,6 +33,8 @@ This two-pronged approach allows AutoPkg novices to easily create recipes that f
 
 In order to run Recipe Robot, you need [AutoPkg](https://github.com/autopkg/autopkg/releases/latest) 0.5.0 or later installed.
 
+The version of AutoPkg required to run recipes created by Recipe Robot may be newer than that.
+
 
 ## Mac App Usage
 
@@ -105,6 +107,10 @@ Also see the [Tips](#tips) section below for more timesavers.
 [![Using Recipe Robot to Add Icons to Your Munki Repo](images/tutorial-munkiicons.jpg)](https://www.youtube.com/watch?v=3hn7yNWuUPA&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=7)
 
 [![Auditing Existing AutoPkg Recipes Using Recipe Robot](images/tutorial-auditing.jpg)](https://www.youtube.com/watch?v=sItavxHraRQ&list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq&index=8)
+
+Also see the [video](https://www.youtube.com/watch?v=5VKDzY8bBxI) and [slides](http://macadmins.psu.edu/wp-content/uploads/sites/24696/2016/06/psumac2016-81-Writing-better-AutoPkg-recipes-with-Recipe-Robot.pdf) from our 2016 PSU MacAdmins presentation, "Writing better AutoPkg recipes with the help of Recipe Robot."
+
+[![Writing better AutoPkg recipes with the help of Recipe Robot](images/psu-presentation.jpg)](https://www.youtube.com/watch?v=5VKDzY8bBxI)
 
 
 ## Tips
