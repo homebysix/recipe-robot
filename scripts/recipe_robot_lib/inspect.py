@@ -463,11 +463,14 @@ def inspect_archive(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-        if len(where_froms) > 0:
-            facts["download_url"] = where_froms[0]
-            robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        try:
+            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
+            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+            if len(where_froms) > 0:
+                facts["download_url"] = where_froms[0]
+                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        except KeyError as err:
+            robo_print("Unable to derive a download URL from this archive.", LogLevel.WARNING)
 
     # Unzip the zip and look for an app. (If this fails, we try tgz
     # next.)
@@ -704,11 +707,14 @@ def inspect_disk_image(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-        if len(where_froms) > 0:
-            facts["download_url"] = where_froms[0]
-            robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        try:
+            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
+            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+            if len(where_froms) > 0:
+                facts["download_url"] = where_froms[0]
+                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        except KeyError as err:
+            robo_print("Unable to derive a download URL from this disk image.", LogLevel.WARNING)
 
     # Determine whether the dmg has a software license agreement.
     # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
@@ -1247,11 +1253,14 @@ def inspect_pkg(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-        if len(where_froms) > 0:
-            facts["download_url"] = where_froms[0]
-            robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        try:
+            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
+            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+            if len(where_froms) > 0:
+                facts["download_url"] = where_froms[0]
+                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        except KeyError as err:
+            robo_print("Unable to derive a download URL from this package.", LogLevel.WARNING)
 
     # Check whether package is signed.
     robo_print("Checking whether package is signed...", LogLevel.VERBOSE)
