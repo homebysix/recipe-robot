@@ -26,17 +26,17 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 
 
 from datetime import datetime
+from Foundation import NSUserDefaults
 from functools import wraps
-import os
 from random import choice as random_choice
+from subprocess import PIPE, Popen
+from urllib import quote_plus
+from urllib2 import urlopen
+import os
 import re
 import shlex
-from subprocess import Popen, PIPE
 import sys
 import timeit
-from urllib2 import urlopen
-from urllib import quote_plus
-from Foundation import NSUserDefaults
 
 from .exceptions import RoboError
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?

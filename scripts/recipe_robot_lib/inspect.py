@@ -24,8 +24,11 @@ Look at a path or URL for an app and generate facts about it.
 """
 
 
-from distutils.version import StrictVersion, LooseVersion
+from distutils.version import LooseVersion, StrictVersion
 from ssl import CertificateError, SSLError
+from urllib2 import build_opener, HTTPError, Request, URLError, urlopen
+from urlparse import urlparse
+from xml.etree.ElementTree import parse, ParseError
 import httplib
 import json
 import os
@@ -33,16 +36,14 @@ import re
 import shutil
 import sys
 import xattr
-from urllib2 import urlopen, HTTPError, URLError, build_opener
-from urlparse import urlparse
-from xml.etree.ElementTree import parse, ParseError
 
 from recipe_robot_lib import FoundationPlist as FoundationPlist
 from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.tools import (
-    robo_print, LogLevel, any_item_in_string, SUPPORTED_INSTALL_FORMATS,
-    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
-    get_exitcode_stdout_stderr, ALL_SUPPORTED_FORMATS, CACHE_DIR)
+    ALL_SUPPORTED_FORMATS, ALT_USER_AGENT, any_item_in_string,
+    CACHE_DIR, get_exitcode_stdout_stderr, LogLevel, robo_print,
+    SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_IMAGE_FORMATS,
+    SUPPORTED_INSTALL_FORMATS)
 
 
 def process_input_path(facts):
