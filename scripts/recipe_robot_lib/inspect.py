@@ -971,7 +971,13 @@ def inspect_download_url(input_path, args, facts):
                 p = float(file_size_dl) / file_size
                 status = r"    {0:.2%}".format(p)
                 status = status + chr(8)*(len(status)+1)
-                if not args.app_mode:
+                if args.app_mode:
+                    # Show progress in 10% increments.
+                    if (file_size_dl / block_sz) % (file_size / block_sz / 10) == 0:
+                        robo_print(status, LogLevel.VERBOSE)
+                else:
+                    # Show progress in real time.
+                    # sys.stdout.flush()  # TODO: Pending feedback on #108.
                     sys.stdout.write(status)
     robo_print("Downloaded to %s" % os.path.join(
         CACHE_DIR, filename), LogLevel.VERBOSE, 4)
