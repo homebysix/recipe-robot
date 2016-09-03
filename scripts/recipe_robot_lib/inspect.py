@@ -825,30 +825,33 @@ def inspect_download_url(input_path, args, facts):
     # path, but only if the path was not obtained from a feed of some
     # sort.
     version_match = re.search(r"[\d]+\.[\w]+$", input_path)
-    if version_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
-                                      "github_url" not in facts["inspections"] and
-                                      "sourceforge_url" not in facts["inspections"] and
-                                      "bitbucket_url" not in facts["inspections"]):
+    if version_match is not None and (
+            "sparkle_feed_url" not in facts["inspections"] and
+            "github_url" not in facts["inspections"] and
+            "sourceforge_url" not in facts["inspections"] and
+            "bitbucket_url" not in facts["inspections"]):
         facts["warnings"].append(
             "Careful, this might be a version-specific URL. Better to give me "
             "a \"latest\" URL or a Sparkle feed.")
 
     # Warn if it looks like we're using a temporary CDN URL.
     aws_expire_match = re.search(r"\:\/\/.*Expires\=", input_path)
-    if aws_expire_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
-                                       "github_url" not in facts["inspections"] and
-                                       "sourceforge_url" not in facts["inspections"] and
-                                       "bitbucket_url" not in facts["inspections"]):
+    if aws_expire_match is not None and (
+            "sparkle_feed_url" not in facts["inspections"] and
+            "github_url" not in facts["inspections"] and
+            "sourceforge_url" not in facts["inspections"] and
+            "bitbucket_url" not in facts["inspections"]):
         facts["warnings"].append(
             "This is a CDN-cached URL, and it may expire. Try feeding me a "
             "permanent URL instead.")
 
     # Warn if it looks like we're using an AWS URL with an access key.
     aws_key_match = re.search(r"\:\/\/.*AWSAccessKeyId\=", input_path)
-    if aws_key_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
-                                       "github_url" not in facts["inspections"] and
-                                       "sourceforge_url" not in facts["inspections"] and
-                                       "bitbucket_url" not in facts["inspections"]):
+    if aws_key_match is not None and (
+            "sparkle_feed_url" not in facts["inspections"] and
+            "github_url" not in facts["inspections"] and
+            "sourceforge_url" not in facts["inspections"] and
+            "bitbucket_url" not in facts["inspections"]):
         facts["warnings"].append(
             "This URL contains an AWSAccessKeyId parameter.")
 
@@ -871,7 +874,8 @@ def inspect_download_url(input_path, args, facts):
         facts["warnings"].append(
             "This download URL is not using HTTPS. I recommend contacting "
             "the developer and politely suggesting that they secure "
-            "their download URL. (Example: " "https://twitter.com/homebysix/status/714508127228403712)")
+            "their download URL. (Example: https://twitter.com"
+            "/homebysix/status/714508127228403712)")
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading
@@ -959,7 +963,8 @@ def inspect_download_url(input_path, args, facts):
                 status = status + chr(8)*(len(status)+1)
                 if not args.app_mode:
                     sys.stdout.write(status)
-    robo_print("Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4)
+    robo_print("Downloaded to %s" % os.path.join(
+        CACHE_DIR, filename), LogLevel.VERBOSE, 4)
 
     # Just in case the "download" was actually a Sparkle feed.
     hidden_sparkle = False
