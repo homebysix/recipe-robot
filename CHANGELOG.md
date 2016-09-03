@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Changed
 - Uses HTTPS for all SourceForge API calls.
 - General readability and formatting improvements to Python code.
+- Now references SourceForgeURLProvider as a shared processor rather than copying it to the output folder.
 
 ### Fixed
 - Handles unicode characters in MacUpdate app descriptions.
