@@ -5,8 +5,14 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+### Added
+- Recipe Robot now automatically switches download URLs and Sparkle feeds from HTTP to HTTPS, if possible. (#92)
+
 ### Changed
-- Now using HTTPS for all SourceForge API calls.
+- Uses HTTPS for all SourceForge API calls.
+
+### Fixed
+- Handles unicode characters in MacUpdate app descriptions.
 
 
 ## [1.0.3] - 2016-08-25

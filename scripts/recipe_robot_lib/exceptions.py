@@ -53,8 +53,6 @@ class RoboException(Exception):
         self._error = traceback.format_exc(exception_object)
 
 
-
 class RoboError(RoboException):
     """Something happened which means we can't continue."""
     pass
-
