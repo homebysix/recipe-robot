@@ -40,8 +40,8 @@ import xattr
 from recipe_robot_lib import FoundationPlist as FoundationPlist
 from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.tools import (
-    ALL_SUPPORTED_FORMATS, ALT_USER_AGENT, any_item_in_string,
-    CACHE_DIR, get_exitcode_stdout_stderr, LogLevel, robo_print,
+    ALL_SUPPORTED_FORMATS, any_item_in_string, CACHE_DIR,
+    get_exitcode_stdout_stderr, LogLevel, robo_print,
     SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_INSTALL_FORMATS)
 
