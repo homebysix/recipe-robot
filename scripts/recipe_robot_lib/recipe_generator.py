@@ -1246,12 +1246,13 @@ delete "/tmp/{parameter "FILENAME"}"
         }
     })
 
-    # TODO: Once everything is working, only give this reminder if missing
+    # TODO: Once everything is working, only give this reminder if missing.
+    bigfix_repo = "https://github.com/autopkg/hansen-m-recipes.git"
     facts["reminders"].append(
         "You'll need to have the AutoPkgBESEngine installed and configured:\n"
-        "autopkg repo-add https://github.com/autopkg/hansen-m-recipes.git\n"
-        "autopkg install BESEngine\n"
-        "autopkg install QnA\n")
+        "        autopkg repo-add %s\n"
+        "        autopkg install BESEngine\n"
+        "        autopkg install QnA\n" % bigfix_repo)
 
     return recipe
 
