@@ -804,8 +804,6 @@ def inspect_download_url(input_path, args, facts):
     # inspected a download URL during this run. This handles rare
     # situations in which the download URL is in a different format than
     # the Sparkle download.
-    # Example:
-    # http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
 
     input_path = quote(input_path.strip())
 
