@@ -26,6 +26,7 @@ Look at a path or URL for an app and generate facts about it.
 
 from distutils.version import LooseVersion, StrictVersion
 from ssl import CertificateError, SSLError
+from urllib import quote
 from urllib2 import build_opener, HTTPError, Request, URLError, urlopen
 from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
@@ -806,8 +807,7 @@ def inspect_download_url(input_path, args, facts):
     # Example:
     # http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
 
-    # TODO (Elliot): Proper URL encoding.
-    input_path = input_path.strip().replace(" ", "%20")
+    input_path = quote(input_path.strip())
 
     # Save the download URL to the dictionary of facts.
     robo_print("Download URL is: %s" % input_path, LogLevel.VERBOSE, 4)
