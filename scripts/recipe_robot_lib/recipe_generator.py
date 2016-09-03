@@ -238,6 +238,16 @@ def generate_download_recipe(facts, prefs, recipe):
             SOURCEFORGE_FILE_PATTERN="\\.%s" % facts["download_format"],
             SOURCEFORGE_PROJECT_ID=facts["sourceforge_id"])
         recipe.append_processor(sf_url_provider)
+        if not os.path.exists(os.path.expanduser(
+                "~/Library/AutoPkg/RecipeRepos/com.github.autopkg."
+                "jessepeterson-recipes/GrandPerspective/"
+                "SourceForgeURLProvider.py")):
+            facts["reminders"].append(
+                "The download recipe I created uses the "
+                "SourceForgeURLProvider processor, which is not in the "
+                "AutoPkg core. You'll need to add the appropriate repository "
+                "before running the recipe:\n"
+                "        autopkg repo-add jessepeterson-recipes")
 
     url_downloader = processor.URLDownloader()
 
