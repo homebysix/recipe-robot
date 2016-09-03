@@ -35,11 +35,11 @@ import os
 from .exceptions import RoboError
 import processor
 from .tools import (create_dest_dirs, create_existing_recipe_list,
-                    create_SourceForgeURLProvider, extract_app_icon,
-                    robo_print, robo_join, get_user_defaults, save_user_defaults,
-                    LogLevel, __version__, get_exitcode_stdout_stderr, timed,
-                    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
-                    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS)
+                    extract_app_icon, robo_print, robo_join, get_user_defaults,
+                    save_user_defaults, LogLevel, __version__,
+                    get_exitcode_stdout_stderr, timed, SUPPORTED_IMAGE_FORMATS,
+                    SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_INSTALL_FORMATS,
+                    ALL_SUPPORTED_FORMATS)
 
 
 @timed
@@ -230,16 +230,8 @@ def generate_download_recipe(facts, prefs, recipe):
 
     # TODO (Shea): Extract method(s) to get_source_processor()
     elif "sourceforge_id" in facts:
-        if "developer" in facts and not prefs.get(
-                "FollowOfficialJSSRecipesFormat"):
-            create_SourceForgeURLProvider(
-                robo_join(prefs["RecipeCreateLocation"],
-                          facts["developer"]).replace("/", "-"))
-        else:
-            create_SourceForgeURLProvider(robo_join(
-                prefs["RecipeCreateLocation"],
-                facts["app_name"]).replace("/", "-"))
         SourceForgeURLProvider = processor.ProcessorFactory(
+            "com.github.jessepeterson.munki.GrandPerspective/"
             "SourceForgeURLProvider", ("SOURCEFORGE_FILE_PATTERN",
                                        "SOURCEFORGE_PROJECT_ID"))
         sf_url_provider = SourceForgeURLProvider(

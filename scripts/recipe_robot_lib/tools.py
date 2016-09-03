@@ -164,30 +164,6 @@ def create_dest_dirs(path):
                             error)
 
 
-def create_SourceForgeURLProvider(dest_dir):
-    """Copies the latest version of Jesse Peterson's SourceForgeURLProvider to
-    the recipe output directory, because it's referenced by one of the recipes
-    being created.
-    """
-    base_url = ("https://raw.githubusercontent.com/autopkg/"
-                "jessepeterson-recipes/master/GrandPerspective/"
-                "SourceForgeURLProvider.py")
-    dest_dir_absolute = os.path.expanduser(dest_dir)
-    try:
-        raw_download = urlopen(base_url)
-        with open(os.path.join(dest_dir_absolute, "SourceForgeURLProvider.py"),
-                  "wb") as download_file:
-            download_file.write(raw_download.read())
-            robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"),
-                       LogLevel.VERBOSE, 4)
-    except:
-        # TODO (Elliot): Instead of copying, simply reference shared processor.
-        # TODO (Elliot):  Copy SourceForgeURLProvider from local file. (#46)
-        # TODO: This doesn't notify or update the facts object.
-        robo_print("Unable to download SourceForgeURLProvider from GitHub.",
-                   LogLevel.WARNING)
-
-
 def extract_app_icon(facts, png_path):
     """Convert the app's icns file to 300x300 png at the specified path.
     300x300 is Munki's preferred size, and 128x128 is Casper's preferred size,
