@@ -1701,23 +1701,19 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts.pop("sparkle_feed", None)
         return facts
 
-
     # Determine whether the Sparkle feed provides a version number.
     sparkle_provides_version = False
     latest_version = "0"
     latest_url = ""
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
     for item in doc.iterfind("channel/item/enclosure"):
-        if item.get("{%s}shortVersionString" % xmlns) is not None:
-            sparkle_provides_version = True
-            if LooseVersion(item.get("{%s}shortVersionString" % xmlns)) > LooseVersion(latest_version):
-                latest_version = item.get("{%s}shortVersionString" % xmlns)
-                latest_url = item.attrib["url"]
-        if item.get("{%s}version" % xmlns) is not None:
-            sparkle_provides_version = True
-            if LooseVersion(item.get("{%s}version" % xmlns)) > LooseVersion(latest_version):
-                latest_version = item.get("{%s}version" % xmlns)
-                latest_url = item.attrib["url"]
+        for vers_tag in ("shortVersionString", "version"):
+            encl_vers = item.get("{%s}%s" % (xmlns, vers_tag))
+            if encl_vers not in (None, ""):
+                sparkle_provides_version = True
+                if LooseVersion(encl_vers) > LooseVersion(latest_version):
+                    latest_version = encl_vers
+                    latest_url = item.attrib["url"]
     if sparkle_provides_version is True:
         robo_print("The Sparkle feed provides a version "
                    "number", LogLevel.VERBOSE, 4)
