@@ -7,15 +7,18 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Added
 - Recipe Robot now automatically switches download URLs and Sparkle feeds from HTTP to HTTPS, if possible. (#92)
+- Download progress indication is now displayed in the app. (#72)
 
 ### Changed
 - Uses HTTPS for all SourceForge API calls.
 - General readability and formatting improvements to Python code.
 - Now references SourceForgeURLProvider as a shared processor rather than copying it to the output folder.
+- Download progress percentage indicator updates in near-realtime.
 
 ### Fixed
 - Handles unicode characters in MacUpdate app descriptions.
 - Handles missing "where from" metadata in downloaded files more gracefully.
+- Better compatibility with other terminal apps (e.g. PuTTY). (#108)
 
 
 ## [1.0.3] - 2016-08-25
