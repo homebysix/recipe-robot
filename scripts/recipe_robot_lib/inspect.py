@@ -977,7 +977,7 @@ def inspect_download_url(input_path, args, facts):
                         robo_print(status, LogLevel.VERBOSE)
                 else:
                     # Show progress in real time.
-                    # sys.stdout.flush()  # TODO: Pending feedback on #108.
+                    sys.stdout.flush()
                     sys.stdout.write(status)
     robo_print("Downloaded to %s" % os.path.join(
         CACHE_DIR, filename), LogLevel.VERBOSE, 4)
