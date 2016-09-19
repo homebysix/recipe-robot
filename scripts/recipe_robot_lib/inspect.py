@@ -322,7 +322,7 @@ def inspect_app(input_path, args, facts):
                             "use for this app.")
 
     # Determine path to the app's icon.
-    if "icon_path" not in facts:
+    if "icon_path" not in facts and not args.skip_icon:
         icon_path = ""
         robo_print("Looking for app icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:

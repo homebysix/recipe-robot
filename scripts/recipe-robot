@@ -217,6 +217,10 @@ def build_argument_parser():
         action="store_true",
         help="Use a GitHub API token when searching for existing recipes.")
     parser.add_argument(
+        "--skip-icon",
+        action="store_true",
+        help="Do not extract an icon from the source app.")
+    parser.add_argument(
         "-v", "--verbose",
         action="store_true",
         help="Generate additional output about the process.")

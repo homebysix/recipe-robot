@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Added
 - Recipe Robot now automatically switches download URLs and Sparkle feeds from HTTP to HTTPS, if possible. (#92)
 - Download progress indication is now displayed in the app. (#72)
+- New `--skip-icon` command-line flag skips creation of PNG file for use as app icon in Munki/Casper.
 
 ### Changed
 - Uses HTTPS for all SourceForge API calls.
