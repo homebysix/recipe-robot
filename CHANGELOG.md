@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. This projec
 - General readability and formatting improvements to Python code.
 - Now references SourceForgeURLProvider as a shared processor rather than copying it to the output folder.
 - Download progress percentage indicator updates in near-realtime.
+- Streamlined the reminders you get when a required repo isn't present on disk.
 
 ### Fixed
 - Handles unicode characters in MacUpdate app descriptions.
