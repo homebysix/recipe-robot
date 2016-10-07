@@ -128,6 +128,19 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
             "doesn't seem to be a dmg, zip, or pkg.")
 
 
+def required_repo_reminder(repo_name, repo_url, facts):
+    """Print a reminder if a required repo is not already added."""
+    cmd = "/usr/local/bin/autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any((line.endswith("(%s)" % repo_url) or
+                line.endswith("(%s.git)" % repo_url)) for
+                line in out.splitlines()):
+        facts["reminders"].append(
+            "You'll need to add the %s repo in order to use "
+            "this recipe:\n        autopkg repo-add "
+            "\"%s\"" % (repo_name, repo_url))
+
+
 def build_recipes(facts, preferred, prefs):
     """Create a recipe for each preferred type we know about."""
     recipe_dest_dir = facts["recipe_dest_dir"]
@@ -925,15 +938,9 @@ def generate_lanrev_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "pkg")
 
     # Print a reminder if the required repo isn't present on disk.
-    lanrevimporter_url = "https://github.com/jbaker10/LANrevImporter"
-    cmd = "/usr/local/bin/autopkg repo-list"
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % lanrevimporter_url) for line in
-               out.splitlines()):
-        facts["reminders"].append(
-            "You'll need to add the LANrevImporter repo in order to use "
-            "this recipe:\n        autopkg repo-add "
-            "\"%s\"" % lanrevimporter_url)
+    required_repo_reminder("LANrevImporter",
+                           "https://github.com/jbaker10/LANrevImporter",
+                           facts)
 
     recipe.append_processor({
         "Processor":
@@ -985,15 +992,9 @@ def generate_sccm_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "pkg")
 
     # Print a reminder if the required repo isn't present on disk.
-    cgerke_url = "https://github.com/autopkg/cgerke-recipes"
-    cmd = "/usr/local/bin/autopkg repo-list"
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % cgerke_url) for line in
-               out.splitlines()):
-        facts["reminders"].append(
-            "You'll need to add the cgerke-recipes repo in order to use this "
-            "recipe:\n        autopkg repo-add "
-            "\"%s\"" % cgerke_url)
+    required_repo_reminder("cgerke-recipes",
+                           "https://github.com/autopkg/cgerke-recipes",
+                           facts)
 
     recipe.append_processor({
         "Processor":
@@ -1075,15 +1076,9 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "downloads.")
 
     # Print a reminder if the required repo isn't present on disk.
-    filewave_repo = "https://github.com/autopkg/filewave"
-    cmd = "/usr/local/bin/autopkg repo-list"
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % filewave_repo) for line in
-               out.splitlines()):
-        facts["reminders"].append(
-            "You'll need to add the FileWave repo in order to use "
-            "this recipe:\n        autopkg repo-add "
-            "\"%s\"" % filewave_repo)
+    required_repo_reminder("FileWave",
+                           "https://github.com/autopkg/filewave",
+                           facts)
 
     recipe.append_processor({
         "Processor": "com.github.autopkg.filewave.FWTool/FileWaveImporter",
