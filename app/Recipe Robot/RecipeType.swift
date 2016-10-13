@@ -57,7 +57,7 @@ enum RecipeType: Int {
         var idx = 0
         while let type = RecipeType(rawValue: idx){
             cases.append(type)
-            idx++
+            idx += 1
         }
         return cases
     }

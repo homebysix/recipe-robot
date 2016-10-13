@@ -70,7 +70,7 @@ enum NoteType: Int {
         var idx = 0
         while let noteType = NoteType(rawValue: idx){
             all.append(noteType)
-            idx++
+            idx += 1
         }
         return all
     }
@@ -84,7 +84,7 @@ class NotificationListener: NSObject {
         super.init()
 
         for n in NoteType.cases {
-            center.addObserver(self, selector: "noticed:",
+            center.addObserver(self, selector: #selector(NotificationListener.noticed(_:)),
                 name: n.name,
                 object: nil)
         }
@@ -93,7 +93,7 @@ class NotificationListener: NSObject {
     init(noteTypes: [NoteType]) {
         super.init()
         for n in noteTypes {
-            center.addObserver(self, selector: "noticed:",
+            center.addObserver(self, selector: #selector(NotificationListener.noticed(_:)),
                 name: n.name,
                 object: nil)
         }
