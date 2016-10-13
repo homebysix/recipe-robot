@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file. This projec
 
 
 ## [Unreleased]
-- Nothing yet.
+
+### Changed
+- Updated app code to comply with Swift 2.3 syntax.
 
 
 ## [1.0.4] - 2016-10-13
