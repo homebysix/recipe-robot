@@ -35,13 +35,11 @@ import os
 from .exceptions import RoboError
 import processor
 from .tools import (create_dest_dirs, create_existing_recipe_list,
-                    create_SourceForgeURLProvider, extract_app_icon,
-                    robo_print, robo_join, get_user_defaults, save_user_defaults,
-                    LogLevel, __version__, get_exitcode_stdout_stderr, timed,
-                    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
-                    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS)
-
-
+                    extract_app_icon, robo_print, robo_join, get_user_defaults,
+                    save_user_defaults, LogLevel, __version__,
+                    get_exitcode_stdout_stderr, timed, SUPPORTED_IMAGE_FORMATS,
+                    SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_INSTALL_FORMATS,
+                    ALL_SUPPORTED_FORMATS)
 
 
 @timed
@@ -128,6 +126,19 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
         raise RoboError(
             "Sorry, I can't tell what format this app downloads in. It "
             "doesn't seem to be a dmg, zip, or pkg.")
+
+
+def required_repo_reminder(repo_name, repo_url, facts):
+    """Print a reminder if a required repo is not already added."""
+    cmd = "/usr/local/bin/autopkg repo-list"
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if not any((line.endswith("(%s)" % repo_url) or
+                line.endswith("(%s.git)" % repo_url)) for
+                line in out.splitlines()):
+        facts["reminders"].append(
+            "You'll need to add the %s repo in order to use "
+            "this recipe:\n        autopkg repo-add "
+            "\"%s\"" % (repo_name, repo_url))
 
 
 def build_recipes(facts, preferred, prefs):
@@ -232,22 +243,24 @@ def generate_download_recipe(facts, prefs, recipe):
 
     # TODO (Shea): Extract method(s) to get_source_processor()
     elif "sourceforge_id" in facts:
-        if "developer" in facts and not prefs.get(
-                "FollowOfficialJSSRecipesFormat"):
-            create_SourceForgeURLProvider(
-                robo_join(prefs["RecipeCreateLocation"],
-                          facts["developer"]).replace("/", "-"))
-        else:
-            create_SourceForgeURLProvider(robo_join(
-                prefs["RecipeCreateLocation"],
-                facts["app_name"]).replace("/", "-"))
         SourceForgeURLProvider = processor.ProcessorFactory(
+            "com.github.jessepeterson.munki.GrandPerspective/"
             "SourceForgeURLProvider", ("SOURCEFORGE_FILE_PATTERN",
                                        "SOURCEFORGE_PROJECT_ID"))
         sf_url_provider = SourceForgeURLProvider(
             SOURCEFORGE_FILE_PATTERN="\\.%s" % facts["download_format"],
             SOURCEFORGE_PROJECT_ID=facts["sourceforge_id"])
         recipe.append_processor(sf_url_provider)
+        if not os.path.exists(os.path.expanduser(
+                "~/Library/AutoPkg/RecipeRepos/com.github.autopkg."
+                "jessepeterson-recipes/GrandPerspective/"
+                "SourceForgeURLProvider.py")):
+            facts["reminders"].append(
+                "The download recipe I created uses the "
+                "SourceForgeURLProvider processor, which is not in the "
+                "AutoPkg core. You'll need to add the appropriate repository "
+                "before running the recipe:\n"
+                "        autopkg repo-add jessepeterson-recipes")
 
     url_downloader = processor.URLDownloader()
 
@@ -925,15 +938,9 @@ def generate_lanrev_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "pkg")
 
     # Print a reminder if the required repo isn't present on disk.
-    lanrevimporter_url = "https://github.com/jbaker10/LANrevImporter"
-    cmd = "/usr/local/bin/autopkg repo-list"
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % lanrevimporter_url) for line in
-               out.splitlines()):
-        facts["reminders"].append(
-            "You'll need to add the LANrevImporter repo in order to use "
-            "this recipe:\n        autopkg repo-add "
-            "\"%s\"" % lanrevimporter_url)
+    required_repo_reminder("LANrevImporter",
+                           "https://github.com/jbaker10/LANrevImporter",
+                           facts)
 
     recipe.append_processor({
         "Processor":
@@ -985,15 +992,9 @@ def generate_sccm_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "pkg")
 
     # Print a reminder if the required repo isn't present on disk.
-    cgerke_url = "https://github.com/autopkg/cgerke-recipes"
-    cmd = "/usr/local/bin/autopkg repo-list"
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % cgerke_url) for line in
-               out.splitlines()):
-        facts["reminders"].append(
-            "You'll need to add the cgerke-recipes repo in order to use this "
-            "recipe:\n        autopkg repo-add "
-            "\"%s\"" % cgerke_url)
+    required_repo_reminder("cgerke-recipes",
+                           "https://github.com/autopkg/cgerke-recipes",
+                           facts)
 
     recipe.append_processor({
         "Processor":
@@ -1075,15 +1076,9 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "downloads.")
 
     # Print a reminder if the required repo isn't present on disk.
-    filewave_repo = "https://github.com/autopkg/filewave"
-    cmd = "/usr/local/bin/autopkg repo-list"
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if not any(line.endswith("(%s)" % filewave_repo) for line in
-               out.splitlines()):
-        facts["reminders"].append(
-            "You'll need to add the FileWave repo in order to use "
-            "this recipe:\n        autopkg repo-add "
-            "\"%s\"" % filewave_repo)
+    required_repo_reminder("FileWave",
+                           "https://github.com/autopkg/filewave",
+                           facts)
 
     recipe.append_processor({
         "Processor": "com.github.autopkg.filewave.FWTool/FileWaveImporter",
@@ -1248,12 +1243,13 @@ delete "/tmp/{parameter "FILENAME"}"
         }
     })
 
-    # TODO: Once everything is working, only give this reminder if missing
+    # TODO: Once everything is working, only give this reminder if missing.
+    bigfix_repo = "https://github.com/autopkg/hansen-m-recipes.git"
     facts["reminders"].append(
         "You'll need to have the AutoPkgBESEngine installed and configured:\n"
-        "autopkg repo-add https://github.com/autopkg/hansen-m-recipes.git\n"
-        "autopkg install BESEngine\n"
-        "autopkg install QnA\n")
+        "        autopkg repo-add %s\n"
+        "        autopkg install BESEngine\n"
+        "        autopkg install QnA\n" % bigfix_repo)
 
     return recipe
 

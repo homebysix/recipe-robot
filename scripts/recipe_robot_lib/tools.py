@@ -26,17 +26,17 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 
 
 from datetime import datetime
+from Foundation import NSUserDefaults
 from functools import wraps
-import os
 from random import choice as random_choice
+from subprocess import PIPE, Popen
+from urllib import quote_plus
+from urllib2 import urlopen
+import os
 import re
 import shlex
-from subprocess import Popen, PIPE
 import sys
 import timeit
-from urllib2 import urlopen
-from urllib import quote_plus
-from Foundation import NSUserDefaults
 
 from .exceptions import RoboError
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
@@ -48,7 +48,7 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 ENDC = "\033[0m"
 PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
@@ -78,10 +78,14 @@ class LogLevel(object):
 
 class OutputMode(object):
     """Manage global output mode state with a singleton."""
-    verbose_mode = False  # Use --verbose command-line argument, or hard-code
-                          # to "True" here for additional user-facing output.
-    debug_mode = False  # Use --debug command-line argument, or hard-code
-                        # to "True" here for additional development output.
+
+    # Use --verbose command-line argument, or hard-code
+    # to "True" here for additional user-facing output.
+    verbose_mode = False
+
+    # Use --debug command-line argument, or hard-code
+    # to "True" here for additional development output.
+    debug_mode = False
 
     @classmethod
     def set_verbose_mode(cls, value):
@@ -164,30 +168,6 @@ def create_dest_dirs(path):
                             error)
 
 
-def create_SourceForgeURLProvider(dest_dir):
-    """Copies the latest version of Jesse Peterson's SourceForgeURLProvider to
-    the recipe output directory, because it's referenced by one of the recipes
-    being created.
-    """
-    base_url = ("https://raw.githubusercontent.com/autopkg/"
-                "jessepeterson-recipes/master/GrandPerspective/"
-                "SourceForgeURLProvider.py")
-    dest_dir_absolute = os.path.expanduser(dest_dir)
-    try:
-        raw_download = urlopen(base_url)
-        with open(os.path.join(dest_dir_absolute, "SourceForgeURLProvider.py"),
-                  "wb") as download_file:
-            download_file.write(raw_download.read())
-            robo_print(os.path.join(dest_dir, "SourceForgeURLProvider.py"),
-                       LogLevel.VERBOSE, 4)
-    except:
-        # TODO (Elliot): Instead of copying, simply reference shared processor.
-        # TODO (Elliot):  Copy SourceForgeURLProvider from local file. (#46)
-        # TODO: This doesn't notify or update the facts object.
-        robo_print("Unable to download SourceForgeURLProvider from GitHub.",
-                   LogLevel.WARNING)
-
-
 def extract_app_icon(facts, png_path):
     """Convert the app's icns file to 300x300 png at the specified path.
     300x300 is Munki's preferred size, and 128x128 is Casper's preferred size,
@@ -239,11 +219,15 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
     for cmd_part in cmd_parts:
         cmd_part = cmd_part.strip()
         if i == 0:
-            p[i]=Popen(shlex.split(cmd_part), stdin=PIPE, stdout=PIPE,
-                       stderr=PIPE)
+            p[i] = Popen(shlex.split(cmd_part),
+                         stdin=PIPE,
+                         stdout=PIPE,
+                         stderr=PIPE)
         else:
-            p[i]=Popen(shlex.split(cmd_part), stdin=p[i-1].stdout, stdout=PIPE,
-                       stderr=PIPE)
+            p[i] = Popen(shlex.split(cmd_part),
+                         stdin=p[i-1].stdout,
+                         stdout=PIPE,
+                         stderr=PIPE)
         i = i + 1
 
     out, err = p[i-1].communicate(stdin)
@@ -296,15 +280,18 @@ def reset_term_colors():
 def write_report(report, report_file):
     FoundationPlist.writePlist(report, report_file)
 
+
 def get_user_defaults():
     defaults = NSUserDefaults.alloc().initWithSuiteName_('com.elliotjordan.recipe-robot')
     default_dict = defaults.dictionaryRepresentation()
     return default_dict if len(default_dict) else None
 
+
 def save_user_defaults(prefs):
     defaults = NSUserDefaults.alloc().initWithSuiteName_('com.elliotjordan.recipe-robot')
     for key, value in prefs.iteritems():
-		defaults.setValue_forKey_(value, key)
+        defaults.setValue_forKey_(value, key)
+
 
 def any_item_in_string(items, test_string):
     """Return true if any item in items is in test_string"""
@@ -324,7 +311,8 @@ def create_existing_recipe_list(facts):
     app_name = facts["app_name"]
     recipes = facts["recipes"]
     use_github_token = facts["args"].github_token
-    # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
+    # TODO(Elliot): Suggest users create GitHub API token to prevent
+    # limiting. (#29)
 
     # Generate an array to run through `autopkg search`.
     recipe_searches = [quote_plus(app_name)]
@@ -368,7 +356,8 @@ def create_existing_recipe_list(facts):
                     if line.lower().startswith(recipe_name.lower()):
                         # An existing recipe was found.
                         if is_existing is False:
-                            robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
+                            robo_print("Found existing recipe(s):",
+                                       LogLevel.LOG, 4)
                             is_existing = True
                             recipe["existing"] = True
                         robo_print(recipe_name, LogLevel.LOG, 8)

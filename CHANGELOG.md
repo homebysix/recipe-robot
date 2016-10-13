@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased]
+- Nothing yet.
+
+
+## [1.0.4] - 2016-10-13
+
+### Added
+- Recipe Robot now automatically switches download URLs and Sparkle feeds from HTTP to HTTPS, if possible. (#92)
+- Download progress indication is now displayed in the app. (#72)
+- New `--skip-icon` command-line flag skips creation of PNG file for use as app icon in Munki/Casper.
+
+### Changed
+- Uses HTTPS for all SourceForge API calls.
+- General readability and formatting improvements to Python code.
+- Now references SourceForgeURLProvider as a shared processor rather than copying it to the output folder.
+- Download progress percentage indicator updates in near-realtime.
+- Streamlined the reminders you get when a required repo isn't present on disk.
+
+### Fixed
+- Handles unicode characters in MacUpdate app descriptions.
+- Handles missing "where from" metadata in downloaded files more gracefully.
+- Better compatibility with other terminal apps (e.g. PuTTY). (#108)
+
+
 ## [1.0.3] - 2016-08-25
 
 ### Added
@@ -125,7 +149,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/homebysix/recipe-robot/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/homebysix/recipe-robot/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/homebysix/recipe-robot/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/homebysix/recipe-robot/compare/v1.0...v1.0.1

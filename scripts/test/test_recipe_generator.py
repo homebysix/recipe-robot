@@ -31,6 +31,7 @@ from recipe_robot_lib.tools import (SUPPORTED_IMAGE_FORMATS,
                                     SUPPORTED_ARCHIVE_FORMATS,
                                     SUPPORTED_INSTALL_FORMATS)
 
+
 class TestRecipeGenerator(object):
     """Tests for the recipe_generator functions."""
 

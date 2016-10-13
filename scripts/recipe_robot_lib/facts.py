@@ -55,8 +55,8 @@ class NotificationMixin(object):
             userInfo,
             NSNotificationDeliverImmediately)
 
-# pylint: enable=too-few-public-methods
 
+# pylint: enable=too-few-public-methods
 class Facts(RoboDict):
     """Dictionary-like object for holding all of recipe-robot's data.
 

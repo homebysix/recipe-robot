@@ -24,23 +24,26 @@ Look at a path or URL for an app and generate facts about it.
 """
 
 
-from distutils.version import StrictVersion, LooseVersion
+from distutils.version import LooseVersion, StrictVersion
+from ssl import CertificateError, SSLError
+from urllib2 import build_opener, HTTPError, Request, URLError, urlopen
+from urlparse import urlparse
+from xml.etree.ElementTree import parse, ParseError
+import httplib
 import json
 import os
 import re
 import shutil
 import sys
 import xattr
-from urllib2 import urlopen, HTTPError, URLError, build_opener
-from urlparse import urlparse
-from xml.etree.ElementTree import parse, ParseError
 
 from recipe_robot_lib import FoundationPlist as FoundationPlist
 from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.tools import (
-    robo_print, LogLevel, any_item_in_string, SUPPORTED_INSTALL_FORMATS,
-    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
-    get_exitcode_stdout_stderr, ALL_SUPPORTED_FORMATS, CACHE_DIR)
+    ALL_SUPPORTED_FORMATS, any_item_in_string, CACHE_DIR,
+    get_exitcode_stdout_stderr, LogLevel, robo_print,
+    SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_IMAGE_FORMATS,
+    SUPPORTED_INSTALL_FORMATS)
 
 
 def process_input_path(facts):
@@ -126,6 +129,47 @@ def process_input_path(facts):
 
     if inspect_func:
         facts = inspect_func(input_path, args, facts)
+
+
+def check_url(url):
+    """Test a URL's headers, and switch to HTTPS if available.
+
+    Args:
+        url: The URL to check.
+
+    Returns:
+        url: The URL that was tested, which may not be the same as the URL
+            provided as input (e.g. switching from HTTP to HTTPS).
+        code: The HTTP status code returned by the URL header check.
+    """
+    p = urlparse(url)
+    if p.scheme == "http":
+        robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
+        try:
+            # Try switching to HTTPS.
+            c = httplib.HTTPSConnection(p.netloc)
+            c.request("HEAD", p.path)
+            r = c.getresponse()
+            if r.status < 400:
+                url = "https" + url[4:]
+                robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
+                return url
+            else:
+                robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
+        except (CertificateError, SSLError) as err:
+            robo_print("Domain does not have a valid SSL certificate.",
+                       LogLevel.VERBOSE, 4)
+        except Exception as err:
+            robo_print("An error occurred while checking for an HTTPS "
+                       "URL: %s" % err, LogLevel.VERBOSE, 4)
+
+    # Use HTTP if HTTPS fails.
+    c = httplib.HTTPConnection(p.netloc)
+    c.request("HEAD", p.path)
+    r = c.getresponse()
+    # TODO (Elliot): Mitigation of errors based on r.status.
+
+    return url
 
 
 def inspect_app(input_path, args, facts):
@@ -278,7 +322,7 @@ def inspect_app(input_path, args, facts):
                             "use for this app.")
 
     # Determine path to the app's icon.
-    if "icon_path" not in facts:
+    if "icon_path" not in facts and not args.skip_icon:
         icon_path = ""
         robo_print("Looking for app icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:
@@ -294,6 +338,7 @@ def inspect_app(input_path, args, facts):
         robo_print("Getting app description from MacUpdate...", LogLevel.VERBOSE)
         description, warning = get_app_description(app_name)
         if description:
+            description = unicode(description, 'utf-8')
             robo_print("Description: %s" % description, LogLevel.VERBOSE, 4)
             facts["description"] = description
         if warning:
@@ -418,11 +463,14 @@ def inspect_archive(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-        if len(where_froms) > 0:
-            facts["download_url"] = where_froms[0]
-            robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        try:
+            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
+            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+            if len(where_froms) > 0:
+                facts["download_url"] = where_froms[0]
+                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        except KeyError as err:
+            robo_print("Unable to derive a download URL from this archive.", LogLevel.WARNING)
 
     # Unzip the zip and look for an app. (If this fails, we try tgz
     # next.)
@@ -487,7 +535,9 @@ def inspect_archive(input_path, args, facts):
 
             return facts
 
-    robo_print("Unable to unpack this archive: %s\n(You can ignore this message if the previous attempt to mount the downloaded file as a disk image succeeded.)" % input_path, LogLevel.DEBUG)
+    robo_print("Unable to unpack this archive: %s\n(You can ignore this "
+               "message if the previous attempt to mount the downloaded file "
+               "as a disk image succeeded.)" % input_path, LogLevel.DEBUG)
     return facts
 
 
@@ -659,11 +709,14 @@ def inspect_disk_image(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-        if len(where_froms) > 0:
-            facts["download_url"] = where_froms[0]
-            robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        try:
+            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
+            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+            if len(where_froms) > 0:
+                facts["download_url"] = where_froms[0]
+                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        except KeyError as err:
+            robo_print("Unable to derive a download URL from this disk image.", LogLevel.WARNING)
 
     # Determine whether the dmg has a software license agreement.
     # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
@@ -733,7 +786,9 @@ def inspect_disk_image(input_path, args, facts):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
-        robo_print("Unable to mount %s. (%s)\n(You can ignore this message if the upcoming attempt to unzip the downloaded file as an archive succeeds.)" % (input_path, err), LogLevel.DEBUG)
+        robo_print("Unable to mount %s. (%s)\n(You can ignore this message if "
+                   "the upcoming attempt to unzip the downloaded file as an "
+                   "archive succeeds.)" % (input_path, err), LogLevel.DEBUG)
 
     return facts
 
@@ -758,10 +813,9 @@ def inspect_download_url(input_path, args, facts):
     # inspected a download URL during this run. This handles rare
     # situations in which the download URL is in a different format than
     # the Sparkle download.
-    # Example:
-    # http://rdio0-a.akamaihd.net/media/static/desktop/mac/Rdio.dmg
 
-    input_path = input_path.strip().replace(" ", "%20")
+    # Remove leading and trailing spaces from URL.
+    input_path = input_path.strip()
 
     # Save the download URL to the dictionary of facts.
     robo_print("Download URL is: %s" % input_path, LogLevel.VERBOSE, 4)
@@ -781,30 +835,33 @@ def inspect_download_url(input_path, args, facts):
     # path, but only if the path was not obtained from a feed of some
     # sort.
     version_match = re.search(r"[\d]+\.[\w]+$", input_path)
-    if version_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
-                                      "github_url" not in facts["inspections"] and
-                                      "sourceforge_url" not in facts["inspections"] and
-                                      "bitbucket_url" not in facts["inspections"]):
+    if version_match is not None and (
+            "sparkle_feed_url" not in facts["inspections"] and
+            "github_url" not in facts["inspections"] and
+            "sourceforge_url" not in facts["inspections"] and
+            "bitbucket_url" not in facts["inspections"]):
         facts["warnings"].append(
             "Careful, this might be a version-specific URL. Better to give me "
             "a \"latest\" URL or a Sparkle feed.")
 
     # Warn if it looks like we're using a temporary CDN URL.
     aws_expire_match = re.search(r"\:\/\/.*Expires\=", input_path)
-    if aws_expire_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
-                                       "github_url" not in facts["inspections"] and
-                                       "sourceforge_url" not in facts["inspections"] and
-                                       "bitbucket_url" not in facts["inspections"]):
+    if aws_expire_match is not None and (
+            "sparkle_feed_url" not in facts["inspections"] and
+            "github_url" not in facts["inspections"] and
+            "sourceforge_url" not in facts["inspections"] and
+            "bitbucket_url" not in facts["inspections"]):
         facts["warnings"].append(
             "This is a CDN-cached URL, and it may expire. Try feeding me a "
             "permanent URL instead.")
 
     # Warn if it looks like we're using an AWS URL with an access key.
     aws_key_match = re.search(r"\:\/\/.*AWSAccessKeyId\=", input_path)
-    if aws_key_match is not None and ("sparkle_feed_url" not in facts["inspections"] and
-                                       "github_url" not in facts["inspections"] and
-                                       "sourceforge_url" not in facts["inspections"] and
-                                       "bitbucket_url" not in facts["inspections"]):
+    if aws_key_match is not None and (
+            "sparkle_feed_url" not in facts["inspections"] and
+            "github_url" not in facts["inspections"] and
+            "sourceforge_url" not in facts["inspections"] and
+            "bitbucket_url" not in facts["inspections"]):
         facts["warnings"].append(
             "This URL contains an AWSAccessKeyId parameter.")
 
@@ -821,6 +878,15 @@ def inspect_download_url(input_path, args, facts):
     else:
         facts["specify_filename"] = False
 
+    # Check to make sure URL is valid, and switch to HTTPS if possible.
+    checked_url = check_url(input_path)
+    if checked_url.startswith("http:"):
+        facts["warnings"].append(
+            "This download URL is not using HTTPS. I recommend contacting "
+            "the developer and politely suggesting that they secure "
+            "their download URL. (Example: https://twitter.com"
+            "/homebysix/status/714508127228403712)")
+
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading
     # big files? https://gist.github.com/gourneau/1430932 (#24)
@@ -828,14 +894,14 @@ def inspect_download_url(input_path, args, facts):
 
     # Actually download the file.
     try:
-        raw_download = urlopen(input_path)
+        raw_download = urlopen(checked_url)
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
                 opener = build_opener()
                 opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                raw_download = opener.open(input_path)
+                raw_download = opener.open(checked_url)
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to "
                     "download this file. If you run the recipes and get a "
@@ -864,6 +930,12 @@ def inspect_download_url(input_path, args, facts):
             facts["warnings"].append("Error encountered during file download. "
                                      "(%s)" % err.reason)
             return facts
+    except CertificateError as err:
+        facts["warnings"].append(
+            "There seems to be a problem with the developer's SSL "
+            "certificate. (%s)" % err)
+            # TODO: If input path was HTTP, revert to that and try again.
+        return facts
 
     # Get the actual filename from the server, if it exists.
     if "Content-Disposition" in raw_download.info():
@@ -899,9 +971,16 @@ def inspect_download_url(input_path, args, facts):
                 p = float(file_size_dl) / file_size
                 status = r"    {0:.2%}".format(p)
                 status = status + chr(8)*(len(status)+1)
-                if not args.app_mode:
+                if args.app_mode:
+                    # Show progress in 10% increments.
+                    if (file_size_dl / block_sz) % (file_size / block_sz / 10) == 0:
+                        robo_print(status, LogLevel.VERBOSE)
+                else:
+                    # Show progress in real time.
+                    sys.stdout.flush()
                     sys.stdout.write(status)
-    robo_print("Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4)
+    robo_print("Downloaded to %s" % os.path.join(
+        CACHE_DIR, filename), LogLevel.VERBOSE, 4)
 
     # Just in case the "download" was actually a Sparkle feed.
     hidden_sparkle = False
@@ -912,7 +991,7 @@ def inspect_download_url(input_path, args, facts):
             hidden_sparkle = True
     if hidden_sparkle is True:
         os.remove(os.path.join(CACHE_DIR, filename))
-        facts = inspect_sparkle_feed_url(input_path, args, facts)
+        facts = inspect_sparkle_feed_url(checked_url, args, facts)
         return facts
 
     # Try to determine the type of file downloaded. (Overwrites any
@@ -1184,11 +1263,14 @@ def inspect_pkg(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-        if len(where_froms) > 0:
-            facts["download_url"] = where_froms[0]
-            robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        try:
+            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
+            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+            if len(where_froms) > 0:
+                facts["download_url"] = where_froms[0]
+                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+        except KeyError as err:
+            robo_print("Unable to derive a download URL from this package.", LogLevel.WARNING)
 
     # Check whether package is signed.
     robo_print("Checking whether package is signed...", LogLevel.VERBOSE)
@@ -1369,9 +1451,9 @@ def inspect_sourceforge_url(input_path, args, facts):
     # Determine the name of the SourceForge project.
     proj_name = ""
     if  "/projects/" in input_path:
-        # Example: http://sourceforge.net/projects/adium/?source=recommended
-        # Example: http://sourceforge.net/projects/grandperspectiv
-        # Example: http://sourceforge.net/projects/grandperspectiv/
+        # Example: https://sourceforge.net/projects/adium/?source=recommended
+        # Example: https://sourceforge.net/projects/grandperspectiv
+        # Example: https://sourceforge.net/projects/grandperspectiv/
         marker = "/projects/"
         proj_str = input_path[input_path.find(marker) + len(marker):]
         if proj_str.find("/") > 0:
@@ -1379,7 +1461,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         else:
             proj_name = proj_str
     elif "/p/" in input_path:
-        # Example: http://sourceforge.net/p/grandperspectiv/wiki/Home/
+        # Example: https://sourceforge.net/p/grandperspectiv/wiki/Home/
         marker = "/p/"
         proj_str = input_path[input_path.find(marker) + len(marker):]
         if proj_str.find("/") > 0:
@@ -1478,9 +1560,9 @@ def inspect_sourceforge_url(input_path, args, facts):
         if "download_url" not in facts:
 
             # Download the RSS feed and parse it.
-            # Example: http://sourceforge.net/projects/grandperspectiv/rss
-            # Example: http://sourceforge.net/projects/cord/rss
-            files_rss = "http://sourceforge.net/projects/%s/rss" % proj_name
+            # Example: https://sourceforge.net/projects/grandperspectiv/rss
+            # Example: https://sourceforge.net/projects/cord/rss
+            files_rss = "https://sourceforge.net/projects/%s/rss" % proj_name
             try:
                 raw_xml = urlopen(files_rss)
             except Exception as err:
@@ -1496,7 +1578,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 # TODO(Elliot): The extra-info tag is not a reliable
                 # indicator of which item should actually be downloaded.
                 # (#21) Example:
-                # http://sourceforge.net/projects/grandperspectiv/rss
+                # https://sourceforge.net/projects/grandperspectiv/rss
                 search = "{https://sourceforge.net/api/files.rdf#}extra-info"
                 if item.find(search).text.startswith("data"):
                     download_url = item.find("link").text.rstrip("/download")
@@ -1547,27 +1629,24 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     robo_print("Sparkle feed is: %s" % input_path, LogLevel.VERBOSE, 4)
     facts["sparkle_feed"] = input_path
 
-    # Warn if the Sparkle feed is not HTTPS.
-    if input_path.startswith("http:"):
-        # TODO (Elliot): Automatically test for HTTPS feed and use that if it
-        # exists. (#92)
+    # Check to make sure URL is valid, and switch to HTTPS if possible.
+    checked_url = check_url(input_path)
+    if checked_url.startswith("http:"):
         facts["warnings"].append(
-            "This Sparkle feed is not using HTTPS.\n\t- If an HTTPS feed is "
-            "available, I strongly recommend using that.\n\t- If not, "
-            "contact the developer and politely suggest that they secure "
-            "their Sparkle feeds:\n\t  "
-            "https://twitter.com/homebysix/status/714508127228403712")
+            "This Sparkle feed is not using HTTPS. I recommend contacting "
+            "the developer and politely suggesting that they secure "
+            "their Sparkle feed. (Example: " "https://twitter.com/homebysix/status/714508127228403712)")
 
     # Download the Sparkle feed.
     try:
-        raw_xml = urlopen(input_path)
+        raw_xml = urlopen(checked_url)
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
                 opener = build_opener()
                 opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                raw_xml = opener.open(input_path)
+                raw_xml = opener.open(checked_url)
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to read "
                     "this Sparkle feed. If you run the recipes and get a "
@@ -1605,6 +1684,12 @@ def inspect_sparkle_feed_url(input_path, args, facts):
                 "Sparkle feed. (%s)" % err)
             facts.pop("sparkle_feed", None)
             return facts
+    except CertificateError as err:
+        facts["warnings"].append(
+            "There seems to be a problem with the developer's SSL "
+            "certificate. (%s)" % err)
+            # TODO: If input path was HTTP, revert to that and try again.
+        return facts
 
     # Parse the Sparkle feed.
     xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
@@ -1616,23 +1701,19 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts.pop("sparkle_feed", None)
         return facts
 
-
     # Determine whether the Sparkle feed provides a version number.
     sparkle_provides_version = False
     latest_version = "0"
     latest_url = ""
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
     for item in doc.iterfind("channel/item/enclosure"):
-        if item.get("{%s}shortVersionString" % xmlns) is not None:
-            sparkle_provides_version = True
-            if LooseVersion(item.get("{%s}shortVersionString" % xmlns)) > LooseVersion(latest_version):
-                latest_version = item.get("{%s}shortVersionString" % xmlns)
-                latest_url = item.attrib["url"]
-        if item.get("{%s}version" % xmlns) is not None:
-            sparkle_provides_version = True
-            if LooseVersion(item.get("{%s}version" % xmlns)) > LooseVersion(latest_version):
-                latest_version = item.get("{%s}version" % xmlns)
-                latest_url = item.attrib["url"]
+        for vers_tag in ("shortVersionString", "version"):
+            encl_vers = item.get("{%s}%s" % (xmlns, vers_tag))
+            if encl_vers not in (None, ""):
+                sparkle_provides_version = True
+                if LooseVersion(encl_vers) > LooseVersion(latest_version):
+                    latest_version = encl_vers
+                    latest_url = item.attrib["url"]
     if sparkle_provides_version is True:
         robo_print("The Sparkle feed provides a version "
                    "number", LogLevel.VERBOSE, 4)
@@ -1647,11 +1728,11 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # If Sparkle feed is hosted on GitHub or SourceForge, we can gather
     # more information.
-    if "github.com" in input_path or "githubusercontent.com" in input_path:
+    if "github.com" in checked_url or "githubusercontent.com" in checked_url:
         if "github_repo" not in facts:
-            facts = inspect_github_url(input_path, args, facts)
-    if "sourceforge.net" in input_path:
+            facts = inspect_github_url(checked_url, args, facts)
+    if "sourceforge.net" in checked_url:
         if "sourceforge_id" not in facts:
-            facts = inspect_sourceforge_url(input_path, args, facts)
+            facts = inspect_sourceforge_url(checked_url, args, facts)
 
     return facts
