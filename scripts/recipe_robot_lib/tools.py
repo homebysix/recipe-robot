@@ -78,10 +78,14 @@ class LogLevel(object):
 
 class OutputMode(object):
     """Manage global output mode state with a singleton."""
-    verbose_mode = False  # Use --verbose command-line argument, or hard-code
-                          # to "True" here for additional user-facing output.
-    debug_mode = False  # Use --debug command-line argument, or hard-code
-                        # to "True" here for additional development output.
+
+    # Use --verbose command-line argument, or hard-code
+    # to "True" here for additional user-facing output.
+    verbose_mode = False
+
+    # Use --debug command-line argument, or hard-code
+    # to "True" here for additional development output.
+    debug_mode = False
 
     @classmethod
     def set_verbose_mode(cls, value):
@@ -215,11 +219,15 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
     for cmd_part in cmd_parts:
         cmd_part = cmd_part.strip()
         if i == 0:
-            p[i]=Popen(shlex.split(cmd_part), stdin=PIPE, stdout=PIPE,
-                       stderr=PIPE)
+            p[i] = Popen(shlex.split(cmd_part),
+                         stdin=PIPE,
+                         stdout=PIPE,
+                         stderr=PIPE)
         else:
-            p[i]=Popen(shlex.split(cmd_part), stdin=p[i-1].stdout, stdout=PIPE,
-                       stderr=PIPE)
+            p[i] = Popen(shlex.split(cmd_part),
+                         stdin=p[i-1].stdout,
+                         stdout=PIPE,
+                         stderr=PIPE)
         i = i + 1
 
     out, err = p[i-1].communicate(stdin)
@@ -282,7 +290,7 @@ def get_user_defaults():
 def save_user_defaults(prefs):
     defaults = NSUserDefaults.alloc().initWithSuiteName_('com.elliotjordan.recipe-robot')
     for key, value in prefs.iteritems():
-		defaults.setValue_forKey_(value, key)
+        defaults.setValue_forKey_(value, key)
 
 
 def any_item_in_string(items, test_string):
@@ -303,7 +311,8 @@ def create_existing_recipe_list(facts):
     app_name = facts["app_name"]
     recipes = facts["recipes"]
     use_github_token = facts["args"].github_token
-    # TODO(Elliot): Suggest users create GitHub API token to prevent limiting. (#29)
+    # TODO(Elliot): Suggest users create GitHub API token to prevent
+    # limiting. (#29)
 
     # Generate an array to run through `autopkg search`.
     recipe_searches = [quote_plus(app_name)]
@@ -347,7 +356,8 @@ def create_existing_recipe_list(facts):
                     if line.lower().startswith(recipe_name.lower()):
                         # An existing recipe was found.
                         if is_existing is False:
-                            robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
+                            robo_print("Found existing recipe(s):",
+                                       LogLevel.LOG, 4)
                             is_existing = True
                             recipe["existing"] = True
                         robo_print(recipe_name, LogLevel.LOG, 8)
