@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. This projec
 
 
 ## [Unreleased]
+- Nothing yet.
+
+
+## [1.0.4] - 2016-10-13
 
 ### Added
 - Recipe Robot now automatically switches download URLs and Sparkle feeds from HTTP to HTTPS, if possible. (#92)
@@ -145,7 +149,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/homebysix/recipe-robot/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/homebysix/recipe-robot/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/homebysix/recipe-robot/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/homebysix/recipe-robot/compare/v1.0...v1.0.1
