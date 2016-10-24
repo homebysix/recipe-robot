@@ -342,7 +342,7 @@ def warn_about_app_store_generation(facts, recipe_type):
 def is_dynamic_url_source(facts):
     """Returns True if the URL source is Sparkle, GitHub, or SourceForge."""
     return any(url_type in facts for url_type in (
-        "sparkle_feed", "github_repo", "sourceforge_id"))
+        "sparkle_feed", "github_repo"))
 
 
 def get_code_signature_verifier(input_path, facts):
