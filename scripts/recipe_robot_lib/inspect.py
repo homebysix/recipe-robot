@@ -1477,11 +1477,12 @@ def inspect_sourceforge_url(input_path, args, facts):
     else:
         facts["warnings"].append("Unable to parse SourceForge URL.")
     if proj_name != "":
+        facts["sourceforge_proj"] = proj_name
 
         # Use SourceForge API to obtain project information.
         project_api_url = "https://sourceforge.net/rest/p/" + proj_name
         try:
-            raw_json = urlopen(project_api_url).read()
+            raw_proj_info = urlopen(project_api_url).read()
         except HTTPError as err:
             if err.code == 403:
                 facts["warnings"].append(
@@ -1512,17 +1513,17 @@ def inspect_sourceforge_url(input_path, args, facts):
                     "Error encountered while getting information from the "
                     "SourceForge API. (%s)" % err)
                 return facts
-        parsed_json = json.loads(raw_json)
+        parsed_proj_info = json.loads(raw_proj_info)
 
         # Get app name.
         if "app_name" not in facts:
-            if "shortname" in parsed_json or "name" in parsed_json:
+            if "shortname" in parsed_proj_info or "name" in parsed_proj_info:
                 # Record the shortname, if shortname isn't blank.
-                if parsed_json["shortname"] != "":
-                    app_name = parsed_json["shortname"]
+                if parsed_proj_info["shortname"] != "":
+                    app_name = parsed_proj_info["shortname"]
                 # Overwrite shortname with name, if name isn't blank.
-                if parsed_json["name"] != "":
-                    app_name = parsed_json["name"]
+                if parsed_proj_info["name"] != "":
+                    app_name = parsed_proj_info["name"]
             if app_name != "":
                 robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
                 facts["app_name"] = app_name
@@ -1530,7 +1531,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Determine project ID.
         proj_id = ""
         robo_print("Getting SourceForge project ID...", LogLevel.VERBOSE)
-        for this_dict in parsed_json["tools"]:
+        for this_dict in parsed_proj_info["tools"]:
             if "sourceforge_group_id" in this_dict:
                 proj_id = this_dict["sourceforge_group_id"]
         if proj_id != "":
@@ -1544,11 +1545,11 @@ def inspect_sourceforge_url(input_path, args, facts):
         if "description" not in facts:
             description = ""
             robo_print("Getting SourceForge description...", LogLevel.VERBOSE)
-            if "summary" in parsed_json:
-                if parsed_json["summary"] != "":
-                    description = parsed_json["summary"]
-                elif parsed_json["short_description"] != "":
-                    description = parsed_json["short_description"]
+            if "summary" in parsed_proj_info:
+                if parsed_proj_info["summary"] != "":
+                    description = parsed_proj_info["summary"]
+                elif parsed_proj_info["short_description"] != "":
+                    description = parsed_proj_info["short_description"]
             if description != "":
                 robo_print("SourceForge description is: %s" % description, LogLevel.VERBOSE, 4)
                 facts["description"] = description
@@ -1558,41 +1559,31 @@ def inspect_sourceforge_url(input_path, args, facts):
 
         # Get download format of latest release.
         if "download_url" not in facts:
+            robo_print("Determining download URL from the SourceForge API...", LogLevel.VERBOSE)
 
-            # Download the RSS feed and parse it.
-            # Example: https://sourceforge.net/projects/grandperspectiv/rss
-            # Example: https://sourceforge.net/projects/cord/rss
-            files_rss = "https://sourceforge.net/projects/%s/rss" % proj_name
+            # Download the best release JSON URL.
+            # Example: https://sourceforge.net/projects/grandperspectiv/best_release.json
+            # Example: https://sourceforge.net/projects/cord/best_release.json
+            releases_api_url = "https://sourceforge.net/projects/%s/best_release.json" % proj_name
             try:
-                raw_xml = urlopen(files_rss)
+                raw_releases = urlopen(releases_api_url).read()
             except Exception as err:
                 facts["warnings"].append(
-                    "Error occurred while inspecting SourceForge RSS feed: "
+                    "Error occurred while inspecting the SourceForge API: "
                     "%s" % err)
-            doc = parse(raw_xml)
+            parsed_releases = json.loads(raw_releases)
 
             # Get the latest download URL.
-            download_url = ""
-            robo_print("Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE)
-            for item in doc.iterfind("channel/item"):
-                # TODO(Elliot): The extra-info tag is not a reliable
-                # indicator of which item should actually be downloaded.
-                # (#21) Example:
-                # https://sourceforge.net/projects/grandperspectiv/rss
-                search = "{https://sourceforge.net/api/files.rdf#}extra-info"
-                if item.find(search).text.startswith("data"):
-                    download_url = item.find("link").text.rstrip("/download")
-                    break
+            download_url = parsed_releases['platform_releases']['mac']['url']
             if download_url != "":
                 facts = inspect_download_url(download_url, args, facts)
             else:
                 facts["warnings"].append(
-                    "Could not detect SourceForge latest release "
-                    "download_url.")
+                    "Could not detect SourceForge best release download_url.")
 
         # Warn user if the SourceForge project is private.
-        if "private" in parsed_json:
-            if parsed_json["private"] is True:
+        if "private" in parsed_releases:
+            if parsed_proj_info["private"] is True:
                 facts["warnings"].append(
                     "This SourceForge project is marked \"private\" and "
                     "recipes you generate may not work for others.")
