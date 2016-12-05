@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+### Added
+- Uses new [AppPkgCreator](https://github.com/autopkg/autopkg/wiki/Processor-AppPkgCreator) processor, which greatly simplifies the process of creating a pkg from an app.
+
 ### Changed
 - Updated app code to comply with Swift 2.3 syntax.
 - `MinimumVersion` of AutoPkg on generated recipes is now 1.0.0.
