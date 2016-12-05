@@ -624,49 +624,19 @@ def generate_pkg_recipe(facts, prefs, recipe):
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-        if (facts.get("codesign_reqs", "") == "" and
-                len(facts["codesign_authorities"]) == 0):
-            if facts["version_key"] == "CFBundleShortVersionString":
-                recipe.append_processor({
-                    "Processor": "AppDmgVersioner",
-                    "Arguments": {
-                        "dmg_path": "%pathname%"
-                    }
-                })
-            else:
-                recipe.append_processor({
-                    "Processor": "Versioner",
-                    "Arguments": {
-                        "input_plist_path":
-                            ("%pathname%/{0}{1}.app/Contents/Info.plist".format(
-                                facts.get("relative_path", ""), facts["app_name"])),
-                        "plist_version_key": facts["version_key"]
-                    }
-                })
-        recipe.append_processor({
-            "Processor": "PkgRootCreator",
-            "Arguments": {
-                "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
-                "pkgdirs": {
-                    "Applications": "0775"
+        # TODO: if "pkg" in facts["inspections"] then use PkgCopier.
+        if "relative_path" in facts:
+            recipe.append_processor({
+                "Processor": "AppPkgCreator",
+                "Arguments": {
+                    "app_path": "%pathname%/{0}{1}.app".format(
+                    facts.get("relative_path", ""), facts["app_name"])
                 }
-            }
-        })
-        recipe.append_processor({
-            "Processor": "Copier",
-            "Arguments": {
-                "source_path": "%pathname%/{0}{1}.app".format(
-                    facts.get("relative_path", ""), facts["app_name"]),
-                # TODO(Elliot): Should probably copy the app into the
-                # Applications folder instead of leaving it in its enclosed
-                # relative_path.
-                # Example: https://download-chromium.appspot.com/dl/Mac?type=snapshots
-                # Installs as: /Applications/chrome-mac/Chromium.app
-                "destination_path": ("%pkgroot%/Applications/{0}{1}.app".format(
-                    facts.get("relative_path", ""), facts["app_name"]))
-            }
-        })
-
+            })
+        else:
+            recipe.append_processor({
+                "Processor": "AppPkgCreator"
+            })
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
         if (facts.get("codesign_reqs", "") == "" and
             len(facts["codesign_authorities"]) == 0):
@@ -681,42 +651,30 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "purge_destination": True
                 }
             })
-            if facts.get("sparkle_provides_version", False) is False:
-                # Either the Sparkle feed doesn't provide version, or there's
-                # no Sparkle feed. We must determine the version manually.
-                recipe.append_processor({
-                    "Processor": "Versioner",
-                    "Arguments": {
-                        "input_plist_path":
-                            ("%RECIPE_CACHE_DIR%/%NAME%/Applications/"
-                             "{0}{1}.app/Contents/Info.plist".format(
-                             facts.get("relative_path", ""), facts["app_name"])),
-                        "plist_version_key": facts["version_key"]
-                    }
-                })
+        # TODO: if "pkg" in facts["inspections"] then use PkgCopier.
+        if "relative_path" in facts:
+            recipe.append_processor({
+                "Processor": "AppPkgCreator",
+                "Arguments": {
+                    "app_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
+                                "{0}{1}.app".format(
+                                    facts.get("relative_path", ""),
+                                    facts["app_name"])
+                }
+            })
+        else:
+            recipe.append_processor({
+                "Processor": "AppPkgCreator",
+                "Arguments": {
+                    "app_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
+                                "{0}.app".format(facts["app_name"])
+                }
+            })
 
     elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
         facts["warnings"].append(
             "Skipping pkg recipe, since the download format is already pkg.")
         return
-
-    recipe.append_processor({
-        "Processor": "PkgCreator",
-        "Arguments": {
-            "pkg_request": {
-                "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
-                "pkgname": "%NAME%-%version%",
-                "version": "%version%",
-                "id": "%BUNDLE_ID%",
-                "options": "purge_ds_store",
-                "chown": [{
-                    "path": "Applications",
-                    "user": "root",
-                    "group": "admin"
-                }]
-            }
-        }
-    })
 
     return recipe
 
