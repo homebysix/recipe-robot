@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Changed
 - Updated app code to comply with Swift 2.3 syntax.
+- `MinimumVersion` of AutoPkg on generated recipes is now 1.0.0.
 
 
 ## [1.0.4] - 2016-10-13
@@ -53,7 +54,7 @@ All notable changes to this project will be documented in this file. This projec
 - Added support for LANrev recipe type.
 - Better support of disk images where the target app lives in an enclosed folder. (#90)
 
-### Changes
+### Changed
 - `MinimumVersion` of AutoPkg on generated recipes is now 0.6.1.
 - Minor typo fixes, standardizations, and semi-obsessive tweaks.
 
