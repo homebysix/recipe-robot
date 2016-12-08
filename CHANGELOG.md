@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file. This projec
 - Updated app code to comply with Swift 2.3 syntax.
 - `MinimumVersion` of AutoPkg on generated recipes is now 1.0.0.
 
+### Fixed
+- Better handles apps where the filename of the app differs from the display name of the app.
+
 
 ## [1.0.4] - 2016-10-13
 
