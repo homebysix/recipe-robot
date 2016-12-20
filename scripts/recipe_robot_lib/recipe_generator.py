@@ -1054,10 +1054,14 @@ def generate_filewave_recipe(facts, prefs, recipe):
         "Arguments": {
             "fw_app_bundle_id": facts["bundle_id"],
             "fw_app_version": "%version%",
-            "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app",
+            "fw_import_source": "%%RECIPE_CACHE_DIR%%/%%NAME%%/"
+                                "%s.app" % facts.get("app_file",
+                                                     facts["app_name"]),
             "fw_fileset_name": "%NAME% - %version%",
             "fw_fileset_group": "Testing",
-            "fw_destination_root": "/Applications/%NAME%.app"
+            "fw_destination_root": "/Applications/"
+                                   "%s.app" % facts.get("app_file",
+                                                        facts["app_name"])
         }
     })
 
@@ -1168,8 +1172,12 @@ def generate_bigfix_recipe(facts, prefs, recipe):
             # TODO: Might be a problem with <![CDATA[ being escaped incorrectly in resulting recipe
             "bes_description": "<p>This task will install/upgrade: %NAME% %version%</p>",
             "bes_category": "Software Installers",
-            "bes_relevance": ['mac of operating system','system version >= "10.6.8"',
-                'not exists folder "/Applications/%NAME%.app" whose (version of it >= "%version%" as version)'],
+            "bes_relevance": [
+                'mac of operating system',
+                'system version >= "10.6.8"',
+                'not exists folder "/Applications/%s.app" whose '
+                '(version of it >= "%%version%%" '
+                'as version)' % facts.get("app_file", facts["app_name"])],
             "bes_actions": {
                 "1":{
                     "ActionName":"DefaultAction",
