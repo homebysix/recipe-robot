@@ -2,7 +2,7 @@
 //  RecipeType.swift
 //
 //  Recipe Robot
-//  Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2016 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 
 import Foundation
