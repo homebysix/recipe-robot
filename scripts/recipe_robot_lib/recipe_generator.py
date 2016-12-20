@@ -289,7 +289,7 @@ def generate_download_recipe(facts, prefs, recipe):
             unarchiver = processor.Unarchiver()
             unarchiver.archive_path = "%pathname%"
             unarchiver.destination_path = (
-                "%RECIPE_CACHE_DIR%/%NAME%/Applications")
+                "%RECIPE_CACHE_DIR%/%NAME%")
             unarchiver.purge_destination = True
             recipe.append_processor(unarchiver)
 
@@ -298,7 +298,7 @@ def generate_download_recipe(facts, prefs, recipe):
             input_path = "%pathname%/{0}{1}.app".format(
                 facts.get("relative_path", ""), facts["app_name"])
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-            input_path = ("%RECIPE_CACHE_DIR%/%NAME%/Applications/"
+            input_path = ("%RECIPE_CACHE_DIR%/%NAME%/"
                           "{0}{1}.app".format(facts.get("relative_path", ""),
                           facts.get("app_file", facts["app_name"])))
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
@@ -324,7 +324,7 @@ def generate_download_recipe(facts, prefs, recipe):
                         facts.get("app_file", facts["app_name"])))
             else:
                 versioner.input_plist_path = (
-                    "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
+                    "%RECIPE_CACHE_DIR%/%NAME%/"
                     "{0}{1}.app/Contents/Info.plist".format(
                         facts.get("relative_path", ""),
                         facts.get("app_file", facts["app_name"])))
@@ -492,7 +492,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                 "Arguments": {
                     "archive_path": "%pathname%",
                     "destination_path":
-                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                        "%RECIPE_CACHE_DIR%/%NAME%",
                     "purge_destination": True
                 }
             })
@@ -500,7 +500,7 @@ def generate_munki_recipe(facts, prefs, recipe):
             "Processor": "DmgCreator",
             "Arguments": {
                 "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
-                "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications"
+                "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%"
             }
         })
         import_file_var = "%dmg_path%"
@@ -651,7 +651,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 "Arguments": {
                     "archive_path": "%pathname%",
                     "destination_path":
-                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                        "%RECIPE_CACHE_DIR%/%NAME%",
                     "purge_destination": True
                 }
             })
@@ -660,7 +660,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             recipe.append_processor({
                 "Processor": "AppPkgCreator",
                 "Arguments": {
-                    "app_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
+                    "app_path": "%RECIPE_CACHE_DIR%/%NAME%/"
                                 "{0}{1}.app".format(
                                     facts.get("relative_path", ""),
                                     facts.get("app_file", facts["app_name"]))
@@ -670,7 +670,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             recipe.append_processor({
                 "Processor": "AppPkgCreator",
                 "Arguments": {
-                    "app_path": "%RECIPE_CACHE_DIR%/%NAME%/Applications/"
+                    "app_path": "%RECIPE_CACHE_DIR%/%NAME%/"
                                 "{0}.app".format(
                                     facts.get("app_file",
                                     facts["app_name"]))
@@ -731,14 +731,14 @@ def generate_install_recipe(facts, prefs, recipe):
                 "Arguments": {
                     "archive_path": "%pathname%",
                     "destination_path":
-                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                        "%RECIPE_CACHE_DIR%/%NAME%",
                     "purge_destination": True
                 }
             })
         recipe.append_processor({
             "Processor": "DmgCreator",
             "Arguments": {
-                "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
                 "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg"
             }
         })
@@ -1034,7 +1034,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                 "Arguments": {
                     "archive_path": "%pathname%",
                     "destination_path":
-                        "%RECIPE_CACHE_DIR%/%NAME%/Applications",
+                        "%RECIPE_CACHE_DIR%/%NAME%",
                     "purge_destination": True
                 }
             })
@@ -1054,7 +1054,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
         "Arguments": {
             "fw_app_bundle_id": facts["bundle_id"],
             "fw_app_version": "%version%",
-            "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app",
+            "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app",
             "fw_fileset_name": "%NAME% - %version%",
             "fw_fileset_group": "Testing",
             "fw_destination_root": "/Applications/%NAME%.app"
