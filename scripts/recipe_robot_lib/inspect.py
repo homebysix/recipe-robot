@@ -143,13 +143,14 @@ def check_url(url):
         code: The HTTP status code returned by the URL header check.
     """
     p = urlparse(url)
-    if p.scheme == "https":
+    # TODO (Elliot): Support URLs with hard-coded port other than 80/443.
+    if p.scheme == "https" or ":" in p.netloc:
         return url
     elif p.scheme == "http":
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
         try:
             # Try switching to HTTPS.
-            c = httplib.HTTPSConnection(p.netloc)
+            c = httplib.HTTPSConnection(p.netloc, 443, timeout=10)
             c.request("HEAD", p.path)
             r = c.getresponse()
             if r.status < 400:
@@ -166,7 +167,7 @@ def check_url(url):
                        "URL: %s" % err, LogLevel.VERBOSE, 4)
 
     # Use HTTP if HTTPS fails.
-    c = httplib.HTTPConnection(p.netloc)
+    c = httplib.HTTPConnection(p.netloc, 80, timeout=10)
     c.request("HEAD", p.path)
     r = c.getresponse()
     # TODO (Elliot): Mitigation of errors based on r.status.
