@@ -143,7 +143,9 @@ def check_url(url):
         code: The HTTP status code returned by the URL header check.
     """
     p = urlparse(url)
-    if p.scheme == "http":
+    if p.scheme == "https":
+        return url
+    elif p.scheme == "http":
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
         try:
             # Try switching to HTTPS.
