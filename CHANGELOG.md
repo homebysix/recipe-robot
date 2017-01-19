@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Fixed
 - Better handles apps where the filename of the app differs from the display name of the app.
-- Improved performance of HTTPS URL validation.
+- Improved performance and reliability of HTTPS URL validation.
 
 
 ## [1.0.4] - 2016-10-13
