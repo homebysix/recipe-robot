@@ -4,7 +4,24 @@ All notable changes to this project will be documented in this file. This projec
 
 
 ## [Unreleased]
-- Nothing yet.
+
+Nothing yet.
+
+
+## [1.0.5] - 2017-01-27
+
+### Added
+- Uses new [AppPkgCreator](https://github.com/autopkg/autopkg/wiki/Processor-AppPkgCreator) processor, which greatly simplifies the process of creating a pkg from an app.
+
+### Changed
+- Updated app code to comply with Swift 2.3 syntax and Xcode 8.2 recommendations.
+- `MinimumVersion` of AutoPkg on generated recipes is now 1.0.0, in order to support the new AppPkgCreator processor.
+- Simplified the path that apps are unzipped to, since PkgCreator is no longer needed.
+- Changed remaining `%NAME%` references to hard-coded app name where a path is required.
+
+### Fixed
+- Better handles apps where the filename of the app differs from the display name of the app.
+- Improved performance and reliability of HTTPS URL validation.
 
 
 ## [1.0.4] - 2016-10-13
@@ -51,7 +68,7 @@ All notable changes to this project will be documented in this file. This projec
 - Added support for LANrev recipe type.
 - Better support of disk images where the target app lives in an enclosed folder. (#90)
 
-### Changes
+### Changed
 - `MinimumVersion` of AutoPkg on generated recipes is now 0.6.1.
 - Minor typo fixes, standardizations, and semi-obsessive tweaks.
 
@@ -149,7 +166,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.5...HEAD
+[1.0.5]: https://github.com/homebysix/recipe-robot/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/homebysix/recipe-robot/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/homebysix/recipe-robot/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/homebysix/recipe-robot/compare/v1.0.1...v1.0.2

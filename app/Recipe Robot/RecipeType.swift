@@ -2,7 +2,7 @@
 //  RecipeType.swift
 //
 //  Recipe Robot
-//  Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2017 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 
 import Foundation
@@ -57,7 +57,7 @@ enum RecipeType: Int {
         var idx = 0
         while let type = RecipeType(rawValue: idx){
             cases.append(type)
-            idx++
+            idx += 1
         }
         return cases
     }

@@ -2,7 +2,7 @@
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2017 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 ENDC = "\033[0m"
 PREFS_FILE = os.path.expanduser(
     "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")

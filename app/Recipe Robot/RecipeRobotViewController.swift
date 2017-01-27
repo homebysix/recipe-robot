@@ -2,7 +2,7 @@
 //  ViewController.swift
 //
 //  Recipe Robot
-//  Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2017 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ class RecipeRobotViewController: NSViewController {
 
     override func prepareForSegue(segue: NSStoryboardSegue, sender: AnyObject?) {
         if let source = segue.sourceController as? RecipeRobotViewController,
-            dest = segue.destinationController as? RecipeRobotViewController {
+            let dest = segue.destinationController as? RecipeRobotViewController {
                 // Here we pass off the task object during the seague transition.
                 // So in the future make sure to call super.prepareForSegue() on any
                 // additional viewControllers.
@@ -85,14 +85,14 @@ class FeedMeViewController: RecipeRobotViewController {
 
     override func viewDidLoad() {
         ignoreButton.target = self
-        ignoreButton.action = "changeIgnoreState:"
+        ignoreButton.action = #selector(FeedMeViewController.changeIgnoreState(_:))
 
-        eventMonitor = NSEvent.addLocalMonitorForEventsMatchingMask(NSEventMask.FlagsChangedMask) { [weak self](event) -> NSEvent? in
+        eventMonitor = NSEvent.addLocalMonitorForEventsMatchingMask(NSEventMask.FlagsChanged) { [weak self](event) -> NSEvent? in
             if let _self = self {
                 if (_self.ignoreButton.state == NSOnState){
                     _self.ignoreButton.hidden = false
                 } else {
-                    _self.ignoreButton.hidden = (event.modifierFlags.rawValue & NSEventModifierFlags.AlternateKeyMask.rawValue) == 0
+                    _self.ignoreButton.hidden = (event.modifierFlags.rawValue & NSEventModifierFlags.Option.rawValue) == 0
                 }
             }
             return event
@@ -123,7 +123,7 @@ class FeedMeViewController: RecipeRobotViewController {
         guard let url = NSURL(string: urlTextField.stringValue) else {
             return
         }
-        task.appOrRecipe = url.absoluteString
+        task.appOrRecipe = url.absoluteString!
         performSegueWithIdentifier("FeedMeSegue", sender: self)
     }
 }
@@ -155,9 +155,9 @@ class PreferenceViewController: RecipeRobotViewController {
         self.scrollView.backgroundColor = NSColor.clearColor()
         self.scrollView.focusRingType = NSFocusRingType.None
 
-        self.recipeFolderPathButton.action = "chooseFilePath:"
+        self.recipeFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(_:))
         self.recipeFolderPathButton.target = self
-        self.dsFolderPathButton.action = "chooseFilePath:"
+        self.dsFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(_:))
         self.dsFolderPathButton.target = self
 
         let jssHidden = !enabledRecipeTypes.contains(RecipeType.JSS.value)

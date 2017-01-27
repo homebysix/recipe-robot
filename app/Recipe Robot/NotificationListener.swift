@@ -2,7 +2,7 @@
 //  Notifications.swift
 //
 //  Recipe Robot
-//  Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2017 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ enum NoteType: Int {
         var idx = 0
         while let noteType = NoteType(rawValue: idx){
             all.append(noteType)
-            idx++
+            idx += 1
         }
         return all
     }
@@ -84,7 +84,7 @@ class NotificationListener: NSObject {
         super.init()
 
         for n in NoteType.cases {
-            center.addObserver(self, selector: "noticed:",
+            center.addObserver(self, selector: #selector(NotificationListener.noticed(_:)),
                 name: n.name,
                 object: nil)
         }
@@ -93,7 +93,7 @@ class NotificationListener: NSObject {
     init(noteTypes: [NoteType]) {
         super.init()
         for n in noteTypes {
-            center.addObserver(self, selector: "noticed:",
+            center.addObserver(self, selector: #selector(NotificationListener.noticed(_:)),
                 name: n.name,
                 object: nil)
         }

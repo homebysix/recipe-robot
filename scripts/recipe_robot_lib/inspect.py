@@ -2,7 +2,7 @@
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2017 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -143,11 +143,14 @@ def check_url(url):
         code: The HTTP status code returned by the URL header check.
     """
     p = urlparse(url)
-    if p.scheme == "http":
+    # TODO (Elliot): Support URLs with hard-coded port other than 80/443.
+    if p.scheme == "https" or ":" in p.netloc:
+        return url
+    elif p.scheme == "http":
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
         try:
             # Try switching to HTTPS.
-            c = httplib.HTTPSConnection(p.netloc)
+            c = httplib.HTTPSConnection(p.netloc, 443, timeout=10)
             c.request("HEAD", p.path)
             r = c.getresponse()
             if r.status < 400:
@@ -164,7 +167,7 @@ def check_url(url):
                        "URL: %s" % err, LogLevel.VERBOSE, 4)
 
     # Use HTTP if HTTPS fails.
-    c = httplib.HTTPConnection(p.netloc)
+    c = httplib.HTTPConnection(p.netloc, 80, timeout=10)
     c.request("HEAD", p.path)
     r = c.getresponse()
     # TODO (Elliot): Mitigation of errors based on r.status.
@@ -313,7 +316,7 @@ def inspect_app(input_path, args, facts):
         else:
             if "CFBundleVersion" in info_plist:
                 version_key = "CFBundleVersion"
-        if version_key != "":
+        if version_key not in ("", None):
             robo_print("Version key is: %s (%s)" %
                        (version_key, info_plist[version_key]), LogLevel.VERBOSE, 4)
             facts["version_key"] = version_key
@@ -329,7 +332,7 @@ def inspect_app(input_path, args, facts):
             icon_path = os.path.join(input_path, "Contents", "Resources", info_plist["CFBundleIconFile"])
         else:
             facts["warnings"].append("Can't determine app icon.")
-        if icon_path != "":
+        if icon_path not in ("", None):
             robo_print("App icon is: %s" % icon_path, LogLevel.VERBOSE, 4)
             facts["icon_path"] = icon_path
 
@@ -391,7 +394,7 @@ def inspect_app(input_path, args, facts):
             facts["codesign_reqs"] = codesign_reqs
             robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
             facts["codesign_authorities"] = codesign_authorities
-        if developer != "":
+        if developer not in ("", None):
             robo_print("Developer: %s" % developer, LogLevel.VERBOSE, 4)
             facts["developer"] = developer
 
@@ -569,7 +572,7 @@ def inspect_bitbucket_url(input_path, args, facts):
     r_obj = re.search(r"(?<=https://bitbucket\.org/)[\w-]+/[\w-]+", input_path)
     if r_obj is not None:
         bitbucket_repo = r_obj.group(0)
-    if bitbucket_repo != "":
+    if bitbucket_repo not in ("", None):
         robo_print("BitBucket repo is: %s" % bitbucket_repo, LogLevel.VERBOSE, 4)
         facts["bitbucket_repo"] = bitbucket_repo
 
@@ -617,9 +620,9 @@ def inspect_bitbucket_url(input_path, args, facts):
         if "app_name" not in facts:
             app_name = ""
             robo_print("Getting app name...", LogLevel.VERBOSE)
-            if parsed_repo.get("name", "") != "":
+            if parsed_repo.get("name", "") not in ("", None):
                 app_name = parsed_repo["name"]
-            if app_name != "":
+            if app_name not in ("", None):
                 robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
                 facts["app_name"] = app_name
 
@@ -627,7 +630,7 @@ def inspect_bitbucket_url(input_path, args, facts):
         developer = ""
         if "developer" not in facts:
             developer = parsed_repo["owner"]["display_name"]
-        if developer != "":
+        if developer not in ("", None):
             robo_print("BitBucket owner full name "
                        "is: %s" % developer, LogLevel.VERBOSE, 4)
             facts["developer"] = developer
@@ -636,9 +639,9 @@ def inspect_bitbucket_url(input_path, args, facts):
         if "description" not in facts:
             description = ""
             robo_print("Getting BitBucket description...", LogLevel.VERBOSE)
-            if parsed_repo.get("description", "") != "":
+            if parsed_repo.get("description", "") not in ("", None):
                 description = parsed_repo["description"]
-            if description != "":
+            if description not in ("", None):
                 robo_print("BitBucket description is: %s" % description, LogLevel.VERBOSE, 4)
                 facts["description"] = description
             else:
@@ -657,14 +660,14 @@ def inspect_bitbucket_url(input_path, args, facts):
                             download_format = this_format
                             download_url = asset["links"]["self"]["href"]
                             break
-            if download_format != "":
+            if download_format not in ("", None):
                 robo_print("BitBucket release download format "
                            "is: %s" % download_format, LogLevel.VERBOSE, 4)
                 facts["download_format"] = download_format
             else:
                 facts["warnings"].append(
                     "Could not detect BitBucket release download format.")
-            if download_url != "":
+            if download_url not in ("", None):
                 robo_print("BitBucket release download URL "
                            "is: %s" % download_url, LogLevel.VERBOSE, 4)
                 facts["download_url"] = download_url
@@ -1088,7 +1091,7 @@ def inspect_github_url(input_path, args, facts):
         github_repo = parsed_url.netloc.split(".")[0] + "/" + path[0]
     else:
         github_repo = path[0] + "/" + path[1]
-    if github_repo != "":
+    if github_repo not in ("", None):
         robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
         facts["github_repo"] = github_repo
 
@@ -1161,7 +1164,7 @@ def inspect_github_url(input_path, args, facts):
             robo_print("Getting app name...", LogLevel.VERBOSE)
             if parsed_repo.get("name", None) is not None:
                 app_name = parsed_repo["name"]
-            if app_name != "":
+            if app_name not in ("", None):
                 robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
                 facts["app_name"] = app_name
 
@@ -1171,7 +1174,7 @@ def inspect_github_url(input_path, args, facts):
             robo_print("Getting GitHub description...", LogLevel.VERBOSE)
             if parsed_repo.get("description", None) is not None:
                 description = parsed_repo["description"]
-            if description != "":
+            if description not in ("", None):
                 robo_print("GitHub description is: %s" % description,
                            LogLevel.VERBOSE, 4)
                 facts["description"] = description
@@ -1191,7 +1194,7 @@ def inspect_github_url(input_path, args, facts):
                             download_format = this_format
                             download_url = asset["browser_download_url"]
                             break
-            if download_format != "":
+            if download_format not in ("", None):
                 robo_print("GitHub release download format "
                            "is: %s" % download_format,
                            LogLevel.VERBOSE, 4)
@@ -1199,7 +1202,7 @@ def inspect_github_url(input_path, args, facts):
             else:
                 facts["warnings"].append(
                     "Could not detect GitHub release download format.")
-            if download_url != "":
+            if download_url not in ("", None):
                 robo_print("GitHub release download URL "
                            "is: %s" % download_url, LogLevel.VERBOSE, 4)
                 facts["download_url"] = download_url
@@ -1215,7 +1218,7 @@ def inspect_github_url(input_path, args, facts):
                        LogLevel.VERBOSE)
             if "name" in parsed_user:
                 developer = parsed_user["name"]
-            if developer != "":
+            if developer not in ("", None):
                 robo_print("GitHub developer "
                            "is: %s" % developer, LogLevel.VERBOSE, 4)
                 facts["developer"] = developer
@@ -1291,7 +1294,7 @@ def inspect_pkg(input_path, args, facts):
                     if " (" in line:
                         line = line.split(" (")[0]
                     developer = line[len(marker):]
-            if developer != "":
+            if developer not in ("", None):
                 robo_print("Developer is: %s" % developer, LogLevel.VERBOSE, 4)
                 facts["developer"] = developer
             else:
@@ -1340,12 +1343,12 @@ def inspect_pkg(input_path, args, facts):
                     bundle_id = ""
                     if "bundle_id" not in facts:
                         bundle_id = pkginfo_parsed.getroot().attrib["identifier"]
-                    if bundle_id != "":
+                    if bundle_id not in ("", None):
                         robo_print("Bundle identifier: %s" % bundle_id, LogLevel.VERBOSE, 4)
                         facts["bundle_id"] = bundle_id
 
                     install_loc = pkginfo_parsed.getroot().attrib.get("install-location", "")
-                    if install_loc != "":
+                    if install_loc not in ("", None):
                         robo_print("Install location: %s" % install_loc, LogLevel.VERBOSE, 4)
                     else:
                         robo_print("No install location specified", LogLevel.VERBOSE, 4)
@@ -1476,7 +1479,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         proj_name = proj_str[:proj_str.find(marker)]
     else:
         facts["warnings"].append("Unable to parse SourceForge URL.")
-    if proj_name != "":
+    if proj_name not in ("", None):
 
         # Use SourceForge API to obtain project information.
         project_api_url = "https://sourceforge.net/rest/p/" + proj_name
@@ -1518,12 +1521,12 @@ def inspect_sourceforge_url(input_path, args, facts):
         if "app_name" not in facts:
             if "shortname" in parsed_json or "name" in parsed_json:
                 # Record the shortname, if shortname isn't blank.
-                if parsed_json["shortname"] != "":
+                if parsed_json["shortname"] not in ("", None):
                     app_name = parsed_json["shortname"]
                 # Overwrite shortname with name, if name isn't blank.
-                if parsed_json["name"] != "":
+                if parsed_json["name"] not in ("", None):
                     app_name = parsed_json["name"]
-            if app_name != "":
+            if app_name not in ("", None):
                 robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
                 facts["app_name"] = app_name
 
@@ -1533,7 +1536,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         for this_dict in parsed_json["tools"]:
             if "sourceforge_group_id" in this_dict:
                 proj_id = this_dict["sourceforge_group_id"]
-        if proj_id != "":
+        if proj_id not in ("", None):
             robo_print("SourceForge project ID is: %s" % proj_id, LogLevel.VERBOSE, 4)
             facts["sourceforge_id"] = proj_id
         else:
@@ -1545,11 +1548,11 @@ def inspect_sourceforge_url(input_path, args, facts):
             description = ""
             robo_print("Getting SourceForge description...", LogLevel.VERBOSE)
             if "summary" in parsed_json:
-                if parsed_json["summary"] != "":
+                if parsed_json["summary"] not in ("", None):
                     description = parsed_json["summary"]
-                elif parsed_json["short_description"] != "":
+                elif parsed_json["short_description"] not in ("", None):
                     description = parsed_json["short_description"]
-            if description != "":
+            if description not in ("", None):
                 robo_print("SourceForge description is: %s" % description, LogLevel.VERBOSE, 4)
                 facts["description"] = description
             else:
@@ -1583,7 +1586,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 if item.find(search).text.startswith("data"):
                     download_url = item.find("link").text.rstrip("/download")
                     break
-            if download_url != "":
+            if download_url not in ("", None):
                 facts = inspect_download_url(download_url, args, facts)
             else:
                 facts["warnings"].append(
@@ -1721,9 +1724,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         robo_print("The Sparkle feed does not provide a version "
                    "number", LogLevel.VERBOSE, 4)
     facts["sparkle_provides_version"] = sparkle_provides_version
-    if latest_version != "":
+    if latest_version not in ("", None):
         robo_print("The latest version is %s" % latest_version, LogLevel.VERBOSE, 4)
-    if latest_url != "":
+    if latest_url not in ("", None):
         facts = inspect_download_url(latest_url, args, facts)
 
     # If Sparkle feed is hosted on GitHub or SourceForge, we can gather
