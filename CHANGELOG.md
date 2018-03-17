@@ -5,7 +5,8 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+- Able to detect and use DevMate update feeds. (#129, thanks to [@macprince](https://github.com/macprince))
 
 
 ## [1.0.5] - 2017-01-27
