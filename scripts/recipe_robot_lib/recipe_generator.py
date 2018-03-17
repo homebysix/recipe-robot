@@ -154,9 +154,9 @@ def build_recipes(facts, preferred, prefs):
                                                recipe["type"])
 
         # Set the recipe identifier.
+        clean_name = facts["app_name"].replace(" ", "").replace("+", "Plus")
         keys["Identifier"] = "%s.%s.%s" % (prefs["RecipeIdentifierPrefix"],
-                                           recipe["type"],
-                                           facts["app_name"].replace(" ", ""))
+                                           recipe["type"], clean_name)
 
         # If the name of the app bundle differs from the name of the app
         # itself, we need another input variable for that.
@@ -791,8 +791,8 @@ def generate_jss_recipe(facts, prefs, recipe):
     robo_print("Generating %s recipe..." % recipe["type"])
 
     if prefs.get("FollowOfficialJSSRecipesFormat", False) is True:
-        keys["Identifier"] = ("com.github.jss-recipes.jss.%s" %
-                              facts["app_name"].replace(" ", ""))
+        clean_name = facts["app_name"].replace(" ", "").replace("+", "Plus")
+        keys["Identifier"] = ("com.github.jss-recipes.jss.%s" % clean_name)
 
     recipe.set_description("Downloads the latest version of %s and imports it "
                            "into your JSS." % facts["app_name"])
