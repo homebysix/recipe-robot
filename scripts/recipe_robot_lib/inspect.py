@@ -546,6 +546,19 @@ def inspect_archive(input_path, args, facts):
     return facts
 
 
+def find_supported_release(release_array, download_url_key):
+    """Given an array of releases, find releases in supported formats."""
+
+    for this_format in ALL_SUPPORTED_FORMATS:
+        for asset in release_array:
+            if asset[download_url_key].endswith(this_format):
+                download_format = this_format
+                download_url = asset[download_url_key]
+                return download_format, download_url
+
+    return None, None
+
+
 def inspect_bitbucket_url(input_path, args, facts):
     """Process a BitBucket URL
 
@@ -656,8 +669,12 @@ def inspect_bitbucket_url(input_path, args, facts):
             download_url = ""
             robo_print("Getting information from latest BitBucket release...", LogLevel.VERBOSE)
             if "values" in parsed_release:
-                for asset in parsed_release["values"]:
-                    for this_format in ALL_SUPPORTED_FORMATS:
+                # TODO (Elliot): Use find_supported_release() instead of these
+                # nested loops. May need to flatten the 'asset' dict first.
+                for this_format in ALL_SUPPORTED_FORMATS:
+                    for asset in parsed_release["values"]:
+                        if download_format not in ("", None):
+                            break
                         if asset["links"]["self"]["href"].endswith(this_format):
                             download_format = this_format
                             download_url = asset["links"]["self"]["href"]
@@ -1190,12 +1207,8 @@ def inspect_github_url(input_path, args, facts):
             robo_print("Getting information from latest GitHub release...",
                        LogLevel.VERBOSE)
             if "assets" in parsed_release:
-                for asset in parsed_release["assets"]:
-                    for this_format in ALL_SUPPORTED_FORMATS:
-                        if asset["browser_download_url"].endswith(this_format):
-                            download_format = this_format
-                            download_url = asset["browser_download_url"]
-                            break
+                download_format, download_url = find_supported_release(
+                    parsed_release['assets'], 'browser_download_url')
             if download_format not in ("", None):
                 robo_print("GitHub release download format "
                            "is: %s" % download_format,
