@@ -88,6 +88,11 @@ def process_input_path(facts):
             inspect_func = inspect_sparkle_feed_url
         elif any_item_in_string(github_domains, input_path):
             robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
+            if '/download/' in input_path:
+                facts["warnings"].append("I'm processing the input path as a "
+                                         "GitHub repo URL, but you may have "
+                                         "wanted me to treat it as a download "
+                                         "URL.")
             inspect_func = inspect_github_url
         elif "sourceforge.net" in input_path:
             robo_print("Input path looks like a SourceForge URL.",
@@ -96,6 +101,11 @@ def process_input_path(facts):
         elif "bitbucket.org" in input_path:
             robo_print("Input path looks like a BitBucket URL.",
                        LogLevel.VERBOSE)
+            if '/downloads/' in input_path:
+                facts["warnings"].append("I'm processing the input path as a "
+                                         "BitBucket repo URL, but you may have "
+                                         "wanted me to treat it as a download "
+                                         "URL.")
             inspect_func = inspect_bitbucket_url
         else:
             robo_print("Input path looks like a download URL.",
