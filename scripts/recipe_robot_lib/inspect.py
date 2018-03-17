@@ -267,6 +267,8 @@ def inspect_app(input_path, args, facts):
             sparkle_feed = info_plist["SUFeedURL"]
         elif "SUOriginalFeedURL" in info_plist:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
+        elif os.path.exists("%s/Contents/Frameworks/DevMateKit.framework" % input_path):
+        	sparkle_feed = ("https://updates.devmate.com/%s.xml") % bundle_id
         if sparkle_feed != "" and sparkle_feed != "NULL":
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
         else:
