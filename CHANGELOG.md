@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Added
 - Able to detect and use DevMate update feeds. (#129, thanks to [@macprince](https://github.com/macprince))
+- More intelligent GitHub release searching. If multiple supported formats exist, Recipe Robot will generally prefer dmg first, then zip, and finally pkg. (#127)
+- Automatically uses `asset_regex` in GitHubReleasesInfoProvider if it is needed.
 
 
 ## [1.0.5] - 2017-01-27

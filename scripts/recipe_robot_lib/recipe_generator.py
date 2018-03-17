@@ -237,8 +237,13 @@ def generate_download_recipe(facts, prefs, recipe):
     # TODO (Shea): Extract method(s) to get_source_processor()
     elif "github_repo" in facts:
         keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
-        gh_release_info_provider = processor.GitHubReleasesInfoProvider(
-            github_repo="%GITHUB_REPO%")
+        if facts.get('use_asset_regex', False):
+            gh_release_info_provider = processor.GitHubReleasesInfoProvider(
+                asset_regex=".*\.%s$" % facts["download_format"],
+                github_repo="%GITHUB_REPO%")
+        else:
+            gh_release_info_provider = processor.GitHubReleasesInfoProvider(
+                github_repo="%GITHUB_REPO%")
         recipe.append_processor(gh_release_info_provider)
 
     # TODO (Shea): Extract method(s) to get_source_processor()
