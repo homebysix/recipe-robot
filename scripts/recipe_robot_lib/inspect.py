@@ -1049,11 +1049,19 @@ def inspect_download_url(input_path, args, facts):
     if "download_format" in facts and "app" in facts["inspections"]:
         return facts
 
-    robo_print("Opening downloaded file...", LogLevel.VERBOSE)
     robo_print("Download format is unknown, so we're going to try mounting it "
                "as a disk image first, then unarchiving it. This may produce "
                "errors, but will hopefully result in a "
                "success.", LogLevel.DEBUG)
+    robo_print("Opening downloaded file...", LogLevel.VERBOSE)
+
+    # If the file is a webpage (e.g. 404 message), warn the user now.
+    with open(os.path.join(CACHE_DIR, filename), 'r') as download:
+        first_line = download.readline()
+        if 'html' in first_line:
+            facts["warnings"].append(
+                "There's a good chance that the file failed to download. "
+                "Looks like a webpage was downloaded instead.")
 
     # Open the disk image (or test to see whether the download is one).
     if (facts.get("download_format", "") == "" or download_format == "") or download_format in SUPPORTED_IMAGE_FORMATS:
