@@ -81,6 +81,9 @@ These are the pieces of information we collect from app and recipe input in orde
 - __sparkle_provides_version__
     Is True if a usable version number was found in the Sparkle feed, is False otherwise.
 
+- __use_asset_regex__
+    Is True if a GitHub repo has been inspected and that repo has multiple file formats in its releases.
+
 - __user-agent__
     If accessing a download URL or Sparkle feed fails using the standard Python user-agent, an alternative user-agent is attempted. If that attempt succeeds, the user-agent fact is set, which causes the corresponding `request_headers` to be used in the resulting recipe.
 
