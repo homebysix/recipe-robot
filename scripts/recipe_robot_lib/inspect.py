@@ -571,7 +571,6 @@ def find_supported_release(release_array, download_url_key):
 
     download_format = None
     download_url = None
-    multiple_formats = False
 
     for this_format in ALL_SUPPORTED_FORMATS:
         for asset in release_array:
@@ -579,10 +578,8 @@ def find_supported_release(release_array, download_url_key):
                 if download_url is None:
                     download_format = this_format
                     download_url = asset[download_url_key]
-                else:
-                    multiple_formats = True
 
-    return download_format, download_url, multiple_formats
+    return download_format, download_url
 
 
 def inspect_bitbucket_url(input_path, args, facts):
@@ -1226,11 +1223,11 @@ def inspect_github_url(input_path, args, facts):
             robo_print("Getting information from latest GitHub release...",
                        LogLevel.VERBOSE)
             if "assets" in parsed_release:
-                download_format, download_url, multiple_formats = find_supported_release(
+                download_format, download_url = find_supported_release(
                     parsed_release['assets'], 'browser_download_url')
-                if multiple_formats is True:
+                if len(parsed_release['assets']) > 1:
                     facts["use_asset_regex"] = True
-                    robo_print("Multiple supported formats available.",
+                    robo_print("Multiple formats available.",
                                LogLevel.VERBOSE, 4)
             if download_format not in ("", None):
                 robo_print("GitHub release download format "
