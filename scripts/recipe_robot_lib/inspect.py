@@ -263,10 +263,11 @@ def inspect_app(input_path, args, facts):
     robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
     if "CFBundleIdentifier" in info_plist:
         bundle_id = info_plist["CFBundleIdentifier"]
+        robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
+        facts["bundle_id"] = bundle_id
     else:
-        raise RoboError("Strange, this app doesn't have a bundle identifier.")
-    robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
-    facts["bundle_id"] = bundle_id
+        facts["warnings"].append("{} doesn't seem to have a bundle "
+                                 "identifier.".format(app_name))
 
     # Leave a hint for people testing Recipe Robot on itself.
     if bundle_id == "com.elliotjordan.recipe-robot" and "github_url" not in facts["inspections"]:
