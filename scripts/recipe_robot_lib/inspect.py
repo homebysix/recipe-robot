@@ -1441,6 +1441,8 @@ def inspect_pkg(input_path, args, facts):
         potential_apps = []
         for potential_app, app_info in found_apps.iteritems():
             if os.path.basename(potential_app) not in facts["blocking_applications"]:
+                robo_print("Added blocking application: %s" % os.path.basename(potential_app),
+                           LogLevel.VERBOSE, 4)
                 facts["blocking_applications"].append(os.path.basename(potential_app))
             potential_pkgs.append(app_info['pkg_filename'])
             potential_apps.append(potential_app)
