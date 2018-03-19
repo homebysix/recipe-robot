@@ -328,31 +328,32 @@ def generate_download_recipe(facts, prefs, recipe):
                                       "customization. I'm going to take my "
                                       "best shot, but I might be wrong.")
 
-                FlatPkgUnpacker = processor.ProcessorFactory(
-                    "FlatPkgUnpacker", ("destination_path",
-                                        "flat_pkg_path",
-                                        "purge_destination"))
-                flatpkgunpacker_proc = FlatPkgUnpacker(
-                    destination_path="%RECIPE_CACHE_DIR%/unpack",
-                    flat_pkg_path="{}".format(input_path),
-                    purge_destination=True)
-                recipe.append_processor(flatpkgunpacker_proc)
+                flatpkgunpacker = processor.FlatPkgUnpacker()
+                flatpkgunpacker.destination_path ="%RECIPE_CACHE_DIR%/unpack"
+                flatpkgunpacker.flat_pkg_path = input_path
+                flatpkgunpacker.purge_destination = True
+                recipe.append_processor(flatpkgunpacker)
 
-                PkgPayloadUnpacker = processor.ProcessorFactory(
-                    "PkgPayloadUnpacker", ("destination_path",
-                                           "pkg_payload_path",
-                                           "purge_destination"))
-                payloadunpacker_proc = PkgPayloadUnpacker(
-                    destination_path="%RECIPE_CACHE_DIR%/payload",
-                    pkg_payload_path="%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(facts["codesign_input_filename"]),
-                    purge_destination=True)
-                recipe.append_processor(payloadunpacker_proc)
+                pkgpayloadunpacker = processor.PkgPayloadUnpacker()
+                pkgpayloadunpacker.destination_path ="%RECIPE_CACHE_DIR%/payload"
+                pkgpayloadunpacker.purge_destination = True
+
+                if not 'pkg_filename' in facts:
+                    # Use FileFinder to search for the package if the name is unknown.
+                    filefinder = processor.FileFinder()
+                    filefinder.pattern = "%RECIPE_CACHE_DIR%/unpack/*.pkg/Payload"
+                    filefinder.find_method = "glob"
+                    recipe.append_processor(filefinder)
+                    pkgpayloadunpacker.pkg_payload_path = "%found_filename%"
+                else:
+                    # Skip FileFinder and specify the filename of the package.
+                    pkgpayloadunpacker.pkg_payload_path = "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(facts['pkg_filename'])
+
+                recipe.append_processor(pkgpayloadunpacker)
 
                 versioner.input_plist_path = (
-                    "%RECIPE_CACHE_DIR%/payload/"
-                    "{}{}.app/Contents/Info.plist".format(
-                        facts.get("relative_path", ""),
-                        facts.get("app_file", facts["app_name"])))
+                    "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
+                        facts["app_relpath_from_payload"]))
             else:
                 if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
                     versioner.input_plist_path = (
