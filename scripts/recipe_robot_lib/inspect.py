@@ -107,6 +107,12 @@ def process_input_path(facts):
                                          "wanted me to treat it as a download "
                                          "URL.")
             inspect_func = inspect_bitbucket_url
+        elif "dropbox.com/s/" in input_path:
+            robo_print("Input path looks like a Dropbox shared link.",
+                       LogLevel.VERBOSE)
+            # Configure the shared link to force file download.
+            input_path = input_path.replace("?dl=0", "?dl=1")
+            inspect_func = inspect_download_url
         else:
             robo_print("Input path looks like a download URL.",
                        LogLevel.VERBOSE)
