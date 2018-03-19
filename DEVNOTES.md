@@ -42,6 +42,9 @@ These are the pieces of information we collect from app and recipe input in orde
 - __codesign_status__
     If an app is signed with v2 enclosure, this is "signed". Otherwise, it's "unsigned".
 
+- __codesign_input_filename__
+    The filename of the pkg or app to be passed to CodeSignatureVerifier. If omitted, Recipe Robot assumes "%NAME%.app"
+
 - __description__
     A brief and understandable description of what the app does. If the input URL is from GitHub, SourceForge, or BitBucket, the description is obtained from that service's API. Otherwise, the description is obtained by searching MacUpdate for the top result matching app_name.
 
@@ -96,12 +99,12 @@ These are the pieces of information we collect from app and recipe input in orde
 
 Basic example of a signed app in a dmg (works as of 2015-10-07):
 ```
-recipe-robot --verbose https://www.dropbox.com/s/skwpwgwqmlta5hd/signed-app-in-dmg.dmg?dl=1
+recipe-robot --verbose https://www.dropbox.com/s/0s2a66jrstvd594/AutoPkgr.dmg?dl=1
 ```
 
 Basic example of a signed app in a pkg (doesn't quite work as of 2015-10-07):
 ```
-recipe-robot --verbose https://www.dropbox.com/s/3n9qraniog7vzrs/signed-app-in-pkg.pkg?dl=1
+recipe-robot --verbose https://www.dropbox.com/s/j9p1wqhecltxt5o/AutoPkgr-1.4.2.pkg?dl=1
 ```
 
 Basic example of a signed app in a zip (works as of 2015-10-07):
@@ -142,21 +145,6 @@ recipe-robot --verbose https://www.revisionsapp.com/downloads/revisions-2.1.1.dm
 Sparkle feed lists the most recent items last, instead of first:
 ```
 recipe-robot --verbose http://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml
-```
-
-Zip download reveals a pkg installer:
-```
-recipe-robot --verbose http://download.bjango.com/istatserver/
-```
-
-In addition, attempting to expand the iStat Server pkg results in an interesting error:
-```
-$ pkgutil --expand iStat\ Server.pkg expanded
-
-pkgutil(489,0x7fff74f5e300) malloc: *** mach_vm_map(size=277076930199552) failed (error code=3)
-*** error: can't allocate region
-*** set a breakpoint in malloc_error_break to debug
-Abort trap: 6
 ```
 
 Dmg download reveals a pkg installer (and an uninstaller too):

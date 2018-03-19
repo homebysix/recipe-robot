@@ -300,18 +300,18 @@ def generate_download_recipe(facts, prefs, recipe):
 
         if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
             # We're assuming that the app is at the root level of the dmg.
-            input_path = "%pathname%/{0}{1}.app".format(
-                facts.get("relative_path", ""), facts["app_name"])
+            input_path = "%pathname%/{}{}".format(
+                facts.get("relative_path", ""), facts["codesign_input_filename"])
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             input_path = ("%RECIPE_CACHE_DIR%/%NAME%/"
-                          "{0}{1}.app".format(facts.get("relative_path", ""),
-                          facts.get("app_file", facts["app_name"])))
+                          "{}{}".format(facts.get("relative_path", ""),
+                          facts["codesign_input_filename"]))
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
             # TODO(Elliot): Need a few test cases to prove this works.
             input_path = "%pathname%"
         else:
-            facts.warnings.append("CodeSignatureVerifier cannot be created! "
+            facts["warnings"].append("CodeSignatureVerifier cannot be created! "
                                   "The download format is not recognized")
             input_path = None
 
@@ -322,17 +322,49 @@ def generate_download_recipe(facts, prefs, recipe):
         # TODO (Shea): Extract method -> get_versioner
         if needs_versioner(facts):
             versioner = processor.Versioner()
-            if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
+            if facts["codesign_input_filename"].endswith(".pkg"):
+                facts["warnings"].append("To add a Versioner processor with a "
+                                      "pkg as input requires quite a bit of "
+                                      "customization. I'm going to take my "
+                                      "best shot, but I might be wrong.")
+
+                FlatPkgUnpacker = processor.ProcessorFactory(
+                    "FlatPkgUnpacker", ("destination_path",
+                                        "flat_pkg_path",
+                                        "purge_destination"))
+                flatpkgunpacker_proc = FlatPkgUnpacker(
+                    destination_path="%RECIPE_CACHE_DIR%/unpack",
+                    flat_pkg_path="{}".format(input_path),
+                    purge_destination=True)
+                recipe.append_processor(flatpkgunpacker_proc)
+
+                PkgPayloadUnpacker = processor.ProcessorFactory(
+                    "PkgPayloadUnpacker", ("destination_path",
+                                           "pkg_payload_path",
+                                           "purge_destination"))
+                payloadunpacker_proc = PkgPayloadUnpacker(
+                    destination_path="%RECIPE_CACHE_DIR%/payload",
+                    pkg_payload_path="%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(facts["codesign_input_filename"]),
+                    purge_destination=True)
+                recipe.append_processor(payloadunpacker_proc)
+
                 versioner.input_plist_path = (
-                    "%pathname%/{0}{1}.app/Contents/Info.plist".format(
+                    "%RECIPE_CACHE_DIR%/payload/"
+                    "{}{}.app/Contents/Info.plist".format(
                         facts.get("relative_path", ""),
                         facts.get("app_file", facts["app_name"])))
             else:
-                versioner.input_plist_path = (
-                    "%RECIPE_CACHE_DIR%/%NAME%/"
-                    "{0}{1}.app/Contents/Info.plist".format(
-                        facts.get("relative_path", ""),
-                        facts.get("app_file", facts["app_name"])))
+                if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
+                    versioner.input_plist_path = (
+                        "%pathname%/{}{}.app/Contents/Info.plist".format(
+                            facts.get("relative_path", ""),
+                            facts.get("app_file", facts["app_name"])))
+                else:
+                    versioner.input_plist_path = (
+                        "%RECIPE_CACHE_DIR%/%NAME%/"
+                        "{}{}.app/Contents/Info.plist".format(
+                            facts.get("relative_path", ""),
+                            facts.get("app_file", facts["app_name"])))
             versioner.plist_version_key = facts["version_key"]
             recipe.append_processor(versioner)
 
@@ -480,7 +512,7 @@ def generate_munki_recipe(facts, prefs, recipe):
                     "Processor": "Versioner",
                     "Arguments": {
                         "input_plist_path":
-                            ("%pathname%/{0}{1}.app/Contents/Info.plist".format(
+                            ("%pathname%/{}{}.app/Contents/Info.plist".format(
                                 facts.get("relative_path", ""),
                                 facts.get("app_file", facts["app_name"]))),
                         "plist_version_key": facts["version_key"]
@@ -637,7 +669,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             recipe.append_processor({
                 "Processor": "AppPkgCreator",
                 "Arguments": {
-                    "app_path": "%pathname%/{0}{1}.app".format(
+                    "app_path": "%pathname%/{}{}.app".format(
                     facts.get("relative_path", ""),
                     facts.get("app_file", facts["app_name"]))
                 }
@@ -666,7 +698,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 "Processor": "AppPkgCreator",
                 "Arguments": {
                     "app_path": "%RECIPE_CACHE_DIR%/%NAME%/"
-                                "{0}{1}.app".format(
+                                "{}{}.app".format(
                                     facts.get("relative_path", ""),
                                     facts.get("app_file", facts["app_name"]))
                 }
@@ -720,7 +752,7 @@ def generate_install_recipe(facts, prefs, recipe):
             "Arguments": {
                 "dmg_path": "%pathname%",
                 "items_to_copy": [{
-                    "source_item": "{0}{1}.app".format(
+                    "source_item": "{}{}.app".format(
                         facts.get("relative_path", ""),
                         facts.get("app_file", facts["app_name"])),
                     "destination_path": "/Applications"
@@ -752,7 +784,7 @@ def generate_install_recipe(facts, prefs, recipe):
             "Arguments": {
                 "dmg_path": "%dmg_path%",
                 "items_to_copy": [{
-                    "source_item": "{0}{1}.app".format(
+                    "source_item": "{}{}.app".format(
                         facts.get("relative_path", ""),
                         facts.get("app_file", facts["app_name"])),
                     "destination_path": "/Applications"
@@ -1023,7 +1055,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "Processor": "Versioner",
             "Arguments": {
                 "input_plist_path": (
-                    "%pathname%/{0}{1}.app/Contents/Info.plist".format(
+                    "%pathname%/{}{}.app/Contents/Info.plist".format(
                         facts.get("relative_path", ""),
                         facts.get("app_file", facts["app_name"]))),
                 "plist_version_key": facts["version_key"]

@@ -412,6 +412,7 @@ def inspect_app(input_path, args, facts):
             facts["codesign_reqs"] = codesign_reqs
             robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
             facts["codesign_authorities"] = codesign_authorities
+            facts["codesign_input_filename"] = os.path.basename(input_path)
         if developer not in ("", None):
             robo_print("Developer: %s" % developer, LogLevel.VERBOSE, 4)
             facts["developer"] = developer
@@ -1350,9 +1351,10 @@ def inspect_pkg(input_path, args, facts):
             for line in out.split("\n"):
                 if re.match("^    [\d]\. ", line):
                     codesign_authorities.append(line[7:])
-            if codesign_authorities != []:
+            if len(codesign_authorities) > 0:
                 robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
                 facts["codesign_authorities"] = codesign_authorities
+                facts["codesign_input_filename"] = os.path.basename(input_path)
             else:
                 robo_print("Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4)
 
@@ -1367,106 +1369,105 @@ def inspect_pkg(input_path, args, facts):
         shutil.rmtree(expand_path)
     cmd = "/usr/sbin/pkgutil --expand \"%s\" \"%s\"" % (input_path, expand_path)
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if exitcode == 0:
+    if exitcode != 0:
+        facts["warnings"].append("Unable to expand package: %s" % input_path)
+    else:
         # Locate and inspect the app.
         robo_print("Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"), LogLevel.VERBOSE, 4)
-        install_filename = ""
-        for dirpath, dirnames, filenames in os.walk(os.path.join(CACHE_DIR, "expanded")):
-            for dirname in dirnames:
-                if dirname.startswith("."):
-                    dirnames.remove(dirname)
-            for filename in filenames:
+        # This section borrowed from MunkiPkg. Thank you @gregneagle.
+        # (https://github.com/munki/munki-pkg/blob/2ab9c723c59b9a3b2126f68ae81039d788842c7a/munkipkg#L711-L726)
+        payload_file = os.path.join(CACHE_DIR, "expanded", "Payload")
+        payload_archive = os.path.join(CACHE_DIR, "expanded", "Payload.cpio.gz")
+        payload_dir = os.path.join(CACHE_DIR, "expanded", "payload")
 
-                if filename == "PackageInfo":
-                    robo_print("Getting information from PackageInfo file...", LogLevel.VERBOSE)
-                    pkginfo_file = open(os.path.join(CACHE_DIR, "expanded", dirpath, filename), "r")
-                    pkginfo_parsed = parse(pkginfo_file)
+        # If there's no payload file, check for embedded packages with payloads.
+        if not os.path.exists(payload_file):
+            payload_pkgs = []
+            for dirpath, dirnames, filenames in os.walk(expand_path):
+                for dirname in dirnames:
+                    if dirname.startswith("."):
+                        dirnames.remove(dirname)
+                    elif dirname.endswith(".pkg"):  # bundle packages
+                        payload_path = os.path.join(dirpath, dirname, "Payload")
+                        if os.path.isfile(payload_path):
+                            payload_pkgs.append(payload_path)
+                            dirnames.remove(dirname)
+                for filename in filenames:
+                    if filename.endswith(".pkg"):  # flat packages
+                        facts["warnings"].append("Yo dawg, I found a flat package "
+                                                 "inside this flat package!")
+                        # TODO (Elliot): Any chance for a loop here?
+                        facts = inspect_pkg(os.path.join(dirpath, filename), args, facts)
+                    if filename == "PackageInfo":
+                        robo_print("Trying to get bundle identifier "
+                                   "from PackageInfo file...", LogLevel.VERBOSE)
+                        pkginfo_file = open(os.path.join(dirpath, filename), "r")
+                        pkginfo_parsed = parse(pkginfo_file)
+                        bundle_id = ""
+                        if "bundle_id" not in facts:
+                            bundle_id = pkginfo_parsed.getroot().attrib["identifier"]
+                        if bundle_id not in ("", None):
+                            robo_print("Bundle identifier: %s" % bundle_id, LogLevel.VERBOSE, 4)
+                            facts["bundle_id"] = bundle_id
+            if len(payload_pkgs) == 0:
+                facts["warnings"].append("This package seems to have no "
+                                         "payload, nor any embedded packages.")
+            elif len(payload_pkgs) > 1:
+                facts["warnings"].append("This package has multiple packages "
+                                         "inside. This is too complicated for "
+                                         "me, sorry.")
+            elif len(payload_pkgs) == 1:
+                payload_file = payload_pkgs[0]
 
-                    bundle_id = ""
-                    if "bundle_id" not in facts:
-                        bundle_id = pkginfo_parsed.getroot().attrib["identifier"]
-                    if bundle_id not in ("", None):
-                        robo_print("Bundle identifier: %s" % bundle_id, LogLevel.VERBOSE, 4)
-                        facts["bundle_id"] = bundle_id
-
-                    install_loc = pkginfo_parsed.getroot().attrib.get("install-location", "")
-                    if install_loc not in ("", None):
-                        robo_print("Install location: %s" % install_loc, LogLevel.VERBOSE, 4)
+        if not os.path.exists(payload_file):
+            facts["warnings"].append("This package seems to have no payload.")
+        else:
+            os.rename(payload_file, payload_archive)
+            os.mkdir(payload_dir)
+            cmd = "/usr/bin/ditto -x \"%s\" \"%s\"" % (payload_archive, payload_dir)
+            exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+            if exitcode != 0:
+                facts["warnings"].append("Ditto failed to expand payload.")
+            try:
+                os.unlink(payload_archive)
+            except OSError, err:
+                facts["warnings"].append("Could not remove %s: %s" % (payload_archive, err))
+            payload_apps = []
+            for dirpath, dirnames, filenames in os.walk(expand_path):
+                for dirname in dirnames:
+                    if dirname.startswith("."):
+                        dirnames.remove(dirname)
+                    elif dirname.endswith(".app"):
+                        info_plist_path = os.path.join(dirpath, dirname, "Contents", "Info.plist")
+                        if os.path.isfile(info_plist_path):
+                            payload_apps.append(os.path.join(dirpath, dirname))
+                            dirnames.remove(dirname)
+            if len(payload_apps) == 0:
+                facts["warnings"].append("No apps found in payload.")
+            elif len(payload_apps) == 1:
+                facts["blocking_applications"].append(payload_apps[0])
+                facts = inspect_app(payload_apps[0], args, facts)
+            elif len(payload_apps) > 1:
+                facts["warnings"].append(
+                    "Multiple apps found in payload. I'm going to roll "
+                    "the dice and use the largest one by file size, but I "
+                    "might be wrong.")
+                def get_size(root_path):
+                    size = 0
+                    for dirpath, dirnames, filenames in os.walk(root_path):
+                        for filename in filenames:
+                            filepath = os.path.join(dirpath, filename)
+                            size += os.path.getsize(filepath)
+                    return size
+                largest_size = 0
+                for potential_app in payload_apps:
+                    this_size = get_size(potential_app)
+                    if this_size > largest_size:
+                        largest_size = this_size
                     else:
-                        robo_print("No install location specified", LogLevel.VERBOSE, 4)
-
-                    install_filename = os.path.basename(install_loc)
-                    robo_print("Install filename: %s" % install_filename, LogLevel.VERBOSE, 4)
-                    continue  # TODO(Elliot): Or should we stop after the first? (#27)
-
-                if filename == "Payload":
-                    # We found a payload. Let's peek inside and see if
-                    # there's an app.
-                    robo_print("Extracting the package payload to see if we "
-                               "can find an app...", LogLevel.VERBOSE)
-                    app_found = False
-                    payload_path = os.path.join(CACHE_DIR, "expanded", dirpath, filename)
-                    if install_filename.endswith(".app"):
-                        extracted_app_path = os.path.join(CACHE_DIR, "extracted_apps", install_filename)
-                        if os.path.exists(extracted_app_path):
-                            shutil.rmtree(extracted_app_path)
-                        cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",./,%s/,\"" % (payload_path, extracted_app_path)
-                        # TODO(Elliot): This doesn't work because it's outside the working directory. (#27)
-                        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                        if exitcode == 0:
-                            app_found = True
-                            robo_print("Found app: %s" % extracted_app_path, LogLevel.VERBOSE, 4)
-                            facts = inspect_app(extracted_app_path, args, facts)
-                            break  # Struck pay dirt, so stop iterating
-                                   # through apps in the payload
-                        else:
-                            robo_print("Error extracting the payload. (%s)" % err, LogLevel.VERBOSE, 4)
-
-                    elif install_filename == "":
-
-                        cmd = "/usr/bin/gunzip -c \"%s\" | pax" % payload_path
-                        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                        if exitcode == 0:
-                            out = out.split("\n")
-                            for line in out:
-                                if line.endswith(".app"):
-                                    facts["blocking_applications"].append(os.path.basename(line))
-                                    if ".app/Contents/" not in line:
-                                        app_found = True
-                                        robo_print("Found app: %s" % line, LogLevel.VERBOSE, 4)
-                                        extracted_app_path = os.path.join(CACHE_DIR, "extracted_apps", os.path.split(line)[1])
-                                        cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",%s,%s,\"" % (os.path.join(CACHE_DIR, "expanded", filename), line, extracted_app_path)
-                                        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                                        if exitcode == 0:
-                                            facts = inspect_app(extracted_app_path, args, facts)
-                                            break  # Struck pay dirt, so stop iterating
-                                                   # through apps in the payload
-                                            # TODO(Elliot): Should we stop at the first app? (#27)
-                                            # Find multiple, but use the one with the shortest path?
-                                            # Find multiple, but use the largest file size?
-                                            # Inspect all of them, use only the one with a Sparkle feed?
-                                        else:
-                                            robo_print("Error while extracting the package payload. "
-                                                       "(%s)" % err, LogLevel.VERBOSE, 4)
-                        else:
-                            robo_print("Error while examining the package payload. "
-                                       "(%s)" % err, LogLevel.VERBOSE, 4)
-
-                    if app_found is False:
-                        robo_print("Did not find an app in the package "
-                                   "payload", LogLevel.VERBOSE, 4)
-                    break  # Once we're done examining the Payload, there's not
-                           # much else we can examine.
-
-                if filename.endswith(".app"):
-                    facts = inspect_app(filename, args, facts)
-                    break  # Struck pay dirt, so stop iterating through files
-                           # in the package
-
-    else:
-        robo_print("Unable to expand package", LogLevel.DEBUG, 4)
-
-    # TODO(Elliot): What info do we need to gather to produce recipes here? (#27)
+                        payload_apps.remove(potential_app)
+                facts["blocking_applications"].append(os.path.basename(payload_apps[0]))
+                facts = inspect_app(payload_apps[0], args, facts)
 
     return facts
 
