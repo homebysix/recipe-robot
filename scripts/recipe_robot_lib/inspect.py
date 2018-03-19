@@ -1293,6 +1293,32 @@ def inspect_github_url(input_path, args, facts):
     return facts
 
 
+def get_apps_from_payload(payload_archive, facts, found_apps={}):
+    """Given a path to a package payload, this function expands the payload
+    and returns the paths to the apps."""
+    i = 0
+    while os.path.exists(os.path.join(CACHE_DIR, "payload%s" % i)):
+        i += 1
+    payload_dir = os.path.join(CACHE_DIR, "payload%s" % i)
+    os.mkdir(payload_dir)
+    cmd = "/usr/bin/ditto -x \"%s\" \"%s\"" % (payload_archive, payload_dir)
+    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode != 0:
+        facts["warnings"].append("Ditto failed to expand payload.")
+    try:
+        os.unlink(payload_archive)
+    except OSError, err:
+        facts["warnings"].append("Could not remove %s: %s" % (payload_archive, err))
+
+    for dirpath, dirnames, filenames in os.walk(payload_dir):
+        for dirname in dirnames:
+            if dirname.startswith("."):
+                dirnames.remove(dirname)
+            elif dirname.endswith(".app") and os.path.isfile(os.path.join(dirpath, dirname, "Contents", "Info.plist")):
+                found_apps[os.path.join(dirpath, dirname)] = { "pkg_filename": payload_archive.split("/")[-2] }
+    return found_apps
+
+
 def inspect_pkg(input_path, args, facts):
     """Process a package
 
