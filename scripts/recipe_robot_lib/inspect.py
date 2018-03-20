@@ -1293,16 +1293,14 @@ def inspect_github_url(input_path, args, facts):
     return facts
 
 
-def get_apps_from_payload(payload_archive, facts, found_apps={}):
+def get_apps_from_payload(payload_archive, facts, payload_id=0):
     """Given a path to a package payload, this function expands the payload
     and returns the paths to the apps."""
-    i = 0
-    while os.path.exists(os.path.join(CACHE_DIR, "payload%s" % i)):
-        i += 1
-    payload_dir = os.path.join(CACHE_DIR, "payload%s" % i)
+    payload_apps = []
+    payload_dir = os.path.join(CACHE_DIR, "payload%s" % payload_id)
     os.mkdir(payload_dir)
     cmd = "/usr/bin/ditto -x \"%s\" \"%s\"" % (payload_archive, payload_dir)
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    exitcode, _, err = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         facts["warnings"].append("Ditto failed to expand payload.")
     try:
@@ -1315,8 +1313,8 @@ def get_apps_from_payload(payload_archive, facts, found_apps={}):
             if dirname.startswith("."):
                 dirnames.remove(dirname)
             elif dirname.endswith(".app") and os.path.isfile(os.path.join(dirpath, dirname, "Contents", "Info.plist")):
-                found_apps[os.path.join(dirpath, dirname)] = { "pkg_filename": payload_archive.split("/")[-2] }
-    return found_apps
+                payload_apps.append(os.path.join(dirpath, dirname))
+    return payload_apps
 
 
 def inspect_pkg(input_path, args, facts):
@@ -1403,13 +1401,18 @@ def inspect_pkg(input_path, args, facts):
         robo_print("Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"),
                    LogLevel.VERBOSE, 4)
 
-        found_apps = {}
+        payload_id = 0
+        payload_apps = []
+        found_apps = []
         for dirpath, dirnames, filenames in os.walk(expand_path):
             for dirname in dirnames:
                 if dirname.startswith("."):
                     dirnames.remove(dirname)
                 elif dirname.endswith(".app") and os.path.isfile(os.path.join(dirpath, dirname, "Contents", "Info.plist")):
-                    found_apps[os.path.join(dirpath, dirname)] = { "pkg_filename": os.path.basename(input_path) }  # should be rare
+                    found_apps.append({
+                        "path": os.path.join(dirpath, dirname),
+                        "pkg_filename": os.path.basename(input_path),
+                    })  # should be rare
             for filename in filenames:
                 if filename.endswith(".pkg"):  # flat packages
                     facts["warnings"].append("Yo dawg, I found a flat package "
@@ -1432,58 +1435,65 @@ def inspect_pkg(input_path, args, facts):
                         robo_print("No bundle identifier in this PackageInfo.",
                                    LogLevel.VERBOSE, 4)
                 elif filename.lower() == "payload":
-                    found_apps = get_apps_from_payload(os.path.join(dirpath, filename),
-                                                       facts,
-                                                       found_apps)
+                    payload_apps = get_apps_from_payload(os.path.join(dirpath, filename),
+                                                         facts,
+                                                         payload_id)
+                    for app in payload_apps:
+                        found_apps.append({
+                            "path": app,
+                            "pkg_filename": os.path.join(dirpath, filename).split("/")[-2],
+                        })
+                    payload_id += 1
+        from pprint import pprint; pprint(found_apps)
 
         # Add apps found to blocking applications and potential lists.
-        potential_pkgs = []
-        potential_apps = []
-        for potential_app, app_info in found_apps.iteritems():
-            if os.path.basename(potential_app) not in facts["blocking_applications"]:
-                robo_print("Added blocking application: %s" % os.path.basename(potential_app),
+        for potential_app in found_apps:
+            if os.path.basename(potential_app['path']) not in facts["blocking_applications"]:
+                robo_print("Added blocking application: %s" % os.path.basename(potential_app['path']),
                            LogLevel.VERBOSE, 4)
-                facts["blocking_applications"].append(os.path.basename(potential_app))
-            potential_pkgs.append(app_info['pkg_filename'])
-            potential_apps.append(potential_app)
+                facts["blocking_applications"].append(os.path.basename(potential_app['path']))
 
         # Determine which app, if any, to process further.
         payload_dir = os.path.join(CACHE_DIR, "payload")
         if len(found_apps) == 0:
             facts["warnings"].append("No apps found in payload.")
         elif len(found_apps) == 1:
-            robo_print("Using app: %s" % os.path.basename(potential_apps[0]),
+            robo_print("Using app: %s" % os.path.basename(found_apps[0]['path']),
                        LogLevel.VERBOSE, 4)
-            robo_print("In container package: %s" % potential_pkgs[0],
+            robo_print("In container package: %s" % found_apps[0]['pkg_filename'],
                        LogLevel.VERBOSE, 4)
-            relpath = os.path.relpath(potential_apps[0], CACHE_DIR).split("/")[1:]
+            relpath = os.path.relpath(found_apps[0]['path'], CACHE_DIR).split("/")[1:]
             facts["app_relpath_from_payload"] = "/".join(relpath)
-            facts["pkg_filename"] = potential_pkgs[0]
-            facts = inspect_app(potential_apps[0], args, facts)
+            facts["pkg_filename"] = found_apps[0]['pkg_filename']
+            facts = inspect_app(found_apps[0]['path'], args, facts)
         elif len(found_apps) > 1:
             facts["warnings"].append(
-                "Multiple apps found in payload. I'm going to roll the dice "
-                "and use the largest one by file size, but I might be wrong.")
+                "Multiple apps found in payload. I'll do my best to figure "
+                "out which one to use.")
+
+            # TODO (Elliot): Choose app based on Sparkle feed.
+            # TODO (Elliot): Choose app based on path.
+
+            # If no Sparkle feed, choose largest app by file size.
             largest_size = 0
-            for potential_app, app_info in found_apps.iteritems():
+            for potential_app in found_apps:
                 this_size = 0
-                for dirpath, dirnames, filenames in os.walk(potential_app):
+                for dirpath, dirnames, filenames in os.walk(potential_app['path']):
                     for filename in filenames:
                         filepath = os.path.join(dirpath, filename)
                         this_size += os.path.getsize(filepath)
                 if this_size > largest_size:
                     largest_size = this_size
                 else:
-                    potential_pkgs.remove(app_info['pkg_filename'])
-                    potential_apps.remove(potential_app)
-            robo_print("Using app: %s" % os.path.basename(potential_apps[0]),
+                    found_apps.remove(potential_app)
+            robo_print("Using app: %s" % os.path.basename(found_apps[0]['path']),
                        LogLevel.VERBOSE, 4)
-            robo_print("In container package: %s" % potential_pkgs[0],
+            robo_print("In container package: %s" % found_apps[0]['pkg_filename'],
                        LogLevel.VERBOSE, 4)
-            relpath = os.path.relpath(potential_apps[0], CACHE_DIR).split("/")[1:]
+            relpath = os.path.relpath(found_apps[0]['path'], CACHE_DIR).split("/")[1:]
             facts["app_relpath_from_payload"] = "/".join(relpath)
-            facts["pkg_filename"] = potential_pkgs[0]
-            facts = inspect_app(potential_apps[0], args, facts)
+            facts["pkg_filename"] = found_apps[0]['pkg_filename']
+            facts = inspect_app(found_apps[0]['path'], args, facts)
 
     return facts
 
