@@ -1482,7 +1482,6 @@ def inspect_pkg(input_path, args, facts):
                             "pkg_filename": os.path.join(dirpath, filename).split("/")[-2],
                         })
                     payload_id += 1
-        from pprint import pprint; pprint(found_apps)
 
         # Add apps found to blocking applications and potential lists.
         for potential_app in found_apps:
