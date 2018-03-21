@@ -363,6 +363,8 @@ def inspect_app(input_path, args, facts):
             description = unicode(description, 'utf-8')
             robo_print("Description: %s" % description, LogLevel.VERBOSE, 4)
             facts["description"] = description
+        else:
+            robo_print("Can't retrieve app description.", LogLevel.VERBOSE, 4)
         if warning:
             facts["warnings"].append(warning)
 
