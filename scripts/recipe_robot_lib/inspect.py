@@ -1317,6 +1317,44 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
     return payload_apps
 
 
+def get_most_likely_app(app_list):
+    """Takes an array of dicts, each with a 'path' key that points to a
+    potential app to be evaluated. Uses various criteria to make an educated
+    guess about which app is the "real" app, and returns the index of the
+    winner. If no winner can be determined, returns None."""
+
+    # Criteria 1: If only one app has a Sparkle feed, choose that one.
+    has_sparkle = []
+    for index, candidate in enumerate(app_list):
+        info_plist = FoundationPlist.readPlist(candidate['path'] + "/Contents/Info.plist")
+        if "SUFeedURL" in info_plist or "SUOriginalFeedURL" in info_plist or os.path.exists(candidate['path'] + "/Contents/Frameworks/DevMateKit.framework"):
+            has_sparkle.append(index)
+    if len(has_sparkle) == 1:
+        return has_sparkle[0]
+
+    # Criteria 2: If only one app installs into the /Applications folder, choose that one.
+    installs_to_apps = []
+    for index, candidate in enumerate(app_list):
+        head, tail = os.path.split(candidate['path'])
+        if head.endswith('/Applications'):
+            installs_to_apps.append(index)
+    if len(installs_to_apps) == 1:
+        return installs_to_apps[0]
+
+    # Criteria 3: Choose largest app by file size.
+    largest_size = 0
+    largest_index = None
+    for index, candidate in enumerate(app_list):
+        this_size = 0
+        for dirpath, _, filenames in os.walk(candidate['path']):
+            for filename in filenames:
+                this_size += os.path.getsize(os.path.join(dirpath, filename))
+        if this_size > largest_size:
+            largest_size = this_size
+            largest_index = index
+    return largest_index
+
+
 def inspect_pkg(input_path, args, facts):
     """Process a package
 
@@ -1470,30 +1508,15 @@ def inspect_pkg(input_path, args, facts):
             facts["warnings"].append(
                 "Multiple apps found in payload. I'll do my best to figure "
                 "out which one to use.")
-
-            # TODO (Elliot): Choose app based on Sparkle feed.
-            # TODO (Elliot): Choose app based on path.
-
-            # If no Sparkle feed, choose largest app by file size.
-            largest_size = 0
-            for potential_app in found_apps:
-                this_size = 0
-                for dirpath, dirnames, filenames in os.walk(potential_app['path']):
-                    for filename in filenames:
-                        filepath = os.path.join(dirpath, filename)
-                        this_size += os.path.getsize(filepath)
-                if this_size > largest_size:
-                    largest_size = this_size
-                else:
-                    found_apps.remove(potential_app)
-            robo_print("Using app: %s" % os.path.basename(found_apps[0]['path']),
+            app_index = get_most_likely_app(found_apps)
+            robo_print("Using app: %s" % os.path.basename(found_apps[app_index]['path']),
                        LogLevel.VERBOSE, 4)
-            robo_print("In container package: %s" % found_apps[0]['pkg_filename'],
+            robo_print("In container package: %s" % found_apps[app_index]['pkg_filename'],
                        LogLevel.VERBOSE, 4)
-            relpath = os.path.relpath(found_apps[0]['path'], CACHE_DIR).split("/")[1:]
+            relpath = os.path.relpath(found_apps[app_index]['path'], CACHE_DIR).split("/")[1:]
             facts["app_relpath_from_payload"] = "/".join(relpath)
-            facts["pkg_filename"] = found_apps[0]['pkg_filename']
-            facts = inspect_app(found_apps[0]['path'], args, facts)
+            facts["pkg_filename"] = found_apps[app_index]['pkg_filename']
+            facts = inspect_app(found_apps[app_index]['path'], args, facts)
 
     return facts
 
