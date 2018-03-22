@@ -102,7 +102,7 @@ Basic example of a signed app in a dmg (works as of 2015-10-07):
 recipe-robot --verbose https://www.dropbox.com/s/0s2a66jrstvd594/AutoPkgr.dmg?dl=1
 ```
 
-Basic example of a signed app in a pkg (doesn't quite work as of 2015-10-07):
+Basic example of a signed app in a pkg (works as of 2018-03-21):
 ```
 recipe-robot --verbose https://www.dropbox.com/s/j9p1wqhecltxt5o/AutoPkgr-1.4.2.pkg?dl=1
 ```
@@ -161,12 +161,6 @@ Dmg download reveals a pkg installer, which contains an app:
 ```
 recipe-robot --verbose https://pqrs.org/osx/karabiner/files/Karabiner-10.9.0.dmg
 recipe-robot --verbose https://github.com/integralpro/nosleep/releases
-```
-
-In addition, attempting to extract the app from the Karabiner or NoSleep pkg results in many errors like this:
-```
-pax: End of archive volume 1 reached
-pax: Sorry, unable to determine archive format
 ```
 
 App that uses a version 1 (obsolete) code signature:
