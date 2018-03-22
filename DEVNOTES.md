@@ -132,6 +132,11 @@ Zip download reveals an installer in .app format:
 recipe-robot --verbose http://download.bjango.com/skalacolor/
 ```
 
+Signed installer download:
+```
+recipe-robot --verbose https://api.vivi.io/mac-pkg
+```
+
 Sparkle feed blocks Python user-agent:
 ```
 recipe-robot --verbose http://bohemiancoding.com/static/download/sketch.zip
