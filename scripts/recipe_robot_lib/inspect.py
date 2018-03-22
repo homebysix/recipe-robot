@@ -355,18 +355,16 @@ def inspect_app(input_path, args, facts):
             robo_print("App icon is: %s" % icon_path, LogLevel.VERBOSE, 4)
             facts["icon_path"] = icon_path
 
-    # Attempt to get a description of the app from MacUpdate.com.
+    # Attempt to get a description of the app.
     if "description" not in facts:
-        robo_print("Getting app description from MacUpdate...", LogLevel.VERBOSE)
-        description, warning = get_app_description(app_name)
-        if description:
-            description = unicode(description, 'utf-8')
-            robo_print("Description: %s" % description, LogLevel.VERBOSE, 4)
+        robo_print("Getting app description...", LogLevel.VERBOSE)
+        description, source = get_app_description(app_name)
+        if description is not None:
+            robo_print("Description (from %s): %s" % (source, description),
+                       LogLevel.VERBOSE, 4)
             facts["description"] = description
         else:
             robo_print("Can't retrieve app description.", LogLevel.VERBOSE, 4)
-        if warning:
-            facts["warnings"].append(warning)
 
     # Gather info from code signing attributes, including:
     #    - Code signature verification requirements
@@ -423,45 +421,50 @@ def inspect_app(input_path, args, facts):
     return facts
 
 
+def html_decode(the_string):
+    """Given a string, change HTML escaped characters (&gt;) to regular
+    characters (>)."""
+    html_chars = (
+        ('\'', '&#39;'),
+        ('"', '&quot;'),
+        ('>', '&gt;'),
+        ('<', '&lt;'),
+        ('&', '&amp;'),
+    )
+    for char in html_chars:
+        the_string = the_string.replace(char[1], char[0])
+    return the_string
+
+
 def get_app_description(app_name):
-    """Use an app's name to generate a description from MacUpdate.com.
+    """Use an app's name to generate a description.
 
     Args:
         app_name: The name of the app that we need to describe.
 
     Returns:
         description: A string containing a description of the app.
+        source: A string containing the source of the description.
     """
-    # Start with an empty string. (If it remains empty, the parent
-    # function will know that no description was available.)
-    description = ""
-    warning = None
-
-    # This is the HTML immediately preceding the description text on the
-    # MacUpdate search results page.
-    description_marker = "=\"shortdescr\">"
-
-    cmd = "curl --silent \"https://www.macupdate.com/find/mac/%s\"" % app_name
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-
-    # For each line in the resulting text, look for the description
-    # marker.
-    html = out.split("\n")
-    if exitcode == 0:
-        for line in html:
-            if description_marker in line:
-                # Trim the HTML from the beginning of the line.
-                start = line.find(description_marker) + len(description_marker)
-                # Trim the HTML from the end of the line.
-                description = line[start:].rstrip("</span>")
-                # If we found a description, no need to process further
-                # lines.
-                break
-    else:
-        warning = ("Error occurred while getting description from "
-                   "MacUpdate: %s" % err)
-
-    return (description, warning)
+    desc_sources = [{
+        'name': 'MacUpdate',
+        'pattern': r'=\"shortdescr\">(?P<desc>.*)</span>',
+        'url': 'https://www.macupdate.com/find/mac/%s' % app_name,
+    }, {
+        'name': 'AlternativeTo',
+        'pattern': r'<div class=\"itemDesc( read-more-box)?\">\s+'
+                   '<p class=\"text\">(?P<desc>.*)</p>',
+        'url': 'https://alternativeto.net/browse/search'
+               '/?ignoreExactMatch=true&q=%s' % app_name,
+    }]
+    for source in desc_sources:
+        cmd = 'curl --silent \"%s\"' % source['url']
+        _, out, _ = get_exitcode_stdout_stderr(cmd)
+        result = re.search(source['pattern'], out)
+        if result:
+            description = unicode(html_decode(result.group('desc')), 'utf-8')
+            return description, source['name']
+    return None, None
 
 
 def get_download_link_from_xattr(input_path, args, facts):
