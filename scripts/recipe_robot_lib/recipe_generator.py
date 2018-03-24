@@ -25,21 +25,18 @@ create autopkg recipes for the specified app.
 """
 
 
-# TODO: refactor all usages of replace(" ", "") and replace("/", "-")
-# These are applied to developer and app_name only. How about a
-# "sanitized_developer" or "output_app_name"?
 # TODO: refactor code issuing warnings about missing processors/repos.
 
 import os
 
 from .exceptions import RoboError
 import processor
-from .tools import (create_dest_dirs, create_existing_recipe_list,
-                    extract_app_icon, robo_print, robo_join, get_user_defaults,
-                    save_user_defaults, LogLevel, __version__,
-                    get_exitcode_stdout_stderr, timed, SUPPORTED_IMAGE_FORMATS,
-                    SUPPORTED_ARCHIVE_FORMATS, SUPPORTED_INSTALL_FORMATS,
-                    ALL_SUPPORTED_FORMATS)
+from .tools import (strip_dev_suffix, recipe_dirpath, create_dest_dirs,
+                    create_existing_recipe_list, extract_app_icon, robo_print,
+                    robo_join, get_user_defaults, save_user_defaults, LogLevel,
+                    __version__, get_exitcode_stdout_stderr, timed,
+                    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
+                    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS)
 
 
 @timed
@@ -794,46 +791,6 @@ def generate_install_recipe(facts, prefs, recipe):
         })
 
     return recipe
-
-
-def strip_dev_suffix(dev):
-    '''Removes corporation suffix from developer names, if present.'''
-    corp_suffixes = ('incorporated', 'corporation', 'limited', 'oy/ltd',
-                     'pty ltd', 'pty. ltd', 'pvt ltd', 'pvt. ltd', 's.a r.l',
-                     'sa rl', 'sarl', 'srl', 'corp', 'gmbh', 'l.l.c', 'inc',
-                     'llc', 'ltd', 'pvt', 'oy', 'sa', 'ab',)
-    if dev not in (None, ''):
-        for suffix in corp_suffixes:
-            if dev.lower().rstrip(' .').endswith(suffix):
-                dev = dev.rstrip(' .')[:len(dev)-len(suffix)-1].rstrip(',. ')
-                break
-    return dev
-
-
-def recipe_dirpath(app_name, dev, prefs):
-    '''Returns a macOS-friendly path to use for recipes.'''
-    # Special characters that shouldn't be in macOS file/folder names.
-    char_replacements = (
-        ('/', '-'),
-        ('\\', '-'),
-        (':', '-'),
-        ('*', '-'),
-        ('?', ''),
-    )
-    for char in char_replacements:
-        app_name = app_name.replace(char[0], char[1])
-    path_components = [prefs["RecipeCreateLocation"]]
-    if dev is not None and prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
-        # TODO (Elliot): Put this in the preferences.
-        if prefs.get("StripDeveloperSuffixes", False) is True:
-            dev = strip_dev_suffix(dev)
-        for char in char_replacements:
-            dev = dev.replace(char[0], char[1])
-        path_components.append(dev)
-    else:
-        path_components.append(app_name)
-
-    return robo_join(*path_components)
 
 
 def generate_jss_recipe(facts, prefs, recipe):

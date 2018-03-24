@@ -151,6 +151,46 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
         print_func(line)
 
 
+def strip_dev_suffix(dev):
+    '''Removes corporation suffix from developer names, if present.'''
+    corp_suffixes = ('incorporated', 'corporation', 'limited', 'oy/ltd',
+                     'pty ltd', 'pty. ltd', 'pvt ltd', 'pvt. ltd', 's.a r.l',
+                     'sa rl', 'sarl', 'srl', 'corp', 'gmbh', 'l.l.c', 'inc',
+                     'llc', 'ltd', 'pvt', 'oy', 'sa', 'ab',)
+    if dev not in (None, ''):
+        for suffix in corp_suffixes:
+            if dev.lower().rstrip(' .').endswith(suffix):
+                dev = dev.rstrip(' .')[:len(dev)-len(suffix)-1].rstrip(',. ')
+                break
+    return dev
+
+
+def recipe_dirpath(app_name, dev, prefs):
+    '''Returns a macOS-friendly path to use for recipes.'''
+    # Special characters that shouldn't be in macOS file/folder names.
+    char_replacements = (
+        ('/', '-'),
+        ('\\', '-'),
+        (':', '-'),
+        ('*', '-'),
+        ('?', ''),
+    )
+    for char in char_replacements:
+        app_name = app_name.replace(char[0], char[1])
+    path_components = [prefs["RecipeCreateLocation"]]
+    if dev is not None and prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
+        # TODO (Elliot): Put this in the preferences.
+        if prefs.get("StripDeveloperSuffixes", False) is True:
+            dev = strip_dev_suffix(dev)
+        for char in char_replacements:
+            dev = dev.replace(char[0], char[1])
+        path_components.append(dev)
+    else:
+        path_components.append(app_name)
+
+    return robo_join(*path_components)
+
+
 def create_dest_dirs(path):
     """Creates the path to the recipe export location, if it doesn't exist. If
     intermediate folders are necessary in order to create the path, they will
