@@ -87,15 +87,10 @@ def generate_recipes(facts, prefs):
     # FileWaveImporter repo must be present to run created filewave recipes.)
 
     # Prepare the destination directory.
-    # TODO (Shea): This JSS Recipe format code is repeated all over.
-    # Smells like a refactor.
-    if ("developer" in facts and
-        prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
-        recipe_dest_dir = robo_join(prefs["RecipeCreateLocation"],
-                                    facts["developer"].replace("/", "-"))
-    else:
-        recipe_dest_dir = robo_join(prefs["RecipeCreateLocation"],
-                                    facts["app_name"].replace("/", "-"))
+    recipe_dest_dir = recipe_dirpath(
+        facts['app_name'],
+        facts.get('developer', None),
+        prefs)
     facts["recipe_dest_dir"] = recipe_dest_dir
     create_dest_dirs(recipe_dest_dir)
 
@@ -581,17 +576,12 @@ def generate_munki_recipe(facts, prefs, recipe):
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
-        if ("developer" in facts and
-            prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
-            extracted_icon = robo_join(
-                prefs["RecipeCreateLocation"],
-                facts["developer"].replace("/", "-"),
-                facts["app_name"] + ".png")
-        else:
-            extracted_icon = robo_join(
-                prefs["RecipeCreateLocation"],
-                facts["app_name"].replace("/", "-"),
-                facts["app_name"] + ".png")
+        extracted_icon = robo_join(
+            recipe_dirpath(
+                facts['app_name'],
+                facts.get('developer', None),
+                prefs),
+            facts['app_name'] + '.png')
         extract_app_icon(facts, extracted_icon)
     else:
         facts["warnings"].append(
@@ -820,6 +810,32 @@ def strip_dev_suffix(dev):
     return dev
 
 
+def recipe_dirpath(app_name, dev, prefs):
+    '''Returns a macOS-friendly path to use for recipes.'''
+    # Special characters that shouldn't be in macOS file/folder names.
+    char_replacements = (
+        ('/', '-'),
+        ('\\', '-'),
+        (':', '-'),
+        ('*', '-'),
+        ('?', ''),
+    )
+    for char in char_replacements:
+        app_name = app_name.replace(char[0], char[1])
+    path_components = [prefs["RecipeCreateLocation"]]
+    if dev is not None and prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
+        # TODO (Elliot): Put this in the preferences.
+        if prefs.get("StripDeveloperSuffixes", False) is True:
+            dev = strip_dev_suffix(dev)
+        for char in char_replacements:
+            dev = dev.replace(char[0], char[1])
+        path_components.append(dev)
+    else:
+        path_components.append(app_name)
+
+    return robo_join(*path_components)
+
+
 def generate_jss_recipe(facts, prefs, recipe):
     """Generate a JSS recipe on passed recipe dict.
 
@@ -899,17 +915,12 @@ def generate_jss_recipe(facts, prefs, recipe):
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
-        if ("developer" in facts and
-            prefs.get("FollowOfficialJSSRecipesFormat", False) is not True):
-            extracted_icon = robo_join(
-                prefs["RecipeCreateLocation"],
-                facts["developer"].replace("/", "-"),
-                facts["app_name"] + ".png")
-        else:
-            extracted_icon = robo_join(
-                prefs["RecipeCreateLocation"],
-                facts["app_name"].replace("/", "-"),
-                facts["app_name"] + ".png")
+        extracted_icon = robo_join(
+            recipe_dirpath(
+                facts['app_name'],
+                facts.get('developer', None),
+                prefs),
+            facts['app_name'] + '.png')
         extract_app_icon(facts, extracted_icon)
     else:
         facts["warnings"].append(
