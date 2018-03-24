@@ -481,7 +481,6 @@ def generate_munki_recipe(facts, prefs, recipe):
     keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
     keys["Input"]["pkginfo"] = {
         "catalogs": ["testing"],
-        "developer": facts.get("developer", ""),
         "display_name": facts["app_name"],
         "name": "%NAME%",
         "unattended_install": True
@@ -494,6 +493,12 @@ def generate_munki_recipe(facts, prefs, recipe):
             "I couldn't find a description for this app, so you'll need to "
             "manually add one to the munki recipe.")
         keys["Input"]["pkginfo"]["description"] = " "
+
+    # TODO (Elliot): Put this in the preferences.
+    if prefs.get("StripDeveloperSuffixes", False) is True:
+        keys["Input"]["pkginfo"]["developer"] = strip_dev_suffix(facts.get("developer", ''))
+    else:
+        keys["Input"]["pkginfo"]["developer"] = facts.get("developer", ''),
 
     # Set default variable to use for substitution.
     import_file_var = "%pathname%"
