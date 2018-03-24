@@ -801,6 +801,20 @@ def generate_install_recipe(facts, prefs, recipe):
     return recipe
 
 
+def strip_dev_suffix(dev):
+    '''Removes corporation suffix from developer names, if present.'''
+    corp_suffixes = ('incorporated', 'corporation', 'limited', 'oy/ltd',
+                     'pty ltd', 'pty. ltd', 'pvt ltd', 'pvt. ltd', 's.a r.l',
+                     'sa rl', 'sarl', 'srl', 'corp', 'gmbh', 'l.l.c', 'inc',
+                     'llc', 'ltd', 'pvt', 'oy', 'sa', 'ab',)
+    if dev not in (None, ''):
+        for suffix in corp_suffixes:
+            if dev.lower().rstrip(' .').endswith(suffix):
+                dev = dev.rstrip(' .')[:len(dev)-len(suffix)-1].rstrip(',. ')
+                break
+    return dev
+
+
 def generate_jss_recipe(facts, prefs, recipe):
     """Generate a JSS recipe on passed recipe dict.
 
