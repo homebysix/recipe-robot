@@ -34,3 +34,5 @@ mailcore2/unittest/data
 
 TODO.md
 .idea
+
+*.DS_Store

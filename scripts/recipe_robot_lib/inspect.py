@@ -107,6 +107,12 @@ def process_input_path(facts):
                                          "wanted me to treat it as a download "
                                          "URL.")
             inspect_func = inspect_bitbucket_url
+        elif "dropbox.com/s/" in input_path:
+            robo_print("Input path looks like a Dropbox shared link.",
+                       LogLevel.VERBOSE)
+            # Configure the shared link to force file download.
+            input_path = input_path.replace("?dl=0", "?dl=1")
+            inspect_func = inspect_download_url
         else:
             robo_print("Input path looks like a download URL.",
                        LogLevel.VERBOSE)
@@ -257,10 +263,11 @@ def inspect_app(input_path, args, facts):
     robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
     if "CFBundleIdentifier" in info_plist:
         bundle_id = info_plist["CFBundleIdentifier"]
+        robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
+        facts["bundle_id"] = bundle_id
     else:
-        raise RoboError("Strange, this app doesn't have a bundle identifier.")
-    robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
-    facts["bundle_id"] = bundle_id
+        facts["warnings"].append("{} doesn't seem to have a bundle "
+                                 "identifier.".format(app_name))
 
     # Leave a hint for people testing Recipe Robot on itself.
     if bundle_id == "com.elliotjordan.recipe-robot" and "github_url" not in facts["inspections"]:
@@ -348,16 +355,16 @@ def inspect_app(input_path, args, facts):
             robo_print("App icon is: %s" % icon_path, LogLevel.VERBOSE, 4)
             facts["icon_path"] = icon_path
 
-    # Attempt to get a description of the app from MacUpdate.com.
+    # Attempt to get a description of the app.
     if "description" not in facts:
-        robo_print("Getting app description from MacUpdate...", LogLevel.VERBOSE)
-        description, warning = get_app_description(app_name)
-        if description:
-            description = unicode(description, 'utf-8')
-            robo_print("Description: %s" % description, LogLevel.VERBOSE, 4)
+        robo_print("Getting app description...", LogLevel.VERBOSE)
+        description, source = get_app_description(app_name)
+        if description is not None:
+            robo_print("Description (from %s): %s" % (source, description),
+                       LogLevel.VERBOSE, 4)
             facts["description"] = description
-        if warning:
-            facts["warnings"].append(warning)
+        else:
+            robo_print("Can't retrieve app description.", LogLevel.VERBOSE, 4)
 
     # Gather info from code signing attributes, including:
     #    - Code signature verification requirements
@@ -406,6 +413,7 @@ def inspect_app(input_path, args, facts):
             facts["codesign_reqs"] = codesign_reqs
             robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
             facts["codesign_authorities"] = codesign_authorities
+            facts["codesign_input_filename"] = os.path.basename(input_path)
         if developer not in ("", None):
             robo_print("Developer: %s" % developer, LogLevel.VERBOSE, 4)
             facts["developer"] = developer
@@ -413,45 +421,67 @@ def inspect_app(input_path, args, facts):
     return facts
 
 
+def html_decode(the_string):
+    """Given a string, change HTML escaped characters (&gt;) to regular
+    characters (>)."""
+    html_chars = (
+        ('\'', '&#39;'),
+        ('"', '&quot;'),
+        ('>', '&gt;'),
+        ('<', '&lt;'),
+        ('&', '&amp;'),
+    )
+    for char in html_chars:
+        the_string = the_string.replace(char[1], char[0])
+    return the_string
+
+
 def get_app_description(app_name):
-    """Use an app's name to generate a description from MacUpdate.com.
+    """Use an app's name to generate a description.
 
     Args:
         app_name: The name of the app that we need to describe.
 
     Returns:
         description: A string containing a description of the app.
+        source: A string containing the source of the description.
     """
-    # Start with an empty string. (If it remains empty, the parent
-    # function will know that no description was available.)
-    description = ""
-    warning = None
+    desc_sources = [{
+        'name': 'MacUpdate',
+        'pattern': r'=\"shortdescr\">(?P<desc>.*)</span>',
+        'url': 'https://www.macupdate.com/find/mac/%s' % app_name,
+    }, {
+        'name': 'AlternativeTo',
+        'pattern': r'<div class=\"itemDesc( read-more-box)?\">\s+'
+                   '<p class=\"text\">(?P<desc>.*)</p>',
+        'url': 'https://alternativeto.net/browse/search'
+               '/?ignoreExactMatch=true&q=%s' % app_name,
+    }]
+    for source in desc_sources:
+        cmd = 'curl --silent \"%s\"' % source['url']
+        _, out, _ = get_exitcode_stdout_stderr(cmd)
+        result = re.search(source['pattern'], out)
+        if result:
+            description = unicode(html_decode(result.group('desc')), 'utf-8')
+            return description, source['name']
+    return None, None
 
-    # This is the HTML immediately preceding the description text on the
-    # MacUpdate search results page.
-    description_marker = "-shortdescrip\">"
 
-    cmd = "curl --silent \"https://www.macupdate.com/find/mac/%s\"" % app_name
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-
-    # For each line in the resulting text, look for the description
-    # marker.
-    html = out.split("\n")
-    if exitcode == 0:
-        for line in html:
-            if description_marker in line:
-                # Trim the HTML from the beginning of the line.
-                start = line.find(description_marker) + len(description_marker)
-                # Trim the HTML from the end of the line.
-                description = line[start:].rstrip("</span>")
-                # If we found a description, no need to process further
-                # lines.
-                break
-    else:
-        warning = ("Error occurred while getting description from "
-                   "MacUpdate: %s" % err)
-
-    return (description, warning)
+def get_download_link_from_xattr(input_path, args, facts):
+    """Attempts to derive download URL from the extended attribute (xattr)
+    metadata.
+    """
+    try:
+        where_froms_string = xattr.getxattr(
+            input_path, "com.apple.metadata:kMDItemWhereFroms")
+        where_froms = FoundationPlist.readPlistFromString(where_froms_string)
+        if len(where_froms) > 0:
+            facts["download_url"] = where_froms[0]
+            robo_print("Download URL found in file "
+                       "metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+    except KeyError as err:
+        robo_print("Unable to derive a download URL "
+                   "from file metadata.", LogLevel.WARNING)
 
 
 def inspect_archive(input_path, args, facts):
@@ -478,14 +508,7 @@ def inspect_archive(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        try:
-            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-            if len(where_froms) > 0:
-                facts["download_url"] = where_froms[0]
-                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
-        except KeyError as err:
-            robo_print("Unable to derive a download URL from this archive.", LogLevel.WARNING)
+        get_download_link_from_xattr(input_path, args, facts)
 
     # Unzip the zip and look for an app. (If this fails, we try tgz
     # next.)
@@ -561,7 +584,6 @@ def find_supported_release(release_array, download_url_key):
 
     download_format = None
     download_url = None
-    multiple_formats = False
 
     for this_format in ALL_SUPPORTED_FORMATS:
         for asset in release_array:
@@ -569,10 +591,8 @@ def find_supported_release(release_array, download_url_key):
                 if download_url is None:
                     download_format = this_format
                     download_url = asset[download_url_key]
-                else:
-                    multiple_formats = True
 
-    return download_format, download_url, multiple_formats
+    return download_format, download_url
 
 
 def inspect_bitbucket_url(input_path, args, facts):
@@ -747,14 +767,7 @@ def inspect_disk_image(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        try:
-            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-            if len(where_froms) > 0:
-                facts["download_url"] = where_froms[0]
-                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
-        except KeyError as err:
-            robo_print("Unable to derive a download URL from this disk image.", LogLevel.WARNING)
+        get_download_link_from_xattr(input_path, args, facts)
 
     # Determine whether the dmg has a software license agreement.
     # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
@@ -1049,11 +1062,19 @@ def inspect_download_url(input_path, args, facts):
     if "download_format" in facts and "app" in facts["inspections"]:
         return facts
 
-    robo_print("Opening downloaded file...", LogLevel.VERBOSE)
     robo_print("Download format is unknown, so we're going to try mounting it "
                "as a disk image first, then unarchiving it. This may produce "
                "errors, but will hopefully result in a "
                "success.", LogLevel.DEBUG)
+    robo_print("Opening downloaded file...", LogLevel.VERBOSE)
+
+    # If the file is a webpage (e.g. 404 message), warn the user now.
+    with open(os.path.join(CACHE_DIR, filename), 'r') as download:
+        first_line = download.readline()
+        if 'html' in first_line:
+            facts["warnings"].append(
+                "There's a good chance that the file failed to download. "
+                "Looks like a webpage was downloaded instead.")
 
     # Open the disk image (or test to see whether the download is one).
     if (facts.get("download_format", "") == "" or download_format == "") or download_format in SUPPORTED_IMAGE_FORMATS:
@@ -1223,11 +1244,11 @@ def inspect_github_url(input_path, args, facts):
             robo_print("Getting information from latest GitHub release...",
                        LogLevel.VERBOSE)
             if "assets" in parsed_release:
-                download_format, download_url, multiple_formats = find_supported_release(
+                download_format, download_url = find_supported_release(
                     parsed_release['assets'], 'browser_download_url')
-                if multiple_formats is True:
+                if len(parsed_release['assets']) > 1:
                     facts["use_asset_regex"] = True
-                    robo_print("Multiple supported formats available.",
+                    robo_print("Multiple formats available.",
                                LogLevel.VERBOSE, 4)
             if download_format not in ("", None):
                 robo_print("GitHub release download format "
@@ -1277,6 +1298,68 @@ def inspect_github_url(input_path, args, facts):
     return facts
 
 
+def get_apps_from_payload(payload_archive, facts, payload_id=0):
+    """Given a path to a package payload, this function expands the payload
+    and returns the paths to the apps."""
+    payload_apps = []
+    payload_dir = os.path.join(CACHE_DIR, "payload%s" % payload_id)
+    os.mkdir(payload_dir)
+    cmd = "/usr/bin/ditto -x \"%s\" \"%s\"" % (payload_archive, payload_dir)
+    exitcode, _, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode != 0:
+        facts["warnings"].append("Ditto failed to expand payload.")
+    try:
+        os.unlink(payload_archive)
+    except OSError, err:
+        facts["warnings"].append("Could not remove %s: %s" % (payload_archive, err))
+
+    for dirpath, dirnames, filenames in os.walk(payload_dir):
+        for dirname in dirnames:
+            if dirname.startswith("."):
+                dirnames.remove(dirname)
+            elif dirname.endswith(".app") and os.path.isfile(os.path.join(dirpath, dirname, "Contents", "Info.plist")):
+                payload_apps.append(os.path.join(dirpath, dirname))
+    return payload_apps
+
+
+def get_most_likely_app(app_list):
+    """Takes an array of dicts, each with a 'path' key that points to a
+    potential app to be evaluated. Uses various criteria to make an educated
+    guess about which app is the "real" app, and returns the index of the
+    winner. If no winner can be determined, returns None."""
+
+    # Criteria 1: If only one app has a Sparkle feed, choose that one.
+    has_sparkle = []
+    for index, candidate in enumerate(app_list):
+        info_plist = FoundationPlist.readPlist(candidate['path'] + "/Contents/Info.plist")
+        if "SUFeedURL" in info_plist or "SUOriginalFeedURL" in info_plist or os.path.exists(candidate['path'] + "/Contents/Frameworks/DevMateKit.framework"):
+            has_sparkle.append(index)
+    if len(has_sparkle) == 1:
+        return has_sparkle[0]
+
+    # Criteria 2: If only one app installs into the /Applications folder, choose that one.
+    installs_to_apps = []
+    for index, candidate in enumerate(app_list):
+        head, tail = os.path.split(candidate['path'])
+        if head.endswith('/Applications'):
+            installs_to_apps.append(index)
+    if len(installs_to_apps) == 1:
+        return installs_to_apps[0]
+
+    # Criteria 3: Choose largest app by file size.
+    largest_size = 0
+    largest_index = None
+    for index, candidate in enumerate(app_list):
+        this_size = 0
+        for dirpath, _, filenames in os.walk(candidate['path']):
+            for filename in filenames:
+                this_size += os.path.getsize(os.path.join(dirpath, filename))
+        if this_size > largest_size:
+            largest_size = this_size
+            largest_index = index
+    return largest_index
+
+
 def inspect_pkg(input_path, args, facts):
     """Process a package
 
@@ -1301,14 +1384,7 @@ def inspect_pkg(input_path, args, facts):
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
-        try:
-            where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
-            where_froms = FoundationPlist.readPlistFromString(where_froms_string)
-            if len(where_froms) > 0:
-                facts["download_url"] = where_froms[0]
-                robo_print("Download URL found in file metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
-        except KeyError as err:
-            robo_print("Unable to derive a download URL from this package.", LogLevel.WARNING)
+        get_download_link_from_xattr(input_path, args, facts)
 
     # Check whether package is signed.
     robo_print("Checking whether package is signed...", LogLevel.VERBOSE)
@@ -1343,9 +1419,10 @@ def inspect_pkg(input_path, args, facts):
             for line in out.split("\n"):
                 if re.match("^    [\d]\. ", line):
                     codesign_authorities.append(line[7:])
-            if codesign_authorities != []:
+            if len(codesign_authorities) > 0:
                 robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
                 facts["codesign_authorities"] = codesign_authorities
+                facts["codesign_input_filename"] = os.path.basename(input_path)
             else:
                 robo_print("Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4)
 
@@ -1360,106 +1437,90 @@ def inspect_pkg(input_path, args, facts):
         shutil.rmtree(expand_path)
     cmd = "/usr/sbin/pkgutil --expand \"%s\" \"%s\"" % (input_path, expand_path)
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-    if exitcode == 0:
+    if exitcode != 0:
+        facts["warnings"].append("Unable to expand package: %s" % input_path)
+    else:
         # Locate and inspect the app.
-        robo_print("Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"), LogLevel.VERBOSE, 4)
-        install_filename = ""
-        for dirpath, dirnames, filenames in os.walk(os.path.join(CACHE_DIR, "expanded")):
+        robo_print("Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"),
+                   LogLevel.VERBOSE, 4)
+
+        payload_id = 0
+        payload_apps = []
+        found_apps = []
+        for dirpath, dirnames, filenames in os.walk(expand_path):
             for dirname in dirnames:
                 if dirname.startswith("."):
                     dirnames.remove(dirname)
+                elif dirname.endswith(".app") and os.path.isfile(os.path.join(dirpath, dirname, "Contents", "Info.plist")):
+                    found_apps.append({
+                        "path": os.path.join(dirpath, dirname),
+                        "pkg_filename": os.path.basename(input_path),
+                    })  # should be rare
             for filename in filenames:
-
-                if filename == "PackageInfo":
-                    robo_print("Getting information from PackageInfo file...", LogLevel.VERBOSE)
-                    pkginfo_file = open(os.path.join(CACHE_DIR, "expanded", dirpath, filename), "r")
+                if filename.endswith(".pkg"):  # flat packages
+                    facts["warnings"].append("Yo dawg, I found a flat package "
+                                             "inside this flat package!")
+                    # TODO (Elliot): Recursion! Any chance for a loop here?
+                    facts = inspect_pkg(os.path.join(dirpath, filename), args, facts)
+                elif filename == "PackageInfo":
+                    robo_print("Trying to get bundle identifier "
+                               "from PackageInfo file...", LogLevel.VERBOSE)
+                    pkginfo_file = open(os.path.join(dirpath, filename), "r")
                     pkginfo_parsed = parse(pkginfo_file)
-
                     bundle_id = ""
                     if "bundle_id" not in facts:
                         bundle_id = pkginfo_parsed.getroot().attrib["identifier"]
                     if bundle_id not in ("", None):
-                        robo_print("Bundle identifier: %s" % bundle_id, LogLevel.VERBOSE, 4)
+                        robo_print("Bundle identifier (tentative): %s" % bundle_id,
+                                   LogLevel.VERBOSE, 4)
                         facts["bundle_id"] = bundle_id
-
-                    install_loc = pkginfo_parsed.getroot().attrib.get("install-location", "")
-                    if install_loc not in ("", None):
-                        robo_print("Install location: %s" % install_loc, LogLevel.VERBOSE, 4)
                     else:
-                        robo_print("No install location specified", LogLevel.VERBOSE, 4)
+                        robo_print("No bundle identifier in this PackageInfo.",
+                                   LogLevel.VERBOSE, 4)
+                elif filename.lower() == "payload":
+                    payload_apps = get_apps_from_payload(os.path.join(dirpath, filename),
+                                                         facts,
+                                                         payload_id)
+                    for app in payload_apps:
+                        found_apps.append({
+                            "path": app,
+                            "pkg_filename": os.path.join(dirpath, filename).split("/")[-2],
+                        })
+                    payload_id += 1
 
-                    install_filename = os.path.basename(install_loc)
-                    robo_print("Install filename: %s" % install_filename, LogLevel.VERBOSE, 4)
-                    continue  # TODO(Elliot): Or should we stop after the first? (#27)
+        # Add apps found to blocking applications and potential lists.
+        for potential_app in found_apps:
+            if os.path.basename(potential_app['path']) not in facts["blocking_applications"]:
+                robo_print("Added blocking application: %s" % os.path.basename(potential_app['path']),
+                           LogLevel.VERBOSE, 4)
+                facts["blocking_applications"].append(os.path.basename(potential_app['path']))
 
-                if filename == "Payload":
-                    # We found a payload. Let's peek inside and see if
-                    # there's an app.
-                    robo_print("Extracting the package payload to see if we "
-                               "can find an app...", LogLevel.VERBOSE)
-                    app_found = False
-                    payload_path = os.path.join(CACHE_DIR, "expanded", dirpath, filename)
-                    if install_filename.endswith(".app"):
-                        extracted_app_path = os.path.join(CACHE_DIR, "extracted_apps", install_filename)
-                        if os.path.exists(extracted_app_path):
-                            shutil.rmtree(extracted_app_path)
-                        cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",./,%s/,\"" % (payload_path, extracted_app_path)
-                        # TODO(Elliot): This doesn't work because it's outside the working directory. (#27)
-                        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                        if exitcode == 0:
-                            app_found = True
-                            robo_print("Found app: %s" % extracted_app_path, LogLevel.VERBOSE, 4)
-                            facts = inspect_app(extracted_app_path, args, facts)
-                            break  # Struck pay dirt, so stop iterating
-                                   # through apps in the payload
-                        else:
-                            robo_print("Error extracting the payload. (%s)" % err, LogLevel.VERBOSE, 4)
-
-                    elif install_filename == "":
-
-                        cmd = "/usr/bin/gunzip -c \"%s\" | pax" % payload_path
-                        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                        if exitcode == 0:
-                            out = out.split("\n")
-                            for line in out:
-                                if line.endswith(".app"):
-                                    facts["blocking_applications"].append(os.path.basename(line))
-                                    if ".app/Contents/" not in line:
-                                        app_found = True
-                                        robo_print("Found app: %s" % line, LogLevel.VERBOSE, 4)
-                                        extracted_app_path = os.path.join(CACHE_DIR, "extracted_apps", os.path.split(line)[1])
-                                        cmd = "/usr/bin/gunzip -c \"%s\" | pax -r -s \",%s,%s,\"" % (os.path.join(CACHE_DIR, "expanded", filename), line, extracted_app_path)
-                                        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                                        if exitcode == 0:
-                                            facts = inspect_app(extracted_app_path, args, facts)
-                                            break  # Struck pay dirt, so stop iterating
-                                                   # through apps in the payload
-                                            # TODO(Elliot): Should we stop at the first app? (#27)
-                                            # Find multiple, but use the one with the shortest path?
-                                            # Find multiple, but use the largest file size?
-                                            # Inspect all of them, use only the one with a Sparkle feed?
-                                        else:
-                                            robo_print("Error while extracting the package payload. "
-                                                       "(%s)" % err, LogLevel.VERBOSE, 4)
-                        else:
-                            robo_print("Error while examining the package payload. "
-                                       "(%s)" % err, LogLevel.VERBOSE, 4)
-
-                    if app_found is False:
-                        robo_print("Did not find an app in the package "
-                                   "payload", LogLevel.VERBOSE, 4)
-                    break  # Once we're done examining the Payload, there's not
-                           # much else we can examine.
-
-                if filename.endswith(".app"):
-                    facts = inspect_app(filename, args, facts)
-                    break  # Struck pay dirt, so stop iterating through files
-                           # in the package
-
-    else:
-        robo_print("Unable to expand package", LogLevel.DEBUG, 4)
-
-    # TODO(Elliot): What info do we need to gather to produce recipes here? (#27)
+        # Determine which app, if any, to process further.
+        payload_dir = os.path.join(CACHE_DIR, "payload")
+        if len(found_apps) == 0:
+            facts["warnings"].append("No apps found in payload.")
+        elif len(found_apps) == 1:
+            robo_print("Using app: %s" % os.path.basename(found_apps[0]['path']),
+                       LogLevel.VERBOSE, 4)
+            robo_print("In container package: %s" % found_apps[0]['pkg_filename'],
+                       LogLevel.VERBOSE, 4)
+            relpath = os.path.relpath(found_apps[0]['path'], CACHE_DIR).split("/")[1:]
+            facts["app_relpath_from_payload"] = "/".join(relpath)
+            facts["pkg_filename"] = found_apps[0]['pkg_filename']
+            facts = inspect_app(found_apps[0]['path'], args, facts)
+        elif len(found_apps) > 1:
+            facts["warnings"].append(
+                "Multiple apps found in payload. I'll do my best to figure "
+                "out which one to use.")
+            app_index = get_most_likely_app(found_apps)
+            robo_print("Using app: %s" % os.path.basename(found_apps[app_index]['path']),
+                       LogLevel.VERBOSE, 4)
+            robo_print("In container package: %s" % found_apps[app_index]['pkg_filename'],
+                       LogLevel.VERBOSE, 4)
+            relpath = os.path.relpath(found_apps[app_index]['path'], CACHE_DIR).split("/")[1:]
+            facts["app_relpath_from_payload"] = "/".join(relpath)
+            facts["pkg_filename"] = found_apps[app_index]['pkg_filename']
+            facts = inspect_app(found_apps[app_index]['path'], args, facts)
 
     return facts
 
