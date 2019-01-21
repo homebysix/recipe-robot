@@ -250,9 +250,9 @@ def init_prefs(facts):
     """Read Recipe Robot preferences.
 
     Preferences are handled in the following priority order:
-        0. If --config argument is specified, ignore prefs and rebuild.
-        3. If preferences plist doesn't exist, rebuild.
-        4. If preferences plist does exist, use it.
+        1. If --config argument is specified, ignore prefs and rebuild.
+        2. If preferences plist doesn't exist, rebuild.
+        3. If preferences plist does exist, use it.
 
     Args:
         facts: The Facts object with required keys:
@@ -267,13 +267,10 @@ def init_prefs(facts):
     recipes = facts["recipes"]
     # If prefs file exists, try to read from it.
     prefs = get_user_defaults()
-    if prefs:
+    if prefs and 'RecipeTypes' in prefs:
         for recipe in recipes:
             # Load preferred recipe types.
-            if recipe["type"] in prefs["RecipeTypes"]:
-                recipe["preferred"] = True
-            else:
-                recipe["preferred"] = False
+            recipe["preferred"] = recipe["type"] in prefs["RecipeTypes"]
 
         if args.config is True:
             robo_print("Showing configuration options...")
