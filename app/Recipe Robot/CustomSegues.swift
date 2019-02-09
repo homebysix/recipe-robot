@@ -62,7 +62,7 @@ class FadeSegue: NSStoryboardSegue {
 }
 
 class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
-    func animatePresentation(of viewController: NSViewController, from fromViewController: NSViewController) {
+    func animatePresentation(of toViewController: NSViewController, from fromViewController: NSViewController) {
         if let tvc = toViewController as? RecipeRobotViewController,
             let fvc = fromViewController as? RecipeRobotViewController {
             tvc.view.wantsLayer = true
@@ -100,7 +100,7 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
             NSWidth(fromViewController.view.frame), // width
             NSHeight(fromViewController.view.frame)); // height
 
-        viewController.view.autoresizingMask = [NSView.AutoresizingMask.ViewWidthSizable, NSView.AutoresizingMask.ViewHeightSizable]
+        viewController.view.autoresizingMask = [NSView.AutoresizingMask.width, NSView.AutoresizingMask.height]
 
         fromViewController.view.addSubview(viewController.view)
         let dRect = fromViewController.view.frame

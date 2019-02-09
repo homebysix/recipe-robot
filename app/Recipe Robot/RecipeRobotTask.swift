@@ -31,9 +31,9 @@ class RecipeRobotTask: Task {
         get {
             var args = [String]()
 
-            if let recipeRobotPy = NSBundle.mainBundle().pathForResource("scripts/recipe-robot", ofType: nil){
+            if let recipeRobotPy = Bundle.main.path(forResource: "scripts/recipe-robot", ofType: nil){
 
-                args.appendContentsOf([recipeRobotPy, "--verbose", "--app-mode"])
+                args.append(contentsOf:[recipeRobotPy, "--verbose", "--app-mode"])
 
                 // Honor the ignoreExisting of the instance first
                 // If that's unset apply the setting from defaults.

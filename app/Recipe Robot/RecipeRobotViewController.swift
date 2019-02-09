@@ -428,15 +428,15 @@ class ProcessingViewController: RecipeRobotViewController {
             }
         }
 
-        task.stdout {
+        _ = task.stdout {
             message in
-                showProgress(message)
+                showProgress(progress: message)
         }.stderr {
             message in
-                showProgress(message)
+                showProgress(progress: message)
         }.completed {
             error in
-                completed(error)
+                completed(error: error)
         }.cancelled {
             print("Task cancelled")
         }.run()
@@ -451,10 +451,10 @@ class ProcessingViewController: RecipeRobotViewController {
     }
 
     @IBAction private func cancelTask(sender: NSButton){
-        if (cancelButton.identifier.rawValue != "Alldone") {
+        if (cancelButton.identifier?.rawValue != "Alldone") {
             self.task.cancel()
         }
-        self.performSegueWithIdentifier("ProcessingSegue", sender: self)
+        self.performSegue(withIdentifier:"ProcessingSegue", sender: self)
     }
 }
 

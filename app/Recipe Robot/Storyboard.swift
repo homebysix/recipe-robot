@@ -20,20 +20,20 @@ import Cocoa
 
 struct MainStoryboard {
 
-    private let storyboard = NSStoryboard(name: "Main", bundle: Bundle.mainBundle())
+    private let storyboard = NSStoryboard(name: "Main", bundle: Bundle.main)
 
     var preferenceViewController: PreferenceViewController {
-        return self.storyboard.instantiateControllerWithIdentifier("Preferences")
+        return self.storyboard.instantiateController(withIdentifier: "Preferences")
             as! PreferenceViewController
     }
 
     var processingViewController: ProcessingViewController {
-        return self.storyboard.instantiateControllerWithIdentifier("Processing")
+        return self.storyboard.instantiateController(withIdentifier: "Processing")
             as! ProcessingViewController
     }
 
     var feedMeViewController: FeedMeViewController {
-        return self.storyboard.instantiateControllerWithIdentifier("FeedMe")
+        return self.storyboard.instantiateController(withIdentifier: "FeedMe")
             as! FeedMeViewController
     }
 }
