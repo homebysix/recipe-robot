@@ -144,8 +144,7 @@ class PreferenceViewController: RecipeRobotViewController {
     @IBOutlet weak var recipeLocation: NSTextField!
 
     @IBOutlet weak var jssCheckBox: NSButton!
-
-
+    
     private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? Set<String>()
 
     // MARK: Overrides
@@ -194,7 +193,6 @@ class PreferenceViewController: RecipeRobotViewController {
                 }
             }
         }
-
     }
 
     override func viewWillDisappear() {
@@ -244,7 +242,7 @@ extension PreferenceViewController {
 
         panel.beginSheetModal(for: self.view.window!) {
             [weak self] result in
-            if (result.rawValue == NSFileHandlingPanelOKButton) {
+            if (result.rawValue == NSApplication.ModalResponse.OK.rawValue) {
                 
                 guard let strongSelf = self else {
                     return
@@ -271,7 +269,7 @@ extension PreferenceViewController {
 extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
 
 
-    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+    func numberOfRows(in tableView: NSTableView) -> Int {
         return RecipeType.values.count
     }
 
