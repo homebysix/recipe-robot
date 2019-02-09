@@ -28,7 +28,7 @@ var sound: NSSound? = nil
 class RecipeRobotViewController: NSViewController {
 
     deinit {
-        print("dealoc \(self.className)")
+        print("dealloc \(self.className)")
     }
 
     var task: RecipeRobotTask = RecipeRobotTask()

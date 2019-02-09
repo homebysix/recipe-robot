@@ -576,7 +576,7 @@ Gw
 </string>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="cancelTask:" target="DLx-gp-7HF" id="f47-LC-haB"/>
+                                    <action selector="cancelTaskWithSender:" target="DLx-gp-7HF" id="2jg-Jb-grV"/>
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uHR-tD-pYY">
