@@ -26,7 +26,7 @@ class FeedMeDropImageView: NSImageView {
             print ("failed coercing contentViewController to FeedMeViewController")
             return true
         }
-        guard let files = sender.draggingPasteboard.propertyList(forType: NSPasteboard.PasteboardType.fileURL) as? NSArray else {
+        guard let files = sender.draggingPasteboard.propertyList(forType: NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")) as? NSArray else {
             print ("failed coercing NSFilenamesPboardType to NSArray")
             return true
         }
