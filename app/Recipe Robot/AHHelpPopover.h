@@ -62,7 +62,7 @@
 /**
  *  Width for the popover.
  */
-@property (assign) NSInteger width;
+@property (nonatomic, assign) NSInteger width;
 
 /**
  *  Preferred edge to display on the sender. Defaults to NSMinYEdge.
@@ -77,7 +77,7 @@
 /**
  *  Block executed once the popover has closed.
  */
-@property (copy) void (^completionHandler)();
+@property (atomic, copy) void (^completionHandler)(void);
 
 
 /**
@@ -99,7 +99,7 @@
  *
  *  @param complete block executed when popover closes.
  */
-- (void)openPopoverWithCompletionHandler:(void (^)())complete;
+- (void)openPopoverWithCompletionHandler:(void (^)(void))complete;
 
 /**
  *  Open the popover.
