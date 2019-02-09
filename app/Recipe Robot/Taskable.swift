@@ -140,49 +140,52 @@ class Task: Taskable, CancelableTask {
         self.args = args
     }
 
-    func stderr(message:(String) -> (Void)) -> Self {
-        self.process.standardError = Pipe()
-        process.standardError?.fileHandleForReading.readabilityHandler = ({
+    func stderr(message: @escaping (String) -> (Void)) -> Self {
+        let stdErrorPipe = Pipe()
+        stdErrorPipe.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
-            guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
+            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
                 return
             }
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async {
                 message(decoded)
-            })
+            }
         })
+        self.process.standardError = stdErrorPipe
         return self
     }
 
-    func stdout(message: (String) -> (Void)) -> Self {
-        self.process.standardOutput = Pipe()
-
-        process.standardOutput?.fileHandleForReading.readabilityHandler = ({
+    func stdout(message: @escaping (String) -> (Void)) -> Self {
+        let stdOutPipe = Pipe()
+        stdOutPipe.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
-            guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
+            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
                 return
             }
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async {
                 message(decoded)
-            })
+            }
         })
+        self.process.standardOutput = stdOutPipe
         return self
     }
 
-    func completed(complete: (Error?) -> (Void)) -> Self {
+    func completed(complete: @escaping (Error?) -> (Void)) -> Self {
         process.terminationHandler = ({
             aTask in
 
             let error: Error? = ( aTask.terminationStatus == 0 ) ? nil : Task.ErrorEnum.NonZeroExit
-
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async {
                 complete(error)
-            })
-
-            aTask.standardError?.fileHandleForReading.readabilityHandler = nil
-            aTask.standardOutput?.fileHandleForReading.readabilityHandler = nil
+            }
+            if let stdErrorPipe = aTask.standardError as? Pipe {
+                stdErrorPipe.fileHandleForReading.readabilityHandler = nil
+            }
+            if let stdOutPipe = aTask.standardOutput as? Pipe {
+                stdOutPipe.fileHandleForReading.readabilityHandler = nil
+            }
         })
         return self
     }
