@@ -42,13 +42,13 @@ class RecipeRobotViewController: NSViewController {
         self.view.wantsLayer = true
     }
 
-    override var representedObject: AnyObject? {
+    override var representedObject: Any? {
         didSet {
         // Update the view, if already loaded.
         }
     }
 
-    override func prepareForSegue(segue: NSStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
         if let source = segue.sourceController as? RecipeRobotViewController,
             let dest = segue.destinationController as? RecipeRobotViewController {
                 // Here we pass off the task object during the seague transition.
@@ -151,9 +151,9 @@ class PreferenceViewController: RecipeRobotViewController {
     // MARK: Overrides
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.tableView.backgroundColor = NSColor.clearColor()
-        self.scrollView.backgroundColor = NSColor.clearColor()
-        self.scrollView.focusRingType = NSFocusRingType.None
+        self.tableView.backgroundColor = NSColor.clear
+        self.scrollView.backgroundColor = NSColor.clear
+        self.scrollView.focusRingType = NSFocusRingType.none
 
         self.recipeFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(_:))
         self.recipeFolderPathButton.target = self
@@ -161,12 +161,12 @@ class PreferenceViewController: RecipeRobotViewController {
         self.dsFolderPathButton.target = self
 
         let jssHidden = !enabledRecipeTypes.contains(RecipeType.JSS.value)
-        jssCheckBox.hidden = jssHidden
+        jssCheckBox.isHidden = jssHidden
 
         let dsHidden = !enabledRecipeTypes.contains(RecipeType.DS.value)
-        dsLabel.hidden = dsHidden
-        dsTextField.hidden = dsHidden
-        dsFolderPathButton.hidden = dsHidden
+        dsLabel.isHidden = dsHidden
+        dsTextField.isHidden = dsHidden
+        dsFolderPathButton.isHidden = dsHidden
 
         if let dsPath = Defaults.sharedInstance.dsPackagePath {
             dsTextField.stringValue = dsPath
@@ -203,7 +203,7 @@ class PreferenceViewController: RecipeRobotViewController {
             !dsTextField.markAsValidDirectory() {
                 // pass
         } else {
-            self.dismissController(sender)
+            self.dismiss(sender)
             self.view.window?.close()
         }
     }
@@ -226,10 +226,10 @@ extension PreferenceViewController {
 
         let panel = NSOpenPanel()
 
-        let dir = (directoryURL as NSString).stringByExpandingTildeInPath
+        let dir = (directoryURL as NSString).expandingTildeInPath
         var isDir: ObjCBool = ObjCBool(false)
-        if FileManager.defaultManager().fileExistsAtPath(dir, isDirectory: &isDir) && isDir {
-            panel.directoryURL = NSURL(fileURLWithPath: dir)
+        if FileManager.default.fileExists(atPath:dir, isDirectory: &isDir) && isDir.boolValue {
+            panel.directoryURL = URL(fileURLWithPath: dir)
         }
 
         panel.canChooseFiles = false
@@ -241,7 +241,7 @@ extension PreferenceViewController {
         panel.beginSheetModalForWindow(self.view.window!) {
             [weak self] result in
             if (result == NSFileHandlingPanelOKButton) {
-                guard let path = panel.URL?.path else {
+                guard let path = panel.url?.path else {
                     return
                 }
                 if sender === self!.recipeFolderPathButton {
@@ -282,7 +282,7 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
         guard let value = object as? Int else {
             return
         }
-        let enabled = (value == NSOnState)
+        let enabled = (value == NSControl.StateValue.on.rawValue)
 
         let type = RecipeType.cases[row]
         switch type {
@@ -296,14 +296,14 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
             break
         }
 
-        if (value == NSOnState) {
-            enabledRecipeTypes.unionInPlace(type.requiredTypeValues)
-        } else if (value == NSOffState){
+        if (value == NSControl.StateValue.on.rawValue) {
+            enabledRecipeTypes = enabledRecipeTypes.union(type.requiredTypeValues)
+        } else if (value == NSControl.StateValue.off.rawValue){
             if enabledRecipeTypes.count > 0 {
-                guard let idx = enabledRecipeTypes.indexOf(type.value) else {
+                guard  enabledRecipeTypes.contains(type.value) else {
                     return
                 }
-                enabledRecipeTypes.removeAtIndex(idx)
+                enabledRecipeTypes.remove(type.value)
             }
         }
         tableView.reloadData()
@@ -382,26 +382,26 @@ class ProcessingViewController: RecipeRobotViewController {
             titleLabel.stringValue = "Making recipes..."
         }
 
-        showInFinderButton.enabled = false
+        showInFinderButton.isEnabled = false
         showInFinderButton.target = self
         showInFinderButton.action = "openFolder:"
     }
 
     func processRecipes() {
         // Do view setup here.
-        NSApplication.sharedApplication().activateIgnoringOtherApps(true)
+        NSApplication.shared.activate(ignoringOtherApps: true)
 
         func showProgress(progress: String) {
             guard let progressView = progressView else {
                 return
             }
-            progressView.textStorage?.appendString(progress, color: progress.color)
+            progressView.textStorage?.appendString(string: progress, color: progress.color)
             progressView.scrollToEndOfDocument(self)
         }
 
         func completed(error: Error?) {
             let success = (error == nil)
-            self.showInFinderButton.enabled = success
+            self.showInFinderButton.isEnabled = success
 
             if success {
                 self.titleLabel.stringValue = "Ding! All done."
@@ -420,7 +420,7 @@ class ProcessingViewController: RecipeRobotViewController {
 
             if let cancelButton = self.cancelButton {
                 cancelButton.title = "Let's Do Another!"
-                cancelButton.identifier = "Alldone"
+                cancelButton.identifier = NSUserInterfaceItemIdentifier(rawValue: "Alldone")
             }
         }
 
@@ -441,13 +441,13 @@ class ProcessingViewController: RecipeRobotViewController {
     // MARK: IBActions
     @IBAction private func openFolder(sender: AnyObject?){
         if let loc = Defaults.sharedInstance.recipeCreateLocation {
-            let url = NSURL(fileURLWithPath: loc, isDirectory: true)
-            NSWorkspace.sharedWorkspace().openURL(url)
+            let url = URL(fileURLWithPath: loc, isDirectory: true)
+            NSWorkspace.shared.open(url)
         }
     }
 
     @IBAction private func cancelTask(sender: NSButton){
-        if (cancelButton.identifier != "Alldone") {
+        if (cancelButton.identifier.rawValue != "Alldone") {
             self.task.cancel()
         }
         self.performSegueWithIdentifier("ProcessingSegue", sender: self)
