@@ -20,10 +20,10 @@
 import Foundation
 import ObjectiveC
 
-typealias completionClosureType = (Void) -> (Void)
+typealias completionClosureType = () -> (Void)
 
 protocol ChainableTextControl {
-    func stringChanged(changed: @escaping ((Self) -> (Void))) -> Self
+    func stringChanged(changed: @escaping ((ChainableTextControl) -> (Void))) -> ChainableTextControl
     func editingEnded(ended: @escaping completionClosureType) -> Self
     func editingStarted(began: @escaping completionClosureType) -> Self
 
@@ -58,7 +58,7 @@ extension NSTextField: NSTextFieldDelegate, ChainableTextControl {
         return self
     }
 
-    func stringChanged(changed: @escaping ((NSTextField) -> (Void))) -> Self {
+    func stringChanged(changed: @escaping ((ChainableTextControl) -> (Void))) -> ChainableTextControl {
         editingObservationalClosure.changeClosure = changed
         return self
     }

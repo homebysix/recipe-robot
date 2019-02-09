@@ -71,7 +71,7 @@ class FeedMeViewController: RecipeRobotViewController {
     @IBOutlet var ignoreButton: NSButton!
     @IBOutlet var urlTextField: NSTextField!
 
-    var eventMonitor: AnyObject?
+    var eventMonitor: Any?
 
     deinit {
         if let eventMonitor = eventMonitor {
@@ -85,18 +85,18 @@ class FeedMeViewController: RecipeRobotViewController {
 
     override func viewDidLoad() {
         ignoreButton.target = self
-        ignoreButton.action = #selector(FeedMeViewController.changeIgnoreState(_:))
+        ignoreButton.action = #selector(FeedMeViewController.changeIgnoreState(sender:))
 
-        eventMonitor = NSEvent.addLocalMonitorForEventsMatchingMask(NSEvent.EventTypeMask.FlagsChanged) { [weak self](event) -> NSEvent? in
+        eventMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.flagsChanged) { [weak self](event) -> NSEvent? in
             if let _self = self {
-                if (_self.ignoreButton.state == NSOnState){
-                    _self.ignoreButton.hidden = false
+                if (_self.ignoreButton.state == NSControl.StateValue.on){
+                    _self.ignoreButton.isHidden = false
                 } else {
-                    _self.ignoreButton.hidden = (event.modifierFlags.rawValue & NSEventModifierFlags.Option.rawValue) == 0
+                    _self.ignoreButton.isHidden = (event.modifierFlags.rawValue & NSEvent.ModifierFlags.option.rawValue) == 0
                 }
             }
             return event
-        }
+            }
         super.viewDidLoad()
     }
 
@@ -155,9 +155,9 @@ class PreferenceViewController: RecipeRobotViewController {
         self.scrollView.backgroundColor = NSColor.clear
         self.scrollView.focusRingType = NSFocusRingType.none
 
-        self.recipeFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(_:))
+        self.recipeFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(sender:))
         self.recipeFolderPathButton.target = self
-        self.dsFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(_:))
+        self.dsFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(sender:))
         self.dsFolderPathButton.target = self
 
         let jssHidden = !enabledRecipeTypes.contains(RecipeType.JSS.value)
@@ -172,10 +172,12 @@ class PreferenceViewController: RecipeRobotViewController {
             dsTextField.stringValue = dsPath
         }
 
-        dsTextField.stringChanged {
-            textField in
-            if textField.markAsValidDirectory() {
-                Defaults.sharedInstance.dsPackagePath = textField.path
+        _ = dsTextField.stringChanged {
+            chainable in
+            if let chainableTextField = chainable as? NSTextField {
+                if chainableTextField.markAsValidDirectory() {
+                    Defaults.sharedInstance.dsPackagePath = chainableTextField.path
+                }
             }
         }
 
@@ -185,9 +187,11 @@ class PreferenceViewController: RecipeRobotViewController {
         }
 
         recipeLocation.stringChanged {
-            textField in
-            if textField.markAsValidDirectory() {
-                Defaults.sharedInstance.recipeCreateLocation = textField.path
+            chainable in
+            if let chainableTextField = chainable as? NSTextField {
+                if chainableTextField.markAsValidDirectory() {
+                    Defaults.sharedInstance.recipeCreateLocation = chainableTextField.path
+                }
             }
         }
 

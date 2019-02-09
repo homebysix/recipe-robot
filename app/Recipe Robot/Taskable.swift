@@ -30,32 +30,69 @@ protocol InteractableTaskable: Taskable {
     func isInteractive(string: String) -> Bool
 }
 
-protocol ChainableTask {
+typealias CancellationHandler = () -> (Void)
+protocol CancelableTask {
+    func cancelled(handler: @escaping CancellationHandler) -> Self
+    func cancel()
+}
+
+protocol ChainableTask : CancelableTask {
     func stdout(message: @escaping (String) -> (Void)) -> ChainableTask
     func stderr(message: @escaping (String) -> (Void)) -> ChainableTask
     func completed(complete: @escaping (Error?) -> (Void)) -> ChainableTask
     func run() -> Self
 }
 
-protocol CancelableTask {
-    var cancelledHandle:(() -> (Void))? { get set }
-    func cancelled(cancelled: @escaping () -> (Void)) -> Self
-    func cancel()
-}
 
-extension CancelableTask {
-    mutating func cancelled(cancelled:@escaping () -> (Void)) -> Self {
-        cancelledHandle = cancelled
-        return self
-    }
-}
+
 extension Taskable where Self: InteractableTaskable {
     var expectedPrompts: [String] {
         return [ "y/n: ", "Y/N: ", "Password: " ]
     }
 }
 
-extension Process: ChainableTask {    
+struct ProcessAssociatedData {
+    static var cancellationHandlerTable:[Int32:CancellationHandler] = [:]
+    static func removeCancellationHandler(for process:Process) {
+          cancellationHandlerTable[process.processIdentifier] = nil
+    }
+    static func registerCancellationHandler(for process:Process, cancellationHandler: @escaping CancellationHandler) {
+          cancellationHandlerTable[process.processIdentifier] = cancellationHandler
+   }
+    static func cancellationHandler(for process:Process) -> CancellationHandler? {
+         return cancellationHandlerTable[process.processIdentifier]
+    }
+}
+
+extension Process: ChainableTask, CancelableTask {
+
+    // its not allowed to just add a var on a Process, because we don't own the class,
+    // so either we have to subclass process, or we fake a var parameter by building a static table
+    // Avoiding subclassing is better, so this is a dictionary of [processIdentifier : cancellationHandler]
+    
+    func cancelled(handler: @escaping CancellationHandler) -> Self {
+        ProcessAssociatedData.registerCancellationHandler(for:self, cancellationHandler:handler)
+        if (terminationHandler == nil) {
+            // terminationHandler may also be set in the func completed() below, so we don't want to overwrite that.
+            terminationHandler = ({
+                _ in
+                ProcessAssociatedData.removeCancellationHandler(for:self)
+            })
+
+        }
+        return self
+    }
+
+    func cancel() {
+        if self.isRunning {
+            if let handler = ProcessAssociatedData.cancellationHandler(for:self) {
+                ProcessAssociatedData.removeCancellationHandler(for:self)
+                handler()
+            }
+            self.terminate()
+        }
+    }
+    
     func stderr(message: @escaping (String) -> (Void)) -> ChainableTask {
         let standardErrPipe = Pipe()
         standardErrPipe.fileHandleForReading.readabilityHandler = ({
@@ -92,6 +129,7 @@ extension Process: ChainableTask {
             } else {
                 complete(Task.ErrorEnum.NonZeroExit)
             }
+            ProcessAssociatedData.removeCancellationHandler(for:self)
         })
         return self
     }
@@ -214,15 +252,16 @@ class Task: Taskable, CancelableTask {
         return self
     }
 
-    internal var cancelledHandle: (() -> (Void))?
-    func cancelled(cancelled: @escaping () -> (Void)) -> Self {
-        cancelledHandle = cancelled
+    internal var cancellationHandler: CancellationHandler?
+    
+    func cancelled(handler: @escaping CancellationHandler) -> Self {
+        cancellationHandler = handler
         return self
     }
 
     func cancel() {
         if process.isRunning {
-            if let handler = cancelledHandle {
+            if let handler = cancellationHandler {
                 handler()
             }
             process.terminate()
