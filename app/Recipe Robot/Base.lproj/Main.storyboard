@@ -234,7 +234,7 @@
                                     </binding>
                                 </connections>
                             </textField>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" alphaValue="0.3" translatesAutoresizingMaskIntoConstraints="NO" id="aep-eh-Csg" customClass="FeedMeDropImageView" customModule="Recipe_Robot" customModuleProvider="target">
                                 <rect key="frame" x="50" y="103" width="500" height="180"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="Feed Me Drop Zone" id="96G-6b-REq"/>
@@ -414,7 +414,7 @@ DQ
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Mba-Fp-Bf1">
-                                <rect key="frame" x="485.5" y="187" width="75" height="23"/>
+                                <rect key="frame" x="486" y="187" width="74" height="23"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="74" id="RRm-jU-hBq"/>
                                 </constraints>
@@ -440,7 +440,7 @@ DQ
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eiD-vS-YGE">
-                                <rect key="frame" x="485.5" y="103" width="75" height="23"/>
+                                <rect key="frame" x="486" y="103" width="74" height="23"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="74" id="rYd-Fv-uQz"/>
                                 </constraints>
