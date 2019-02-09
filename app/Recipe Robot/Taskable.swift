@@ -67,8 +67,9 @@ struct ProcessAssociatedData {
 extension Process: ChainableTask, CancelableTask {
 
     // its not allowed to just add a var on a Process, because we don't own the class,
-    // so either we have to subclass process, or we fake a var parameter by building a static table
-    // Avoiding subclassing is better, so this is a dictionary of [processIdentifier : cancellationHandler]
+    // so either we have to subclass Process, or we fake a var parameter by building a static table, or
+    // we stuff data in using the objc runtime using objc_getAssociatedObject.  I'm going with the static table approach
+    // ProcessAssociatedData encapsulates a dictionary of [processIdentifier : cancellationHandler]
     
     func cancelled(handler: @escaping CancellationHandler) -> Self {
         ProcessAssociatedData.registerCancellationHandler(for:self, cancellationHandler:handler)

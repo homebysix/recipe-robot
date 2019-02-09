@@ -185,7 +185,7 @@ class PreferenceViewController: RecipeRobotViewController {
             recipeLocation.stringValue = recipePath
         }
 
-        recipeLocation.stringChanged {
+        _ = recipeLocation.stringChanged {
             chainable in
             if let chainableTextField = chainable as? NSTextField {
                 if chainableTextField.markAsValidDirectory() {
@@ -342,7 +342,7 @@ class ProcessingViewController: RecipeRobotViewController {
         super.viewDidLoad()
 
         infoLabel?.textColor = Color.White.ns
-        infoLabel?.stringValue = "Preping..."
+        infoLabel?.stringValue = "Prepping..."
 
         listener.notificationHandler = {
             [weak self] noteType, info in
@@ -375,6 +375,7 @@ class ProcessingViewController: RecipeRobotViewController {
 
         for b in buttons {
             b?.target = self
+            // TODO: Not sure what should happen here -- there's no "showCompletionPopover" function
             b?.action = "showCompletionPopover:"
             b?.image = StatusImage.PartiallyAvailable.image
         }
@@ -390,7 +391,7 @@ class ProcessingViewController: RecipeRobotViewController {
 
         showInFinderButton.isEnabled = false
         showInFinderButton.target = self
-        showInFinderButton.action = "openFolder:"
+        showInFinderButton.action = #selector(ProcessingViewController.openFolder(sender:))
     }
 
     func processRecipes() {
@@ -413,7 +414,7 @@ class ProcessingViewController: RecipeRobotViewController {
                 self.titleLabel.stringValue = "Ding! All done."
                 self.appIcon?.image = NSImage(named: "NSFolder")
 
-                self.appIcon?.action = "openFolder:"
+                self.appIcon?.action = #selector(ProcessingViewController.openFolder(sender:))
                 self.appIcon?.target = self
             } else {
                 self.appIcon?.image = NSImage(named: "NSCaution")
