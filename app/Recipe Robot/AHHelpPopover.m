@@ -28,7 +28,7 @@ static const int HELP_POPOVER_FRAME_PADDING = 20;
 static NSString *const BUTTON_URL_KEY = @"URL";
 static NSString *const BUTTON_TITLE_KEY = @"Title";
 
-NSString * AHHPLocalizedString(NSString *key, NSString *comment)
+static NSString * AHHPLocalizedString(NSString *key, NSString *comment)
 {
     return [[NSBundle mainBundle] localizedStringForKey:key
                                                   value:key
@@ -121,7 +121,7 @@ static NSString *NO_HELP_AVAILABLE() {
             NSFont *currentFont = nil;
             if (!self.helpTitleFont) {
 
-                NSInteger fontSize = [NSFont systemFontSize];
+                NSInteger fontSize = (NSInteger) [NSFont systemFontSize];
 
                 if((currentFont = [textStorage attribute:NSFontAttributeName
                                                                  atIndex:1
@@ -133,7 +133,8 @@ static NSString *NO_HELP_AVAILABLE() {
                     fontSize = [attrs[NSFontSizeAttribute] integerValue];
                 }
 
-                NSInteger titleSize = fontSize * HELP_POPOVER_TITLE_FACTOR;
+                NSInteger titleSize = (NSInteger) (fontSize * HELP_POPOVER_TITLE_FACTOR);
+                
                 self.helpTitleFont = [NSFont fontWithDescriptor:currentFont.fontDescriptor
                                                   size:titleSize];
 
