@@ -34,16 +34,17 @@ protocol FilepathValidator: Filepathable {
 
 extension Filepathable {
     var isFile: Bool {
-        return NSFileManager.defaultManager().fileExistsAtPath(self.path)
+        return FileManager.default.fileExists(atPath: self.path)
     }
 
     var isDirectory: Bool {
         var isDir: ObjCBool = false
-        return NSFileManager.defaultManager().fileExistsAtPath(self.path, isDirectory: &isDir) && isDir
+        let fileExists = FileManager.default.fileExists(atPath:self.path, isDirectory:&isDir)
+        return fileExists && isDir.boolValue
     }
 
     var isExecutable: Bool {
-        return NSFileManager.defaultManager().isExecutableFileAtPath(self.path)
+        return FileManager.default.isExecutableFile(atPath:self.path)
     }
 }
 
@@ -54,23 +55,22 @@ extension String: Filepathable {
 extension NSTextField: FilepathValidator {
     var path: String { return self.stringValue }
 
-    private func valid(valid: Bool) -> Bool {
-        textColor = valid ? NSColor.blackColor():NSColor.redColor()
+    private func valid(_ valid: Bool) -> Bool {
+        textColor = valid ? NSColor.black : NSColor.red
 
-        guard let cell = cell as? NSTextFieldCell,
-            string = cell.placeholderAttributedString?.string ?? cell.placeholderString
-        else {
-            return valid
+        guard let cell = cell as? NSTextFieldCell else { return valid }
+        guard let string = cell.placeholderAttributedString?.string ?? cell.placeholderString else { return valid }
+
+        var attrs: [NSAttributedString.Key: Any]?
+        let placeholderStringLength = cell.placeholderAttributedString?.string.count ?? 0
+        if placeholderStringLength > 0
+        {
+            attrs = cell.placeholderAttributedString!.attributes(at: 0, effectiveRange: nil)
+        } else if cell.attributedStringValue.string.count > 0 {
+            attrs = cell.attributedStringValue.attributes(at: 0, effectiveRange: nil)
         }
 
-        var attrs: [String: AnyObject]?
-        if cell.placeholderAttributedString?.string.characters.count > 0 {
-            attrs = cell.placeholderAttributedString!.attributesAtIndex(0, effectiveRange: nil)
-        } else if cell.attributedStringValue.string.characters.count > 0 {
-            attrs = cell.attributedStringValue.attributesAtIndex(0, effectiveRange: nil)
-        }
-
-        attrs?[NSForegroundColorAttributeName] = valid ? NSColor.lightGrayColor():NSColor.redColor()
+        attrs?[NSAttributedString.Key.foregroundColor] = valid ? NSColor.lightGray : NSColor.red
         cell.placeholderAttributedString = NSAttributedString(string: string, attributes: attrs)
         placeholderAttributedString = cell.placeholderAttributedString
         

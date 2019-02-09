@@ -17,6 +17,7 @@
 //  limitations under the License.
 
 import Cocoa
+import AppKit
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -34,7 +35,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction func openHelpURL(sender: AnyObject) {
-        let urlString = NSURL(string: "https://github.com/homebysix/recipe-robot/blob/master/README.md")
-        NSWorkspace.sharedWorkspace().openURL(urlString!)
+        guard let url = URL(string: "https://github.com/homebysix/recipe-robot/blob/master/README.md") else {
+            print ("failed URL conversion")
+            return
+        }
+
+        NSWorkspace.sharedWorkspace.open(url)
     }
 }

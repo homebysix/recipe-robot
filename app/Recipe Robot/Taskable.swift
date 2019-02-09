@@ -31,9 +31,9 @@ protocol InteractableTaskable: Taskable {
 }
 
 protocol ChainableTask {
-    func stdout(message: (String) -> (Void)) -> Self
-    func stderr(message: (String) -> (Void)) -> Self
-    func completed(complete: (ErrorType)? -> (Void)) -> Self
+    func stdout(message: (String) -> (Void)) -> ChainableTask
+    func stderr(message: (String) -> (Void)) -> ChainableTask
+    func completed(complete: (Error)? -> (Void)) -> ChainableTask
     func run() -> Self
 }
 
@@ -55,8 +55,8 @@ extension Taskable where Self: InteractableTaskable {
     }
 }
 
-extension NSTask: ChainableTask {
-    func stderr(message: (String) -> (Void)) -> Self {
+extension Process: ChainableTask {
+    func stderr(message: (String) -> (Void)) -> Process {
         standardError = NSPipe()
         standardError?.fileHandleForReading.readabilityHandler = ({
             fh in
@@ -82,13 +82,13 @@ extension NSTask: ChainableTask {
         return self
     }
 
-    func completed(complete: (ErrorType)? -> (Void)) -> Self {
+    func completed(complete: (Error)? -> (Void)) -> Self {
         terminationHandler = ({
             aTask in
             if ( aTask.terminationStatus != 0 ){
                 complete(nil)
             } else {
-                complete(Task.Error.NonZeroExit)
+                complete(Task.ErrorEnum.NonZeroExit)
             }
         })
         return self
@@ -101,7 +101,7 @@ extension NSTask: ChainableTask {
 }
 
 class Task: Taskable, CancelableTask {
-    enum Error: ErrorType {
+    enum ErrorEnum: Error {
         case NotExecutable, BadInput, BadOutput, NonZeroExit
 
         var localizedDescription: String {
@@ -169,11 +169,11 @@ class Task: Taskable, CancelableTask {
         return self
     }
 
-    func completed(complete: (ErrorType)? -> (Void)) -> Self {
+    func completed(complete: (Error?) -> (Void)) -> Self {
         task.terminationHandler = ({
             aTask in
 
-            let error: ErrorType? = ( aTask.terminationStatus == 0 ) ? nil : Task.Error.NonZeroExit
+            let error: Error? = ( aTask.terminationStatus == 0 ) ? nil : Task.ErrorEnum.NonZeroExit
 
             dispatch_async(dispatch_get_main_queue(), {
                 complete(error)
@@ -192,7 +192,7 @@ class Task: Taskable, CancelableTask {
             task.arguments = args
         }
 
-        var environment = NSProcessInfo.processInfo().environment
+        var environment = ProcessInfo.processInfo().environment
         if let env = env {
             for (val, key) in env {
                 environment[key] = val
@@ -202,7 +202,7 @@ class Task: Taskable, CancelableTask {
         environment["NSUnbufferedIO"] = "YES"
         task.environment = environment
 
-        if !task.running && NSFileManager.defaultManager().isExecutableFileAtPath(executable){
+        if !task.running && FileManager.defaultManager().isExecutableFileAtPath(executable){
             task.launch()
         }
 

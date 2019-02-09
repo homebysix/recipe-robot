@@ -228,7 +228,7 @@ extension PreferenceViewController {
 
         let dir = (directoryURL as NSString).stringByExpandingTildeInPath
         var isDir: ObjCBool = ObjCBool(false)
-        if NSFileManager.defaultManager().fileExistsAtPath(dir, isDirectory: &isDir) && isDir {
+        if FileManager.defaultManager().fileExistsAtPath(dir, isDirectory: &isDir) && isDir {
             panel.directoryURL = NSURL(fileURLWithPath: dir)
         }
 
@@ -399,7 +399,7 @@ class ProcessingViewController: RecipeRobotViewController {
             progressView.scrollToEndOfDocument(self)
         }
 
-        func completed(error: ErrorType?) {
+        func completed(error: Error?) {
             let success = (error == nil)
             self.showInFinderButton.enabled = success
 

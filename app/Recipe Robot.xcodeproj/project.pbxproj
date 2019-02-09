@@ -79,6 +79,15 @@
 		BEE6A1B81BB88A080050653A /* CustomSegues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSegues.swift; sourceTree = "<group>"; };
 		BEE6A1BA1BB89FCA0050653A /* Recipe Robot-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Recipe Robot-Bridging-Header.h"; sourceTree = "<group>"; };
 		BEEFDD221BF7DC2400C99DFC /* Filepathable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Filepathable.swift; sourceTree = "<group>"; };
+		D5416418220E96EC00A886AF /* Recipe RobotTests-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe RobotTests-Debug.xcconfig"; path = "xcconfig/Recipe RobotTests-Debug.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D5416419220E96EC00A886AF /* Recipe RobotTests-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe RobotTests-Shared.xcconfig"; path = "xcconfig/Recipe RobotTests-Shared.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D541641A220E96EC00A886AF /* Recipe Robot-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe Robot-Shared.xcconfig"; path = "xcconfig/Recipe Robot-Shared.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D541641B220E96EC00A886AF /* Project-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Release.xcconfig"; path = "xcconfig/Project-Release.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe Robot-Debug.xcconfig"; path = "xcconfig/Recipe Robot-Debug.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe Robot-Release.xcconfig"; path = "xcconfig/Recipe Robot-Release.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe RobotTests-Release.xcconfig"; path = "xcconfig/Recipe RobotTests-Release.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D541641F220E96EC00A886AF /* Project-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Shared.xcconfig"; path = "xcconfig/Project-Shared.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D5416420220E96EC00A886AF /* Project-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Debug.xcconfig"; path = "xcconfig/Project-Debug.xcconfig"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +111,7 @@
 		8B42AC751B5C5BEC0058A814 = {
 			isa = PBXGroup;
 			children = (
+				D5416417220E96CE00A886AF /* xcconfig */,
 				BE6F6BA21B800E270082011D /* scripts */,
 				8B42AC801B5C5BEC0058A814 /* Recipe Robot */,
 				8B42AC911B5C5BEC0058A814 /* Recipe RobotTests */,
@@ -175,6 +185,23 @@
 				8B42AC931B5C5BEC0058A814 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D5416417220E96CE00A886AF /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				D5416420220E96EC00A886AF /* Project-Debug.xcconfig */,
+				D541641B220E96EC00A886AF /* Project-Release.xcconfig */,
+				D541641F220E96EC00A886AF /* Project-Shared.xcconfig */,
+				D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */,
+				D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */,
+				D541641A220E96EC00A886AF /* Recipe Robot-Shared.xcconfig */,
+				D5416418220E96EC00A886AF /* Recipe RobotTests-Debug.xcconfig */,
+				D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */,
+				D5416419220E96EC00A886AF /* Recipe RobotTests-Shared.xcconfig */,
+			);
+			name = xcconfig;
+			path = "New Group";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -357,158 +384,43 @@
 /* Begin XCBuildConfiguration section */
 		8B42AC961B5C5BEC0058A814 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D5416420220E96EC00A886AF /* Project-Debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		8B42AC971B5C5BEC0058A814 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D541641B220E96EC00A886AF /* Project-Release.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				SDKROOT = macosx;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
 			name = Release;
 		};
 		8B42AC991B5C5BEC0058A814 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = "Recipe Robot/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Recipe Robot/Recipe Robot-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
 		8B42AC9A1B5C5BEC0058A814 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = "Recipe Robot/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Recipe Robot/Recipe Robot-Bridging-Header.h";
-				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
 		8B42AC9C1B5C5BEC0058A814 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D5416418220E96EC00A886AF /* Recipe RobotTests-Debug.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "Recipe RobotTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Recipe Robot.app/Contents/MacOS/Recipe Robot";
 			};
 			name = Debug;
 		};
 		8B42AC9D1B5C5BEC0058A814 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "Recipe RobotTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Recipe Robot.app/Contents/MacOS/Recipe Robot";
 			};
 			name = Release;
 		};
