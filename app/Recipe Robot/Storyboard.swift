@@ -20,7 +20,7 @@ import Cocoa
 
 struct MainStoryboard {
 
-    private let storyboard = NSStoryboard(name: "Main", bundle: NSBundle.mainBundle())
+    private let storyboard = NSStoryboard(name: "Main", bundle: Bundle.mainBundle())
 
     var preferenceViewController: PreferenceViewController {
         return self.storyboard.instantiateControllerWithIdentifier("Preferences")

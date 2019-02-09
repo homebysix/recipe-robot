@@ -21,15 +21,15 @@ import Cocoa
 extension NSTextStorage {
     func appendString(string: String, color: NSColor){
 
-        var attrs = [String: AnyObject]()
-        let idx = self.string.characters.count
+        var attrs = [NSAttributedString.Key: Any]()
+        let idx = self.string.count
         if idx > 0 {
-            attrs.update(self.attributesAtIndex(idx - 1, effectiveRange: nil))
+            attrs.update(other: self.attributes(at: idx - 1, effectiveRange: nil))
         }
 
-        attrs[NSForegroundColorAttributeName] = color
+        attrs[NSAttributedString.Key.foregroundColor] = color
 
         let attrString = NSAttributedString(string: string, attributes: attrs)
-        self.appendAttributedString(attrString)
+        self.append(attrString)
     }
 }

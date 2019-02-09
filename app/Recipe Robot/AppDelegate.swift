@@ -40,6 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        NSWorkspace.sharedWorkspace.open(url)
+        NSWorkspace.shared.open(url)
     }
 }

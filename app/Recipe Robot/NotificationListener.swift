@@ -100,13 +100,14 @@ class NotificationListener: NSObject {
     }
 
     deinit {
-        NSDistributedNotificationCenter.defaultCenter().removeObserver(self)
+        DistributedNotificationCenter.default().removeObserver(self)
     }
 
     @objc func noticed(_ note: NSNotification){
-        if notificationHandler != nil{
-            if let noteType = NoteType.fromName(note.name), dict = note.userInfo as? [String: AnyObject] {
-                notificationHandler!(name: noteType, info: dict)
+        if let handler = notificationHandler {
+            if let noteType = NoteType.fromName(name: note.name),
+               let dict = note.userInfo as? [String: AnyObject] {
+                   handler(noteType, dict)
             }
         }
     }

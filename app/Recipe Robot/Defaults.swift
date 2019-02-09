@@ -25,7 +25,7 @@ class Defaults: NSObject {
         super.init()
     }
 
-    private let defaults = NSUserDefaults.standardUserDefaults()
+    private let defaults = UserDefaults.standardUserDefaults()
     var recipeTypes: Set<String>? {
         get {
             guard let recipeTypes = defaults.stringArrayForKey("RecipeTypes") else {

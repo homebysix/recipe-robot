@@ -238,21 +238,25 @@ extension PreferenceViewController {
         panel.allowsMultipleSelection = false
         panel.prompt = "Choose";
 
-        panel.beginSheetModalForWindow(self.view.window!) {
+        panel.beginSheetModal(for: self.view.window!) {
             [weak self] result in
-            if (result == NSFileHandlingPanelOKButton) {
+            if (result.rawValue == NSFileHandlingPanelOKButton) {
+                
+                guard let strongSelf = self else {
+                    return
+                }
                 guard let path = panel.url?.path else {
                     return
                 }
                 if sender === self!.recipeFolderPathButton {
                     d.recipeCreateLocation = path
-                    self!.recipeLocation.stringValue = path
-                    self!.recipeLocation.markAsValidDirectory()
+                    strongSelf.recipeLocation.stringValue = path
+                    _ = strongSelf.recipeLocation.markAsValidDirectory()
                 }
                 else if sender === self!.dsFolderPathButton {
                     d.dsPackagePath = path
-                    self!.dsTextField.stringValue = path
-                    self!.dsTextField.markAsValidDirectory()
+                    strongSelf.dsTextField.stringValue = path
+                    _ = strongSelf.dsTextField.markAsValidDirectory()
                 }
             }
         }
@@ -267,17 +271,17 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
         return RecipeType.values.count
     }
 
-    func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
-        return (enabledRecipeTypes.contains(RecipeType.values[row])) ? NSOnState: NSOffState
+    func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
+        return (enabledRecipeTypes.contains(RecipeType.values[row])) ? NSControl.StateValue.on : NSControl.StateValue.off
     }
 
-    func tableView(tableView: NSTableView, willDisplayCell cell: AnyObject, forTableColumn tableColumn: NSTableColumn?, row: Int) {
+    func tableView(_ tableView: NSTableView, willDisplayCell cell: Any, for tableColumn: NSTableColumn?, row: Int) {
         if let cell = cell as? NSButtonCell {
             cell.title = RecipeType.values[row]
         }
     }
 
-    func tableView(tableView: NSTableView, setObjectValue object: AnyObject?, forTableColumn tableColumn: NSTableColumn?, row: Int) {
+    func tableView(_ tableView: NSTableView, setObjectValue object: Any?, for tableColumn: NSTableColumn?, row: Int) {
 
         guard let value = object as? Int else {
             return

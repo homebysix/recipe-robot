@@ -21,10 +21,7 @@
 
 DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
 
-
-
 ENABLE_NS_ASSERTIONS = NO
-
 
 
 // Produce debugging information
@@ -33,7 +30,6 @@ ENABLE_NS_ASSERTIONS = NO
 // profiling.
 
 MTL_ENABLE_DEBUG_INFO = NO
-
 
 
 // Swift Optimization Level

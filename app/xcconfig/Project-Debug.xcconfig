@@ -22,7 +22,6 @@
 DEBUG_INFORMATION_FORMAT = dwarf
 
 
-
 // Enable Testability
 // 
 // When this setting is activated, the product will be built with options appropriate for
@@ -32,22 +31,13 @@ DEBUG_INFORMATION_FORMAT = dwarf
 ENABLE_TESTABILITY = YES
 
 
-
 GCC_DYNAMIC_NO_PIC = NO
-
-
 
 GCC_OPTIMIZATION_LEVEL = 0
 
-
-
 GCC_PREPROCESSOR_DEFINITIONS = DEBUG=1 $(inherited)
 
-
-
 GCC_SYMBOLS_PRIVATE_EXTERN = NO
-
-
 
 // Produce debugging information
 // 
@@ -57,13 +47,11 @@ GCC_SYMBOLS_PRIVATE_EXTERN = NO
 MTL_ENABLE_DEBUG_INFO = YES
 
 
-
 // Build Active Architecture Only
 // 
 // If enabled, only the active architecture is built.
 
 ONLY_ACTIVE_ARCH = YES
-
 
 
 // Swift Optimization Level
