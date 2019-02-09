@@ -375,8 +375,6 @@ class ProcessingViewController: RecipeRobotViewController {
 
         for b in buttons {
             b?.target = self
-            // TODO: Not sure what should happen here -- there's no "showCompletionPopover" function
-            b?.action = "showCompletionPopover:"
             b?.image = StatusImage.PartiallyAvailable.image
         }
 
