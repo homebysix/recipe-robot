@@ -21,29 +21,29 @@ import Cocoa
 // MARK: -- Dragging  --
 class FeedMeDropImageView: NSImageView {
 
-    override func performDragOperation(sender: NSDraggingInfo) -> Bool {
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         if let controller = sender.draggingDestinationWindow()!.contentViewController as? FeedMeViewController,
             files = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? NSArray,
-            file = files.firstObject as? String {
+            let file = files.firstObject as? String {
                 controller.task.appOrRecipe = file
                 controller.performSegueWithIdentifier("FeedMeSegue", sender: self)
         }
         return true
     }
 
-    override func prepareForDragOperation(sender: NSDraggingInfo) -> Bool {
+    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
         return true
     }
 
-    override func concludeDragOperation(sender: NSDraggingInfo?) {
+    override func concludeDragOperation(_ sender: NSDraggingInfo?) {
         // All done.
     }
 
-    override func draggingEntered(sender: NSDraggingInfo) -> NSDragOperation  {
-        return NSDragOperation.Copy
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation  {
+        return NSDragOperation.copy
     }
 
-    override func draggingExited(sender: NSDraggingInfo?) {
+    override func draggingExited(_ sender: NSDraggingInfo?) {
     }
 }
 

@@ -192,7 +192,7 @@ class Task: Taskable, CancelableTask {
             task.arguments = args
         }
 
-        var environment = ProcessInfo.processInfo().environment
+        var environment = ProcessInfo.processInfo.environment
         if let env = env {
             for (val, key) in env {
                 environment[key] = val

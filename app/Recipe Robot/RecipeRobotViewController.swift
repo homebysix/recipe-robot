@@ -87,7 +87,7 @@ class FeedMeViewController: RecipeRobotViewController {
         ignoreButton.target = self
         ignoreButton.action = #selector(FeedMeViewController.changeIgnoreState(_:))
 
-        eventMonitor = NSEvent.addLocalMonitorForEventsMatchingMask(NSEventMask.FlagsChanged) { [weak self](event) -> NSEvent? in
+        eventMonitor = NSEvent.addLocalMonitorForEventsMatchingMask(NSEvent.EventTypeMask.FlagsChanged) { [weak self](event) -> NSEvent? in
             if let _self = self {
                 if (_self.ignoreButton.state == NSOnState){
                     _self.ignoreButton.hidden = false
@@ -103,7 +103,7 @@ class FeedMeViewController: RecipeRobotViewController {
     override func viewDidAppear() {
         super.viewDidAppear()
         if !Defaults.sharedInstance.initialized {
-            self.presentViewControllerAsSheet(MainStoryboard().preferenceViewController)
+            self.presentAsSheet(MainStoryboard().preferenceViewController)
             Defaults.sharedInstance.initialized = true
         }
         self.task = RecipeRobotTask()
@@ -111,7 +111,7 @@ class FeedMeViewController: RecipeRobotViewController {
 
     @IBAction func changeIgnoreState(sender: NSButton?){
         if sender === ignoreButton {
-            task.ignoreExisting = (sender?.state == NSOnState)
+            task.ignoreExisting = (sender?.state == NSControl.StateValue.on)
         }
     }
 
@@ -124,7 +124,7 @@ class FeedMeViewController: RecipeRobotViewController {
             return
         }
         task.appOrRecipe = url.absoluteString!
-        performSegueWithIdentifier("FeedMeSegue", sender: self)
+        performSegue(withIdentifier: NSStoryboardSegue.Identifier("FeedMeSegue"), sender: self)
     }
 }
 
@@ -287,11 +287,11 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
         let type = RecipeType.cases[row]
         switch type {
         case .JSS:
-            jssCheckBox.hidden = !enabled
+            jssCheckBox.isHidden = !enabled
         case .DS:
-            dsLabel.hidden = !enabled
-            dsTextField.hidden = !enabled
-            dsFolderPathButton.hidden = !enabled
+            dsLabel.isHidden = !enabled
+            dsTextField.isHidden = !enabled
+            dsFolderPathButton.isHidden = !enabled
         default:
             break
         }

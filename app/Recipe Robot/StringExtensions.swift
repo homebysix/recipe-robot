@@ -21,11 +21,11 @@ import Cocoa
 // MARK: Space
 extension String {
     public func splitByLine() -> [String] {
-        return self.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
+        return self.components(separatedBy: CharacterSet.newlines)
     }
 
     public func splitBySpace() -> [String] {
-        return self.componentsSeparatedByCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+        return self.components(separatedBy: CharacterSet.whitespaces)
     }
 }
 
@@ -34,12 +34,12 @@ extension String {
 
     /// Trimmed whitespace and new line
     public var trimmedFull: String {
-        return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+        return self.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 
     /// Timmed whitespace
     public var trimmed: String {
-        return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+        return self.trimmingCharacters(in: CharacterSet.whitespaces)
     }
 }
 
@@ -53,7 +53,7 @@ private let BracketedColorDict = [
 extension String {
     var color: NSColor {
         for (k, v) in BracketedColorDict {
-            if self.containsString(k){
+            if self.contains(k){
                 return v
             }
         }
@@ -62,6 +62,6 @@ extension String {
 
     var bracketedColor: NSAttributedString {
         return NSAttributedString(string: self,
-            attributes: [NSForegroundColorAttributeName: color])
+                                  attributes: [NSAttributedString.Key.foregroundColor: color])
     }
 }

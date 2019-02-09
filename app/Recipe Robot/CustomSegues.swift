@@ -49,9 +49,9 @@ class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
     func animatePresentationOfViewController(toViewController: NSViewController, fromViewController: NSViewController) {
 
         if let tvc = toViewController as? RecipeRobotViewController,
-            fvc = fromViewController as? RecipeRobotViewController {
+            let fvc = fromViewController as? RecipeRobotViewController {
             tvc.view.wantsLayer = true
-            tvc.view.layerContentsRedrawPolicy = .OnSetNeedsDisplay
+            tvc.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
             tvc.view.alphaValue = 0
             fvc.view.addSubview(tvc.view)
             tvc.view.frame = fvc.view.frame
@@ -66,7 +66,7 @@ class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
     func animateDismissalOfViewController(viewController: NSViewController, fromViewController: NSViewController) {
 
         viewController.view.wantsLayer = true
-        viewController.view.layerContentsRedrawPolicy = .OnSetNeedsDisplay
+        viewController.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
 
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5
@@ -85,14 +85,14 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
             NSWidth(fromViewController.view.frame), // width
             NSHeight(fromViewController.view.frame)); // height
 
-        viewController.view.autoresizingMask = [NSAutoresizingMaskOptions.ViewWidthSizable, NSAutoresizingMaskOptions.ViewHeightSizable]
+        viewController.view.autoresizingMask = [NSView.AutoresizingMask.ViewWidthSizable, NSAutoresizingMaskOptions.ViewHeightSizable]
 
         fromViewController.view.addSubview(viewController.view)
         let dRect = fromViewController.view.frame
 
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5;
-            context.timingFunction = CAMediaTimingFunction(name:kCAMediaTimingFunctionEaseOut)
+            context.timingFunction = CAMediaTimingFunction(name:CAMediaTimingFunctionName.easeOut)
             viewController.view.animator().frame = dRect
             }, completionHandler: { () -> Void in
         })
@@ -103,7 +103,7 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
         let dRect = fromViewController.view.frame
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5;
-            context.timingFunction = CAMediaTimingFunction(name:kCAMediaTimingFunctionEaseIn)
+            context.timingFunction = CAMediaTimingFunction(name:CAMediaTimingFunctionName.easeIn)
             viewController.view.animator().frame = dRect
             }, completionHandler: { () -> Void in
                 viewController.view.removeFromSuperview()

@@ -52,14 +52,14 @@ class RecipeRobotTask: Task {
     }
 
     // MARK: Private
-    private var appBundle: NSBundle?
+    private var appBundle: Bundle?
 
     // MARK: Public
     var ignoreExisting: Bool?
 
     var appOrRecipe: String = "" {
         didSet {
-            appBundle = NSBundle(path: appOrRecipe)
+            appBundle = Bundle(path: appOrRecipe)
         }
     }
 
@@ -70,12 +70,12 @@ class RecipeRobotTask: Task {
             if let name = dict["CFBundleIconFile"] as? String {
                 iconName = name
             } else if let more = dict["CFBundleIcons"] as? [String: AnyObject],
-                evenMore = more["CFBundlePrimaryIcon"] as? [String: AnyObject],
-                array = evenMore["CFBundleIconFiles"] as? [String], name = array.last {
+                let evenMore = more["CFBundlePrimaryIcon"] as? [String: AnyObject],
+                let array = evenMore["CFBundleIconFiles"] as? [String], let name = array.last {
                     iconName = name
             }
 
-            if let iconName = iconName, iconFile = appBundle?.pathForImageResource(iconName){
+            if let iconName = iconName, let iconFile = appBundle?.pathForImageResource(iconName){
                 if let image = NSImage(contentsOfFile: iconFile){
                     return image
                 }
@@ -88,7 +88,7 @@ class RecipeRobotTask: Task {
         return (self.appOrRecipe as NSString).lastPathComponent
     }
 
-    var recipeTypes = []
+    // var recipeTypes = []
     var output: String = "~/Library/AutoPkg/Recipe Robot Output/"
     var includeExisting : Bool = false
 
