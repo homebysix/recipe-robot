@@ -26,70 +26,111 @@ protocol Taskable: ChainableTask {
 
 protocol InteractableTaskable: Taskable {
     var expectedPrompts: [String] { get }
-    func stdin(message:(String) -> String?) -> Self
+    func stdin(message: @escaping (String) -> String?) -> Self
     func isInteractive(string: String) -> Bool
 }
 
-protocol ChainableTask {
-    func stdout(message: (String) -> (Void)) -> Self
-    func stderr(message: (String) -> (Void)) -> Self
-    func completed(complete: (ErrorType)? -> (Void)) -> Self
-    func run() -> Self
-}
-
+typealias CancellationHandler = () -> (Void)
 protocol CancelableTask {
-    var cancelledHandle:((Void) -> (Void))? { get set }
-    func cancelled(cancelled:(Void) -> (Void)) -> Self
+    func cancelled(handler: @escaping CancellationHandler) -> Self
     func cancel()
 }
 
-extension CancelableTask {
-    mutating func cancelled(cancelled:(Void) -> (Void)) -> Self {
-        cancelledHandle = cancelled
-        return self
-    }
+protocol ChainableTask : CancelableTask {
+    func stdout(message: @escaping (String) -> (Void)) -> ChainableTask
+    func stderr(message: @escaping (String) -> (Void)) -> ChainableTask
+    func completed(complete: @escaping (Error?) -> (Void)) -> ChainableTask
+    func run() -> Self
 }
+
+
+
 extension Taskable where Self: InteractableTaskable {
     var expectedPrompts: [String] {
         return [ "y/n: ", "Y/N: ", "Password: " ]
     }
 }
 
-extension NSTask: ChainableTask {
-    func stderr(message: (String) -> (Void)) -> Self {
-        standardError = NSPipe()
-        standardError?.fileHandleForReading.readabilityHandler = ({
+struct ProcessAssociatedData {
+    static var cancellationHandlerTable:[Int32:CancellationHandler] = [:]
+    static func removeCancellationHandler(for process:Process) {
+          cancellationHandlerTable[process.processIdentifier] = nil
+    }
+    static func registerCancellationHandler(for process:Process, cancellationHandler: @escaping CancellationHandler) {
+          cancellationHandlerTable[process.processIdentifier] = cancellationHandler
+   }
+    static func cancellationHandler(for process:Process) -> CancellationHandler? {
+         return cancellationHandlerTable[process.processIdentifier]
+    }
+}
+
+extension Process: ChainableTask, CancelableTask {
+
+    // its not allowed to just add a var on a Process, because we don't own the class,
+    // so either we have to subclass Process, or we fake a var parameter by building a static table, or
+    // we stuff data in using the objc runtime using objc_getAssociatedObject.  I'm going with the static table approach
+    // ProcessAssociatedData encapsulates a dictionary of [processIdentifier : cancellationHandler]
+    
+    func cancelled(handler: @escaping CancellationHandler) -> Self {
+        ProcessAssociatedData.registerCancellationHandler(for:self, cancellationHandler:handler)
+        if (terminationHandler == nil) {
+            // terminationHandler may also be set in the func completed() below, so we don't want to overwrite that.
+            terminationHandler = ({
+                _ in
+                ProcessAssociatedData.removeCancellationHandler(for:self)
+            })
+
+        }
+        return self
+    }
+
+    func cancel() {
+        if self.isRunning {
+            if let handler = ProcessAssociatedData.cancellationHandler(for:self) {
+                ProcessAssociatedData.removeCancellationHandler(for:self)
+                handler()
+            }
+            self.terminate()
+        }
+    }
+    
+    func stderr(message: @escaping (String) -> (Void)) -> ChainableTask {
+        let standardErrPipe = Pipe()
+        standardErrPipe.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
-            guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
+            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
                 return
             }
             message(decoded)
         })
+        standardError = standardErrPipe
         return self
     }
 
-    func stdout(message: (String) -> (Void)) -> Self {
-        standardOutput = NSPipe()
-        standardOutput?.fileHandleForReading.readabilityHandler = ({
+    func stdout(message: @escaping (String) -> (Void)) -> ChainableTask {
+        let standardOutPipe = Pipe()
+        standardOutPipe.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
-            guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
+            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
                 return
             }
             message(decoded)
         })
+        standardOutput = standardOutPipe
         return self
     }
 
-    func completed(complete: (ErrorType)? -> (Void)) -> Self {
+    func completed(complete: @escaping (Error?) -> (Void)) -> ChainableTask {
         terminationHandler = ({
             aTask in
             if ( aTask.terminationStatus != 0 ){
                 complete(nil)
             } else {
-                complete(Task.Error.NonZeroExit)
+                complete(Task.ErrorEnum.NonZeroExit)
             }
+            ProcessAssociatedData.removeCancellationHandler(for:self)
         })
         return self
     }
@@ -101,7 +142,7 @@ extension NSTask: ChainableTask {
 }
 
 class Task: Taskable, CancelableTask {
-    enum Error: ErrorType {
+    enum ErrorEnum: Error {
         case NotExecutable, BadInput, BadOutput, NonZeroExit
 
         var localizedDescription: String {
@@ -118,7 +159,7 @@ class Task: Taskable, CancelableTask {
         }
     }
 
-    let task = NSTask()
+    let process = Process()
     var args: [String]?
     var env: [String: String]?
 
@@ -138,61 +179,64 @@ class Task: Taskable, CancelableTask {
         self.args = args
     }
 
-    func stderr(message:(String) -> (Void)) -> Self {
-        self.task.standardError = NSPipe()
-        task.standardError?.fileHandleForReading.readabilityHandler = ({
+    func stderr(message: @escaping (String) -> (Void)) -> ChainableTask {
+        let stdErrorPipe = Pipe()
+        stdErrorPipe.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
-            guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
+            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
                 return
             }
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async {
                 message(decoded)
-            })
+            }
         })
+        self.process.standardError = stdErrorPipe
         return self
     }
 
-    func stdout(message: (String) -> (Void)) -> Self {
-        self.task.standardOutput = NSPipe()
-
-        task.standardOutput?.fileHandleForReading.readabilityHandler = ({
+    func stdout(message: @escaping (String) -> (Void)) -> ChainableTask {
+        let stdOutPipe = Pipe()
+        stdOutPipe.fileHandleForReading.readabilityHandler = ({
             fh in
             let data = fh.availableData
-            guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
+            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
                 return
             }
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async {
                 message(decoded)
-            })
+            }
         })
+        self.process.standardOutput = stdOutPipe
         return self
     }
 
-    func completed(complete: (ErrorType)? -> (Void)) -> Self {
-        task.terminationHandler = ({
+    func completed(complete: @escaping (Error?) -> (Void)) -> ChainableTask {
+        process.terminationHandler = ({
             aTask in
 
-            let error: ErrorType? = ( aTask.terminationStatus == 0 ) ? nil : Task.Error.NonZeroExit
-
-            dispatch_async(dispatch_get_main_queue(), {
+            let error: Error? = ( aTask.terminationStatus == 0 ) ? nil : Task.ErrorEnum.NonZeroExit
+            DispatchQueue.main.async {
                 complete(error)
-            })
-
-            aTask.standardError?.fileHandleForReading.readabilityHandler = nil
-            aTask.standardOutput?.fileHandleForReading.readabilityHandler = nil
+            }
+            if let stdErrorPipe = aTask.standardError as? Pipe {
+                stdErrorPipe.fileHandleForReading.readabilityHandler = nil
+            }
+            if let stdOutPipe = aTask.standardOutput as? Pipe {
+                stdOutPipe.fileHandleForReading.readabilityHandler = nil
+            }
         })
         return self
     }
 
     func run() -> Self {
-        task.launchPath = executable
+        process.launchPath = executable
 
         if let args = args {
-            task.arguments = args
+            process.arguments = args
         }
 
-        var environment = NSProcessInfo.processInfo().environment
+        var environment = ProcessInfo.processInfo.environment
         if let env = env {
             for (val, key) in env {
                 environment[key] = val
@@ -200,75 +244,82 @@ class Task: Taskable, CancelableTask {
         }
 
         environment["NSUnbufferedIO"] = "YES"
-        task.environment = environment
+        process.environment = environment
 
-        if !task.running && NSFileManager.defaultManager().isExecutableFileAtPath(executable){
-            task.launch()
+        if !process.isRunning && FileManager.default.isExecutableFile(atPath: executable){
+            process.launch()
         }
 
         return self
     }
 
-    internal var cancelledHandle:((Void) -> (Void))?
-    func cancelled(cancelled:(Void) -> (Void)) -> Self {
-        cancelledHandle = cancelled
+    internal var cancellationHandler: CancellationHandler?
+    
+    func cancelled(handler: @escaping CancellationHandler) -> Self {
+        cancellationHandler = handler
         return self
     }
 
     func cancel() {
-        if task.running {
-            if (cancelledHandle != nil) {
-                cancelledHandle!()
+        if process.isRunning {
+            if let handler = cancellationHandler {
+                handler()
             }
-            task.terminate()
+            process.terminate()
         }
     }
 }
 
 class InteractiveTask: Task, InteractableTaskable {
+
     private var inHandler:((String) -> (String)?)?
 
     func isInteractive(string: String) -> Bool {
         return expectedPrompts.filter({
             val in
-            return string.lowercaseString.hasSuffix(val.lowercaseString)
+            return string.lowercased().hasSuffix(val.lowercased())
         }).count > 0
     }
 
-    func stdin(message: (String) -> (String)?) -> Self {
+    func stdin(message: @escaping (String) -> (String)?) -> Self {
         inHandler = message
         return self
     }
 
-    override func stdout(message: (String) -> (Void)) -> Self {
-        self.task.standardOutput = NSPipe()
-        task.standardOutput?.fileHandleForReading.readabilityHandler = ({ [weak self]
+    func stdout(message: @escaping (String) -> (Void)) -> Self {
+        let standardOutPipe = Pipe()
+        standardOutPipe.fileHandleForReading.readabilityHandler = ({ [weak self]
             fh in
             guard let _self = self else {
                 return
             }
             let data = fh.availableData
-            guard let decoded = NSString(data: data, encoding: NSUTF8StringEncoding) as? String else {
+            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
                 return
             }
 
-            if _self.isInteractive(decoded) {
-                guard let results = _self.inHandler!(decoded) else {
+            if _self.isInteractive(string: decoded) {
+                guard let inputHandler = _self.inHandler else {
                     return
                 }
-                if (results.isEmpty && _self.task.running){
-                    guard let data = results.dataUsingEncoding(NSUTF8StringEncoding) else {
+                guard let results = inputHandler(decoded) else {
+                    return
+                }
+                if (results.isEmpty && _self.process.isRunning){
+                    guard let data = results.data(using: String.Encoding.utf8) else {
                         return
                     }
-                    guard let inHandle = _self.task.standardInput?.fileHandleForWriting else {
+                    guard let stdInputPipe = _self.process.standardInput as? Pipe else {
                         return
                     }
-                    inHandle.writeData(data)
+
+                    stdInputPipe.fileHandleForWriting.write(data)
                 }
             } else {
                 message(decoded)
             }
         })
+        self.process.standardOutput = standardOutPipe
         return self
     }
 }

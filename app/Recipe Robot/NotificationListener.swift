@@ -22,7 +22,7 @@ import Cocoa
 enum NoteType: Int {
     case Info, Error, Reminders, Warnings, Recipes, Icons, Complete
 
-    static func fromName(name: String) -> NoteType? {
+    static func fromName(name: NSNotification.Name) -> NoteType? {
         for t in self.cases {
             if t.name == name {
                 return t
@@ -33,24 +33,24 @@ enum NoteType: Int {
 
     var key: String {
         switch self {
-        case Info: return "information"
-        case Error: return "errors"
-        case Reminders: return "reminders"
-        case Warnings: return "warnings"
-        case Recipes: return "recipes"
-        case Icons: return "icons"
-        case Complete: return "complete"
+        case .Info: return "information"
+        case .Error: return "errors"
+        case .Reminders: return "reminders"
+        case .Warnings: return "warnings"
+        case .Recipes: return "recipes"
+        case .Icons: return "icons"
+        case .Complete: return "complete"
         }
     }
 
-    var name: String {
-        return "com.elliotjordan.recipe-robot.dnc." + self.key
+    var name: NSNotification.Name {
+        return NSNotification.Name("com.elliotjordan.recipe-robot.dnc." + self.key)
     }
 
     var prefix: String {
         switch self {
         case .Error, .Warnings, .Reminders:
-            return "[\(self.key.uppercaseString)]"
+            return "[\(self.key.uppercased)]"
         default:
             return ""
         }
@@ -58,9 +58,9 @@ enum NoteType: Int {
     
     var color: Color {
         switch self {
-        case Error: return Color.Red
-        case Reminders: return Color.Green
-        case Warnings: return Color.Yellow
+        case .Error: return Color.Red
+        case .Reminders: return Color.Green
+        case .Warnings: return Color.Yellow
         default: return Color.Black
         }
     }
@@ -77,8 +77,8 @@ enum NoteType: Int {
 }
 
 class NotificationListener: NSObject {
-    var notificationHandler: ((name: NoteType, info: [String:AnyObject]) -> (Void))?
-    private let center = NSDistributedNotificationCenter.defaultCenter()
+    var notificationHandler: ((_ name: NoteType, _ info: [String:AnyObject]) -> (Void))?
+    private let center = DistributedNotificationCenter.default()
 
     override init(){
         super.init()
@@ -100,13 +100,14 @@ class NotificationListener: NSObject {
     }
 
     deinit {
-        NSDistributedNotificationCenter.defaultCenter().removeObserver(self)
+        DistributedNotificationCenter.default().removeObserver(self)
     }
 
-    func noticed(note: NSNotification){
-        if notificationHandler != nil{
-            if let noteType = NoteType.fromName(note.name), dict = note.userInfo as? [String: AnyObject] {
-                notificationHandler!(name: noteType, info: dict)
+    @objc func noticed(_ note: NSNotification){
+        if let handler = notificationHandler {
+            if let noteType = NoteType.fromName(name: note.name),
+               let dict = note.userInfo as? [String: AnyObject] {
+                   handler(noteType, dict)
             }
         }
     }

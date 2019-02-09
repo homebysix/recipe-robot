@@ -12,34 +12,34 @@ enum RecipeType: Int {
 
     var value: String {
         switch self {
-        case Download: return "download"
-        case Munki: return "munki"
-        case Pkg: return "pkg"
-        case Install: return "install"
-        case JSS: return "jss"
-        case LANrev: return "lanrev"
-        case SCCM: return "sccm"
-        case DS: return "ds"
-        case Filewave: return "filewave"
-        case BigFix: return "bigfix"
+        case .Download: return "download"
+        case .Munki: return "munki"
+        case .Pkg: return "pkg"
+        case .Install: return "install"
+        case .JSS: return "jss"
+        case .LANrev: return "lanrev"
+        case .SCCM: return "sccm"
+        case .DS: return "ds"
+        case .Filewave: return "filewave"
+        case .BigFix: return "bigfix"
         }
     }
 
     var requiredTypes: [RecipeType] {
         var types = Set([self])
         switch self {
-        case Munki, Pkg, Install, Filewave, BigFix:
+        case .Munki, .Pkg, .Install, .Filewave, .BigFix:
             // Requires Download
-            types.unionInPlace([Download])
-        case JSS, LANrev, SCCM, DS:
+            types = types.union([.Download])
+        case .JSS, .LANrev, .SCCM, .DS:
             // Requires Package (inherits Download)
-            types.unionInPlace([Pkg])
+            types = types.union([.Pkg])
         default:
             break
         }
 
         for i in types where i != self {
-            types.unionInPlace(i.requiredTypes)
+            types = types.union(i.requiredTypes)
         }
         return Array(types)
     }

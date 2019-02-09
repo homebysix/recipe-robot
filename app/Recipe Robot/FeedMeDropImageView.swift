@@ -21,29 +21,39 @@ import Cocoa
 // MARK: -- Dragging  --
 class FeedMeDropImageView: NSImageView {
 
-    override func performDragOperation(sender: NSDraggingInfo) -> Bool {
-        if let controller = sender.draggingDestinationWindow()!.contentViewController as? FeedMeViewController,
-            files = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? NSArray,
-            file = files.firstObject as? String {
-                controller.task.appOrRecipe = file
-                controller.performSegueWithIdentifier("FeedMeSegue", sender: self)
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        guard let controller = sender.draggingDestinationWindow?.contentViewController as? FeedMeViewController else {
+            print ("failed coercing contentViewController to FeedMeViewController")
+            return true
         }
+        guard let files = sender.draggingPasteboard.propertyList(forType: NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")) as? NSArray else {
+            print ("failed coercing NSFilenamesPboardType to NSArray")
+            return true
+        }
+        guard let file = files.firstObject as? String else {
+            print ("failed coercing files.firstObject to String")
+            return true
+        }
+
+        controller.task.appOrRecipe = file
+        controller.performSegue(withIdentifier:"FeedMeSegue", sender: self)
+ 
         return true
     }
 
-    override func prepareForDragOperation(sender: NSDraggingInfo) -> Bool {
+    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
         return true
     }
 
-    override func concludeDragOperation(sender: NSDraggingInfo?) {
+    override func concludeDragOperation(_ sender: NSDraggingInfo?) {
         // All done.
     }
 
-    override func draggingEntered(sender: NSDraggingInfo) -> NSDragOperation  {
-        return NSDragOperation.Copy
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation  {
+        return NSDragOperation.copy
     }
 
-    override func draggingExited(sender: NSDraggingInfo?) {
+    override func draggingExited(_ sender: NSDraggingInfo?) {
     }
 }
 

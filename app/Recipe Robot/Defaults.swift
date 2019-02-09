@@ -25,10 +25,10 @@ class Defaults: NSObject {
         super.init()
     }
 
-    private let defaults = NSUserDefaults.standardUserDefaults()
+    private let defaults = UserDefaults.standard 
     var recipeTypes: Set<String>? {
         get {
-            guard let recipeTypes = defaults.stringArrayForKey("RecipeTypes") else {
+            guard let recipeTypes = defaults.stringArray(forKey: "RecipeTypes") else {
                 return nil
             }
             return Set(recipeTypes)
@@ -44,16 +44,16 @@ class Defaults: NSObject {
 
     var ignoreExisting: Bool {
         get {
-            return defaults.boolForKey("IgnoreExisting")
+            return defaults.bool(forKey: "IgnoreExisting")
         }
         set {
-            defaults.setBool(newValue, forKey: "IgnoreExisting")
+            defaults.set(newValue, forKey: "IgnoreExisting")
         }
     }
 
     var recipeCreateLocation: String? {
         get {
-            guard let recipeCreateLocation = defaults.stringForKey("RecipeCreateLocation") else {
+            guard let recipeCreateLocation = defaults.string(forKey: "RecipeCreateLocation") else {
                 self.recipeCreateLocation = "\(NSHomeDirectory())/Library/AutoPkg/Recipe Robot Output"
                 return self.recipeCreateLocation
             }
@@ -66,7 +66,7 @@ class Defaults: NSObject {
 
     var dsPackagePath: String? {
         get {
-            return defaults.stringForKey("DSPackagesPath")
+            return defaults.string(forKey: "DSPackagesPath")
         }
         set {
             defaults.setValue(newValue, forKey: "DSPackagesPath")
@@ -75,19 +75,19 @@ class Defaults: NSObject {
 
     var recipeCreateCount: Int {
         get {
-            return defaults.integerForKey("RecipeCreateCount")
+            return defaults.integer(forKey: "RecipeCreateCount")
         }
         set {
-            defaults.setInteger(newValue, forKey: "RecipeCreateCount")
+            defaults.set(newValue, forKey: "RecipeCreateCount")
         }
     }
 
     var initialized: Bool {
         get {
-            return defaults.boolForKey("Initialized")
+            return defaults.bool(forKey: "Initialized")
         }
         set {
-            defaults.setBool(newValue, forKey: "Initialized")
+            defaults.set(newValue, forKey: "Initialized")
         }
     }
 }

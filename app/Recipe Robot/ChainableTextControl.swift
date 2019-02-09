@@ -20,12 +20,12 @@
 import Foundation
 import ObjectiveC
 
-typealias completionClosureType = (Void) -> (Void)
+typealias completionClosureType = () -> (Void)
 
 protocol ChainableTextControl {
-    func stringChanged(changed:((Self) -> (Void))) -> Self
-    func editingEnded(ended: completionClosureType) -> Self
-    func editingStarted(began: completionClosureType) -> Self
+    func stringChanged(changed: @escaping ((ChainableTextControl) -> (Void))) -> ChainableTextControl
+    func editingEnded(ended: @escaping completionClosureType) -> Self
+    func editingStarted(began: @escaping completionClosureType) -> Self
 
 }
 
@@ -53,28 +53,28 @@ extension NSTextField: NSTextFieldDelegate, ChainableTextControl {
         return closure
     }
 
-    func editingStarted(began: completionClosureType) -> Self {
+    func editingStarted(began: @escaping completionClosureType) -> Self {
         editingObservationalClosure.beginEditingClosure = began
         return self
     }
 
-    func stringChanged(changed:((NSTextField) -> (Void))) -> Self {
+    func stringChanged(changed: @escaping ((ChainableTextControl) -> (Void))) -> ChainableTextControl {
         editingObservationalClosure.changeClosure = changed
         return self
     }
 
-    func editingEnded(ended: completionClosureType) -> Self {
+    func editingEnded(ended: @escaping completionClosureType) -> Self {
         editingObservationalClosure.endEditingClosure = ended
         return self
     }
 
-    public override func controlTextDidBeginEditing(notification: NSNotification) {
+    public func textDidBeginEditing(notification: NSNotification) {
         if let beginHandle = editingObservationalClosure.beginEditingClosure {
             beginHandle()
         }
     }
 
-    public override func controlTextDidChange(notification: NSNotification) {
+    public func textDidChange(notification: NSNotification) {
         guard let _self = notification.object as? NSTextField else {
             return
         }
@@ -83,7 +83,7 @@ extension NSTextField: NSTextFieldDelegate, ChainableTextControl {
         }
     }
 
-    public override func controlTextDidEndEditing(notification: NSNotification) {
+    public func textDidEndEditing(notification: NSNotification) {
         if let endHandle = editingObservationalClosure.endEditingClosure {
             endHandle()
         }

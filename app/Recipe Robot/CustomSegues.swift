@@ -17,6 +17,7 @@
 //  limitations under the License.
 
 import Cocoa
+import AppKit
 import QuartzCore
 
 class ReplaceSegue: NSStoryboardSegue {
@@ -33,25 +34,39 @@ class ReplaceSegue: NSStoryboardSegue {
 
 class PushSegue: NSStoryboardSegue {
     override func perform() {
-        self.sourceController.presentViewController(
-            self.destinationController as! NSViewController, animator: PushTransitionAnimator())
+        guard let sourceViewController = sourceController as? NSViewController else {
+            print ("error coercing sourceController to ViewController")
+            return
+        }
+        guard let destinationViewController = destinationController as? NSViewController else  {
+            print ("error coercing destinationController to ViewController")
+            return
+        }
+        sourceViewController.present( destinationViewController, animator: PushTransitionAnimator())
     }
 }
 
 class FadeSegue: NSStoryboardSegue {
     override func perform() {
-        self.sourceController.presentViewController(
-            self.destinationController as! NSViewController, animator: PushTransitionAnimator())
+        guard let sourceViewController = sourceController as? NSViewController else {
+            print ("error coercing sourceController to ViewController")
+            return
+        }
+        guard let destinationViewController = destinationController as? NSViewController else  {
+            print ("error coercing destinationController to ViewController")
+            return
+        }
+
+        sourceViewController.present(destinationViewController, animator: FadeTransitionAnimator())
     }
 }
 
 class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
-    func animatePresentationOfViewController(toViewController: NSViewController, fromViewController: NSViewController) {
-
+    func animatePresentation(of toViewController: NSViewController, from fromViewController: NSViewController) {
         if let tvc = toViewController as? RecipeRobotViewController,
-            fvc = fromViewController as? RecipeRobotViewController {
+            let fvc = fromViewController as? RecipeRobotViewController {
             tvc.view.wantsLayer = true
-            tvc.view.layerContentsRedrawPolicy = .OnSetNeedsDisplay
+            tvc.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
             tvc.view.alphaValue = 0
             fvc.view.addSubview(tvc.view)
             tvc.view.frame = fvc.view.frame
@@ -61,12 +76,12 @@ class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
                 }, completionHandler: {
             })
         }
+
     }
-
-    func animateDismissalOfViewController(viewController: NSViewController, fromViewController: NSViewController) {
-
+    
+    func animateDismissal(of viewController: NSViewController, from fromViewController: NSViewController) {
         viewController.view.wantsLayer = true
-        viewController.view.layerContentsRedrawPolicy = .OnSetNeedsDisplay
+        viewController.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
 
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5
@@ -79,35 +94,33 @@ class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
 
 
 class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
-    func animatePresentationOfViewController(viewController: NSViewController, fromViewController: NSViewController) {
+    func animatePresentation(of viewController: NSViewController, from fromViewController: NSViewController) {
         viewController.view.frame = NSMakeRect(NSWidth(fromViewController.view.frame), // x
             0, // y
             NSWidth(fromViewController.view.frame), // width
             NSHeight(fromViewController.view.frame)); // height
 
-        viewController.view.autoresizingMask = [NSAutoresizingMaskOptions.ViewWidthSizable, NSAutoresizingMaskOptions.ViewHeightSizable]
+        viewController.view.autoresizingMask = [NSView.AutoresizingMask.width, NSView.AutoresizingMask.height]
 
         fromViewController.view.addSubview(viewController.view)
         let dRect = fromViewController.view.frame
 
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5;
-            context.timingFunction = CAMediaTimingFunction(name:kCAMediaTimingFunctionEaseOut)
+            context.timingFunction = CAMediaTimingFunction(name:CAMediaTimingFunctionName.easeOut)
             viewController.view.animator().frame = dRect
             }, completionHandler: { () -> Void in
         })
     }
-
-
-    func animateDismissalOfViewController(viewController: NSViewController, fromViewController: NSViewController) {
+    
+    func animateDismissal(of viewController: NSViewController, from fromViewController: NSViewController) {
         let dRect = fromViewController.view.frame
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5;
-            context.timingFunction = CAMediaTimingFunction(name:kCAMediaTimingFunctionEaseIn)
+            context.timingFunction = CAMediaTimingFunction(name:CAMediaTimingFunctionName.easeIn)
             viewController.view.animator().frame = dRect
             }, completionHandler: { () -> Void in
                 viewController.view.removeFromSuperview()
         })
-
     }
 }
