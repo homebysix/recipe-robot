@@ -21,36 +21,6 @@
 recipe-robot
 
 Easily and automatically create AutoPkg recipes.
-
-usage: recipe-robot [-h] [--config] [--ignore-existing] [--keep-cache]
-                    [--github-token] [-v]
-                    [input_path]
-
-positional arguments:
-  input_path         Path from which to derive AutoPkg recipes. This can be
-                     one of the following: existing app, Sparkle feed, GitHub
-                     URL, BitBucket URL, SourceForge URL, or direct download
-                     URL.
-
-optional arguments:
-  -h, --help         show this help message and exit
-  --app-mode         Strip colors from Recipe Robot output. Designed for
-                     improved interoperability with the Recipe Robot native OS
-                     X app.
-  -c, --config       Adjust Recipe Robot preferences prior to generating
-                     recipes.
-  --debug            Generate extremely detailed output. Meant to help trace
-                     issues with Recipe Robot. (Debug mode also enables
-                     verbose output.)
-  --ignore-existing  Creates recipes even if "autopkg search" results show
-                     that recipes already exist for this app.
-  --keep-cache       Keep the Recipe Robot cache, instead of performing the
-                     usual cleanup. This allows you to manually inspect the
-                     files Recipe Robot downloaded. The cache will be cleared
-                     again upon next run.
-  --github-token     Use a GitHub API token when searching for existing
-                     recipes.
-  -v, --verbose      Generate additional output about the process.
 """
 
 
@@ -179,7 +149,8 @@ def build_argument_parser():
         Parser object.
     """
     parser = argparse.ArgumentParser(
-        description="Easily and automatically create AutoPkg recipes.")
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "input_path",
         nargs='?',
