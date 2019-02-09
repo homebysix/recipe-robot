@@ -26,7 +26,7 @@ protocol Taskable: ChainableTask {
 
 protocol InteractableTaskable: Taskable {
     var expectedPrompts: [String] { get }
-    func stdin(message:(String) -> String?) -> Self
+    func stdin(message: @escaping (String) -> String?) -> Self
     func isInteractive(string: String) -> Bool
 }
 
@@ -39,7 +39,7 @@ protocol ChainableTask {
 
 protocol CancelableTask {
     var cancelledHandle:(() -> (Void))? { get set }
-    func cancelled(cancelled:() -> (Void)) -> Self
+    func cancelled(cancelled: @escaping () -> (Void)) -> Self
     func cancel()
 }
 
@@ -140,7 +140,7 @@ class Task: Taskable, CancelableTask {
         self.args = args
     }
 
-    func stderr(message: @escaping (String) -> (Void)) -> Self {
+    func stderr(message: @escaping (String) -> (Void)) -> ChainableTask {
         let stdErrorPipe = Pipe()
         stdErrorPipe.fileHandleForReading.readabilityHandler = ({
             fh in
@@ -156,7 +156,7 @@ class Task: Taskable, CancelableTask {
         return self
     }
 
-    func stdout(message: @escaping (String) -> (Void)) -> Self {
+    func stdout(message: @escaping (String) -> (Void)) -> ChainableTask {
         let stdOutPipe = Pipe()
         stdOutPipe.fileHandleForReading.readabilityHandler = ({
             fh in
@@ -172,7 +172,7 @@ class Task: Taskable, CancelableTask {
         return self
     }
 
-    func completed(complete: @escaping (Error?) -> (Void)) -> Self {
+    func completed(complete: @escaping (Error?) -> (Void)) -> ChainableTask {
         process.terminationHandler = ({
             aTask in
 
@@ -231,6 +231,7 @@ class Task: Taskable, CancelableTask {
 }
 
 class InteractiveTask: Task, InteractableTaskable {
+
     private var inHandler:((String) -> (String)?)?
 
     func isInteractive(string: String) -> Bool {
@@ -272,7 +273,7 @@ class InteractiveTask: Task, InteractableTaskable {
                         return
                     }
 
-                    stdInputPipe.fileHandleForWriting.writeData(data)
+                    stdInputPipe.fileHandleForWriting.write(data)
                 }
             } else {
                 message(decoded)
