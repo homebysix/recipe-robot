@@ -300,7 +300,7 @@ DQ
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="bF1-3A-gGf"/>
                                 </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Welcome! a little information, first." id="5fM-5o-pay">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Welcome! Please select your preferences." id="5fM-5o-pay">
                                     <font key="font" size="20" name=".HelveticaNeueDeskInterface-Bold"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
