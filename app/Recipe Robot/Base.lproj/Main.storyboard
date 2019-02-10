@@ -408,6 +408,16 @@ DQ
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                             </button>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="heR-bs-BFD">
+                                <rect key="frame" x="298" y="164" width="284" height="18"/>
+                                <buttonCell key="cell" type="check" title="Remove developer suffixes" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="yUt-Kq-2yG">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="56H-yK-n2G" name="value" keyPath="values.StripDeveloperSuffixes" id="1Ul-yh-rsQ"/>
+                                </connections>
+                            </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="w0f-h9-2tF">
                                 <rect key="frame" x="245" y="13" width="113" height="32"/>
                                 <buttonCell key="cell" type="push" title="Good to Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="de0-CZ-msm">
@@ -461,6 +471,7 @@ DQ
                             </button>
                         </subviews>
                         <constraints>
+                            <constraint firstAttribute="bottom" secondItem="heR-bs-BFD" secondAttribute="bottom" constant="166" id="0ct-4R-yb7"/>
                             <constraint firstItem="UuS-iq-Uqh" firstAttribute="leading" secondItem="2dJ-2m-pWe" secondAttribute="leading" constant="300" id="0hf-Ha-AYy"/>
                             <constraint firstAttribute="trailing" secondItem="NBs-I5-hN8" secondAttribute="trailing" constant="20" id="1BY-8L-tcR"/>
                             <constraint firstAttribute="trailing" secondItem="ZIM-gN-Rdk" secondAttribute="trailing" constant="40" id="1Qa-kZ-H8m"/>
@@ -474,8 +485,10 @@ DQ
                             <constraint firstItem="UuS-iq-Uqh" firstAttribute="top" secondItem="2dJ-2m-pWe" secondAttribute="top" constant="192" id="CWx-eE-OMH"/>
                             <constraint firstItem="dM0-Kr-Oni" firstAttribute="leading" secondItem="2dJ-2m-pWe" secondAttribute="leading" constant="300" id="CfH-Zy-h3F"/>
                             <constraint firstAttribute="bottom" secondItem="NBs-I5-hN8" secondAttribute="bottom" constant="215" id="DJj-vO-egO"/>
+                            <constraint firstItem="heR-bs-BFD" firstAttribute="leading" secondItem="2dJ-2m-pWe" secondAttribute="leading" constant="300" id="Dus-k5-Yc9"/>
                             <constraint firstItem="GS6-NI-of8" firstAttribute="leading" secondItem="2dJ-2m-pWe" secondAttribute="leading" constant="32" id="EYn-C5-c4O"/>
                             <constraint firstAttribute="bottom" secondItem="Mba-Fp-Bf1" secondAttribute="bottom" constant="188" id="Fha-xm-w3T"/>
+                            <constraint firstItem="heR-bs-BFD" firstAttribute="top" secondItem="2dJ-2m-pWe" secondAttribute="top" constant="170" id="Fjw-rL-Flg"/>
                             <constraint firstItem="ZIM-gN-Rdk" firstAttribute="leading" secondItem="2dJ-2m-pWe" secondAttribute="leading" constant="300" id="Isy-CJ-oFf"/>
                             <constraint firstItem="IZ9-mM-Rho" firstAttribute="top" secondItem="2dJ-2m-pWe" secondAttribute="top" constant="13" id="JZE-ob-en4"/>
                             <constraint firstAttribute="trailing" secondItem="IZ9-mM-Rho" secondAttribute="trailing" constant="20" id="KC3-c4-nPq"/>
@@ -508,6 +521,7 @@ DQ
                             <constraint firstAttribute="bottom" secondItem="UuS-iq-Uqh" secondAttribute="bottom" constant="144" id="nYC-FK-MdF"/>
                             <constraint firstAttribute="trailing" secondItem="Mba-Fp-Bf1" secondAttribute="trailing" constant="40" id="pFY-Nu-dcV"/>
                             <constraint firstItem="GS6-NI-of8" firstAttribute="top" secondItem="2dJ-2m-pWe" secondAttribute="top" constant="62" id="qFA-WS-Pcv"/>
+                            <constraint firstAttribute="trailing" secondItem="heR-bs-BFD" secondAttribute="trailing" constant="20" id="qRd-g5-Yld"/>
                             <constraint firstItem="eiD-vS-YGE" firstAttribute="top" secondItem="2dJ-2m-pWe" secondAttribute="top" constant="241" id="vxP-T7-rxf"/>
                             <constraint firstItem="dM0-Kr-Oni" firstAttribute="top" secondItem="2dJ-2m-pWe" secondAttribute="top" constant="140" id="znU-je-6RS"/>
                         </constraints>
@@ -649,7 +663,7 @@ DQ
         <image name="NSActionTemplate" width="14" height="14"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="5DS-F9-XQ4"/>
+        <segue reference="55O-go-axt"/>
         <segue reference="Iwp-Z9-6lj"/>
     </inferredMetricsTieBreakers>
 </document>
