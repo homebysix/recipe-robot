@@ -6,17 +6,21 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 ### Added
-- Finally, Recipe Robot now does a pretty decent job at parsing package payloads! It can locate apps within packages, determine which of multiple apps is the "real" one, and even pass through code signing and payload unpacking information to the appropriate AutoPkg processors. Round of applause all around. (#27)
+- Recipe Robot now does a much better job at parsing package payloads! It can locate apps within packages, determine which of multiple apps is the "real" one, and even pass through code signing and payload unpacking information to the appropriate AutoPkg processors. Round of applause all around. (#27)
 - Able to detect and use DevMate update feeds. (#129, thanks to [@macprince](https://github.com/macprince))
 - More intelligent GitHub release searching. If multiple supported formats exist, Recipe Robot will generally prefer dmg first, then zip, and finally pkg. (#127)
 - Automatically uses `asset_regex` in GitHubReleasesInfoProvider if it is needed.
 - Uses AlternativeTo as a second source for app descriptions, if the description can't be found on MacUpdate.
+- Optional `StripDeveloperSuffixes` preference, which automatically removes company name suffixes like "Inc" and "Ltd" from developer names.
 
 ### Changed
+- The Recipe Robot app now requires macOS 10.13 or higher. (If you have an older version of macOS, you should be able to continue using the Python script.)
+- App code base upgraded from Swift 2.3 to 4.2. (#139, HUGE thanks to [@olofhellman](https://github.com/olofhellman))
 - A warning is printed if a GitHub or BitBucket link is provided as input, and the link points directly to a download file. Recipe Robot parses the link as a project repository (and looks for other release assets), but there may be some cases where this isn't the right thing to do (e.g. a project that contains releases for multiple apps) (#119).
 - A warning is printed if a download produces HTML content instead of an actual file. This is common if a moved asset now produces a 404 error.
 - Dropbox links that end in `?dl=0` are changed to `?dl=1` to force download of the file.
 - Apps that lack bundle identifiers no longer result in a fatal error, just a warning.
+- Read me image optimization. (#126, thanks to [@keeleysam](https://github.com/keeleysam))
 
 ### Fixed
 - Fixed regex used to match MacUpdate descriptions.
