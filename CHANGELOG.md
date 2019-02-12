@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [Unreleased]
+## [1.1.0] - 2019-02-12
 
 ### Added
 - Recipe Robot now does a much better job at parsing package payloads! It can locate apps within packages, determine which of multiple apps is the "real" one, and even pass through code signing and payload unpacking information to the appropriate AutoPkg processors. Round of applause all around. (#27)
@@ -185,7 +185,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.0.5...HEAD
+[1.1.0]: https://github.com/homebysix/recipe-robot/compare/v1.0.5...v1.1.0
 [1.0.5]: https://github.com/homebysix/recipe-robot/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/homebysix/recipe-robot/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/homebysix/recipe-robot/compare/v1.0.2...v1.0.3
