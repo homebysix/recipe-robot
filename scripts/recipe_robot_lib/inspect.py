@@ -26,7 +26,7 @@ Look at a path or URL for an app and generate facts about it.
 
 from distutils.version import LooseVersion, StrictVersion
 from ssl import CertificateError, SSLError
-from urllib2 import build_opener, HTTPError, Request, URLError, urlopen
+from urllib2 import HTTPError, Request, URLError, urlopen
 from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
 import httplib
@@ -434,6 +434,16 @@ def html_decode(the_string):
     for char in html_chars:
         the_string = the_string.replace(char[1], char[0])
     return the_string
+
+
+def useragent_urlopen(url, useragent):
+    '''For a given URL, return the urlopen response after adding the GitHub token.'''
+
+    req = Request(url)
+    if useragent:
+        req.add_header('User-agent', useragent)
+
+    return urlopen(req)
 
 
 def get_app_description(app_name):
@@ -950,9 +960,7 @@ def inspect_download_url(input_path, args, facts):
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
-                opener = build_opener()
-                opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                raw_download = opener.open(checked_url)
+                raw_download = useragent_urlopen(checked_url, 'Mozilla/5.0')
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to "
                     "download this file. If you run the recipes and get a "
@@ -1761,9 +1769,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
-                opener = build_opener()
-                opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                raw_xml = opener.open(checked_url)
+                raw_xml = useragent_urlopen(checked_url, 'Mozilla/5.0')
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to read "
                     "this Sparkle feed. If you run the recipes and get a "
