@@ -6,9 +6,11 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Added
 - Recipe Robot now uses the AutoPkg GitHub token file at ~/.autopkg_gh_token, if it exists. This can help you avoid rate limiting if you're creating many GitHub recipes in a short time. (#18)
+- You can now use the `--configure` flag to access the Recipe Robot preferences setup in the Python script, in addition to the existing `-c` and `--config` flags.
+- The Python script preferences setup now prompts you to set the new `StripDeveloperSuffixes` setting.
 
 ### Fixed
-- Resolved a bug that would cause `developer` key to be an array instead of a string in generated Munki recipes.
+- Resolved a bug that would cause the `developer` key to be an array instead of a string in generated Munki recipes.
 
 
 ## [1.1.0] - 2019-02-12
