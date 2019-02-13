@@ -490,7 +490,7 @@ def generate_munki_recipe(facts, prefs, recipe):
     if prefs.get("StripDeveloperSuffixes", False) is True:
         keys["Input"]["pkginfo"]["developer"] = strip_dev_suffix(facts.get("developer", ''))
     else:
-        keys["Input"]["pkginfo"]["developer"] = facts.get("developer", ''),
+        keys["Input"]["pkginfo"]["developer"] = facts.get("developer", '')
 
     # Set default variable to use for substitution.
     import_file_var = "%pathname%"
