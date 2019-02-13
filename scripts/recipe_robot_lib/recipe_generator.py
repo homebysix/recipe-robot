@@ -486,7 +486,6 @@ def generate_munki_recipe(facts, prefs, recipe):
             "manually add one to the munki recipe.")
         keys["Input"]["pkginfo"]["description"] = " "
 
-    # TODO (Elliot): Put this in the preferences.
     if prefs.get("StripDeveloperSuffixes", False) is True:
         keys["Input"]["pkginfo"]["developer"] = strip_dev_suffix(facts.get("developer", ''))
     else:
