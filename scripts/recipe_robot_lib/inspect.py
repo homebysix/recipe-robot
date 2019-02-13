@@ -1078,8 +1078,7 @@ def inspect_download_url(input_path, args, facts):
 
     # If the file is a webpage (e.g. 404 message), warn the user now.
     with open(os.path.join(CACHE_DIR, filename), 'r') as download:
-        first_line = download.readline()
-        if 'html' in first_line:
+        if 'html' in download.readline().lower():
             facts["warnings"].append(
                 "There's a good chance that the file failed to download. "
                 "Looks like a webpage was downloaded instead.")
