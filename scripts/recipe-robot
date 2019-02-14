@@ -163,7 +163,7 @@ def build_argument_parser():
         help="Strip colors from Recipe Robot output. Designed for improved "
              "interoperability with the Recipe Robot native OS X app.")
     parser.add_argument(
-        "-c", "--config",
+        "--config", "--configure", "-c",
         action="store_true",
         help="Adjust Recipe Robot preferences prior to generating recipes.")
     parser.add_argument(
@@ -301,6 +301,8 @@ def set_recipe_preferences(prefs, recipes):
         recipes: The list of known recipe types, created by
             init_recipes().
     """
+    affirmatives = ("y", "yes", "true", "ok", "yep", "sure")
+
     for recipe in recipes:
         if recipe["preferred"] is True:
             prefs["RecipeTypes"].append(recipe["type"])
@@ -318,6 +320,8 @@ def set_recipe_preferences(prefs, recipes):
                 if choice != "":
                     prefs["DSPackagesPath"] = str(choice).rstrip("/ ")
 
+            # If JSS recipes are among the preferred types,
+            # prompt for whether to follow "official" jss-recipes style.
             if recipe["type"] == "jss":
                 if prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
                     follow_jss_recipes_format = "N"
@@ -328,10 +332,24 @@ def set_recipe_preferences(prefs, recipes):
                            "https://github.com/autopkg/jss-recipes"
                            "#style-guide\n")
                 choice = raw_input("[%s]: " % follow_jss_recipes_format)
-                if choice.lower() in ("y", "yes", "true", "ok", "yep", "sure"):
+                if choice.lower() in affirmatives:
                     prefs["FollowOfficialJSSRecipesFormat"] = True
                 else:
                     prefs["FollowOfficialJSSRecipesFormat"] = False
+
+            # If Munki recipes are among the preferred types,
+            # prompt for whether to strip developer suffixes like Inc and Ltd.
+            if recipe["type"] == "munki":
+                if prefs.get("StripDeveloperSuffixes", False) is False:
+                    strip_dev_suffixes = "N"
+                else:
+                    strip_dev_suffixes = "Y"
+                robo_print("\nStrip suffixes from developer names? (Y/N)")
+                choice = raw_input("[%s]: " % strip_dev_suffixes)
+                if choice.lower() in affirmatives:
+                    prefs["StripDeveloperSuffixes"] = True
+                else:
+                    prefs["StripDeveloperSuffixes"] = False
 
 
 def get_recipe_identifier_prefix(prefs):

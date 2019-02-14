@@ -26,7 +26,7 @@ Look at a path or URL for an app and generate facts about it.
 
 from distutils.version import LooseVersion, StrictVersion
 from ssl import CertificateError, SSLError
-from urllib2 import build_opener, HTTPError, Request, URLError, urlopen
+from urllib2 import HTTPError, Request, URLError, urlopen
 from urlparse import urlparse
 from xml.etree.ElementTree import parse, ParseError
 import httplib
@@ -434,6 +434,16 @@ def html_decode(the_string):
     for char in html_chars:
         the_string = the_string.replace(char[1], char[0])
     return the_string
+
+
+def useragent_urlopen(url, useragent):
+    '''For a given URL, return the urlopen response after adding the GitHub token.'''
+
+    req = Request(url)
+    if useragent:
+        req.add_header('User-agent', useragent)
+
+    return urlopen(req)
 
 
 def get_app_description(app_name):
@@ -950,9 +960,7 @@ def inspect_download_url(input_path, args, facts):
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
-                opener = build_opener()
-                opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                raw_download = opener.open(checked_url)
+                raw_download = useragent_urlopen(checked_url, 'Mozilla/5.0')
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to "
                     "download this file. If you run the recipes and get a "
@@ -1070,8 +1078,7 @@ def inspect_download_url(input_path, args, facts):
 
     # If the file is a webpage (e.g. 404 message), warn the user now.
     with open(os.path.join(CACHE_DIR, filename), 'r') as download:
-        first_line = download.readline()
-        if 'html' in first_line:
+        if 'html' in download.readline().lower():
             facts["warnings"].append(
                 "There's a good chance that the file failed to download. "
                 "Looks like a webpage was downloaded instead.")
@@ -1102,6 +1109,16 @@ def inspect_download_url(input_path, args, facts):
     return facts
 
 
+def github_urlopen(url, github_token):
+    '''For a given URL, return the urlopen response after adding the GitHub token.'''
+
+    req = Request(url)
+    if github_token:
+        req.add_header('Authorization', 'token ' + github_token)
+
+    return urlopen(req)
+
+
 def inspect_github_url(input_path, args, facts):
     """Process a GitHub URL
 
@@ -1124,16 +1141,27 @@ def inspect_github_url(input_path, args, facts):
     else:
         facts["inspections"].append("github_url")
 
+    # Use AutoPkg GitHub token, if file exists.
+    # TODO: Also check for GITHUB_TOKEN preference.
+    github_token_file = os.path.expanduser('~/.autopkg_gh_token')
+    github_token = None
+    if os.path.isfile(github_token_file):
+        try:
+            with open(github_token_file, 'r') as tokenfile:
+                github_token = tokenfile.read().strip()
+        except IOError as err:
+            facts['warnings'].append('Couldn\'t read GitHub token file at '
+                                     '{}.'.format(github_token_file))
+
     # Grab the GitHub repo path.
     github_repo = ""
     robo_print("Getting GitHub repo...", LogLevel.VERBOSE)
     # Matches all these examples:
-    # [x] https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
-    # [x] https://github.com/lindegroup/autopkgr
-    # [x] https://raw.githubusercontent.com/macmule/AutoCasperNBI/master/README.md
-    # [X] https://api.github.com/repos/macmule/AutoCasperNBI
-    # [X] https://hjuutilainen.github.io/munkiadmin/
-    github_repo = ""
+    # - https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
+    # - https://github.com/lindegroup/autopkgr
+    # - https://raw.githubusercontent.com/macmule/AutoCasperNBI/master/README.md
+    # - https://api.github.com/repos/macmule/AutoCasperNBI
+    # - https://hjuutilainen.github.io/munkiadmin/
     parsed_url = urlparse(input_path)
     path = parsed_url.path.split("/")
     path.remove("")
@@ -1161,9 +1189,6 @@ def inspect_github_url(input_path, args, facts):
                     "Try using the --ignore-existing flag if you want me to "
                     "create recipes for myself.")
 
-        # TODO(Elliot): How can we use GitHub tokens to prevent rate
-        # limiting? (#18)
-
         # Use GitHub API to obtain information about the repo and
         # releases.
         repo_api_url = "https://api.github.com/repos/%s" % github_repo
@@ -1172,9 +1197,9 @@ def inspect_github_url(input_path, args, facts):
 
         # Download the information from the GitHub API.
         try:
-            raw_json_repo = urlopen(repo_api_url).read()
-            raw_json_release = urlopen(releases_api_url).read()
-            raw_json_user = urlopen(user_api_url).read()
+            raw_json_repo = github_urlopen(repo_api_url, github_token).read()
+            raw_json_release = github_urlopen(releases_api_url, github_token).read()
+            raw_json_user = github_urlopen(user_api_url, github_token).read()
         except HTTPError as err:
             if err.code == 403:
                 facts["warnings"].append(
@@ -1743,9 +1768,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
-                opener = build_opener()
-                opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                raw_xml = opener.open(checked_url)
+                raw_xml = useragent_urlopen(checked_url, 'Mozilla/5.0')
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to read "
                     "this Sparkle feed. If you run the recipes and get a "
