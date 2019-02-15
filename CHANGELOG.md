@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.1.1] - Unreleased
+## [1.1.1] - 2019-02-15
 
 ### Added
 - Recipe Robot now uses the AutoPkg GitHub token file at ~/.autopkg_gh_token, if it exists. This can help you avoid rate limiting if you're creating many GitHub recipes in a short time. (#18)
@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. This projec
 - The Python script preferences setup now prompts you to set the new `StripDeveloperSuffixes` setting.
 
 ### Fixed
-- Resolved a bug that would cause the `developer` key to be an array instead of a string in generated Munki recipes.
+- Resolved a bug that would cause the `developer` key to be an array instead of a string in generated Munki recipes. (#141)
 
 
 ## [1.1.0] - 2019-02-12
