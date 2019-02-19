@@ -934,10 +934,7 @@ def inspect_download_url(input_path, args, facts):
     # If the download URL doesn't already end with the parsed filename,
     # it's very likely that URLDownloader needs the filename argument
     # specified.
-    if not input_path.endswith(filename):
-        facts["specify_filename"] = True
-    else:
-        facts["specify_filename"] = False
+    facts["specify_filename"] = not input_path.endswith(filename)
 
     # Check to make sure URL is valid, and switch to HTTPS if possible.
     checked_url = check_url(input_path)
