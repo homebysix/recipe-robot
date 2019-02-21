@@ -80,34 +80,34 @@ def process_input_path(facts):
     # Determine what kind of input path we are working with, then
     # inspect it.
     inspect_func = None
-    if input_path.startswith("http"):
-        if (input_path.endswith((".xml", ".rss", ".php")) or
-            "appcast" in input_path):
+    if input_path.lower().startswith("http"):
+        if (input_path.lower().endswith((".xml", ".rss", ".php")) or
+            "appcast" in input_path.lower()):
             robo_print("Input path looks like a Sparkle feed.",
                        LogLevel.VERBOSE)
             inspect_func = inspect_sparkle_feed_url
-        elif any_item_in_string(github_domains, input_path):
+        elif any_item_in_string(github_domains, input_path.lower()):
             robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
-            if '/download/' in input_path:
+            if '/download/' in input_path.lower():
                 facts["warnings"].append("I'm processing the input path as a "
                                          "GitHub repo URL, but you may have "
                                          "wanted me to treat it as a download "
                                          "URL.")
             inspect_func = inspect_github_url
-        elif "sourceforge.net" in input_path:
+        elif "sourceforge.net" in input_path.lower():
             robo_print("Input path looks like a SourceForge URL.",
                        LogLevel.VERBOSE)
             inspect_func = inspect_sourceforge_url
-        elif "bitbucket.org" in input_path:
+        elif "bitbucket.org" in input_path.lower():
             robo_print("Input path looks like a BitBucket URL.",
                        LogLevel.VERBOSE)
-            if '/downloads/' in input_path:
+            if '/downloads/' in input_path.lower():
                 facts["warnings"].append("I'm processing the input path as a "
                                          "BitBucket repo URL, but you may have "
                                          "wanted me to treat it as a download "
                                          "URL.")
             inspect_func = inspect_bitbucket_url
-        elif "dropbox.com/s/" in input_path:
+        elif "dropbox.com/s/" in input_path.lower():
             robo_print("Input path looks like a Dropbox shared link.",
                        LogLevel.VERBOSE)
             # Configure the shared link to force file download.
@@ -117,7 +117,7 @@ def process_input_path(facts):
             robo_print("Input path looks like a download URL.",
                        LogLevel.VERBOSE)
             inspect_func = inspect_download_url
-    elif input_path.startswith("ftp"):
+    elif input_path.lower().startswith("ftp"):
         robo_print("Input path looks like a download URL.", LogLevel.VERBOSE)
         inspect_func = inspect_download_url
     elif os.path.exists(input_path):
