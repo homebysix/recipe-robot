@@ -1833,13 +1833,14 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     latest_url = ""
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
     for item in doc.iterfind("channel/item/enclosure"):
+        latest_url = item.attrib.get('url')
         for vers_tag in ("shortVersionString", "version"):
             encl_vers = item.get("{%s}%s" % (xmlns, vers_tag))
             if encl_vers not in (None, ""):
                 sparkle_provides_version = True
                 if LooseVersion(encl_vers) > LooseVersion(latest_version):
                     latest_version = encl_vers
-                    latest_url = item.attrib["url"]
+
     if sparkle_provides_version is True:
         robo_print("The Sparkle feed provides a version "
                    "number", LogLevel.VERBOSE, 4)
