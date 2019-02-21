@@ -61,11 +61,17 @@ Here's what the whole process looks like:
 
 ## Python Script Usage
 
-Recipe Robot's Mac app is designed to be easy to use, but it's the command-line Python script that contains the real horsepower. To use it, just install the latest version of Recipe Robot in your Applications folder, open Terminal, and type:
+Recipe Robot's Mac app is designed to be easy to use, but it's the command-line Python script that contains the real horsepower. To use it:
 
-```
-/Applications/Recipe\ Robot.app/Contents/Resources/scripts/recipe-robot <input>
-```
+1. Install the [latest version](https://github.com/homebysix/recipe-robot/releases/latest) of Recipe Robot in your Applications folder.
+2. Open Terminal and create a symlink in your path:
+    ```
+    ln -s "/Applications/Recipe Robot.app/Contents/Resources/scripts/recipe-robot" /usr/local/bin/recipe-robot
+    ```
+3. Now you can run Recipe Robot anytime:
+    ```
+    recipe-robot --verbose <input>
+    ```
 
 For `<input>`, you can use one of several types of information:
 
