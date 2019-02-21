@@ -520,65 +520,72 @@ def inspect_archive(input_path, args, facts):
     if "download_url" not in facts:
         get_download_link_from_xattr(input_path, args, facts)
 
-    # Unzip the zip and look for an app. (If this fails, we try tgz
-    # next.)
-    archive_cmds = ({
-        "format": "zip",
-        "cmd": "/usr/bin/unzip \"%s\" -d \"%s\"" % (input_path, os.path.join(CACHE_DIR, "unpacked"))
-    },{
-        "format": "tgz",
-        "cmd": "/usr/bin/tar -zxvf \"%s\" -C \"%s\"" % (input_path, os.path.join(CACHE_DIR, "unpacked"))
-    })
-    for this_format in archive_cmds:
-        exitcode, out, err = get_exitcode_stdout_stderr(this_format["cmd"])
+    # Treat the download as a potential archive.
+    unpacked_dir = os.path.join(CACHE_DIR, 'unpacked')
+    if not os.path.exists(unpacked_dir):
+        os.mkdir(unpacked_dir)
+    archive_cmds = {
+        'zip': '/usr/bin/unzip "{}" -d "{}"'.format(
+            input_path, unpacked_dir),
+        'tgz': '/usr/bin/tar -zxvf "{}" -C "{}"'.format(
+            input_path, unpacked_dir),
+    }
+    for fmt in archive_cmds:
+        exitcode, _, _ = get_exitcode_stdout_stderr(archive_cmds[fmt])
         if exitcode == 0:
-
-            # Confirmed; the download was a disk image. Make a note of
-            # that.
-            robo_print("Successfully unarchived %s" % this_format["format"], LogLevel.VERBOSE, 4)
-            facts["download_format"] = this_format["format"]
+            # Confirmed: the download was an archive. Make a note of that.
+            robo_print('Successfully unarchived %s' % fmt, LogLevel.VERBOSE, 4)
+            facts['download_format'] = fmt
 
             # If the download filename was ambiguous, change it.
-            if not facts.get("download_filename", input_path).endswith(SUPPORTED_ARCHIVE_FORMATS):
-                facts["download_filename"] = "%s.%s" % (facts.get("download_filename", os.path.basename(input_path)), this_format["format"])
+            if not facts.get('download_filename', input_path).endswith(SUPPORTED_ARCHIVE_FORMATS):
+                facts['download_filename'] = '{}.{}'.format(
+                    facts.get('download_filename',
+                    os.path.basename(input_path)), fmt)
 
             # Locate and inspect any apps or pkgs on the root level.
             stop_searching_archive = False
-            for this_file in os.listdir(os.path.join(CACHE_DIR, "unpacked")):
-                if this_file.endswith(".app"):
-                    facts = inspect_app(os.path.join(CACHE_DIR, "unpacked", this_file), args, facts)
+            for this_file in os.listdir(unpacked_dir):
+                if this_file.endswith('.app'):
+                    facts = inspect_app(os.path.join(unpacked_dir, this_file),
+                                        args,
+                                        facts)
                     stop_searching_archive = True
                     return facts
                 elif this_file.endswith(SUPPORTED_INSTALL_FORMATS):
-                    facts = inspect_pkg(os.path.join(CACHE_DIR, "unpacked", this_file), args, facts)
+                    facts = inspect_pkg(os.path.join(unpacked_dir, this_file),
+                                        args,
+                                        facts)
                     stop_searching_archive = True
                     return facts
 
             # Didn't find an app or pkg on the root level? Look deeper.
-            # TODO(Elliot): Pass the relative app/pkg path into the recipe generator.
             if stop_searching_archive is False:
-                for dirpath, dirnames, filenames in os.walk(os.path.join(CACHE_DIR, "unpacked")):
+                for dirpath, dirnames, filenames in os.walk(unpacked_dir):
                     for dirname in dirnames:
-                        if dirname.startswith("."):
+                        if dirname.startswith('.'):
                             dirnames.remove(dirname)
-                        elif dirname.endswith(".app"):
-                            facts = inspect_app(os.path.join(dirpath, dirname), args, facts)
-                            facts["relative_path"] = os.path.relpath(
-                                os.path.join(dirpath), os.path.join(
-                                    CACHE_DIR, "unpacked")) + "/"
+                        elif dirname.endswith('.app'):
+                            facts = inspect_app(os.path.join(dirpath, dirname),
+                                                args,
+                                                facts)
+                            facts['relative_path'] = os.path.relpath(
+                                os.path.join(dirpath), unpacked_dir) + '/'
                             return facts
-                        elif dirname.endswith(".pkg"):  # bundle packages
-                            facts = inspect_pkg(os.path.join(dirpath, dirname), args, facts)
-                            facts["relative_path"] = os.path.relpath(
-                                os.path.join(dirpath), os.path.join(
-                                    CACHE_DIR, "unpacked")) + "/"
+                        elif dirname.endswith('.pkg'):  # bundle packages
+                            facts = inspect_pkg(os.path.join(dirpath, dirname),
+                                                args,
+                                                facts)
+                            facts['relative_path'] = os.path.relpath(
+                                os.path.join(dirpath), unpacked_dir) + '/'
                             return facts
                     for filename in filenames:
-                        if filename.endswith(".pkg"):  # flat packages
-                            facts = inspect_pkg(os.path.join(dirpath, filename), args, facts)
-                            facts["relative_path"] = os.path.relpath(
-                                os.path.join(dirpath), os.path.join(
-                                    CACHE_DIR, "unpacked")) + "/"
+                        if filename.endswith('.pkg'):  # flat packages
+                            facts = inspect_pkg(os.path.join(dirpath, filename),
+                                                args,
+                                                facts)
+                            facts['relative_path'] = os.path.relpath(
+                                os.path.join(dirpath), unpacked_dir) + '/'
                             return facts
 
             return facts
