@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+### Changed
+- Recipe Robot will not add generically-named "Installer" or "Uninstaller" apps to the list of blocking applications in Munki recipes.
+
 ### Fixed
 - Resolved a bug that would cause certain URL types not to be recognized properly. (#136)
 

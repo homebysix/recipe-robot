@@ -1510,12 +1510,19 @@ def inspect_pkg(input_path, args, facts):
                         })
                     payload_id += 1
 
-        # Add apps found to blocking applications and potential lists.
-        for potential_app in found_apps:
-            if os.path.basename(potential_app['path']) not in facts["blocking_applications"]:
-                robo_print("Added blocking application: %s" % os.path.basename(potential_app['path']),
-                           LogLevel.VERBOSE, 4)
-                facts["blocking_applications"].append(os.path.basename(potential_app['path']))
+        # Add apps found to blocking applications, unless
+        # otherwise specified.
+        non_blocking_apps = ('Uninstaller.app', 'Installer.app',
+                             'Uninstall.app', 'Install.app')
+        for app in [os.path.basename(x['path']) for x in found_apps]:
+            if app not in facts['blocking_applications']:
+                if app in non_blocking_apps:
+                    robo_print('Found application: %s' % app,
+                               LogLevel.VERBOSE, 4)
+                else:
+                    robo_print('Added blocking application: %s' % app,
+                               LogLevel.VERBOSE, 4)
+                    facts['blocking_applications'].append(app)
 
         # Determine which app, if any, to process further.
         payload_dir = os.path.join(CACHE_DIR, "payload")
