@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 ### Fixed
-- Resolved a bug that would cause certain Sparkle feeds not to be recognized as such. (#136)
+- Resolved a bug that would cause certain URL types not to be recognized properly. (#136)
 
 
 ## [1.1.1] - 2019-02-15
