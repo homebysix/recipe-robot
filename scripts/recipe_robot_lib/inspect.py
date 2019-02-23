@@ -1339,7 +1339,7 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
         facts["warnings"].append("Ditto failed to expand payload.")
     try:
         os.unlink(payload_archive)
-    except OSError, err:
+    except OSError as err:
         facts["warnings"].append("Could not remove %s: %s" % (payload_archive, err))
 
     for dirpath, dirnames, filenames in os.walk(payload_dir):
