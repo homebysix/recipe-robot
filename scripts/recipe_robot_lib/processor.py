@@ -30,8 +30,7 @@ AutoPkg autopkglib.
 
 import sys
 
-from .roboabc import RoboDict
-from .tools import LogLevel, robo_print
+from .tools import robo_print
 
 sys.path.append("/Library/AutoPkg")
 try:

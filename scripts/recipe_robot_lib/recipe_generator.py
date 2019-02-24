@@ -26,14 +26,14 @@ create autopkg recipes for the specified app.
 
 
 # TODO: refactor code issuing warnings about missing processors/repos.
+# pylint: disable=no-member
 
 import os
 
-import processor
+from . import processor
 
 from .exceptions import RoboError
 from .tools import (
-    ALL_SUPPORTED_FORMATS,
     SUPPORTED_ARCHIVE_FORMATS,
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_INSTALL_FORMATS,
@@ -43,7 +43,6 @@ from .tools import (
     create_existing_recipe_list,
     extract_app_icon,
     get_exitcode_stdout_stderr,
-    get_user_defaults,
     recipe_dirpath,
     robo_join,
     robo_print,

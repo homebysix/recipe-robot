@@ -35,11 +35,13 @@ from functools import wraps
 from random import choice as random_choice
 from subprocess import PIPE, Popen
 from urllib import quote_plus
-from urllib2 import urlopen
 
+# pylint: disable=no-name-in-module
 from Foundation import NSUserDefaults
+# pylint: enable=no-name-in-module
 
 from .exceptions import RoboError
+
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
