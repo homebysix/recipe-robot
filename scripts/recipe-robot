@@ -33,21 +33,33 @@ import sys
 import traceback
 
 # Test for platform here, before we try to import any PyObjC stuff.
-if  sys.platform != "darwin":
-    print "Recipe Robot requires Mac OS X."
+# pylint: disable=wrong-import-position
+if sys.platform != "darwin":
+    print("Recipe Robot requires macOS.")
     sys.exit(1)
 
 # TODO (Shea): Clean up importing from our library.
 import recipe_robot_lib
-from recipe_robot_lib.exceptions import RoboException, RoboError
+from recipe_robot_lib import tools
+from recipe_robot_lib.exceptions import RoboError, RoboException
 from recipe_robot_lib.facts import Facts
 from recipe_robot_lib.inspect import process_input_path
 from recipe_robot_lib.recipe import Recipes
-from recipe_robot_lib import tools
 from recipe_robot_lib.tools import (
-    create_dest_dirs, robo_print, LogLevel, OutputMode, print_welcome_text,
-    get_user_defaults, save_user_defaults, __version__, ALL_SUPPORTED_FORMATS,
-    print_death_text, congratulate, CACHE_DIR)
+    ALL_SUPPORTED_FORMATS,
+    CACHE_DIR,
+    LogLevel,
+    OutputMode,
+    __version__,
+    congratulate,
+    create_dest_dirs,
+    get_user_defaults,
+    print_death_text,
+    print_welcome_text,
+    robo_print,
+    save_user_defaults,
+)
+
 
 def main():
     """Make the magic happen."""
