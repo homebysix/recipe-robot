@@ -24,7 +24,10 @@ Unit tests for recipe_generator.
 """
 
 
-from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
+# pylint: disable=unused-wildcard-import, wildcard-import
+from nose.tools import *
+
+# pylint: enable=unused-wildcard-import, wildcard-import
 from recipe_robot_lib import facts, recipe_generator
 from recipe_robot_lib.tools import (
     SUPPORTED_ARCHIVE_FORMATS,
@@ -43,7 +46,8 @@ class TestRecipeGenerator(object):
         test_facts["codesign_reqs"] = req
         input_path = "/path"
         codesigverifier = recipe_generator.get_code_signature_verifier(
-            input_path, test_facts)
+            input_path, test_facts
+        )
         assert_equal(codesigverifier.input_path, input_path)
         assert_equal(codesigverifier.requirement, req)
         assert_is_none(codesigverifier.expected_authority_names)
@@ -55,19 +59,21 @@ class TestRecipeGenerator(object):
         test_facts["codesign_authorities"] = req
         input_path = "/path"
         codesigverifier = recipe_generator.get_code_signature_verifier(
-            input_path, test_facts)
+            input_path, test_facts
+        )
         assert_equal(codesigverifier.input_path, input_path)
         assert_is_none(codesigverifier.requirement)
         assert_sequence_equal(codesigverifier.expected_authority_names, req)
 
     def test_needs_versioner(self):
         for format in SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS:
-            true_facts = {"download_format": format,
-                           "sparkle_provides_version": False}
+            true_facts = {"download_format": format, "sparkle_provides_version": False}
             assert_true(recipe_generator.needs_versioner(true_facts))
         for format in SUPPORTED_INSTALL_FORMATS:
-            install_facts = {"download_format": format,
-                           "sparkle_provides_version": False}
+            install_facts = {
+                "download_format": format,
+                "sparkle_provides_version": False,
+            }
             assert_false(recipe_generator.needs_versioner(install_facts))
 
     def test_is_dynamic_url_source(self):

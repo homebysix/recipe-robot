@@ -48,13 +48,22 @@ class TestProcessor(object):
         """Ensure a processor gets input vars setup correctly."""
         munki_importer = processor.MunkiImporter()
         expected_variables = (
-            "MUNKI_REPO", "pkg_path", "munkiimport_pkgname",
-            "munkiimport_appname", "repo_subdirectory", "pkginfo",
-            "force_munkiimport", "additional_makepkginfo_options",
-            "version_comparison_key", "MUNKI_PKGINFO_FILE_EXTENSION")
+            "additional_makepkginfo_options",
+            "force_munkiimport",
+            "MUNKI_PKGINFO_FILE_EXTENSION",
+            "MUNKI_REPO",
+            "munkiimport_appname",
+            "munkiimport_pkgname",
+            "pkg_path",
+            "pkginfo",
+            "repo_subdirectory",
+            "uninstaller_pkg_path",
+            "version_comparison_key",
+        )
 
-        assert_sequence_equal(sorted(munki_importer._input_variables),
-                              sorted(expected_variables))
+        assert_sequence_equal(
+            sorted(munki_importer._input_variables), sorted(expected_variables)
+        )
 
     def test_empty_to_dict(self):
         """Ensure a processor's dict repr is correct with no values."""
@@ -68,8 +77,9 @@ class TestProcessor(object):
         """Ensure a processor's dict repr is correct with values."""
         adv = processor.AppDmgVersioner(dmg_path="~/Downloads/Awesome.dmg")
         output_dict = adv.to_dict()
-        test_dict = {"Processor": "AppDmgVersioner",
-                     "Arguments": {
-                         "dmg_path": "~/Downloads/Awesome.dmg"}}
+        test_dict = {
+            "Processor": "AppDmgVersioner",
+            "Arguments": {"dmg_path": "~/Downloads/Awesome.dmg"},
+        }
 
         assert_dict_equal(output_dict, test_dict)

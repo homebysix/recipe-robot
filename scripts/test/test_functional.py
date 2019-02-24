@@ -31,8 +31,11 @@ import os
 import shutil
 import subprocess
 
-from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
+# pylint: disable=unused-wildcard-import, wildcard-import
+from nose.tools import *
 from recipe_robot_lib import FoundationPlist
+
+# pylint: enable=unused-wildcard-import, wildcard-import
 
 
 class TestAppStoreAppInput(object):
@@ -44,32 +47,40 @@ class TestAppInput(object):
         # TODO (Shea): Mock up an "app" for testing purposes.
         # TODO (Shea): Add arguments to only produce certain RecipeTypes.
         # This will allow us to narrow the tests down.
-        prefs = FoundationPlist.readPlist(os.path.expanduser(
-            "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"))
+        prefs = FoundationPlist.readPlist(
+            os.path.expanduser(
+                "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
+            )
+        )
 
-        # Robby needs a recipe for Skitch. He decides to try the Robot!
+        # Robby needs a recipe for Evernote. He decides to try the Robot!
         app = "Evernote"
         destination = get_output_path(prefs, app)
         clean_folder(destination)
 
         subprocess.check_call(
-            ["./recipe-robot", "--ignore-existing",
-             "/Applications/%s.app" % app])
+            ["./recipe-robot", "--ignore-existing", "/Applications/%s.app" % app]
+        )
 
         # First, test the download recipe.
         # We know that (Shea's non-mocked "real" copy) Evernote has a
         # Sparkle Feed. Test to ensure download recipe uses it.
-        download_recipe_path = get_output_path(prefs, app,
-                                               recipe_type="download")
+        download_recipe_path = get_output_path(prefs, app, recipe_type="download")
         download_recipe = FoundationPlist.readPlist(download_recipe_path)
         assert_in("Process", download_recipe)
-        assert_equals("https://update.evernote.com/public/ENMacSMD/EvernoteMacUpdate.xml",
-                    download_recipe["Input"]["SPARKLE_FEED_URL"])
-        assert_in("URLDownloader", [processor["Processor"] for processor
-                                    in download_recipe["Process"]])
-        url_downloader = [processor for processor in
-                          download_recipe["Process"] if
-                          processor["Processor"] == "URLDownloader"][0]
+        assert_equals(
+            "https://update.evernote.com/public/ENMacSMD/EvernoteMacUpdate.xml",
+            download_recipe["Input"]["SPARKLE_FEED_URL"],
+        )
+        assert_in(
+            "URLDownloader",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+        url_downloader = [
+            processor
+            for processor in download_recipe["Process"]
+            if processor["Processor"] == "URLDownloader"
+        ][0]
 
         args = url_downloader["Arguments"]
         assert_dict_equal({"filename": "%NAME%-%version%.zip"}, dict(args))
