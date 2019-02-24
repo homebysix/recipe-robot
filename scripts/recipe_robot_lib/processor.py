@@ -83,7 +83,7 @@ def ProcessorFactory(name, attributes, base_class=AbstractProcessor):
             setattr(self, key, val)
         base_class.__init__(self, name)
 
-    newclass = type(name, (AbstractProcessor, ), {"__init__": __init__})
+    newclass = type(name, (AbstractProcessor,), {"__init__": __init__})
 
     return newclass
 

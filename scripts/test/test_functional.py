@@ -40,7 +40,6 @@ class TestAppStoreAppInput(object):
 
 
 class TestAppInput(object):
-
     def test_sparkle_feed_app(self):
         # TODO (Shea): Mock up an "app" for testing purposes.
         # TODO (Shea): Add arguments to only produce certain RecipeTypes.

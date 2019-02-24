@@ -65,6 +65,7 @@ class Facts(RoboDict):
 
     i.e. lists -> NotifyingList, str -> NotifyingString.
     """
+
     default_suffix = "information"
 
     def __init__(self):

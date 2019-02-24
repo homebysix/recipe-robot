@@ -73,4 +73,3 @@ class TestProcessor(object):
                          "dmg_path": "~/Downloads/Awesome.dmg"}}
 
         assert_dict_equal(output_dict, test_dict)
-

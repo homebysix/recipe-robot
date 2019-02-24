@@ -55,4 +55,5 @@ class RoboException(Exception):
 
 class RoboError(RoboException):
     """Something happened which means we can't continue."""
+
     pass
