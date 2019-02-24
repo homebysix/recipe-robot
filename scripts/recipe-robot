@@ -182,7 +182,7 @@ def build_argument_parser():
         "--app-mode",
         action="store_true",
         help="Strip colors from Recipe Robot output. Designed for improved "
-        "interoperability with the Recipe Robot native OS X app.",
+        "interoperability with the Recipe Robot native macOS app.",
     )
     parser.add_argument(
         "--config",

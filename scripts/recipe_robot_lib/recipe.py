@@ -49,8 +49,8 @@ RECIPE_TYPES = (
         "desc": "Imports into your Munki repository."
     }, {
         "type": "jss",
-        "desc": "Imports into your Casper JSS and creates necessary groups, "
-                "policies, etc.",
+        "desc": "Imports into Jamf Pro and creates necessary groups, policies, "
+                "etc.",
     }, {
         "type": "ds",
         "desc": "Imports into your DeployStudio Packages folder."

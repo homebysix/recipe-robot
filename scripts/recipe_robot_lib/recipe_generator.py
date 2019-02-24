@@ -1298,7 +1298,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
                 "bes_version": "%version%",
                 "bes_title": "Install/Upgrade: "
                 + facts["developer"]
-                + " %NAME% %version% - Mac OS X",
+                + " %NAME% %version% - macOS",
                 # TODO: Might be a problem with <![CDATA[ being escaped incorrectly in resulting recipe
                 "bes_description": "<p>This task will install/upgrade: %NAME% %version%</p>",
                 "bes_category": "Software Installers",
