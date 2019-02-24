@@ -195,7 +195,8 @@ def build_recipes(facts, preferred, prefs):
         if recipe:
             dest_path = robo_join(recipe_dest_dir, recipe["filename"])
             if not os.path.exists(dest_path):
-                prefs["RecipeCreateCount"] += 1
+                count = prefs.get("RecipeCreateCount", 0)
+                prefs["RecipeCreateCount"] = count + 1
             recipe.write(dest_path)
             robo_print(dest_path, LogLevel.LOG, 4)
             facts["recipes"].append(dest_path)

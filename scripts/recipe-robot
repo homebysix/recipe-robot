@@ -58,6 +58,7 @@ def main():
         setup(facts)
         print_welcome_text()
         prefs = init_prefs(facts)
+        first_timer = prefs.get('RecipeCreateCount', 0) == 0
 
         # Collect facts from the input path, based on the type of path.
         # TODO (Shea): Standardize on always returning Facts, even though they
@@ -69,7 +70,7 @@ def main():
         facts["execution_time"] = time
 
         # Pat on the back!
-        congratulate(prefs)
+        congratulate(prefs, first_timer)
     except KeyboardInterrupt:
         robo_print("\nAborting Recipe Robot!", LogLevel.ERROR)
         sys.exit(0)

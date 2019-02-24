@@ -421,7 +421,7 @@ def create_existing_recipe_list(facts):
                 "existing recipes: {}".format(err))
 
 
-def congratulate(prefs):
+def congratulate(prefs, first_timer):
     """Display a friendly congratulatory message upon creating recipes.
 
     Args:
@@ -443,15 +443,26 @@ def congratulate(prefs):
         "That's awesome!",
         "Want to do another?",
         "Well done!",
-        "You rock star, you."
+        "You rock star, you.",
     )
-    if prefs["RecipeCreateCount"] == 1:
-        robo_print("\nYou've created your first recipe with Recipe "
-                   "Robot. Congratulations!\n")
-    elif prefs["RecipeCreateCount"] > 1:
-        robo_print("\nYou've now created %s recipes with Recipe Robot. "
-                   "%s\n" % (prefs["RecipeCreateCount"],
-                             random_choice(congrats_msg)))
+    if prefs["RecipeCreateCount"] > 0:
+        if first_timer:
+            if prefs["RecipeCreateCount"] == 1:
+                recipe_count = "your first recipe"
+            else:
+                recipe_count = "your first {} recipes".format(
+                    prefs["RecipeCreateCount"]
+                )
+            congrats = "Congratulations!"
+        else:
+            if prefs["RecipeCreateCount"] == 1:
+                recipe_count = "1 recipe"
+            else:
+                recipe_count = "{} recipes".format(prefs["RecipeCreateCount"])
+            congrats = random_choice(congrats_msg)
+        robo_print(
+            "\nYou've created {} with Recipe Robot. {}\n".format(recipe_count, congrats)
+        )
 
 
 def robo_join(*args):
