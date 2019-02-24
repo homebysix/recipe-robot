@@ -415,7 +415,9 @@ def create_existing_recipe_list(facts):
             else:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
-            raise RoboError(err.message)
+            raise RoboError(
+                "I encountered this error while checking for "
+                "existing recipes: {}".format(err))
 
 
 def congratulate(prefs):

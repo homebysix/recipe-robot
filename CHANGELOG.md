@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Fixed
 - Resolved a bug that would cause certain URL types not to be recognized properly. (#136)
 - Fixed a bug that prevented expansion of tgz files. (#134)
+- Squashed a meta-error caused by failed AutoPkg searches for existing recipes.
 
 
 ## [1.1.1] - 2019-02-15
