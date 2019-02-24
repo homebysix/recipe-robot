@@ -369,16 +369,13 @@ def create_existing_recipe_list(facts):
         robo_print("Searching for existing AutoPkg recipes for %s..." %
                    this_search, LogLevel.VERBOSE)
         if use_github_token:
+            # TODO: Check for token in AutoPkg preferences.
             if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
                 facts["warnings"].append(
                     "I couldn't find a GitHub token to use.")
                 cmd = ("/usr/local/bin/autopkg search --path-only %s" %
                        this_search)
             else:
-                # TODO(Elliot): Learn how to use the GitHub token. (#18) https://github.com/autopkg/autopkg/blob/680c75855f00b588e6dd50fb431bed5d5fd41d9c/Code/autopkglib/github/__init__.py#L31
-                facts["warnings"].append(
-                    "I found a GitHub token, but I'm still learning how to "
-                    "use it.")
                 cmd = ("/usr/local/bin/autopkg search --path-only --use-token "
                        "%s" % this_search)
         else:
