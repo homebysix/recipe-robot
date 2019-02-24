@@ -110,7 +110,6 @@ def main():
         if facts["args"].verbose:
             message += "\n%s" % traceback.format_exc(error)
         else:
-            # TODO: Is this overkill?
             message += "\nRun with -v/--verbose for more info."
         facts["errors"].append(message)
         print_death_text()
