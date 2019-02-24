@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+- Nothing yet.
+
+## [1.1.2] - 2019-02-24
+
 ### Changed
 - Recipe Robot will not add generically-named "Installer" or "Uninstaller" apps to the list of blocking applications in Munki recipes.
 - Sparkle download URLs are now collected even if there is no version provided in the Sparkle feed. (#134)
@@ -214,7 +218,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/homebysix/recipe-robot/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/homebysix/recipe-robot/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/homebysix/recipe-robot/compare/v1.0.5...v1.1.0
 [1.0.5]: https://github.com/homebysix/recipe-robot/compare/v1.0.4...v1.0.5
