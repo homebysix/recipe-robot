@@ -66,6 +66,13 @@ def main():
 
     facts = Facts()
 
+    if not os.path.isfile("/usr/local/bin/autopkg"):
+        robo_print(
+            "Recipe Robot requires AutoPkg. Please download and install the "
+            "latest version: https://github.com/autopkg/autopkg/releases/latest",
+            LogLevel.ERROR)
+        sys.exit(1)
+
     try:
         setup(facts)
         print_welcome_text()

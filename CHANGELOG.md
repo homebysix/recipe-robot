@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Changed
 - Recipe Robot will not add generically-named "Installer" or "Uninstaller" apps to the list of blocking applications in Munki recipes.
 - Sparkle download URLs are now collected even if there is no version provided in the Sparkle feed. (#134)
+- Recipe Robot now exits with an error if the /usr/local/bin/autopkg symlink is not present. (#134)
 - A few Python formatting changes to prepare for eventual adoption of an autoformatter.
 
 ### Fixed
