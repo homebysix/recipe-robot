@@ -244,7 +244,7 @@ def generate_download_recipe(facts, prefs, recipe):
         keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
         if facts.get('use_asset_regex', False):
             gh_release_info_provider = processor.GitHubReleasesInfoProvider(
-                asset_regex=".*\.%s$" % facts["download_format"],
+                asset_regex=".*\\.%s$" % facts["download_format"],
                 github_repo="%GITHUB_REPO%")
         else:
             gh_release_info_provider = processor.GitHubReleasesInfoProvider(
