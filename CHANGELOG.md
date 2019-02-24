@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-- Nothing yet.
+### Changed
+- Only download and pkg recipe types are enabled by default on first run.
+
 
 ## [1.1.2] - 2019-02-24
 

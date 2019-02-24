@@ -57,11 +57,13 @@ class Recipe(RoboDict):
     def __init__(self, recipe_type, description):
         """Build a recipe dictionary."""
         super(Recipe, self).__init__()
+        default_enabled = ("download", "pkg")
+        preferred = True if recipe_type in default_enabled else False
         self.update(
             {
                 "type": recipe_type,
                 "description": description,
-                "preferred": True,
+                "preferred": preferred,
                 "existing": False,
             }
         )
