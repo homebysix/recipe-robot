@@ -87,41 +87,38 @@ def process_input_path(facts):
     # inspect it.
     inspect_func = None
     if input_path.lower().startswith("http"):
-        if (input_path.lower().endswith((".xml", ".rss", ".php")) or
-            "appcast" in input_path.lower()):
-            robo_print("Input path looks like a Sparkle feed.",
-                       LogLevel.VERBOSE)
+        if (
+            input_path.lower().endswith((".xml", ".rss", ".php"))
+            or "appcast" in input_path.lower()
+        ):
+            robo_print("Input path looks like a Sparkle feed.", LogLevel.VERBOSE)
             inspect_func = inspect_sparkle_feed_url
         elif any_item_in_string(github_domains, input_path.lower()):
             robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
-            if '/download/' in input_path.lower():
-                facts["warnings"].append("I'm processing the input path as a "
-                                         "GitHub repo URL, but you may have "
-                                         "wanted me to treat it as a download "
-                                         "URL.")
+            if "/download/" in input_path.lower():
+                facts["warnings"].append(
+                    "I'm processing the input path as a GitHub repo URL, but you may "
+                    "have wanted me to treat it as a download URL."
+                )
             inspect_func = inspect_github_url
         elif "sourceforge.net" in input_path.lower():
-            robo_print("Input path looks like a SourceForge URL.",
-                       LogLevel.VERBOSE)
+            robo_print("Input path looks like a SourceForge URL.", LogLevel.VERBOSE)
             inspect_func = inspect_sourceforge_url
         elif "bitbucket.org" in input_path.lower():
-            robo_print("Input path looks like a BitBucket URL.",
-                       LogLevel.VERBOSE)
-            if '/downloads/' in input_path.lower():
-                facts["warnings"].append("I'm processing the input path as a "
-                                         "BitBucket repo URL, but you may have "
-                                         "wanted me to treat it as a download "
-                                         "URL.")
+            robo_print("Input path looks like a BitBucket URL.", LogLevel.VERBOSE)
+            if "/downloads/" in input_path.lower():
+                facts["warnings"].append(
+                    "I'm processing the input path as a BitBucket repo URL, but you "
+                    "may have wanted me to treat it as a download URL."
+                )
             inspect_func = inspect_bitbucket_url
         elif "dropbox.com/s/" in input_path.lower():
-            robo_print("Input path looks like a Dropbox shared link.",
-                       LogLevel.VERBOSE)
+            robo_print("Input path looks like a Dropbox shared link.", LogLevel.VERBOSE)
             # Configure the shared link to force file download.
             input_path = input_path.replace("?dl=0", "?dl=1")
             inspect_func = inspect_download_url
         else:
-            robo_print("Input path looks like a download URL.",
-                       LogLevel.VERBOSE)
+            robo_print("Input path looks like a download URL.", LogLevel.VERBOSE)
             inspect_func = inspect_download_url
     elif input_path.lower().startswith("ftp"):
         robo_print("Input path looks like a download URL.", LogLevel.VERBOSE)
@@ -131,8 +128,7 @@ def process_input_path(facts):
             robo_print("Input path looks like an app.", LogLevel.VERBOSE)
             inspect_func = inspect_app
         elif input_path.endswith(".recipe"):
-            raise RoboError("Sorry, I can't use existing AutoPkg recipes as "
-                            "input.")
+            raise RoboError("Sorry, I can't use existing AutoPkg recipes as input.")
         elif input_path.endswith(SUPPORTED_INSTALL_FORMATS):
             robo_print("Input path looks like an installer.", LogLevel.VERBOSE)
             inspect_func = inspect_pkg
@@ -143,11 +139,14 @@ def process_input_path(facts):
             robo_print("Input path looks like an archive.", LogLevel.VERBOSE)
             inspect_func = inspect_archive
         else:
-            raise RoboError("I haven't been trained on how to handle this "
-                            "input path:\n\t%s" % input_path)
+            raise RoboError(
+                "I haven't been trained on how to handle this input path:\n"
+                "\t%s" % input_path
+            )
     else:
-        raise RoboError("Input path does not exist. Please try again with a "
-                        "valid input path.")
+        raise RoboError(
+            "Input path does not exist. Please try again with a valid input path."
+        )
 
     if inspect_func:
         facts = inspect_func(input_path, args, facts)
@@ -182,11 +181,15 @@ def check_url(url):
             else:
                 robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
         except (CertificateError, SSLError) as err:
-            robo_print("Domain does not have a valid SSL certificate.",
-                       LogLevel.VERBOSE, 4)
+            robo_print(
+                "Domain does not have a valid SSL certificate.", LogLevel.VERBOSE, 4
+            )
         except Exception as err:
-            robo_print("An error occurred while checking for an HTTPS "
-                       "URL: %s" % err, LogLevel.VERBOSE, 4)
+            robo_print(
+                "An error occurred while checking for an HTTPS URL: %s" % err,
+                LogLevel.VERBOSE,
+                4,
+            )
 
     # Use HTTP if HTTPS fails.
     c = httplib.HTTPConnection(p.netloc, 80, timeout=10)
@@ -230,12 +233,10 @@ def inspect_app(input_path, args, facts):
     # Read the app's Info.plist.
     robo_print("Validating app...", LogLevel.VERBOSE)
     try:
-        info_plist = FoundationPlist.readPlist(
-            input_path + "/Contents/Info.plist")
+        info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
         robo_print("App seems valid", LogLevel.VERBOSE, 4)
     except (ValueError, FoundationPlist.NSPropertyListSerializationException) as error:
-        raise RoboError("%s doesn't look like a valid app to me." % input_path,
-                        error)
+        raise RoboError("%s doesn't look like a valid app to me." % input_path, error)
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
@@ -272,14 +273,19 @@ def inspect_app(input_path, args, facts):
         robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
         facts["bundle_id"] = bundle_id
     else:
-        facts["warnings"].append("{} doesn't seem to have a bundle "
-                                 "identifier.".format(app_name))
+        facts["warnings"].append(
+            "{} doesn't seem to have a bundle identifier.".format(app_name)
+        )
 
     # Leave a hint for people testing Recipe Robot on itself.
-    if bundle_id == "com.elliotjordan.recipe-robot" and "github_url" not in facts["inspections"]:
+    if (
+        bundle_id == "com.elliotjordan.recipe-robot"
+        and "github_url" not in facts["inspections"]
+    ):
         facts["warnings"].append(
             "Try using my GitHub URL as input instead of the app itself. "
-            "You may also need to use --ignore-existing.")
+            "You may also need to use --ignore-existing."
+        )
 
     # Attempt to determine how to download this app.
     if "sparkle_feed" not in facts:
@@ -291,15 +297,17 @@ def inspect_app(input_path, args, facts):
         elif "SUOriginalFeedURL" in info_plist:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
         elif os.path.exists("%s/Contents/Frameworks/DevMateKit.framework" % input_path):
-        	sparkle_feed = ("https://updates.devmate.com/%s.xml") % bundle_id
+            sparkle_feed = ("https://updates.devmate.com/%s.xml") % bundle_id
         if sparkle_feed != "" and sparkle_feed != "NULL":
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
         else:
             robo_print("No Sparkle feed", LogLevel.VERBOSE, 4)
 
     if "is_from_app_store" not in facts:
-        robo_print("Determining whether app was downloaded from the Mac App "
-                   "Store...", LogLevel.VERBOSE)
+        robo_print(
+            "Determining whether app was downloaded from the Mac App Store...",
+            LogLevel.VERBOSE,
+        )
         if os.path.exists("%s/Contents/_MASReceipt/receipt" % input_path):
             robo_print("App came from the App Store", LogLevel.VERBOSE, 4)
             facts["is_from_app_store"] = True
@@ -342,19 +350,25 @@ def inspect_app(input_path, args, facts):
             if "CFBundleVersion" in info_plist:
                 version_key = "CFBundleVersion"
         if version_key not in ("", None):
-            robo_print("Version key is: %s (%s)" %
-                       (version_key, info_plist[version_key]), LogLevel.VERBOSE, 4)
+            robo_print(
+                "Version key is: %s (%s)" % (version_key, info_plist[version_key]),
+                LogLevel.VERBOSE,
+                4,
+            )
             facts["version_key"] = version_key
         else:
-            raise RoboError("Sorry, I can't determine which version key to "
-                            "use for this app.")
+            raise RoboError(
+                "Sorry, I can't determine which version key to use for this app."
+            )
 
     # Determine path to the app's icon.
     if "icon_path" not in facts and not args.skip_icon:
         icon_path = ""
         robo_print("Looking for app icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:
-            icon_path = os.path.join(input_path, "Contents", "Resources", info_plist["CFBundleIconFile"])
+            icon_path = os.path.join(
+                input_path, "Contents", "Resources", info_plist["CFBundleIconFile"]
+            )
         else:
             facts["warnings"].append("Can't determine app icon.")
         if icon_path not in ("", None):
@@ -366,8 +380,9 @@ def inspect_app(input_path, args, facts):
         robo_print("Getting app description...", LogLevel.VERBOSE)
         description, source = get_app_description(app_name)
         if description is not None:
-            robo_print("Description (from %s): %s" % (source, description),
-                       LogLevel.VERBOSE, 4)
+            robo_print(
+                "Description (from %s): %s" % (source, description), LogLevel.VERBOSE, 4
+            )
             facts["description"] = description
         else:
             robo_print("Can't retrieve app description.", LogLevel.VERBOSE, 4)
@@ -383,30 +398,31 @@ def inspect_app(input_path, args, facts):
         developer = ""
         codesign_version = ""
         robo_print("Gathering code signature information...", LogLevel.VERBOSE)
-        cmd = "codesign --display --verbose=2 -r- \"%s\"" % (input_path)
+        cmd = 'codesign --display --verbose=2 -r- "%s"' % (input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             # From stdout:
             reqs_marker = "designated => "
             for line in out.split("\n"):
                 if line.startswith(reqs_marker):
-                    codesign_reqs = line[len(reqs_marker):]
+                    codesign_reqs = line[len(reqs_marker) :]
             # From stderr:
             authority_marker = "Authority="
             dev_marker = "Authority=Developer ID Application: "
             vers_marker = "Sealed Resources version="
             for line in err.split("\n"):  # The info we need is in stderr.
                 if line.startswith(authority_marker):
-                    codesign_authorities.append(line[len(authority_marker):])
+                    codesign_authorities.append(line[len(authority_marker) :])
                 if line.startswith(dev_marker):
                     if " (" in line:
                         line = line.split(" (")[0]
-                    developer = line[len(dev_marker):]
+                    developer = line[len(dev_marker) :]
                 if line.startswith(vers_marker):
-                    codesign_version = line[len(vers_marker):len(vers_marker) + 1]
+                    codesign_version = line[len(vers_marker) : len(vers_marker) + 1]
                     if codesign_version == "1":
                         facts["warnings"].append(
-                            "This app uses an obsolete code signature.")
+                            "This app uses an obsolete code signature."
+                        )
                         # Clear code signature markers, treat app as
                         # unsigned.
                         codesign_reqs = ""
@@ -415,9 +431,15 @@ def inspect_app(input_path, args, facts):
         if codesign_reqs == "" and len(codesign_authorities) == 0:
             robo_print("App is not signed", LogLevel.VERBOSE, 4)
         else:
-            robo_print("Code signature verification requirements recorded", LogLevel.VERBOSE, 4)
+            robo_print(
+                "Code signature verification requirements recorded", LogLevel.VERBOSE, 4
+            )
             facts["codesign_reqs"] = codesign_reqs
-            robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
+            robo_print(
+                "%s authority names recorded" % len(codesign_authorities),
+                LogLevel.VERBOSE,
+                4,
+            )
             facts["codesign_authorities"] = codesign_authorities
             facts["codesign_input_filename"] = os.path.basename(input_path)
         if developer not in ("", None):
@@ -431,11 +453,11 @@ def html_decode(the_string):
     """Given a string, change HTML escaped characters (&gt;) to regular
     characters (>)."""
     html_chars = (
-        ('\'', '&#39;'),
-        ('"', '&quot;'),
-        ('>', '&gt;'),
-        ('<', '&lt;'),
-        ('&', '&amp;'),
+        ("'", "&#39;"),
+        ('"', "&quot;"),
+        (">", "&gt;"),
+        ("<", "&lt;"),
+        ("&", "&amp;"),
     )
     for char in html_chars:
         the_string = the_string.replace(char[1], char[0])
@@ -443,11 +465,11 @@ def html_decode(the_string):
 
 
 def useragent_urlopen(url, useragent):
-    '''For a given URL, return the urlopen response after adding the GitHub token.'''
+    """For a given URL, return the urlopen response after adding the GitHub token."""
 
     req = Request(url)
     if useragent:
-        req.add_header('User-agent', useragent)
+        req.add_header("User-agent", useragent)
 
     return urlopen(req)
 
@@ -462,24 +484,27 @@ def get_app_description(app_name):
         description: A string containing a description of the app.
         source: A string containing the source of the description.
     """
-    desc_sources = [{
-        'name': 'MacUpdate',
-        'pattern': r'=\"shortdescr\">(?P<desc>.*)</span>',
-        'url': 'https://www.macupdate.com/find/mac/%s' % app_name,
-    }, {
-        'name': 'AlternativeTo',
-        'pattern': r'<div class=\"itemDesc( read-more-box)?\">\s+'
-                   '<p class=\"text\">(?P<desc>.*)</p>',
-        'url': 'https://alternativeto.net/browse/search'
-               '/?ignoreExactMatch=true&q=%s' % app_name,
-    }]
+    desc_sources = [
+        {
+            "name": "MacUpdate",
+            "pattern": r"=\"shortdescr\">(?P<desc>.*)</span>",
+            "url": "https://www.macupdate.com/find/mac/%s" % app_name,
+        },
+        {
+            "name": "AlternativeTo",
+            "pattern": r"<div class=\"itemDesc( read-more-box)?\">\s+"
+            '<p class="text">(?P<desc>.*)</p>',
+            "url": "https://alternativeto.net/browse/search"
+            "/?ignoreExactMatch=true&q=%s" % app_name,
+        },
+    ]
     for source in desc_sources:
-        cmd = 'curl --silent \"%s\"' % source['url']
+        cmd = 'curl --silent "%s"' % source["url"]
         _, out, _ = get_exitcode_stdout_stderr(cmd)
-        result = re.search(source['pattern'], out)
+        result = re.search(source["pattern"], out)
         if result:
-            description = unicode(html_decode(result.group('desc')), 'utf-8')
-            return description, source['name']
+            description = unicode(html_decode(result.group("desc")), "utf-8")
+            return description, source["name"]
     return None, None
 
 
@@ -489,15 +514,20 @@ def get_download_link_from_xattr(input_path, args, facts):
     """
     try:
         where_froms_string = xattr.getxattr(
-            input_path, "com.apple.metadata:kMDItemWhereFroms")
+            input_path, "com.apple.metadata:kMDItemWhereFroms"
+        )
         where_froms = FoundationPlist.readPlistFromString(where_froms_string)
         if len(where_froms) > 0:
             facts["download_url"] = where_froms[0]
-            robo_print("Download URL found in file "
-                       "metadata: %s" % where_froms[0], LogLevel.VERBOSE, 4)
+            robo_print(
+                "Download URL found in file metadata: %s" % where_froms[0],
+                LogLevel.VERBOSE,
+                4,
+            )
     except KeyError as err:
-        robo_print("Unable to derive a download URL "
-                   "from file metadata.", LogLevel.WARNING)
+        robo_print(
+            "Unable to derive a download URL from file metadata.", LogLevel.WARNING
+        )
 
 
 def inspect_archive(input_path, args, facts):
@@ -527,41 +557,41 @@ def inspect_archive(input_path, args, facts):
         get_download_link_from_xattr(input_path, args, facts)
 
     # Treat the download as a potential archive.
-    unpacked_dir = os.path.join(CACHE_DIR, 'unpacked')
+    unpacked_dir = os.path.join(CACHE_DIR, "unpacked")
     if not os.path.exists(unpacked_dir):
         os.mkdir(unpacked_dir)
     archive_cmds = {
-        'zip': '/usr/bin/unzip "{}" -d "{}"'.format(
-            input_path, unpacked_dir),
-        'tgz': '/usr/bin/tar -zxvf "{}" -C "{}"'.format(
-            input_path, unpacked_dir),
+        "zip": '/usr/bin/unzip "{}" -d "{}"'.format(input_path, unpacked_dir),
+        "tgz": '/usr/bin/tar -zxvf "{}" -C "{}"'.format(input_path, unpacked_dir),
     }
     for fmt in archive_cmds:
         exitcode, _, _ = get_exitcode_stdout_stderr(archive_cmds[fmt])
         if exitcode == 0:
             # Confirmed: the download was an archive. Make a note of that.
-            robo_print('Successfully unarchived %s' % fmt, LogLevel.VERBOSE, 4)
-            facts['download_format'] = fmt
+            robo_print("Successfully unarchived %s" % fmt, LogLevel.VERBOSE, 4)
+            facts["download_format"] = fmt
 
             # If the download filename was ambiguous, change it.
-            if not facts.get('download_filename', input_path).endswith(SUPPORTED_ARCHIVE_FORMATS):
-                facts['download_filename'] = '{}.{}'.format(
-                    facts.get('download_filename',
-                    os.path.basename(input_path)), fmt)
+            if not facts.get("download_filename", input_path).endswith(
+                SUPPORTED_ARCHIVE_FORMATS
+            ):
+                facts["download_filename"] = "{}.{}".format(
+                    facts.get("download_filename", os.path.basename(input_path)), fmt
+                )
 
             # Locate and inspect any apps or pkgs on the root level.
             stop_searching_archive = False
             for this_file in os.listdir(unpacked_dir):
-                if this_file.endswith('.app'):
-                    facts = inspect_app(os.path.join(unpacked_dir, this_file),
-                                        args,
-                                        facts)
+                if this_file.endswith(".app"):
+                    facts = inspect_app(
+                        os.path.join(unpacked_dir, this_file), args, facts
+                    )
                     stop_searching_archive = True
                     return facts
                 elif this_file.endswith(SUPPORTED_INSTALL_FORMATS):
-                    facts = inspect_pkg(os.path.join(unpacked_dir, this_file),
-                                        args,
-                                        facts)
+                    facts = inspect_pkg(
+                        os.path.join(unpacked_dir, this_file), args, facts
+                    )
                     stop_searching_archive = True
                     return facts
 
@@ -569,36 +599,45 @@ def inspect_archive(input_path, args, facts):
             if stop_searching_archive is False:
                 for dirpath, dirnames, filenames in os.walk(unpacked_dir):
                     for dirname in dirnames:
-                        if dirname.startswith('.'):
+                        if dirname.startswith("."):
                             dirnames.remove(dirname)
-                        elif dirname.endswith('.app'):
-                            facts = inspect_app(os.path.join(dirpath, dirname),
-                                                args,
-                                                facts)
-                            facts['relative_path'] = os.path.relpath(
-                                os.path.join(dirpath), unpacked_dir) + '/'
+                        elif dirname.endswith(".app"):
+                            facts = inspect_app(
+                                os.path.join(dirpath, dirname), args, facts
+                            )
+                            facts["relative_path"] = (
+                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
+                                + "/"
+                            )
                             return facts
-                        elif dirname.endswith('.pkg'):  # bundle packages
-                            facts = inspect_pkg(os.path.join(dirpath, dirname),
-                                                args,
-                                                facts)
-                            facts['relative_path'] = os.path.relpath(
-                                os.path.join(dirpath), unpacked_dir) + '/'
+                        elif dirname.endswith(".pkg"):  # bundle packages
+                            facts = inspect_pkg(
+                                os.path.join(dirpath, dirname), args, facts
+                            )
+                            facts["relative_path"] = (
+                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
+                                + "/"
+                            )
                             return facts
                     for filename in filenames:
-                        if filename.endswith('.pkg'):  # flat packages
-                            facts = inspect_pkg(os.path.join(dirpath, filename),
-                                                args,
-                                                facts)
-                            facts['relative_path'] = os.path.relpath(
-                                os.path.join(dirpath), unpacked_dir) + '/'
+                        if filename.endswith(".pkg"):  # flat packages
+                            facts = inspect_pkg(
+                                os.path.join(dirpath, filename), args, facts
+                            )
+                            facts["relative_path"] = (
+                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
+                                + "/"
+                            )
                             return facts
 
             return facts
 
-    robo_print("Unable to unpack this archive: %s\n(You can ignore this "
-               "message if the previous attempt to mount the downloaded file "
-               "as a disk image succeeded.)" % input_path, LogLevel.DEBUG)
+    robo_print(
+        "Unable to unpack this archive: %s\n(You can ignore this message if the "
+        "previous attempt to mount the downloaded file as a disk image "
+        "succeeded.)" % input_path,
+        LogLevel.DEBUG,
+    )
     return facts
 
 
@@ -653,7 +692,9 @@ def inspect_bitbucket_url(input_path, args, facts):
         # Use GitHub API to obtain information about the repo and
         # releases.
         repo_api_url = "https://api.bitbucket.org/2.0/repositories/%s" % bitbucket_repo
-        releases_api_url = "https://api.bitbucket.org/2.0/repositories/%s/downloads" % bitbucket_repo
+        releases_api_url = (
+            "https://api.bitbucket.org/2.0/repositories/%s/downloads" % bitbucket_repo
+        )
         try:
             raw_json_repo = urlopen(repo_api_url).read()
             parsed_repo = json.loads(raw_json_repo)
@@ -662,32 +703,35 @@ def inspect_bitbucket_url(input_path, args, facts):
         except HTTPError as err:
             if err.code == 403:
                 facts["warnings"].append(
-                    "Error occurred while getting information from the "
-                    "BitBucket API. If you've been creating a lot of recipes "
-                    "quickly, you may have hit the rate limit. Give it a few "
-                    "minutes, then try again. (%s)" % err)
+                    "Error occurred while getting information from the BitBucket API. "
+                    "If you've been creating a lot of recipes quickly, you may have "
+                    "hit the rate limit. Give it a few minutes, then try again. "
+                    "(%s)" % err
+                )
                 return facts
             if err.code == 404:
-                facts["warnings"].append(
-                    "BitBucket API URL not found. " "(%s)" % err)
+                facts["warnings"].append("BitBucket API URL not found. (%s)" % err)
                 return facts
             else:
                 facts["warnings"].append(
-                    "Error occurred while getting information from the "
-                    "BitBucket API. (%s)" % err)
+                    "Error occurred while getting information from the BitBucket API. "
+                    "(%s)" % err
+                )
                 return facts
         except URLError as err:
             if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
                 # TODO(Elliot): Try again using curl? (#19)
                 facts["warnings"].append(
-                    "I got an SSLv3 handshake error while getting "
-                    "information from the BitBucket API, and I don't yet "
-                    "know what to do with that. (%s)" % err)
+                    "I got an SSLv3 handshake error while getting information from the "
+                    "BitBucket API, and I don't yet know what to do with that. "
+                    "(%s)" % err
+                )
                 return facts
             else:
                 facts["warnings"].append(
-                    "Error encountered while getting information from the "
-                    "BitBucket API. (%s)" % err)
+                    "Error encountered while getting information from the BitBucket "
+                    "API. (%s)" % err
+                )
                 return facts
 
         # Get app name.
@@ -705,8 +749,9 @@ def inspect_bitbucket_url(input_path, args, facts):
         if "developer" not in facts:
             developer = parsed_repo["owner"]["display_name"]
         if developer not in ("", None):
-            robo_print("BitBucket owner full name "
-                       "is: %s" % developer, LogLevel.VERBOSE, 4)
+            robo_print(
+                "BitBucket owner full name is: %s" % developer, LogLevel.VERBOSE, 4
+            )
             facts["developer"] = developer
 
         # Get app description.
@@ -716,17 +761,20 @@ def inspect_bitbucket_url(input_path, args, facts):
             if parsed_repo.get("description", "") not in ("", None):
                 description = parsed_repo["description"]
             if description not in ("", None):
-                robo_print("BitBucket description is: %s" % description, LogLevel.VERBOSE, 4)
+                robo_print(
+                    "BitBucket description is: %s" % description, LogLevel.VERBOSE, 4
+                )
                 facts["description"] = description
             else:
-                facts["warnings"].append(
-                    "Could not detect BitBucket description.")
+                facts["warnings"].append("Could not detect BitBucket description.")
 
         # Get download format of latest release.
         if "download_format" not in facts or "download_url" not in facts:
             download_format = ""
             download_url = ""
-            robo_print("Getting information from latest BitBucket release...", LogLevel.VERBOSE)
+            robo_print(
+                "Getting information from latest BitBucket release...", LogLevel.VERBOSE
+            )
             if "values" in parsed_release:
                 # TODO (Elliot): Use find_supported_release() instead of these
                 # nested loops. May need to flatten the 'asset' dict first.
@@ -739,26 +787,35 @@ def inspect_bitbucket_url(input_path, args, facts):
                             download_url = asset["links"]["self"]["href"]
                             break
             if download_format not in ("", None):
-                robo_print("BitBucket release download format "
-                           "is: %s" % download_format, LogLevel.VERBOSE, 4)
+                robo_print(
+                    "BitBucket release download format is: %s" % download_format,
+                    LogLevel.VERBOSE,
+                    4,
+                )
                 facts["download_format"] = download_format
             else:
                 facts["warnings"].append(
-                    "Could not detect BitBucket release download format.")
+                    "Could not detect BitBucket release download format."
+                )
             if download_url not in ("", None):
-                robo_print("BitBucket release download URL "
-                           "is: %s" % download_url, LogLevel.VERBOSE, 4)
+                robo_print(
+                    "BitBucket release download URL is: %s" % download_url,
+                    LogLevel.VERBOSE,
+                    4,
+                )
                 facts["download_url"] = download_url
                 facts = inspect_download_url(download_url, args, facts)
             else:
                 facts["warnings"].append(
-                    "Could not detect BitBucket release download URL.")
+                    "Could not detect BitBucket release download URL."
+                )
 
         # Warn user if the BitBucket project is private.
         if parsed_repo.get("is_private", False) is not False:
             facts["warnings"].append(
-                "This BitBucket project is marked \"private\" and recipes "
-                "you generate may not work for others.")
+                'This BitBucket project is marked "private" and recipes '
+                "you generate may not work for others."
+            )
 
     else:
         facts["warnings"].append("Could not detect BitBucket repo.")
@@ -795,20 +852,22 @@ def inspect_disk_image(input_path, args, facts):
     # Determine whether the dmg has a software license agreement.
     # Inspired by: https://github.com/autopkg/autopkg/blob/master/Code/autopkglib/DmgMounter.py#L74-L98
     dmg_has_sla = False
-    cmd = "/usr/bin/hdiutil imageinfo -plist \"%s\"" % input_path
+    cmd = '/usr/bin/hdiutil imageinfo -plist "%s"' % input_path
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
         with open(os.path.join(CACHE_DIR, "dmg_info.plist"), "wb") as dmg_plist:
             dmg_plist.write(out)
         try:
-            dmg_info = FoundationPlist.readPlist(os.path.join(CACHE_DIR, "dmg_info.plist"))
+            dmg_info = FoundationPlist.readPlist(
+                os.path.join(CACHE_DIR, "dmg_info.plist")
+            )
             if dmg_info.get("Properties").get("Software License Agreement") == True:
                 dmg_has_sla = True
         except FoundationPlist.NSPropertyListSerializationException:
             pass
 
     # Mount the dmg and look for an app.
-    cmd = "/usr/bin/hdiutil attach -nobrowse -plist \"%s\"" % input_path
+    cmd = '/usr/bin/hdiutil attach -nobrowse -plist "%s"' % input_path
     if dmg_has_sla is True:
         exitcode, out, err = get_exitcode_stdout_stderr(cmd, "Y\n")
     else:
@@ -820,22 +879,30 @@ def inspect_disk_image(input_path, args, facts):
         facts["download_format"] = "dmg"  # most common disk image format
 
         # If the download filename was ambiguous, change it.
-        if not facts.get("download_filename", input_path).endswith(SUPPORTED_IMAGE_FORMATS):
-            facts["download_filename"] = facts.get("download_filename", input_path) + ".dmg"
+        if not facts.get("download_filename", input_path).endswith(
+            SUPPORTED_IMAGE_FORMATS
+        ):
+            facts["download_filename"] = (
+                facts.get("download_filename", input_path) + ".dmg"
+            )
 
         # Clean the output for cases where the dmg has a license
         # agreement.
-        out_clean = out[out.find("<?xml"):]
+        out_clean = out[out.find("<?xml") :]
 
         # Locate and inspect the app.
         with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), "wb") as dmg_plist:
             dmg_plist.write(out_clean)
         try:
-            dmg_dict = FoundationPlist.readPlist(os.path.join(CACHE_DIR, "dmg_attach.plist"))
+            dmg_dict = FoundationPlist.readPlist(
+                os.path.join(CACHE_DIR, "dmg_attach.plist")
+            )
         except Exception as error:
             raise RoboError(
-                "Shoot, I had trouble parsing the output of hdiutil while "
-                "mounting the downloaded dmg. Sorry about that.", error)
+                "Shoot, I had trouble parsing the output of hdiutil while mounting the "
+                "downloaded dmg. Sorry about that.",
+                error,
+            )
         for entity in dmg_dict["system-entities"]:
             if "mount-point" in entity:
                 dmg_mount = entity["mount-point"]
@@ -852,7 +919,7 @@ def inspect_disk_image(input_path, args, facts):
                     except shutil.Error:
                         pass
                 # Unmount attached volume when done.
-                cmd = "/usr/bin/hdiutil detach \"%s\"" % dmg_mount
+                cmd = '/usr/bin/hdiutil detach "%s"' % dmg_mount
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 facts = inspect_app(cached_app_path, args, facts)
                 break
@@ -860,9 +927,12 @@ def inspect_disk_image(input_path, args, facts):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
-        robo_print("Unable to mount %s. (%s)\n(You can ignore this message if "
-                   "the upcoming attempt to unzip the downloaded file as an "
-                   "archive succeeds.)" % (input_path, err), LogLevel.DEBUG)
+        robo_print(
+            "Unable to mount %s. (%s)\n(You can ignore this message if "
+            "the upcoming attempt to unzip the downloaded file as an "
+            "archive succeeds.)" % (input_path, err),
+            LogLevel.DEBUG,
+        )
 
     return facts
 
@@ -910,34 +980,38 @@ def inspect_download_url(input_path, args, facts):
     # sort.
     version_match = re.search(r"[\d]+\.[\w]+$", input_path)
     if version_match is not None and (
-            "sparkle_feed_url" not in facts["inspections"] and
-            "github_url" not in facts["inspections"] and
-            "sourceforge_url" not in facts["inspections"] and
-            "bitbucket_url" not in facts["inspections"]):
+        "sparkle_feed_url" not in facts["inspections"]
+        and "github_url" not in facts["inspections"]
+        and "sourceforge_url" not in facts["inspections"]
+        and "bitbucket_url" not in facts["inspections"]
+    ):
         facts["warnings"].append(
             "Careful, this might be a version-specific URL. Better to give me "
-            "a \"latest\" URL or a Sparkle feed.")
+            'a "latest" URL or a Sparkle feed.'
+        )
 
     # Warn if it looks like we're using a temporary CDN URL.
     aws_expire_match = re.search(r"\:\/\/.*Expires\=", input_path)
     if aws_expire_match is not None and (
-            "sparkle_feed_url" not in facts["inspections"] and
-            "github_url" not in facts["inspections"] and
-            "sourceforge_url" not in facts["inspections"] and
-            "bitbucket_url" not in facts["inspections"]):
+        "sparkle_feed_url" not in facts["inspections"]
+        and "github_url" not in facts["inspections"]
+        and "sourceforge_url" not in facts["inspections"]
+        and "bitbucket_url" not in facts["inspections"]
+    ):
         facts["warnings"].append(
             "This is a CDN-cached URL, and it may expire. Try feeding me a "
-            "permanent URL instead.")
+            "permanent URL instead."
+        )
 
     # Warn if it looks like we're using an AWS URL with an access key.
     aws_key_match = re.search(r"\:\/\/.*AWSAccessKeyId\=", input_path)
     if aws_key_match is not None and (
-            "sparkle_feed_url" not in facts["inspections"] and
-            "github_url" not in facts["inspections"] and
-            "sourceforge_url" not in facts["inspections"] and
-            "bitbucket_url" not in facts["inspections"]):
-        facts["warnings"].append(
-            "This URL contains an AWSAccessKeyId parameter.")
+        "sparkle_feed_url" not in facts["inspections"]
+        and "github_url" not in facts["inspections"]
+        and "sourceforge_url" not in facts["inspections"]
+        and "bitbucket_url" not in facts["inspections"]
+    ):
+        facts["warnings"].append("This URL contains an AWSAccessKeyId parameter.")
 
     # Determine filename from input URL (will be overridden later if a
     # better candidate is found.)
@@ -953,10 +1027,10 @@ def inspect_download_url(input_path, args, facts):
     checked_url = check_url(input_path)
     if checked_url.startswith("http:"):
         facts["warnings"].append(
-            "This download URL is not using HTTPS. I recommend contacting "
-            "the developer and politely suggesting that they secure "
-            "their download URL. (Example: https://twitter.com"
-            "/homebysix/status/714508127228403712)")
+            "This download URL is not using HTTPS. I recommend contacting the "
+            "developer and politely suggesting that they secure their download URL. "
+            "(Example: https://twitter.com/homebysix/status/714508127228403712)"
+        )
 
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading
@@ -970,40 +1044,46 @@ def inspect_download_url(input_path, args, facts):
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
-                raw_download = useragent_urlopen(checked_url, 'Mozilla/5.0')
+                raw_download = useragent_urlopen(checked_url, "Mozilla/5.0")
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to "
                     "download this file. If you run the recipes and get a "
-                    "\"Can't open URL\" error, it means AutoPkg encountered "
-                    "the same problem.")
+                    '"Can\'t open URL" error, it means AutoPkg encountered '
+                    "the same problem."
+                )
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
                 facts["warnings"].append(
-                    "Error encountered during file download. (%s)" % err)
+                    "Error encountered during file download. (%s)" % err
+                )
                 return facts
         if err.code == 404:
             facts["warnings"].append("Download URL not found. (%s)" % err)
             return facts
         else:
             facts["warnings"].append(
-                "Error encountered during file download. (%s)" % err)
+                "Error encountered during file download. (%s)" % err
+            )
             return facts
     except URLError as err:
         if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
             # TODO(Elliot): Try again using curl? (#19)
             facts["warnings"].append(
                 "I got an SSLv3 handshake error, and I don't yet know what to "
-                "do with that. (%s)" % err)
+                "do with that. (%s)" % err
+            )
             return facts
         else:
-            facts["warnings"].append("Error encountered during file download. "
-                                     "(%s)" % err.reason)
+            facts["warnings"].append(
+                "Error encountered during file download. (%s)" % err.reason
+            )
             return facts
     except CertificateError as err:
         facts["warnings"].append(
-            "There seems to be a problem with the developer's SSL "
-            "certificate. (%s)" % err)
-            # TODO: If input path was HTTP, revert to that and try again.
+            "There seems to be a problem with the developer's SSL certificate. "
+            "(%s)" % err
+        )
+        # TODO: If input path was HTTP, revert to that and try again.
         return facts
 
     # Get the actual filename from the server, if it exists.
@@ -1039,7 +1119,7 @@ def inspect_download_url(input_path, args, facts):
             if file_size > 0:
                 p = float(file_size_dl) / file_size
                 status = r"    {0:.2%}".format(p)
-                status = status + chr(8)*(len(status)+1)
+                status = status + chr(8) * (len(status) + 1)
                 if args.app_mode:
                     # Show progress in 10% increments.
                     if (file_size_dl / block_sz) % (file_size / block_sz / 10) == 0:
@@ -1048,15 +1128,15 @@ def inspect_download_url(input_path, args, facts):
                     # Show progress in real time.
                     sys.stdout.flush()
                     sys.stdout.write(status)
-    robo_print("Downloaded to %s" % os.path.join(
-        CACHE_DIR, filename), LogLevel.VERBOSE, 4)
+    robo_print(
+        "Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4
+    )
 
     # Just in case the "download" was actually a Sparkle feed.
     hidden_sparkle = False
     with open(os.path.join(CACHE_DIR, filename), "r") as download_file:
         if download_file.read()[:6] == "<?xml ":
-            robo_print("This download is actually a Sparkle "
-                       "feed", LogLevel.VERBOSE, 4)
+            robo_print("This download is actually a Sparkle feed", LogLevel.VERBOSE, 4)
             hidden_sparkle = True
     if hidden_sparkle is True:
         os.remove(os.path.join(CACHE_DIR, filename))
@@ -1080,25 +1160,32 @@ def inspect_download_url(input_path, args, facts):
     if "download_format" in facts and "app" in facts["inspections"]:
         return facts
 
-    robo_print("Download format is unknown, so we're going to try mounting it "
-               "as a disk image first, then unarchiving it. This may produce "
-               "errors, but will hopefully result in a "
-               "success.", LogLevel.DEBUG)
+    robo_print(
+        "Download format is unknown, so we're going to try mounting it as a disk image "
+        "first, then unarchiving it. This may produce errors, but will hopefully "
+        "result in a success.",
+        LogLevel.DEBUG,
+    )
     robo_print("Opening downloaded file...", LogLevel.VERBOSE)
 
     # If the file is a webpage (e.g. 404 message), warn the user now.
-    with open(os.path.join(CACHE_DIR, filename), 'r') as download:
-        if 'html' in download.readline().lower():
+    with open(os.path.join(CACHE_DIR, filename), "r") as download:
+        if "html" in download.readline().lower():
             facts["warnings"].append(
                 "There's a good chance that the file failed to download. "
-                "Looks like a webpage was downloaded instead.")
+                "Looks like a webpage was downloaded instead."
+            )
 
     # Open the disk image (or test to see whether the download is one).
-    if (facts.get("download_format", "") == "" or download_format == "") or download_format in SUPPORTED_IMAGE_FORMATS:
+    if (
+        facts.get("download_format", "") == "" or download_format == ""
+    ) or download_format in SUPPORTED_IMAGE_FORMATS:
         facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
 
     # Open the zip archive (or test to see whether the download is one).
-    if (facts.get("download_format", "") == "" or download_format == "") or download_format in SUPPORTED_ARCHIVE_FORMATS:
+    if (
+        facts.get("download_format", "") == "" or download_format == ""
+    ) or download_format in SUPPORTED_ARCHIVE_FORMATS:
         facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
 
     # Inspect the installer (or test to see whether the download is
@@ -1114,17 +1201,18 @@ def inspect_download_url(input_path, args, facts):
     if facts.get("download_format", "") == "":
         facts["warnings"].append(
             "I've investigated pretty thoroughly, and I'm still not sure "
-            "what the download format is. This could cause problems later.")
+            "what the download format is. This could cause problems later."
+        )
 
     return facts
 
 
 def github_urlopen(url, github_token):
-    '''For a given URL, return the urlopen response after adding the GitHub token.'''
+    """For a given URL, return the urlopen response after adding the GitHub token."""
 
     req = Request(url)
     if github_token:
-        req.add_header('Authorization', 'token ' + github_token)
+        req.add_header("Authorization", "token " + github_token)
 
     return urlopen(req)
 
@@ -1153,15 +1241,16 @@ def inspect_github_url(input_path, args, facts):
 
     # Use AutoPkg GitHub token, if file exists.
     # TODO: Also check for GITHUB_TOKEN preference.
-    github_token_file = os.path.expanduser('~/.autopkg_gh_token')
+    github_token_file = os.path.expanduser("~/.autopkg_gh_token")
     github_token = None
     if os.path.isfile(github_token_file):
         try:
-            with open(github_token_file, 'r') as tokenfile:
+            with open(github_token_file, "r") as tokenfile:
                 github_token = tokenfile.read().strip()
         except IOError as err:
-            facts['warnings'].append('Couldn\'t read GitHub token file at '
-                                     '{}.'.format(github_token_file))
+            facts["warnings"].append(
+                "Couldn't read GitHub token file at {}.".format(github_token_file)
+            )
 
     # Grab the GitHub repo path.
     github_repo = ""
@@ -1192,17 +1281,21 @@ def inspect_github_url(input_path, args, facts):
         # Leave a hint for people testing Recipe Robot on itself.
         if github_repo == "homebysix/recipe-robot":
             if args.ignore_existing is True:
-                facts["reminders"].append("Congratulations! You've achieved "
-                "Recipe Robot recursion.")
+                facts["reminders"].append(
+                    "Congratulations! You've achieved Recipe Robot recursion."
+                )
             else:
                 facts["warnings"].append(
                     "Try using the --ignore-existing flag if you want me to "
-                    "create recipes for myself.")
+                    "create recipes for myself."
+                )
 
         # Use GitHub API to obtain information about the repo and
         # releases.
         repo_api_url = "https://api.github.com/repos/%s" % github_repo
-        releases_api_url = "https://api.github.com/repos/%s/releases/latest" % github_repo
+        releases_api_url = (
+            "https://api.github.com/repos/%s/releases/latest" % github_repo
+        )
         user_api_url = "https://api.github.com/users/%s" % github_repo.split("/")[0]
 
         # Download the information from the GitHub API.
@@ -1213,35 +1306,35 @@ def inspect_github_url(input_path, args, facts):
         except HTTPError as err:
             if err.code == 403:
                 facts["warnings"].append(
-                    "Error occurred while getting information from the GitHub "
-                    "API. If you've been creating a lot of recipes quickly, "
-                    "you may have hit the rate limit. Give it a few minutes, "
-                    "then try again. (%s)" % err)
+                    "Error occurred while getting information from the GitHub API. If "
+                    "you've been creating a lot of recipes quickly, you may have hit "
+                    "the rate limit. Give it a few minutes, then try again. (%s)" % err
+                )
                 return facts
             if err.code == 404:
-                facts["warnings"].append("GitHub API URL not found. (%s)" %
-                                         err)
+                facts["warnings"].append("GitHub API URL not found. (%s)" % err)
                 return facts
             else:
                 facts["warnings"].append(
-                    "Error occurred while getting information from the GitHub "
-                    "API. (%s)" % err)
+                    "Error occurred while getting information from the GitHub API. "
+                    "(%s)" % err
+                )
                 # TODO: All of these return facts can just be return, since
                 # dicts are passed by reference.
                 return facts
         except URLError as err:
-            if str(err.reason).startswith(
-                    "[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
+            if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
                 # TODO(Elliot): Try again using curl? (#19)
                 facts["warnings"].append(
-                    "I got an SSLv3 handshake error while getting information "
-                    "from the GitHub API, and I don't yet know what to do "
-                    "with that. (%s)" % err)
+                    "I got an SSLv3 handshake error while getting information from the "
+                    "GitHub API, and I don't yet know what to do with that. (%s)" % err
+                )
                 return facts
             else:
                 facts["warnings"].append(
-                    "Error encountered while getting information from the "
-                    "GitHub API. (%s)" % err)
+                    "Error encountered while getting information from the GitHub API. "
+                    "(%s)" % err
+                )
                 return facts
 
         # Parse the downloaded JSON.
@@ -1266,8 +1359,9 @@ def inspect_github_url(input_path, args, facts):
             if parsed_repo.get("description", None) is not None:
                 description = parsed_repo["description"]
             if description not in ("", None):
-                robo_print("GitHub description is: %s" % description,
-                           LogLevel.VERBOSE, 4)
+                robo_print(
+                    "GitHub description is: %s" % description, LogLevel.VERBOSE, 4
+                )
                 facts["description"] = description
             else:
                 facts["warnings"].append("No GitHub description provided.")
@@ -1276,42 +1370,48 @@ def inspect_github_url(input_path, args, facts):
         if "download_format" not in facts or "download_url" not in facts:
             download_format = ""
             download_url = ""
-            robo_print("Getting information from latest GitHub release...",
-                       LogLevel.VERBOSE)
+            robo_print(
+                "Getting information from latest GitHub release...", LogLevel.VERBOSE
+            )
             if "assets" in parsed_release:
                 download_format, download_url = find_supported_release(
-                    parsed_release['assets'], 'browser_download_url')
-                if len(parsed_release['assets']) > 1:
+                    parsed_release["assets"], "browser_download_url"
+                )
+                if len(parsed_release["assets"]) > 1:
                     facts["use_asset_regex"] = True
-                    robo_print("Multiple formats available.",
-                               LogLevel.VERBOSE, 4)
+                    robo_print("Multiple formats available.", LogLevel.VERBOSE, 4)
             if download_format not in ("", None):
-                robo_print("GitHub release download format "
-                           "is: %s" % download_format,
-                           LogLevel.VERBOSE, 4)
+                robo_print(
+                    "GitHub release download format is: %s" % download_format,
+                    LogLevel.VERBOSE,
+                    4,
+                )
                 facts["download_format"] = download_format
             else:
                 facts["warnings"].append(
-                    "Could not detect GitHub release download format.")
+                    "Could not detect GitHub release download format."
+                )
             if download_url not in ("", None):
-                robo_print("GitHub release download URL "
-                           "is: %s" % download_url, LogLevel.VERBOSE, 4)
+                robo_print(
+                    "GitHub release download URL is: %s" % download_url,
+                    LogLevel.VERBOSE,
+                    4,
+                )
                 facts["download_url"] = download_url
                 facts = inspect_download_url(download_url, args, facts)
             else:
                 facts["warnings"].append(
-                    "Could not detect GitHub release download URL.")
+                    "Could not detect GitHub release download URL."
+                )
 
         # Get the developer's name from GitHub.
         if "developer" not in facts:
             developer = ""
-            robo_print("Getting developer name from GitHub...",
-                       LogLevel.VERBOSE)
+            robo_print("Getting developer name from GitHub...", LogLevel.VERBOSE)
             if "name" in parsed_user:
                 developer = parsed_user["name"]
             if developer not in ("", None):
-                robo_print("GitHub developer "
-                           "is: %s" % developer, LogLevel.VERBOSE, 4)
+                robo_print("GitHub developer is: %s" % developer, LogLevel.VERBOSE, 4)
                 facts["developer"] = developer
             else:
                 facts["warnings"].append("Could not detect GitHub developer.")
@@ -1319,14 +1419,16 @@ def inspect_github_url(input_path, args, facts):
         # Warn user if the GitHub project is private.
         if parsed_repo.get("private", False) is not False:
             facts["warnings"].append(
-                "This GitHub project is marked \"private\" and recipes you "
-                "generate may not work for others.")
+                'This GitHub project is marked "private" and recipes you '
+                "generate may not work for others."
+            )
 
         # Warn user if the GitHub project is a fork.
         if parsed_repo.get("fork", False) is not False:
             facts["warnings"].append(
                 "This GitHub project is a fork. You may want to try again "
-                "with the original repo URL instead.")
+                "with the original repo URL instead."
+            )
     else:
         facts["warnings"].append("Could not detect GitHub repo.")
 
@@ -1339,7 +1441,7 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
     payload_apps = []
     payload_dir = os.path.join(CACHE_DIR, "payload%s" % payload_id)
     os.mkdir(payload_dir)
-    cmd = "/usr/bin/ditto -x \"%s\" \"%s\"" % (payload_archive, payload_dir)
+    cmd = '/usr/bin/ditto -x "%s" "%s"' % (payload_archive, payload_dir)
     exitcode, _, err = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         facts["warnings"].append("Ditto failed to expand payload.")
@@ -1352,7 +1454,9 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
         for dirname in dirnames:
             if dirname.startswith("."):
                 dirnames.remove(dirname)
-            elif dirname.endswith(".app") and os.path.isfile(os.path.join(dirpath, dirname, "Contents", "Info.plist")):
+            elif dirname.endswith(".app") and os.path.isfile(
+                os.path.join(dirpath, dirname, "Contents", "Info.plist")
+            ):
                 payload_apps.append(os.path.join(dirpath, dirname))
     return payload_apps
 
@@ -1366,8 +1470,16 @@ def get_most_likely_app(app_list):
     # Criteria 1: If only one app has a Sparkle feed, choose that one.
     has_sparkle = []
     for index, candidate in enumerate(app_list):
-        info_plist = FoundationPlist.readPlist(candidate['path'] + "/Contents/Info.plist")
-        if "SUFeedURL" in info_plist or "SUOriginalFeedURL" in info_plist or os.path.exists(candidate['path'] + "/Contents/Frameworks/DevMateKit.framework"):
+        info_plist = FoundationPlist.readPlist(
+            candidate["path"] + "/Contents/Info.plist"
+        )
+        if (
+            "SUFeedURL" in info_plist
+            or "SUOriginalFeedURL" in info_plist
+            or os.path.exists(
+                candidate["path"] + "/Contents/Frameworks/DevMateKit.framework"
+            )
+        ):
             has_sparkle.append(index)
     if len(has_sparkle) == 1:
         return has_sparkle[0]
@@ -1375,8 +1487,8 @@ def get_most_likely_app(app_list):
     # Criteria 2: If only one app installs into the /Applications folder, choose that one.
     installs_to_apps = []
     for index, candidate in enumerate(app_list):
-        head, tail = os.path.split(candidate['path'])
-        if head.endswith('/Applications'):
+        head, tail = os.path.split(candidate["path"])
+        if head.endswith("/Applications"):
             installs_to_apps.append(index)
     if len(installs_to_apps) == 1:
         return installs_to_apps[0]
@@ -1386,7 +1498,7 @@ def get_most_likely_app(app_list):
     largest_index = None
     for index, candidate in enumerate(app_list):
         this_size = 0
-        for dirpath, _, filenames in os.walk(candidate['path']):
+        for dirpath, _, filenames in os.walk(candidate["path"]):
             for filename in filenames:
                 this_size += os.path.getsize(os.path.join(dirpath, filename))
         if this_size > largest_size:
@@ -1423,7 +1535,7 @@ def inspect_pkg(input_path, args, facts):
 
     # Check whether package is signed.
     robo_print("Checking whether package is signed...", LogLevel.VERBOSE)
-    cmd = "/usr/sbin/pkgutil --check-signature \"%s\"" % input_path
+    cmd = '/usr/sbin/pkgutil --check-signature "%s"' % input_path
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 1:
         robo_print("Package is not signed", LogLevel.VERBOSE, 4)
@@ -1439,7 +1551,7 @@ def inspect_pkg(input_path, args, facts):
                 if line.startswith(marker):
                     if " (" in line:
                         line = line.split(" (")[0]
-                    developer = line[len(marker):]
+                    developer = line[len(marker) :]
             if developer not in ("", None):
                 robo_print("Developer is: %s" % developer, LogLevel.VERBOSE, 4)
                 facts["developer"] = developer
@@ -1455,29 +1567,42 @@ def inspect_pkg(input_path, args, facts):
                 if re.match("^    [\d]\. ", line):
                     codesign_authorities.append(line[7:])
             if len(codesign_authorities) > 0:
-                robo_print("%s authority names recorded" % len(codesign_authorities), LogLevel.VERBOSE, 4)
+                robo_print(
+                    "%s authority names recorded" % len(codesign_authorities),
+                    LogLevel.VERBOSE,
+                    4,
+                )
                 facts["codesign_authorities"] = codesign_authorities
                 facts["codesign_input_filename"] = os.path.basename(input_path)
             else:
-                robo_print("Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4)
+                robo_print(
+                    "Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4
+                )
 
     else:
-        robo_print("I don't know whether the package is signed - probably not "
-                   "(pkgutil returned exit code %s)" % exitcode, LogLevel.VERBOSE, 4)
+        robo_print(
+            "I don't know whether the package is signed - probably not "
+            "(pkgutil returned exit code %s)" % exitcode,
+            LogLevel.VERBOSE,
+            4,
+        )
 
     # Expand the flat package and look for more facts.
     robo_print("Expanding package to look for clues...", LogLevel.VERBOSE)
     expand_path = os.path.join(CACHE_DIR, "expanded")
     if os.path.exists(expand_path):
         shutil.rmtree(expand_path)
-    cmd = "/usr/sbin/pkgutil --expand \"%s\" \"%s\"" % (input_path, expand_path)
+    cmd = '/usr/sbin/pkgutil --expand "%s" "%s"' % (input_path, expand_path)
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         facts["warnings"].append("Unable to expand package: %s" % input_path)
     else:
         # Locate and inspect the app.
-        robo_print("Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"),
-                   LogLevel.VERBOSE, 4)
+        robo_print(
+            "Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"),
+            LogLevel.VERBOSE,
+            4,
+        )
 
         payload_id = 0
         payload_apps = []
@@ -1486,83 +1611,119 @@ def inspect_pkg(input_path, args, facts):
             for dirname in dirnames:
                 if dirname.startswith("."):
                     dirnames.remove(dirname)
-                elif dirname.endswith(".app") and os.path.isfile(os.path.join(dirpath, dirname, "Contents", "Info.plist")):
-                    found_apps.append({
-                        "path": os.path.join(dirpath, dirname),
-                        "pkg_filename": os.path.basename(input_path),
-                    })  # should be rare
+                elif dirname.endswith(".app") and os.path.isfile(
+                    os.path.join(dirpath, dirname, "Contents", "Info.plist")
+                ):
+                    found_apps.append(
+                        {
+                            "path": os.path.join(dirpath, dirname),
+                            "pkg_filename": os.path.basename(input_path),
+                        }
+                    )  # should be rare
             for filename in filenames:
                 if filename.endswith(".pkg"):  # flat packages
-                    facts["warnings"].append("Yo dawg, I found a flat package "
-                                             "inside this flat package!")
+                    facts["warnings"].append(
+                        "Yo dawg, I found a flat package inside this flat package!"
+                    )
                     # TODO (Elliot): Recursion! Any chance for a loop here?
                     facts = inspect_pkg(os.path.join(dirpath, filename), args, facts)
                 elif filename == "PackageInfo":
-                    robo_print("Trying to get bundle identifier "
-                               "from PackageInfo file...", LogLevel.VERBOSE)
+                    robo_print(
+                        "Trying to get bundle identifier from PackageInfo file...",
+                        LogLevel.VERBOSE,
+                    )
                     pkginfo_file = open(os.path.join(dirpath, filename), "r")
                     pkginfo_parsed = parse(pkginfo_file)
                     bundle_id = ""
                     if "bundle_id" not in facts:
                         bundle_id = pkginfo_parsed.getroot().attrib["identifier"]
                     if bundle_id not in ("", None):
-                        robo_print("Bundle identifier (tentative): %s" % bundle_id,
-                                   LogLevel.VERBOSE, 4)
+                        robo_print(
+                            "Bundle identifier (tentative): %s" % bundle_id,
+                            LogLevel.VERBOSE,
+                            4,
+                        )
                         facts["bundle_id"] = bundle_id
                     else:
-                        robo_print("No bundle identifier in this PackageInfo.",
-                                   LogLevel.VERBOSE, 4)
+                        robo_print(
+                            "No bundle identifier in this PackageInfo.",
+                            LogLevel.VERBOSE,
+                            4,
+                        )
                 elif filename.lower() == "payload":
-                    payload_apps = get_apps_from_payload(os.path.join(dirpath, filename),
-                                                         facts,
-                                                         payload_id)
+                    payload_apps = get_apps_from_payload(
+                        os.path.join(dirpath, filename), facts, payload_id
+                    )
                     for app in payload_apps:
-                        found_apps.append({
-                            "path": app,
-                            "pkg_filename": os.path.join(dirpath, filename).split("/")[-2],
-                        })
+                        found_apps.append(
+                            {
+                                "path": app,
+                                "pkg_filename": os.path.join(dirpath, filename).split(
+                                    "/"
+                                )[-2],
+                            }
+                        )
                     payload_id += 1
 
         # Add apps found to blocking applications, unless
         # otherwise specified.
-        non_blocking_apps = ('Uninstaller.app', 'Installer.app',
-                             'Uninstall.app', 'Install.app')
-        for app in [os.path.basename(x['path']) for x in found_apps]:
-            if app not in facts['blocking_applications']:
+        non_blocking_apps = (
+            "Uninstaller.app",
+            "Installer.app",
+            "Uninstall.app",
+            "Install.app",
+        )
+        for app in [os.path.basename(x["path"]) for x in found_apps]:
+            if app not in facts["blocking_applications"]:
                 if app in non_blocking_apps:
-                    robo_print('Found application: %s' % app,
-                               LogLevel.VERBOSE, 4)
+                    robo_print("Found application: %s" % app, LogLevel.VERBOSE, 4)
                 else:
-                    robo_print('Added blocking application: %s' % app,
-                               LogLevel.VERBOSE, 4)
-                    facts['blocking_applications'].append(app)
+                    robo_print(
+                        "Added blocking application: %s" % app, LogLevel.VERBOSE, 4
+                    )
+                    facts["blocking_applications"].append(app)
 
         # Determine which app, if any, to process further.
         payload_dir = os.path.join(CACHE_DIR, "payload")
         if len(found_apps) == 0:
             facts["warnings"].append("No apps found in payload.")
         elif len(found_apps) == 1:
-            robo_print("Using app: %s" % os.path.basename(found_apps[0]['path']),
-                       LogLevel.VERBOSE, 4)
-            robo_print("In container package: %s" % found_apps[0]['pkg_filename'],
-                       LogLevel.VERBOSE, 4)
-            relpath = os.path.relpath(found_apps[0]['path'], CACHE_DIR).split("/")[1:]
+            robo_print(
+                "Using app: %s" % os.path.basename(found_apps[0]["path"]),
+                LogLevel.VERBOSE,
+                4,
+            )
+            robo_print(
+                "In container package: %s" % found_apps[0]["pkg_filename"],
+                LogLevel.VERBOSE,
+                4,
+            )
+            relpath = os.path.relpath(found_apps[0]["path"], CACHE_DIR).split("/")[1:]
             facts["app_relpath_from_payload"] = "/".join(relpath)
-            facts["pkg_filename"] = found_apps[0]['pkg_filename']
-            facts = inspect_app(found_apps[0]['path'], args, facts)
+            facts["pkg_filename"] = found_apps[0]["pkg_filename"]
+            facts = inspect_app(found_apps[0]["path"], args, facts)
         elif len(found_apps) > 1:
             facts["warnings"].append(
                 "Multiple apps found in payload. I'll do my best to figure "
-                "out which one to use.")
+                "out which one to use."
+            )
             app_index = get_most_likely_app(found_apps)
-            robo_print("Using app: %s" % os.path.basename(found_apps[app_index]['path']),
-                       LogLevel.VERBOSE, 4)
-            robo_print("In container package: %s" % found_apps[app_index]['pkg_filename'],
-                       LogLevel.VERBOSE, 4)
-            relpath = os.path.relpath(found_apps[app_index]['path'], CACHE_DIR).split("/")[1:]
+            robo_print(
+                "Using app: %s" % os.path.basename(found_apps[app_index]["path"]),
+                LogLevel.VERBOSE,
+                4,
+            )
+            robo_print(
+                "In container package: %s" % found_apps[app_index]["pkg_filename"],
+                LogLevel.VERBOSE,
+                4,
+            )
+            relpath = os.path.relpath(found_apps[app_index]["path"], CACHE_DIR).split(
+                "/"
+            )[1:]
             facts["app_relpath_from_payload"] = "/".join(relpath)
-            facts["pkg_filename"] = found_apps[app_index]['pkg_filename']
-            facts = inspect_app(found_apps[app_index]['path'], args, facts)
+            facts["pkg_filename"] = found_apps[app_index]["pkg_filename"]
+            facts = inspect_app(found_apps[app_index]["path"], args, facts)
 
     return facts
 
@@ -1591,22 +1752,22 @@ def inspect_sourceforge_url(input_path, args, facts):
 
     # Determine the name of the SourceForge project.
     proj_name = ""
-    if  "/projects/" in input_path:
+    if "/projects/" in input_path:
         # Example: https://sourceforge.net/projects/adium/?source=recommended
         # Example: https://sourceforge.net/projects/grandperspectiv
         # Example: https://sourceforge.net/projects/grandperspectiv/
         marker = "/projects/"
-        proj_str = input_path[input_path.find(marker) + len(marker):]
+        proj_str = input_path[input_path.find(marker) + len(marker) :]
         if proj_str.find("/") > 0:
-            proj_name = proj_str[:proj_str.find("/")]
+            proj_name = proj_str[: proj_str.find("/")]
         else:
             proj_name = proj_str
     elif "/p/" in input_path:
         # Example: https://sourceforge.net/p/grandperspectiv/wiki/Home/
         marker = "/p/"
-        proj_str = input_path[input_path.find(marker) + len(marker):]
+        proj_str = input_path[input_path.find(marker) + len(marker) :]
         if proj_str.find("/") > 0:
-            proj_name = proj_str[:proj_str.find("/")]
+            proj_name = proj_str[: proj_str.find("/")]
         else:
             proj_name = proj_str
     elif ".sourceforge.net" in input_path:
@@ -1614,7 +1775,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Example: http://grandperspectiv.sourceforge.net/screenshots.html
         marker = ".sourceforge.net"
         proj_str = input_path.lstrip("http://")
-        proj_name = proj_str[:proj_str.find(marker)]
+        proj_name = proj_str[: proj_str.find(marker)]
     else:
         facts["warnings"].append("Unable to parse SourceForge URL.")
     if proj_name not in ("", None):
@@ -1626,19 +1787,20 @@ def inspect_sourceforge_url(input_path, args, facts):
         except HTTPError as err:
             if err.code == 403:
                 facts["warnings"].append(
-                    "Error occurred while getting information from the "
-                    "SourceForge API. If you've been creating a lot of "
-                    "recipes quickly, you may have hit the rate limit. Give "
-                    "it a few minutes, then try again. (%s)" % err)
+                    "Error occurred while getting information from the SourceForge "
+                    "API. If you've been creating a lot of recipes quickly, you may "
+                    "have hit the rate limit. Give it a few minutes, then try again. "
+                    "(%s)" % err
+                )
                 return facts
             if err.code == 404:
-                facts["warnings"].append("SourceForge API URL not found. "
-                                         "(%s)" % err)
+                facts["warnings"].append("SourceForge API URL not found. (%s)" % err)
                 return facts
             else:
                 facts["warnings"].append(
-                    "Error occurred while getting information from the "
-                    "SourceForge API. (%s)" % err)
+                    "Error occurred while getting information from the SourceForge "
+                    "API. (%s)" % err
+                )
                 return facts
         except URLError as err:
             if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
@@ -1646,12 +1808,14 @@ def inspect_sourceforge_url(input_path, args, facts):
                 facts["warnings"].append(
                     "I got an SSLv3 handshake error while getting information "
                     "from the SourceForge API, and I don't yet know what to "
-                    "do with that. (%s)" % err)
+                    "do with that. (%s)" % err
+                )
                 return facts
             else:
                 facts["warnings"].append(
                     "Error encountered while getting information from the "
-                    "SourceForge API. (%s)" % err)
+                    "SourceForge API. (%s)" % err
+                )
                 return facts
         parsed_json = json.loads(raw_json)
 
@@ -1678,8 +1842,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             robo_print("SourceForge project ID is: %s" % proj_id, LogLevel.VERBOSE, 4)
             facts["sourceforge_id"] = proj_id
         else:
-            facts["warnings"].append(
-                "Could not detect SourceForge project ID.")
+            facts["warnings"].append("Could not detect SourceForge project ID.")
 
         # Get project description.
         if "description" not in facts:
@@ -1691,11 +1854,12 @@ def inspect_sourceforge_url(input_path, args, facts):
                 elif parsed_json["short_description"] not in ("", None):
                     description = parsed_json["short_description"]
             if description not in ("", None):
-                robo_print("SourceForge description is: %s" % description, LogLevel.VERBOSE, 4)
+                robo_print(
+                    "SourceForge description is: %s" % description, LogLevel.VERBOSE, 4
+                )
                 facts["description"] = description
             else:
-                facts["warnings"].append(
-                    "Could not detect SourceForge description.")
+                facts["warnings"].append("Could not detect SourceForge description.")
 
         # Get download format of latest release.
         if "download_url" not in facts:
@@ -1708,13 +1872,16 @@ def inspect_sourceforge_url(input_path, args, facts):
                 raw_xml = urlopen(files_rss)
             except Exception as err:
                 facts["warnings"].append(
-                    "Error occurred while inspecting SourceForge RSS feed: "
-                    "%s" % err)
+                    "Error occurred while inspecting SourceForge RSS feed: %s" % err
+                )
             doc = parse(raw_xml)
 
             # Get the latest download URL.
             download_url = ""
-            robo_print("Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE)
+            robo_print(
+                "Determining download URL from SourceForge RSS feed...",
+                LogLevel.VERBOSE,
+            )
             for item in doc.iterfind("channel/item"):
                 # TODO(Elliot): The extra-info tag is not a reliable
                 # indicator of which item should actually be downloaded.
@@ -1728,15 +1895,16 @@ def inspect_sourceforge_url(input_path, args, facts):
                 facts = inspect_download_url(download_url, args, facts)
             else:
                 facts["warnings"].append(
-                    "Could not detect SourceForge latest release "
-                    "download_url.")
+                    "Could not detect SourceForge latest release download_url."
+                )
 
         # Warn user if the SourceForge project is private.
         if "private" in parsed_json:
             if parsed_json["private"] is True:
                 facts["warnings"].append(
-                    "This SourceForge project is marked \"private\" and "
-                    "recipes you generate may not work for others.")
+                    'This SourceForge project is marked "private" and '
+                    "recipes you generate may not work for others."
+                )
 
     else:
         facts["warnings"].append("Could not detect SourceForge project name.")
@@ -1776,7 +1944,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts["warnings"].append(
             "This Sparkle feed is not using HTTPS. I recommend contacting "
             "the developer and politely suggesting that they secure "
-            "their Sparkle feed. (Example: " "https://twitter.com/homebysix/status/714508127228403712)")
+            "their Sparkle feed. (Example: "
+            "https://twitter.com/homebysix/status/714508127228403712)"
+        )
 
     # Download the Sparkle feed.
     try:
@@ -1785,16 +1955,18 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         if err.code == 403:
             # Try again, this time with a user-agent.
             try:
-                raw_xml = useragent_urlopen(checked_url, 'Mozilla/5.0')
+                raw_xml = useragent_urlopen(checked_url, "Mozilla/5.0")
                 facts["warnings"].append(
                     "I had to use a different user-agent in order to read "
                     "this Sparkle feed. If you run the recipes and get a "
-                    "\"Can't open URL\" error, it means AutoPkg encountered "
-                    "the same problem.")
+                    '"Can\'t open URL" error, it means AutoPkg encountered '
+                    "the same problem."
+                )
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
                 facts["warnings"].append(
-                    "Error occurred while downloading Sparkle feed (%s)" % err)
+                    "Error occurred while downloading Sparkle feed (%s)" % err
+                )
                 # Remove Sparkle feed if it's not usable.
                 facts.pop("sparkle_feed", None)
                 return facts
@@ -1805,7 +1977,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         else:
             facts["warnings"].append(
                 "Error occurred while getting information from the Sparkle "
-                "feed. (%s)" % err)
+                "feed. (%s)" % err
+            )
             facts.pop("sparkle_feed", None)
             return facts
     except URLError as err:
@@ -1814,20 +1987,23 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             facts["warnings"].append(
                 "I got an SSLv3 handshake error while getting information "
                 "from the Sparkle feed, and I don't yet know what to do with "
-                "that.  (%s)" % err)
+                "that.  (%s)" % err
+            )
             facts.pop("sparkle_feed", None)
             return facts
         else:
             facts["warnings"].append(
                 "Error encountered while getting information from the "
-                "Sparkle feed. (%s)" % err)
+                "Sparkle feed. (%s)" % err
+            )
             facts.pop("sparkle_feed", None)
             return facts
     except CertificateError as err:
         facts["warnings"].append(
             "There seems to be a problem with the developer's SSL "
-            "certificate. (%s)" % err)
-            # TODO: If input path was HTTP, revert to that and try again.
+            "certificate. (%s)" % err
+        )
+        # TODO: If input path was HTTP, revert to that and try again.
         return facts
 
     # Parse the Sparkle feed.
@@ -1835,8 +2011,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     try:
         doc = parse(raw_xml)
     except ParseError as err:
-        facts["warnings"].append(
-            "Error occurred while parsing Sparkle feed (%s)" % err)
+        facts["warnings"].append("Error occurred while parsing Sparkle feed (%s)" % err)
         facts.pop("sparkle_feed", None)
         return facts
 
@@ -1846,7 +2021,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     latest_url = ""
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
     for item in doc.iterfind("channel/item/enclosure"):
-        latest_url = item.attrib.get('url')
+        latest_url = item.attrib.get("url")
         for vers_tag in ("shortVersionString", "version"):
             encl_vers = item.get("{%s}%s" % (xmlns, vers_tag))
             if encl_vers not in (None, ""):
@@ -1855,11 +2030,11 @@ def inspect_sparkle_feed_url(input_path, args, facts):
                     latest_version = encl_vers
 
     if sparkle_provides_version is True:
-        robo_print("The Sparkle feed provides a version "
-                   "number", LogLevel.VERBOSE, 4)
+        robo_print("The Sparkle feed provides a version number", LogLevel.VERBOSE, 4)
     else:
-        robo_print("The Sparkle feed does not provide a version "
-                   "number", LogLevel.VERBOSE, 4)
+        robo_print(
+            "The Sparkle feed does not provide a version number", LogLevel.VERBOSE, 4
+        )
     facts["sparkle_provides_version"] = sparkle_provides_version
     if latest_version not in ("", None):
         robo_print("The latest version is %s" % latest_version, LogLevel.VERBOSE, 4)
