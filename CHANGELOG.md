@@ -17,6 +17,9 @@ All notable changes to this project will be documented in this file. This projec
 - Squashed a meta-error caused by failed AutoPkg searches for existing recipes.
 - Used better math to ensure first-time users will see their congratulations message.
 
+### Removed
+- The `--github-token` flag is now deprecated. Recipe Robot will automatically use the AutoPkg GitHub token file at ~/.autopkg_gh_token, if it exists.
+
 
 ## [1.1.1] - 2019-02-15
 

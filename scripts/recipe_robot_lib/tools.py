@@ -350,11 +350,9 @@ def create_existing_recipe_list(facts):
             Required keys:
                 app_name: The app's name.
                 recipes: The recipes to build.
-                args: ArgParser args with github_token bool.
     """
     app_name = facts["app_name"]
     recipes = facts["recipes"]
-    use_github_token = facts["args"].github_token
     # TODO(Elliot): Suggest users create GitHub API token to prevent
     # limiting. (#29)
 
@@ -372,16 +370,11 @@ def create_existing_recipe_list(facts):
     for this_search in recipe_searches:
         robo_print("Searching for existing AutoPkg recipes for %s..." %
                    this_search, LogLevel.VERBOSE)
-        if use_github_token:
-            # TODO: Check for token in AutoPkg preferences.
-            if not os.path.exists(os.path.expanduser("~/.autopkg_gh_token")):
-                facts["warnings"].append(
-                    "I couldn't find a GitHub token to use.")
-                cmd = ("/usr/local/bin/autopkg search --path-only %s" %
-                       this_search)
-            else:
-                cmd = ("/usr/local/bin/autopkg search --path-only --use-token "
-                       "%s" % this_search)
+        # TODO: Check for token in AutoPkg preferences.
+        if os.path.isfile(os.path.expanduser("~/.autopkg_gh_token")):
+            robo_print("Using GitHub token file", LogLevel.VERBOSE, 4)
+            cmd = ("/usr/local/bin/autopkg search --path-only --use-token "
+                   "%s" % this_search)
         else:
             cmd = ("/usr/local/bin/autopkg search --path-only %s" %
                    this_search)

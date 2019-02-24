@@ -203,10 +203,6 @@ def build_argument_parser():
              "Robot downloaded. The cache will be cleared again upon next "
              "run.")
     parser.add_argument(
-        "--github-token",
-        action="store_true",
-        help="Use a GitHub API token when searching for existing recipes.")
-    parser.add_argument(
         "--skip-icon",
         action="store_true",
         help="Do not extract an icon from the source app.")
