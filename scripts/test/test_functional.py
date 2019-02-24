@@ -42,11 +42,13 @@ class TestAppStoreAppInput(object):
     pass
 
 
+# TODO (Shea): Mock up an "app" for testing purposes.
+# TODO (Shea): Add arguments to only produce certain RecipeTypes. This will
+# allow us to narrow the tests down.
 class TestAppInput(object):
+    """Given specific input, make sure Recipe Robot's output checks out."""
+
     def test_sparkle_feed_app(self):
-        # TODO (Shea): Mock up an "app" for testing purposes.
-        # TODO (Shea): Add arguments to only produce certain RecipeTypes.
-        # This will allow us to narrow the tests down.
         prefs = FoundationPlist.readPlist(
             os.path.expanduser(
                 "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
@@ -59,7 +61,12 @@ class TestAppInput(object):
         clean_folder(destination)
 
         subprocess.check_call(
-            ["./recipe-robot", "--ignore-existing", "/Applications/%s.app" % app]
+            [
+                "./recipe-robot",
+                "--ignore-existing",
+                "--verbose",
+                "/Applications/%s.app" % app,
+            ]
         )
 
         # First, test the download recipe.
