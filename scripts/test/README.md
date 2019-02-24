@@ -16,8 +16,6 @@ Make sure your working directory is the __scripts__ folder.
 
 To run the tests, use:
 
-    nosetests test/test_functional.py
-    nosetests test/test_processor.py
-    nosetests test/test_recipe_generator.py
+    nosetests test
 
 "OK" will be displayed in the output if the tests passed.
