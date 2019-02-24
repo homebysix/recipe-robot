@@ -25,11 +25,12 @@ Unit tests for recipe_generator.
 
 
 from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
-
-from recipe_robot_lib import recipe_generator, facts
-from recipe_robot_lib.tools import (SUPPORTED_IMAGE_FORMATS,
-                                    SUPPORTED_ARCHIVE_FORMATS,
-                                    SUPPORTED_INSTALL_FORMATS)
+from recipe_robot_lib import facts, recipe_generator
+from recipe_robot_lib.tools import (
+    SUPPORTED_ARCHIVE_FORMATS,
+    SUPPORTED_IMAGE_FORMATS,
+    SUPPORTED_INSTALL_FORMATS,
+)
 
 
 class TestRecipeGenerator(object):

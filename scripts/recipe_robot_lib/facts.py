@@ -32,12 +32,12 @@ but also robo_prints the message as well.
 
 
 # pylint: disable=no-name-in-module
-from Foundation import (NSDistributedNotificationCenter,
-                        NSNotificationDeliverImmediately)
-# pylint: enable=no-name-in-module
+from Foundation import NSDistributedNotificationCenter, NSNotificationDeliverImmediately
 
 from .roboabc import RoboDict, RoboList
-from .tools import (LogLevel, robo_print)
+from .tools import LogLevel, robo_print
+
+# pylint: enable=no-name-in-module
 
 
 # pylint: disable=too-few-public-methods

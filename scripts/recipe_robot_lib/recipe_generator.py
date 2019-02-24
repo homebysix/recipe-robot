@@ -29,14 +29,28 @@ create autopkg recipes for the specified app.
 
 import os
 
-from .exceptions import RoboError
 import processor
-from .tools import (strip_dev_suffix, recipe_dirpath, create_dest_dirs,
-                    create_existing_recipe_list, extract_app_icon, robo_print,
-                    robo_join, get_user_defaults, save_user_defaults, LogLevel,
-                    __version__, get_exitcode_stdout_stderr, timed,
-                    SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS,
-                    SUPPORTED_INSTALL_FORMATS, ALL_SUPPORTED_FORMATS)
+
+from .exceptions import RoboError
+from .tools import (
+    ALL_SUPPORTED_FORMATS,
+    SUPPORTED_ARCHIVE_FORMATS,
+    SUPPORTED_IMAGE_FORMATS,
+    SUPPORTED_INSTALL_FORMATS,
+    LogLevel,
+    __version__,
+    create_dest_dirs,
+    create_existing_recipe_list,
+    extract_app_icon,
+    get_exitcode_stdout_stderr,
+    get_user_defaults,
+    recipe_dirpath,
+    robo_join,
+    robo_print,
+    save_user_defaults,
+    strip_dev_suffix,
+    timed,
+)
 
 
 @timed

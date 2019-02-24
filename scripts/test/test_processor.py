@@ -25,7 +25,6 @@ Unit tests for processor class.
 
 
 from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
-
 from recipe_robot_lib import processor
 
 
