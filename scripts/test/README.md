@@ -16,6 +16,6 @@ Make sure your working directory is the __scripts__ folder.
 
 To run the tests, use:
 
-    nosetests test
+    nosetests -v test
 
 "OK" will be displayed in the output if the tests passed.
