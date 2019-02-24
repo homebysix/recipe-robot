@@ -36,19 +36,43 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-# TODO(Elliot): Create a way to specify the display order of this list. (#67)
-RECIPE_TYPES = {
-    "download": "Downloads an app in whatever format the developer provides.",
-    "munki": "Imports into your Munki repository.",
-    "pkg": "Creates a standard pkg installer file.",
-    "install": "Installs the app on the computer running AutoPkg.",
-    "jss": "Imports into your Casper JSS and creates necessary groups, policies, etc.",
-    "lanrev": "Imports into your LANrev server.",
-    "sccm": "Creates a cmmac package for deploying via Microsoft SCCM.",
-    "ds": "Imports into your DeployStudio Packages folder.",
-    "filewave": "Imports a fileset into your FileWave server.",
-    "bigfix": "Builds a .bes deployment file and imports it into your BigFix console",
-}
+# fmt: off
+RECIPE_TYPES = (
+    {
+        "type": "download",
+        "desc": "Downloads an app in whatever format the developer provides.",
+    }, {
+        "type": "pkg",
+        "desc": "Creates a standard pkg installer file."
+    }, {
+        "type": "munki",
+        "desc": "Imports into your Munki repository."
+    }, {
+        "type": "jss",
+        "desc": "Imports into your Casper JSS and creates necessary groups, "
+                "policies, etc.",
+    }, {
+        "type": "ds",
+        "desc": "Imports into your DeployStudio Packages folder."
+    }, {
+        "type": "filewave",
+        "desc": "Imports a fileset into your FileWave server."
+    }, {
+        "type": "lanrev",
+        "desc": "Imports into your LANrev server."
+    }, {
+        "type": "sccm",
+        "desc": "Creates a cmmac package for deploying via Microsoft SCCM.",
+    }, {
+        "type": "bigfix",
+        "desc": "Builds a .bes deployment file and imports it into your "
+                "BigFix console",
+    }, {
+        "type": "install",
+        "desc": "Installs the app on the computer running AutoPkg."
+    },
+)
+# fmt: on
 
 
 class Recipe(RoboDict):
@@ -105,4 +129,9 @@ class Recipes(RoboList):
     def __init__(self):
         """Store information related to each supported recipe type."""
         super(Recipes, self).__init__()
-        self.extend([Recipe(recipe, desc) for recipe, desc in RECIPE_TYPES.items()])
+        self.extend(
+            [
+                Recipe(recipe_type["type"], recipe_type["desc"])
+                for recipe_type in RECIPE_TYPES
+            ]
+        )
