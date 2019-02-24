@@ -285,7 +285,7 @@ def _print_stderr(p):
 
 
 def _print_stdout(p):
-    print p
+    print(p)
 
 
 def print_welcome_text():
