@@ -258,9 +258,9 @@ def extract_app_icon(facts, png_path):
         icon_path = icon_path + ".icns"
 
     if not os.path.exists(png_path_absolute):
-        cmd = 'sips -s format png "%s" --out "%s" ' "--resampleHeightWidthMax 300" % (
-            icon_path,
-            png_path_absolute,
+        cmd = (
+            '/usr/bin/sips -s format png "%s" --out "%s" '
+            "--resampleHeightWidthMax 300" % (icon_path, png_path_absolute)
         )
         exitcode, _, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:

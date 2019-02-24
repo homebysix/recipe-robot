@@ -398,7 +398,7 @@ def inspect_app(input_path, args, facts):
         developer = ""
         codesign_version = ""
         robo_print("Gathering code signature information...", LogLevel.VERBOSE)
-        cmd = 'codesign --display --verbose=2 -r- "%s"' % (input_path)
+        cmd = '/usr/bin/codesign --display --verbose=2 -r- "%s"' % (input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             # From stdout:
@@ -411,7 +411,7 @@ def inspect_app(input_path, args, facts):
             dev_marker = "Authority=Developer ID Application: "
             vers_marker = "Sealed Resources version="
             # The info we need is in stderr.
-            for line in err.decode('utf-8').split("\n"):
+            for line in err.decode("utf-8").split("\n"):
                 if line.startswith(authority_marker):
                     codesign_authorities.append(line[len(authority_marker) :])
                 if line.startswith(dev_marker):
@@ -500,7 +500,7 @@ def get_app_description(app_name):
         },
     ]
     for source in desc_sources:
-        cmd = 'curl --silent "%s"' % source["url"]
+        cmd = '/usr/bin/curl --silent "%s"' % source["url"]
         _, out, _ = get_exitcode_stdout_stderr(cmd)
         result = re.search(source["pattern"], out)
         if result:
