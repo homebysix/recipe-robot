@@ -347,10 +347,7 @@ def set_recipe_preferences(prefs, recipes):
                            "https://github.com/autopkg/jss-recipes"
                            "#style-guide\n")
                 choice = raw_input("[%s]: " % follow_jss_recipes_format)
-                if choice.lower() in affirmatives:
-                    prefs["FollowOfficialJSSRecipesFormat"] = True
-                else:
-                    prefs["FollowOfficialJSSRecipesFormat"] = False
+                prefs["FollowOfficialJSSRecipesFormat"] = choice.lower() in affirmatives
 
             # If Munki recipes are among the preferred types,
             # prompt for whether to strip developer suffixes like Inc and Ltd.
@@ -361,10 +358,7 @@ def set_recipe_preferences(prefs, recipes):
                     strip_dev_suffixes = "Y"
                 robo_print("\nStrip suffixes from developer names? (Y/N)")
                 choice = raw_input("[%s]: " % strip_dev_suffixes)
-                if choice.lower() in affirmatives:
-                    prefs["StripDeveloperSuffixes"] = True
-                else:
-                    prefs["StripDeveloperSuffixes"] = False
+                prefs["StripDeveloperSuffixes"] = choice.lower() in affirmatives
 
 
 def get_recipe_identifier_prefix(prefs):
@@ -420,10 +414,7 @@ def get_preferred_recipe_types(prefs, recipes):
     while True:
         i = 0
         for recipe in recipes:
-            if recipe["preferred"] is False:
-                indicator = " "
-            else:
-                indicator = "*"
+            indicator = "*" if recipe["preferred"] else " "
             robo_print("[%s] %s. %s - %s" %
                        (indicator, i, recipe["type"], recipe["description"]),
                        indent=2)
