@@ -45,10 +45,10 @@ class TestAppStoreAppInput(object):
 # TODO (Shea): Mock up an "app" for testing purposes.
 # TODO (Shea): Add arguments to only produce certain RecipeTypes. This will
 # allow us to narrow the tests down.
-class TestAppInput(object):
+class TestSparkleAppInput(object):
     """Given specific input, make sure Recipe Robot's output checks out."""
 
-    def test_sparkle_feed_app(self):
+    def test(self):
         prefs = FoundationPlist.readPlist(
             os.path.expanduser(
                 "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
@@ -57,7 +57,8 @@ class TestAppInput(object):
 
         # Robby needs a recipe for Evernote. He decides to try the Robot!
         app = "Evernote"
-        destination = get_output_path(prefs, app)
+        developer = "Evernote"
+        destination = get_output_path(prefs, app, developer)
         clean_folder(destination)
 
         subprocess.check_call(
@@ -69,33 +70,179 @@ class TestAppInput(object):
             ]
         )
 
-        # First, test the download recipe.
-        # We know that (Shea's non-mocked "real" copy) Evernote has a
-        # Sparkle Feed. Test to ensure download recipe uses it.
-        download_recipe_path = get_output_path(prefs, app, recipe_type="download")
+        # Ensure the download recipe uses the known-good Sparkle feed URL.
+        download_recipe_path = get_output_path(
+            prefs, app, developer, recipe_type="download"
+        )
         download_recipe = FoundationPlist.readPlist(download_recipe_path)
         assert_in("Process", download_recipe)
         assert_equals(
             "https://update.evernote.com/public/ENMacSMD/EvernoteMacUpdate.xml",
             download_recipe["Input"]["SPARKLE_FEED_URL"],
         )
+
+        # Make sure URLDownloader is present and uses the expected filename.
         assert_in(
             "URLDownloader",
             [processor["Processor"] for processor in download_recipe["Process"]],
         )
-        url_downloader = [
+        urldownloader_args = [
             processor
             for processor in download_recipe["Process"]
             if processor["Processor"] == "URLDownloader"
-        ][0]
+        ][0]["Arguments"]
+        expected_args = {"filename": "%NAME%-%version%.zip"}
+        assert_dict_equal(expected_args, dict(urldownloader_args))
 
-        args = url_downloader["Arguments"]
-        assert_dict_equal({"filename": "%NAME%-%version%.zip"}, dict(args))
+        # Make sure EndOfCheckPhase is present.
+        assert_in(
+            "EndOfCheckPhase",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+
+        # Make sure Unarchiver is present with expected arguments.
+        assert_in(
+            "Unarchiver",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+        unarchiver_args = [
+            processor
+            for processor in download_recipe["Process"]
+            if processor["Processor"] == "Unarchiver"
+        ][0]["Arguments"]
+        expected_args = {
+            "destination_path": "%RECIPE_CACHE_DIR%/%NAME%",
+            "archive_path": "%pathname%",
+            "purge_destination": True,
+        }
+        assert_dict_equal(expected_args, dict(unarchiver_args))
+
+        # Make sure CodeSignatureVerifier is present with expected arguments.
+        assert_in(
+            "CodeSignatureVerifier",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+        codesigverifier_args = [
+            processor
+            for processor in download_recipe["Process"]
+            if processor["Processor"] == "CodeSignatureVerifier"
+        ][0]["Arguments"]
+        expected_args = {
+            "input_path": "%RECIPE_CACHE_DIR%/%NAME%/Evernote.app",
+            "requirement": (
+                'identifier "com.evernote.Evernote" and '
+                "anchor apple generic and "
+                "certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
+                "certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and "
+                "certificate leaf[subject.OU] = Q79WDW8YH9"
+            ),
+        }
+        assert_dict_equal(expected_args, dict(codesigverifier_args))
 
 
-def get_output_path(prefs, app_name, recipe_type=None):
+class TestGitHubURLInput(object):
+    """Given specific input, make sure Recipe Robot's output checks out."""
+
+    def test(self):
+        prefs = FoundationPlist.readPlist(
+            os.path.expanduser(
+                "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
+            )
+        )
+
+        # Robby loves MunkiAdmin. Let's make some recipes.
+        app = "MunkiAdmin"
+        developer = "Hannes Juutilainen"
+        url = "https://github.com/hjuutilainen/munkiadmin"
+        destination = get_output_path(prefs, app, developer)
+        clean_folder(destination)
+
+        subprocess.check_call(["./recipe-robot", "--ignore-existing", "--verbose", url])
+
+        # Ensure the download recipe uses the correct GitHub project.
+        download_recipe_path = get_output_path(
+            prefs, app, developer, recipe_type="download"
+        )
+        download_recipe = FoundationPlist.readPlist(download_recipe_path)
+        assert_in("Process", download_recipe)
+        assert_equals(
+            "hjuutilainen/munkiadmin", download_recipe["Input"]["GITHUB_REPO"]
+        )
+
+        # Make sure GitHubReleasesInfoProvider is present and uses the correct repo.
+        assert_in(
+            "GitHubReleasesInfoProvider",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+        githubreleasesinfoprovider_args = [
+            processor
+            for processor in download_recipe["Process"]
+            if processor["Processor"] == "GitHubReleasesInfoProvider"
+        ][0]["Arguments"]
+        expected_args = {"github_repo": "%GITHUB_REPO%"}
+        assert_dict_equal(expected_args, dict(githubreleasesinfoprovider_args))
+
+        # Make sure URLDownloader is present and has the expected filename.
+        assert_in(
+            "URLDownloader",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+        urldownloader_args = [
+            processor
+            for processor in download_recipe["Process"]
+            if processor["Processor"] == "URLDownloader"
+        ][0]["Arguments"]
+        expected_args = {"filename": "%NAME%-%version%.dmg"}
+        assert_dict_equal(expected_args, dict(urldownloader_args))
+
+        # Make sure EndOfCheckPhase is present.
+        assert_in(
+            "EndOfCheckPhase",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+
+        # Make sure CodeSignatureVerifier is present with expected arguments.
+        assert_in(
+            "CodeSignatureVerifier",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+        codesigverifier_args = [
+            processor
+            for processor in download_recipe["Process"]
+            if processor["Processor"] == "CodeSignatureVerifier"
+        ][0]["Arguments"]
+        expected_args = {
+            "input_path": "%pathname%/MunkiAdmin.app",
+            "requirement": (
+                'anchor apple generic and identifier "com.hjuutilainen.MunkiAdmin" and '
+                "(certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or "
+                "certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
+                "certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and "
+                'certificate leaf[subject.OU] = "8XXWJ76X9Y")'
+            ),
+        }
+        assert_dict_equal(expected_args, dict(codesigverifier_args))
+
+        # Make sure Versioner is present with expected arguments.
+        assert_in(
+            "Versioner",
+            [processor["Processor"] for processor in download_recipe["Process"]],
+        )
+        versioner_args = [
+            processor
+            for processor in download_recipe["Process"]
+            if processor["Processor"] == "Versioner"
+        ][0]["Arguments"]
+        expected_args = {
+            "input_plist_path": "%pathname%/MunkiAdmin.app/Contents/Info.plist",
+            "plist_version_key": "CFBundleShortVersionString",
+        }
+        assert_dict_equal(expected_args, dict(versioner_args))
+
+
+def get_output_path(prefs, app_name, developer, recipe_type=None):
     """Build a path to the output dir or output recipe for app_name."""
-    path = os.path.join(prefs.get("RecipeCreateLocation"), app_name)
+    path = os.path.join(prefs.get("RecipeCreateLocation"), developer)
     if recipe_type:
         path = os.path.join(path, "%s.%s.recipe" % (app_name, recipe_type))
     return os.path.expanduser(path)
