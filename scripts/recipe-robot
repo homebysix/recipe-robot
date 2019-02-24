@@ -139,8 +139,7 @@ def setup(facts):
 
     tools.color_setting = not args.app_mode
 
-    # If no input path nor --config arg was specified, print help
-    # and exit.
+    # If neither input path nor --config arg was specified, print help and exit.
     if not args.input_path and not args.config:
         argparser.print_help()
         sys.exit(0)
