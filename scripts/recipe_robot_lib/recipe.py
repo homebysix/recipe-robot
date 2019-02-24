@@ -42,14 +42,12 @@ RECIPE_TYPES = {
     "munki": "Imports into your Munki repository.",
     "pkg": "Creates a standard pkg installer file.",
     "install": "Installs the app on the computer running AutoPkg.",
-    "jss": ("Imports into your Casper JSS and creates necessary groups, "
-            "policies, etc."),
+    "jss": "Imports into your Casper JSS and creates necessary groups, policies, etc.",
     "lanrev": "Imports into your LANrev server.",
     "sccm": "Creates a cmmac package for deploying via Microsoft SCCM.",
     "ds": "Imports into your DeployStudio Packages folder.",
     "filewave": "Imports a fileset into your FileWave server.",
-    "bigfix": ("Builds a .bes deployment file and imports it into your "
-               "BigFix console")
+    "bigfix": "Builds a .bes deployment file and imports it into your BigFix console",
 }
 
 
@@ -60,19 +58,21 @@ class Recipe(RoboDict):
         """Build a recipe dictionary."""
         super(Recipe, self).__init__()
         self.update(
-            {"type": recipe_type,
-             "description": description,
-             "preferred": True,
-             "existing": False})
+            {
+                "type": recipe_type,
+                "description": description,
+                "preferred": True,
+                "existing": False,
+            }
+        )
         self["keys"] = {
             "Identifier": "",
             "MinimumVersion": "1.0.0",
-            "Input": {
-                "NAME": ""},
+            "Input": {"NAME": ""},
             "Process": [],
             "Comment": "Created with Recipe Robot v%s "
-                       "(https://github.com/homebysix/recipe-robot)"
-                       % __version__}
+            "(https://github.com/homebysix/recipe-robot)" % __version__,
+        }
 
     def write(self, path):
         """Write the recipe to disk."""
@@ -88,8 +88,7 @@ class Recipe(RoboDict):
 
     def set_parent_from(self, prefs, facts, recipe_type):
         """Set parent recipe based on prefs, facts, and a type."""
-        elements = (prefs["RecipeIdentifierPrefix"], recipe_type,
-                    facts["app_name"])
+        elements = (prefs["RecipeIdentifierPrefix"], recipe_type, facts["app_name"])
         self["keys"]["ParentRecipe"] = ".".join(elements).replace(" ", "")
 
     def append_processor(self, val):
@@ -104,5 +103,4 @@ class Recipes(RoboList):
     def __init__(self):
         """Store information related to each supported recipe type."""
         super(Recipes, self).__init__()
-        self.extend([Recipe(recipe, desc) for recipe, desc in
-                     RECIPE_TYPES.items() ])
+        self.extend([Recipe(recipe, desc) for recipe, desc in RECIPE_TYPES.items()])

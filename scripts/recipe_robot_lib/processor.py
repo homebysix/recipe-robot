@@ -48,8 +48,11 @@ class AbstractProcessor(object):
 
     def to_dict(self):
         """Return self as a dictionary for inclusion in recipes."""
-        arguments = {attr: getattr(self, attr) for attr in
-                     self._input_variables if getattr(self, attr) is not None}
+        arguments = {
+            attr: getattr(self, attr)
+            for attr in self._input_variables
+            if getattr(self, attr) is not None
+        }
         processor = {"Processor": self._type}
         if arguments:
             processor["Arguments"] = arguments
@@ -91,10 +94,10 @@ def ProcessorFactory(name, attributes, base_class=AbstractProcessor):
 # Processors without input_variables are meant to be used as base
 # classes.
 processor_classes = [
-    ProcessorFactory(proc_type,
-                     autopkglib.get_processor(proc_type).input_variables)
-    for proc_type in autopkglib.processor_names() if
-    hasattr(autopkglib.get_processor(proc_type), "input_variables")]
+    ProcessorFactory(proc_type, autopkglib.get_processor(proc_type).input_variables)
+    for proc_type in autopkglib.processor_names()
+    if hasattr(autopkglib.get_processor(proc_type), "input_variables")
+]
 
 # Add classes to this module for each AutoPkg processor.
 for processor in processor_classes:

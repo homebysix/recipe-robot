@@ -53,7 +53,8 @@ class NotificationMixin(object):
             "com.elliotjordan.recipe-robot.dnc.%s" % self.message_type,
             None,
             userInfo,
-            NSNotificationDeliverImmediately)
+            NSNotificationDeliverImmediately,
+        )
 
 
 # pylint: enable=too-few-public-methods
@@ -71,11 +72,15 @@ class Facts(RoboDict):
     def __init__(self):
         """Set up a Fact instance with required list-like objects."""
         super(Facts, self).__init__()
-        self._dict.update({"errors": NoisyNotifyingList("errors"),
-                           "reminders": NoisyNotifyingList("reminders"),
-                           "warnings": NoisyNotifyingList("warnings"),
-                           "recipes": NotifyingList("recipes"),
-                           "icons": NotifyingList("icons"),})
+        self._dict.update(
+            {
+                "errors": NoisyNotifyingList("errors"),
+                "reminders": NoisyNotifyingList("reminders"),
+                "warnings": NoisyNotifyingList("warnings"),
+                "recipes": NotifyingList("recipes"),
+                "icons": NotifyingList("icons"),
+            }
+        )
 
     def __setitem__(self, key, val):
         if isinstance(val, basestring):
@@ -105,8 +110,7 @@ class NotifyingList(NotificationMixin, RoboList):
         super(NotifyingList, self).__init__(iterable)
         # NSDistributedNotificationCenter is the NotificationCenter
         # that allows messages to be sent between applications.
-        self.notification_center = (
-            NSDistributedNotificationCenter.defaultCenter())
+        self.notification_center = NSDistributedNotificationCenter.defaultCenter()
         self.message_type = message_type
 
     def __setitem__(self, index, val):
@@ -127,7 +131,8 @@ class NoisyNotifyingList(NotifyingList):
         """Notify that an item has been set, and robo_print it."""
         super(NoisyNotifyingList, self).send_notification(message)
         log_level = LogLevel.__getattribute__(
-            LogLevel, self.message_type.rstrip("s").upper())
+            LogLevel, self.message_type.rstrip("s").upper()
+        )
         robo_print(message, log_level)
 
 
@@ -155,8 +160,7 @@ class NotifyingString(NotificationMixin, str):
         """
         # NSDistributedNotificationCenter is the NotificationCenter
         # that allows messages to be sent between applications.
-        self.notification_center = (
-            NSDistributedNotificationCenter.defaultCenter())
+        self.notification_center = NSDistributedNotificationCenter.defaultCenter()
         self.send_notification(text)
         super(NotifyingString, self).__init__(self, text)
 
@@ -177,8 +181,7 @@ class NotifyingBool(NotificationMixin, object):
         instance.message_type = message_type
         # NSDistributedNotificationCenter is the NotificationCenter
         # that allows messages to be sent between applications.
-        instance.notification_center = (
-            NSDistributedNotificationCenter.defaultCenter())
+        instance.notification_center = NSDistributedNotificationCenter.defaultCenter()
         instance.send_notification(val)
         return bool(val)
 
