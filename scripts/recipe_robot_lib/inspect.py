@@ -410,7 +410,8 @@ def inspect_app(input_path, args, facts):
             authority_marker = "Authority="
             dev_marker = "Authority=Developer ID Application: "
             vers_marker = "Sealed Resources version="
-            for line in err.split("\n"):  # The info we need is in stderr.
+            # The info we need is in stderr.
+            for line in err.decode('utf-8').split("\n"):
                 if line.startswith(authority_marker):
                     codesign_authorities.append(line[len(authority_marker) :])
                 if line.startswith(dev_marker):
