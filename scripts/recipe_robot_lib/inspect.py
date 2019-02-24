@@ -67,7 +67,7 @@ def process_input_path(facts):
         sys.exit(0)
     # Otherwise, retrieve the input path.
     input_path = args.input_path
-    robo_print("Processing %s ..." % input_path)
+    robo_print("Processing: {}".format(input_path))
 
     # Strip trailing slash, but only if input_path is not a URL.
     if "http" not in input_path:
