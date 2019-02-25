@@ -114,7 +114,6 @@ def zip_sparkle_app_test():
     # Process the input and return the recipes.
     recipes = robot_runner(input_path, app_name, developer)
 
-    # Check required recipe sections.
     for recipe_type in ("download", "pkg", "munki", "install", "jss"):
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
@@ -131,17 +130,14 @@ def zip_sparkle_app_test():
         "SparkleUpdateInfoProvider", recipes["download"], expected_args
     )
 
-    # Make sure URLDownloader is present and has the expected filename.
     expected_args = {"filename": "%NAME%-%version%.zip"}
     verify_processor_args("URLDownloader", recipes["download"], expected_args)
 
-    # Make sure EndOfCheckPhase is present.
     assert_in(
         "EndOfCheckPhase",
         [processor["Processor"] for processor in recipes["download"]["Process"]],
     )
 
-    # Make sure Unarchiver is present with expected arguments.
     expected_args = {
         "archive_path": "%pathname%",
         "destination_path": "%RECIPE_CACHE_DIR%/%NAME%",
@@ -149,7 +145,6 @@ def zip_sparkle_app_test():
     }
     verify_processor_args("Unarchiver", recipes["download"], expected_args)
 
-    # Make sure CodeSignatureVerifier is present with expected arguments.
     expected_args = {
         "input_path": "%RECIPE_CACHE_DIR%/%NAME%/Evernote.app",
         "requirement": (
@@ -161,14 +156,11 @@ def zip_sparkle_app_test():
     }
     verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
 
-    # Make sure correct bundle identifier is used.
     assert_equals("com.evernote.Evernote", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    # Make sure AppPkgCreator is present with expected arguments..
     expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/Evernote.app"}
     verify_processor_args("AppPkgCreator", recipes["pkg"], expected_args)
 
-    # Make sure correct Munki pkginfo is used.
     expected_pkginfo = {
         "catalogs": ["testing"],
         "description": "Create searchable notes and access them anywhere.",
@@ -179,14 +171,12 @@ def zip_sparkle_app_test():
     }
     assert_equals(expected_pkginfo, recipes["munki"]["Input"]["pkginfo"])
 
-    # Make sure DmgCreator is present with expected arguments.
     expected_args = {
         "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
         "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
     }
     verify_processor_args("DmgCreator", recipes["munki"], expected_args)
 
-    # Make sure MunkiImporter is present with expected arguments.
     expected_args = {
         "pkg_path": "%dmg_path%",
         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
@@ -206,7 +196,6 @@ def zip_sparkle_app_test():
     )
     assert_equals("%NAME%.png", recipes["jss"]["Input"]["SELF_SERVICE_ICON"])
 
-    # Make sure JSSImporter is present with expected arguments.
     expected_args = {
         "category": "%CATEGORY%",
         "groups": [
@@ -220,14 +209,12 @@ def zip_sparkle_app_test():
     }
     verify_processor_args("JSSImporter", recipes["jss"], expected_args)
 
-    # Make sure DmgCreator is present with expected arguments.
     expected_args = {
         "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
         "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
     }
     verify_processor_args("DmgCreator", recipes["install"], expected_args)
 
-    # Make sure InstallFromDMG is present with expected arguments.
     expected_args = {
         "dmg_path": "%dmg_path%",
         "items_to_copy": [
@@ -246,7 +233,6 @@ def dmg_sparkle_app_test():
     # Process the input and return the recipes.
     recipes = robot_runner(input_path, app_name, developer)
 
-    # Check required recipe sections.
     for recipe_type in ("download", "pkg", "munki", "install", "jss"):
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
@@ -263,17 +249,14 @@ def dmg_sparkle_app_test():
         "SparkleUpdateInfoProvider", recipes["download"], expected_args
     )
 
-    # Make sure URLDownloader is present and has the expected filename.
     expected_args = {"filename": "%NAME%-%version%.dmg"}
     verify_processor_args("URLDownloader", recipes["download"], expected_args)
 
-    # Make sure EndOfCheckPhase is present.
     assert_in(
         "EndOfCheckPhase",
         [processor["Processor"] for processor in recipes["download"]["Process"]],
     )
 
-    # Make sure CodeSignatureVerifier is present with expected arguments.
     expected_args = {
         "input_path": "%pathname%/AutoPkgr.app",
         "requirement": (
@@ -286,16 +269,13 @@ def dmg_sparkle_app_test():
     }
     verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
 
-    # Make sure correct bundle identifier is used.
     assert_equals("com.lindegroup.AutoPkgr", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    # Make sure AppPkgCreator is present.
     assert_in(
         "AppPkgCreator",
         [processor["Processor"] for processor in recipes["pkg"]["Process"]],
     )
 
-    # Make sure correct Munki pkginfo is used.
     expected_pkginfo = {
         "catalogs": ["testing"],
         "description": "AutoPkgr is a free Mac app that makes it easy to install and configure AutoPkg.",
@@ -306,7 +286,6 @@ def dmg_sparkle_app_test():
     }
     assert_equals(expected_pkginfo, recipes["munki"]["Input"]["pkginfo"])
 
-    # Make sure MunkiImporter is present with expected arguments.
     expected_args = {
         "pkg_path": "%pathname%",
         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
@@ -326,7 +305,6 @@ def dmg_sparkle_app_test():
     )
     assert_equals("%NAME%.png", recipes["jss"]["Input"]["SELF_SERVICE_ICON"])
 
-    # Make sure JSSImporter is present with expected arguments.
     expected_args = {
         "category": "%CATEGORY%",
         "groups": [
@@ -340,7 +318,6 @@ def dmg_sparkle_app_test():
     }
     verify_processor_args("JSSImporter", recipes["jss"], expected_args)
 
-    # Make sure InstallFromDMG is present with expected arguments.
     expected_args = {
         "dmg_path": "%pathname%",
         "items_to_copy": [
@@ -359,33 +336,27 @@ def github_url_test():
     # Process the input and return the recipes.
     recipes = robot_runner(input_path, app_name, developer)
 
-    # Check required recipe sections.
     for recipe_type in ("download", "pkg", "munki", "install", "jss"):
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
 
-    # Make sure correct GitHub repo is used.
     assert_equals(
         "hjuutilainen/munkiadmin", recipes["download"]["Input"]["GITHUB_REPO"]
     )
 
-    # Make sure GitHubReleasesInfoProvider is present and uses the correct repo.
     expected_args = {"github_repo": "%GITHUB_REPO%"}
     verify_processor_args(
         "GitHubReleasesInfoProvider", recipes["download"], expected_args
     )
 
-    # Make sure URLDownloader is present and has the expected filename.
     expected_args = {"filename": "%NAME%-%version%.dmg"}
     verify_processor_args("URLDownloader", recipes["download"], expected_args)
 
-    # Make sure EndOfCheckPhase is present.
     assert_in(
         "EndOfCheckPhase",
         [processor["Processor"] for processor in recipes["download"]["Process"]],
     )
 
-    # Make sure CodeSignatureVerifier is present with expected arguments.
     expected_args = {
         "input_path": "%pathname%/MunkiAdmin.app",
         "requirement": (
@@ -398,23 +369,19 @@ def github_url_test():
     }
     verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
 
-    # Make sure Versioner is present with expected arguments.
     expected_args = {
         "input_plist_path": "%pathname%/MunkiAdmin.app/Contents/Info.plist",
         "plist_version_key": "CFBundleShortVersionString",
     }
     verify_processor_args("Versioner", recipes["download"], expected_args)
 
-    # Make sure correct bundle identifier is used.
     assert_equals("com.hjuutilainen.MunkiAdmin", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    # Make sure AppPkgCreator is present.
     assert_in(
         "AppPkgCreator",
         [processor["Processor"] for processor in recipes["pkg"]["Process"]],
     )
 
-    # Make sure correct Munki pkginfo is used.
     expected_pkginfo = {
         "catalogs": ["testing"],
         "description": "macOS app for managing Munki repositories",
@@ -425,7 +392,6 @@ def github_url_test():
     }
     assert_equals(expected_pkginfo, recipes["munki"]["Input"]["pkginfo"])
 
-    # Make sure MunkiImporter is present with expected arguments.
     expected_args = {
         "pkg_path": "%pathname%",
         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
@@ -445,7 +411,6 @@ def github_url_test():
     )
     assert_equals("%NAME%.png", recipes["jss"]["Input"]["SELF_SERVICE_ICON"])
 
-    # Make sure JSSImporter is present with expected arguments.
     expected_args = {
         "category": "%CATEGORY%",
         "groups": [
@@ -459,11 +424,139 @@ def github_url_test():
     }
     verify_processor_args("JSSImporter", recipes["jss"], expected_args)
 
-    # Make sure InstallFromDMG is present with expected arguments.
     expected_args = {
         "dmg_path": "%pathname%",
         "items_to_copy": [
             {"destination_path": "/Applications", "source_item": "MunkiAdmin.app"}
+        ],
+    }
+    verify_processor_args("InstallFromDMG", recipes["install"], expected_args)
+
+
+def pkg_zip_download_url_test():
+    # Robby wants to challenge Recipe Robot to process a zipped package in a Sparkle feed. Game on!
+    app_name = "Karabiner"
+    developer = "Fumihiko Takayama"
+    input_path = "https://pqrs.org/osx/karabiner/files/Karabiner-10.9.0.dmg"
+
+    # Process the input and return the recipes.
+    recipes = robot_runner(input_path, app_name, developer)
+
+    for recipe_type in ("download", "pkg", "munki", "install", "jss"):
+        assert_in("Input", recipes[recipe_type])
+        assert_in("Process", recipes[recipe_type])
+
+    assert_equals(
+        "https://pqrs.org/osx/karabiner/files/appcast.xml",
+        recipes["download"]["Input"]["SPARKLE_FEED_URL"],
+    )
+
+    # Make sure SparkleUpdateInfoProvider is present and uses the correct repo.
+    expected_args = {"appcast_url": "%SPARKLE_FEED_URL%"}
+    verify_processor_args(
+        "SparkleUpdateInfoProvider", recipes["download"], expected_args
+    )
+
+    expected_args = {"filename": "%NAME%-%version%.zip"}
+    verify_processor_args("URLDownloader", recipes["download"], expected_args)
+
+    assert_in(
+        "EndOfCheckPhase",
+        [processor["Processor"] for processor in recipes["download"]["Process"]],
+    )
+
+    expected_args = {
+        "archive_path": "%pathname%",
+        "destination_path": "%RECIPE_CACHE_DIR%/%NAME%",
+        "purge_destination": True,
+    }
+    verify_processor_args("Unarchiver", recipes["download"], expected_args)
+
+    expected_args = {
+        "input_path": "%RECIPE_CACHE_DIR%/%NAME%/Karabiner.sparkle_guided.pkg",
+        "expected_authority_names": [
+            "Developer ID Installer: Fumihiko Takayama (G43BCU2T37)",
+            "Developer ID Certification Authority",
+            "Apple Root CA",
+        ],
+    }
+    verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
+
+    assert_equals("org.pqrs.Karabiner", recipes["pkg"]["Input"]["BUNDLE_ID"])
+
+    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/Karabiner.app"}
+    verify_processor_args("AppPkgCreator", recipes["pkg"], expected_args)
+
+    expected_pkginfo = {
+        "blocking_applications": [
+            "EventViewer.app",
+            "Karabiner.app",
+            "Karabiner_AXNotifier.app",
+            "Profile3.app",
+            "Profile1.app",
+            "ReloadXML.app",
+            "KarabinerUninstaller.app",
+            "Profile2.app",
+            "Profile0.app",
+            "Karabiner_multitouchextension.app",
+        ],
+        "catalogs": ["testing"],
+        "description": "MacBook keyboard remapper.",
+        "developer": developer,
+        "display_name": app_name,
+        "name": "%NAME%",
+        "unattended_install": True,
+    }
+    assert_equals(expected_pkginfo, recipes["munki"]["Input"]["pkginfo"])
+
+    expected_args = {
+        "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
+        "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
+    }
+    verify_processor_args("DmgCreator", recipes["munki"], expected_args)
+
+    expected_args = {
+        "pkg_path": "%dmg_path%",
+        "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
+    }
+    verify_processor_args("MunkiImporter", recipes["munki"], expected_args)
+
+    # Make sure JSS recipe inputs are correct.
+    assert_equals("Productivity", recipes["jss"]["Input"]["CATEGORY"])
+    assert_equals("%NAME%-update-smart", recipes["jss"]["Input"]["GROUP_NAME"])
+    assert_equals("SmartGroupTemplate.xml", recipes["jss"]["Input"]["GROUP_TEMPLATE"])
+    assert_equals(app_name, recipes["jss"]["Input"]["NAME"])
+    assert_equals("Testing", recipes["jss"]["Input"]["POLICY_CATEGORY"])
+    assert_equals("PolicyTemplate.xml", recipes["jss"]["Input"]["POLICY_TEMPLATE"])
+    assert_equals(
+        "MacBook keyboard remapper.",
+        recipes["jss"]["Input"]["SELF_SERVICE_DESCRIPTION"],
+    )
+    assert_equals("%NAME%.png", recipes["jss"]["Input"]["SELF_SERVICE_ICON"])
+
+    expected_args = {
+        "category": "%CATEGORY%",
+        "groups": [
+            {"name": "%GROUP_NAME%", "smart": True, "template_path": "%GROUP_TEMPLATE%"}
+        ],
+        "policy_category": "%POLICY_CATEGORY%",
+        "policy_template": "%POLICY_TEMPLATE%",
+        "prod_name": "%NAME%",
+        "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
+        "self_service_icon": "%SELF_SERVICE_ICON%",
+    }
+    verify_processor_args("JSSImporter", recipes["jss"], expected_args)
+
+    expected_args = {
+        "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
+        "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
+    }
+    verify_processor_args("DmgCreator", recipes["install"], expected_args)
+
+    expected_args = {
+        "dmg_path": "%dmg_path%",
+        "items_to_copy": [
+            {"destination_path": "/Applications", "source_item": "Karabiner.app"}
         ],
     }
     verify_processor_args("InstallFromDMG", recipes["install"], expected_args)
