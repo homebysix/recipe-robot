@@ -8,13 +8,17 @@ You must have the `nose` tool installed.
 
     pip install nose --user
 
+Also check Recipe Robot's config to make sure download, pkg, munki, and jss recipes are enabled.
+
+    ./scripts/recipe-robot --configure
+
 Make sure your working directory is the __scripts__ folder.
 
     cd ./scripts
 
 ## Steps
 
-To run the tests, use:
+Once you've met the above requirements, run the tests with this command:
 
     nosetests -v test
 
