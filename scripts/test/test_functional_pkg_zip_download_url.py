@@ -40,8 +40,8 @@ from nose.tools import *
 
 
 def test():
-    # Robby wants to challenge himself to process a zipped package from a
-    # Sparkle feed. Game on!
+    # Here's a doozy: a dmg that leads to a zip that contains a pkg that
+    # installs an app with a Sparkle feed. Game on!
     app_name = "Karabiner"
     developer = "Fumihiko Takayama"
     description = "MacBook keyboard remapper."

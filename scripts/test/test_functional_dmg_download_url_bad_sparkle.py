@@ -18,7 +18,7 @@
 
 
 """
-test_functional_zip_download_url.py
+test_functional_dmg_download_url_bad_sparkle.py
 
 Functional tests for Recipe Robot.
 
@@ -40,11 +40,11 @@ from nose.tools import *
 
 
 def test():
-    # Robby thinks very highly of his fellow automation apps. Here's one:
-    app_name = "PowerPhotos"
-    developer = "Fat Cat Software"
-    description = "Manage and find duplicates in multiple Photos libraries."
-    input_path = "https://www.fatcatsoftware.com/powerphotos/PowerPhotos.zip"
+    # Robby is a vegetarian, so he'll eat whatever Macroplant makes.
+    app_name = "Adapter"
+    developer = "Macroplant"
+    description = "Audio and video converter."
+    input_path = "http://www.macroplant.com/latest-binaries/adapter-mac.dmg"
 
     if not input_path:
         return
@@ -58,11 +58,11 @@ def test():
         assert_in("Process", recipes[recipe_type])
 
     assert_equals(
-        "https://www.fatcatsoftware.com/powerphotos/PowerPhotos.zip",
+        "http://www.macroplant.com/latest-binaries/adapter-mac.dmg",
         recipes["download"]["Input"]["DOWNLOAD_URL"],
     )
 
-    expected_args = {"filename": "%NAME%.zip", "url": "%DOWNLOAD_URL%"}
+    expected_args = {"filename": "%NAME%.dmg", "url": "%DOWNLOAD_URL%"}
     verify_processor_args("URLDownloader", recipes["download"], expected_args)
 
     assert_in(
@@ -71,38 +71,29 @@ def test():
     )
 
     expected_args = {
-        "archive_path": "%pathname%",
-        "destination_path": "%RECIPE_CACHE_DIR%/%NAME%",
-        "purge_destination": True,
-    }
-    verify_processor_args("Unarchiver", recipes["download"], expected_args)
-
-    expected_args = {
-        "input_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name),
+        "input_path": "%pathname%/{}.app".format(app_name),
         "requirement": (
-            'anchor apple generic and identifier "com.fatcatsoftware.PowerPhotos" and '
+            'anchor apple generic and identifier "com.macroplant.adapter" and '
             "(certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or "
             "certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
             "certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and "
-            'certificate leaf[subject.OU] = "8NQ43ND65V")'
+            "certificate leaf[subject.OU] = H2C3XE4Q3U)"
         ),
     }
     verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
 
     expected_args = {
-        "input_plist_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app/Contents/Info.plist".format(
-            app_name
-        ),
+        "input_plist_path": "%pathname%/{}.app/Contents/Info.plist".format(app_name),
         "plist_version_key": "CFBundleShortVersionString",
     }
     verify_processor_args("Versioner", recipes["download"], expected_args)
 
-    assert_equals(
-        "com.fatcatsoftware.PowerPhotos", recipes["pkg"]["Input"]["BUNDLE_ID"]
-    )
+    assert_equals("com.macroplant.adapter", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name)}
-    verify_processor_args("AppPkgCreator", recipes["pkg"], expected_args)
+    assert_in(
+        "AppPkgCreator",
+        [processor["Processor"] for processor in recipes["pkg"]["Process"]],
+    )
 
     expected_pkginfo = {
         "catalogs": ["testing"],
@@ -115,13 +106,7 @@ def test():
     assert_equals(expected_pkginfo, recipes["munki"]["Input"]["pkginfo"])
 
     expected_args = {
-        "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
-        "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
-    }
-    verify_processor_args("DmgCreator", recipes["munki"], expected_args)
-
-    expected_args = {
-        "pkg_path": "%dmg_path%",
+        "pkg_path": "%pathname%",
         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
     }
     verify_processor_args("MunkiImporter", recipes["munki"], expected_args)
@@ -149,13 +134,7 @@ def test():
     verify_processor_args("JSSImporter", recipes["jss"], expected_args)
 
     expected_args = {
-        "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
-        "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
-    }
-    verify_processor_args("DmgCreator", recipes["install"], expected_args)
-
-    expected_args = {
-        "dmg_path": "%dmg_path%",
+        "dmg_path": "%pathname%",
         "items_to_copy": [
             {
                 "destination_path": "/Applications",

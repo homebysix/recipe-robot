@@ -40,7 +40,7 @@ from nose.tools import *
 
 
 def test():
-    # Time for Robby to call his grandma. Better make a recipe for Google Chat.
+    # Time for Robby to call his grandma.
     app_name = "Chat"
     developer = "Google"
     description = "Desktop client for Facebook messaging."  # Incorrect but expected.
@@ -82,7 +82,7 @@ def test():
     verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
 
     expected_args = {
-        "input_plist_path": "%pathname%/Chat.app/Contents/Info.plist",
+        "input_plist_path": "%pathname%/{}.app/Contents/Info.plist".format(app_name),
         "plist_version_key": "CFBundleShortVersionString",
     }
     verify_processor_args("Versioner", recipes["download"], expected_args)

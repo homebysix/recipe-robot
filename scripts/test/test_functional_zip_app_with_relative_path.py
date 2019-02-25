@@ -18,7 +18,7 @@
 
 
 """
-test_functional_zip_download_url.py
+test_functional_zip_sparkle_url.py
 
 Functional tests for Recipe Robot.
 
@@ -40,11 +40,11 @@ from nose.tools import *
 
 
 def test():
-    # Robby thinks very highly of his fellow automation apps. Here's one:
-    app_name = "PowerPhotos"
-    developer = "Fat Cat Software"
-    description = "Manage and find duplicates in multiple Photos libraries."
-    input_path = "https://www.fatcatsoftware.com/powerphotos/PowerPhotos.zip"
+    # A zip that contains multiple apps is a puzzle indeed!
+    app_name = "cd to"
+    developer = "James Tuley"
+    description = "Finder Toolbar app to open the current directory in the Terminal (or iTerm, X11)"
+    input_path = "https://github.com/jbtule/cdto"
 
     if not input_path:
         return
@@ -57,12 +57,14 @@ def test():
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
 
-    assert_equals(
-        "https://www.fatcatsoftware.com/powerphotos/PowerPhotos.zip",
-        recipes["download"]["Input"]["DOWNLOAD_URL"],
+    assert_equals("jbtule/cdto", recipes["download"]["Input"]["GITHUB_REPO"])
+
+    expected_args = {"github_repo": "%GITHUB_REPO%"}
+    verify_processor_args(
+        "GitHubReleasesInfoProvider", recipes["download"], expected_args
     )
 
-    expected_args = {"filename": "%NAME%.zip", "url": "%DOWNLOAD_URL%"}
+    expected_args = {"filename": "%NAME%-%version%.zip"}
     verify_processor_args("URLDownloader", recipes["download"], expected_args)
 
     assert_in(
@@ -78,30 +80,25 @@ def test():
     verify_processor_args("Unarchiver", recipes["download"], expected_args)
 
     expected_args = {
-        "input_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name),
+        "input_path": "%RECIPE_CACHE_DIR%/%NAME%/cdto_2_6/iterm/cd to.app",
         "requirement": (
-            'anchor apple generic and identifier "com.fatcatsoftware.PowerPhotos" and '
-            "(certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or "
+            'identifier "name.tuley.jay.cdto" and anchor apple generic and '
             "certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
             "certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and "
-            'certificate leaf[subject.OU] = "8NQ43ND65V")'
+            "certificate leaf[subject.OU] = VURRGRYW45"
         ),
     }
     verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
 
     expected_args = {
-        "input_plist_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app/Contents/Info.plist".format(
-            app_name
-        ),
+        "input_plist_path": "%RECIPE_CACHE_DIR%/%NAME%/cdto_2_6/iterm/cd to.app/Contents/Info.plist",
         "plist_version_key": "CFBundleShortVersionString",
     }
     verify_processor_args("Versioner", recipes["download"], expected_args)
 
-    assert_equals(
-        "com.fatcatsoftware.PowerPhotos", recipes["pkg"]["Input"]["BUNDLE_ID"]
-    )
+    assert_equals("name.tuley.jay.cdto", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name)}
+    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/cdto_2_6/iterm/cd to.app"}
     verify_processor_args("AppPkgCreator", recipes["pkg"], expected_args)
 
     expected_pkginfo = {
@@ -159,7 +156,7 @@ def test():
         "items_to_copy": [
             {
                 "destination_path": "/Applications",
-                "source_item": "{}.app".format(app_name),
+                "source_item": "cdto_2_6/iterm/cd to.app",
             }
         ],
     }
