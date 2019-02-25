@@ -94,7 +94,7 @@ def test():
 
     assert_equals("org.pqrs.Karabiner", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/Karabiner.app"}
+    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name)}
     verify_processor_args("AppPkgCreator", recipes["pkg"], expected_args)
 
     expected_pkginfo = {
@@ -162,7 +162,10 @@ def test():
     expected_args = {
         "dmg_path": "%dmg_path%",
         "items_to_copy": [
-            {"destination_path": "/Applications", "source_item": "Karabiner.app"}
+            {
+                "destination_path": "/Applications",
+                "source_item": "{}.app".format(app_name),
+            }
         ],
     }
     verify_processor_args("InstallFromDMG", recipes["install"], expected_args)

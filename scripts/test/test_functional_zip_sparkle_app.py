@@ -83,7 +83,7 @@ def test():
     verify_processor_args("Unarchiver", recipes["download"], expected_args)
 
     expected_args = {
-        "input_path": "%RECIPE_CACHE_DIR%/%NAME%/Evernote.app",
+        "input_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name),
         "requirement": (
             'identifier "com.evernote.Evernote" and anchor apple generic and '
             "certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
@@ -95,7 +95,7 @@ def test():
 
     assert_equals("com.evernote.Evernote", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/Evernote.app"}
+    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name)}
     verify_processor_args("AppPkgCreator", recipes["pkg"], expected_args)
 
     expected_pkginfo = {
@@ -151,7 +151,10 @@ def test():
     expected_args = {
         "dmg_path": "%dmg_path%",
         "items_to_copy": [
-            {"destination_path": "/Applications", "source_item": "Evernote.app"}
+            {
+                "destination_path": "/Applications",
+                "source_item": "{}.app".format(app_name),
+            }
         ],
     }
     verify_processor_args("InstallFromDMG", recipes["install"], expected_args)

@@ -85,7 +85,7 @@ def test():
     verify_processor_args("Unarchiver", recipes["download"], expected_args)
 
     expected_args = {
-        "input_path": "%RECIPE_CACHE_DIR%/%NAME%/Waltr.app",
+        "input_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name),
         "requirement": (
             'anchor apple generic and identifier "com.softorino.Waltr" and '
             "(certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or "
@@ -98,7 +98,7 @@ def test():
 
     assert_equals("com.softorino.Waltr", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/Waltr.app"}
+    expected_args = {"app_path": "%RECIPE_CACHE_DIR%/%NAME%/{}.app".format(app_name)}
     verify_processor_args("AppPkgCreator", recipes["pkg"], expected_args)
 
     expected_pkginfo = {
@@ -154,7 +154,10 @@ def test():
     expected_args = {
         "dmg_path": "%dmg_path%",
         "items_to_copy": [
-            {"destination_path": "/Applications", "source_item": "Waltr.app"}
+            {
+                "destination_path": "/Applications",
+                "source_item": "{}.app".format(app_name),
+            }
         ],
     }
     verify_processor_args("InstallFromDMG", recipes["install"], expected_args)

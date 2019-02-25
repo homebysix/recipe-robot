@@ -40,7 +40,7 @@ from nose.tools import *
 
 
 def test():
-    # Robby is thinking of a new app to test...
+    # Robby needs to deploy a bunch of new Macs quickly. Thanks MDS!
     app_name = "MDS"
     developer = "Twocanoes Software"
     description = "Monitor mds interference."  # Incorrect but expected.
@@ -76,7 +76,7 @@ def test():
     )
 
     expected_args = {
-        "input_path": "%pathname%/MDS.app",
+        "input_path": "%pathname%/{}.app".format(app_name),
         "requirement": (
             'anchor apple generic and identifier "com.twocanoes.MacDeployStick" and '
             "(certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or "
@@ -135,7 +135,10 @@ def test():
     expected_args = {
         "dmg_path": "%pathname%",
         "items_to_copy": [
-            {"destination_path": "/Applications", "source_item": "MDS.app"}
+            {
+                "destination_path": "/Applications",
+                "source_item": "{}.app".format(app_name),
+            }
         ],
     }
     verify_processor_args("InstallFromDMG", recipes["install"], expected_args)
