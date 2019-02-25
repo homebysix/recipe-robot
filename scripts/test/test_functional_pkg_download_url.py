@@ -55,7 +55,7 @@ def test():
     recipes = robot_runner(input_path, app_name, developer)
 
     # Perform checks on recipes.
-    for recipe_type in ("download", "pkg", "munki", "install", "jss"):
+    for recipe_type in ("download", "munki", "install", "jss"):
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
 
