@@ -40,7 +40,8 @@ from nose.tools import *
 
 
 def test():
-    # Robby wants to challenge Recipe Robot to process a zipped package in a Sparkle feed. Game on!
+    # Robby wants to challenge himself to process a zipped package from a
+    # Sparkle feed. Game on!
     app_name = "Karabiner"
     developer = "Fumihiko Takayama"
     description = "MacBook keyboard remapper."
