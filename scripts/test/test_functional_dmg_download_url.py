@@ -40,11 +40,11 @@ from nose.tools import *
 
 
 def test():
-    # Robby is thinking of a new app to test...
-    app_name = ""
-    developer = ""
-    description = ""
-    input_path = ""
+    # Time for Robby to call his grandma. Better make a recipe for Google Chat.
+    app_name = "Chat"
+    developer = "Google"
+    description = "Desktop client for Facebook messaging."  # Incorrect but expected.
+    input_path = "https://dl.google.com/chat/latest/InstallHangoutsChat.dmg"
 
     if not input_path:
         return
@@ -57,4 +57,88 @@ def test():
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
 
-    # Insert recipe-specific tests here.
+    assert_equals(
+        "https://dl.google.com/chat/latest/InstallHangoutsChat.dmg",
+        recipes["download"]["Input"]["DOWNLOAD_URL"],
+    )
+
+    expected_args = {"filename": "%NAME%.dmg", "url": "%DOWNLOAD_URL%"}
+    verify_processor_args("URLDownloader", recipes["download"], expected_args)
+
+    assert_in(
+        "EndOfCheckPhase",
+        [processor["Processor"] for processor in recipes["download"]["Process"]],
+    )
+
+    expected_args = {
+        "input_path": "%pathname%/{}.app".format(app_name),
+        "requirement": (
+            'identifier "com.google.chat" and anchor apple generic and '
+            "certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
+            "certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and "
+            "certificate leaf[subject.OU] = EQHXZ8M8AV"
+        ),
+    }
+    verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
+
+    expected_args = {
+        "input_plist_path": "%pathname%/Chat.app/Contents/Info.plist",
+        "plist_version_key": "CFBundleShortVersionString",
+    }
+    verify_processor_args("Versioner", recipes["download"], expected_args)
+
+    assert_equals("com.google.chat", recipes["pkg"]["Input"]["BUNDLE_ID"])
+
+    assert_in(
+        "AppPkgCreator",
+        [processor["Processor"] for processor in recipes["pkg"]["Process"]],
+    )
+
+    expected_pkginfo = {
+        "catalogs": ["testing"],
+        "description": description,
+        "developer": developer,
+        "display_name": app_name,
+        "name": "%NAME%",
+        "unattended_install": True,
+    }
+    assert_equals(expected_pkginfo, recipes["munki"]["Input"]["pkginfo"])
+
+    expected_args = {
+        "pkg_path": "%pathname%",
+        "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
+    }
+    verify_processor_args("MunkiImporter", recipes["munki"], expected_args)
+
+    assert_equals("Productivity", recipes["jss"]["Input"]["CATEGORY"])
+    assert_equals("%NAME%-update-smart", recipes["jss"]["Input"]["GROUP_NAME"])
+    assert_equals("SmartGroupTemplate.xml", recipes["jss"]["Input"]["GROUP_TEMPLATE"])
+    assert_equals(app_name, recipes["jss"]["Input"]["NAME"])
+    assert_equals("Testing", recipes["jss"]["Input"]["POLICY_CATEGORY"])
+    assert_equals("PolicyTemplate.xml", recipes["jss"]["Input"]["POLICY_TEMPLATE"])
+    assert_equals(description, recipes["jss"]["Input"]["SELF_SERVICE_DESCRIPTION"])
+    assert_equals("%NAME%.png", recipes["jss"]["Input"]["SELF_SERVICE_ICON"])
+
+    expected_args = {
+        "category": "%CATEGORY%",
+        "groups": [
+            {"name": "%GROUP_NAME%", "smart": True, "template_path": "%GROUP_TEMPLATE%"}
+        ],
+        "policy_category": "%POLICY_CATEGORY%",
+        "policy_template": "%POLICY_TEMPLATE%",
+        "prod_name": "%NAME%",
+        "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
+        "self_service_icon": "%SELF_SERVICE_ICON%",
+    }
+    verify_processor_args("JSSImporter", recipes["jss"], expected_args)
+
+    expected_args = {
+        "dmg_path": "%pathname%",
+        "items_to_copy": [
+            {
+                "destination_path": "/Applications",
+                "source_item": "{}.app".format(app_name),
+            }
+        ],
+    }
+    verify_processor_args("InstallFromDMG", recipes["install"], expected_args)
