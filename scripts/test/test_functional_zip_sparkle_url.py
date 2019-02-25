@@ -67,7 +67,7 @@ def test():
         "SparkleUpdateInfoProvider", recipes["download"], expected_args
     )
 
-    expected_args = {"filename": "%NAME%-%version%.tgz"}
+    expected_args = {"filename": "%NAME%-%version%.zip"}
     verify_processor_args("URLDownloader", recipes["download"], expected_args)
 
     assert_in(
