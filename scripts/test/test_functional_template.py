@@ -35,21 +35,24 @@ from .test_functional import robot_runner, verify_processor_args, get_output_pat
 
 # pylint: disable=unused-wildcard-import, wildcard-import
 from nose.tools import *
-from recipe_robot_lib import FoundationPlist
 
 # pylint: enable=unused-wildcard-import, wildcard-import
 
 
 def test():
     # Robby is thinking of a new app to test...
-    return  # Remove before flight.
-    app_name = "Foo"
-    developer = "Bar Software"
-    input_path = "https://example.com/osx/latest.dmg"
+    app_name = ""
+    developer = ""
+    description = ""
+    input_path = ""
+
+    if not input_path:
+        return
 
     # Process the input and return the recipes.
     recipes = robot_runner(input_path, app_name, developer)
 
+    # Perform checks on recipes.
     for recipe_type in ("download", "pkg", "munki", "install", "jss"):
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])

@@ -35,7 +35,6 @@ from .test_functional import robot_runner, verify_processor_args, get_output_pat
 
 # pylint: disable=unused-wildcard-import, wildcard-import
 from nose.tools import *
-from recipe_robot_lib import FoundationPlist
 
 # pylint: enable=unused-wildcard-import, wildcard-import
 
@@ -44,11 +43,16 @@ def test():
     # Robby wants to challenge Recipe Robot to process a zipped package in a Sparkle feed. Game on!
     app_name = "Karabiner"
     developer = "Fumihiko Takayama"
+    description = "MacBook keyboard remapper."
     input_path = "https://pqrs.org/osx/karabiner/files/Karabiner-10.9.0.dmg"
+
+    if not input_path:
+        return
 
     # Process the input and return the recipes.
     recipes = robot_runner(input_path, app_name, developer)
 
+    # Perform checks on recipes.
     for recipe_type in ("download", "pkg", "munki", "install", "jss"):
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
@@ -58,7 +62,6 @@ def test():
         recipes["download"]["Input"]["SPARKLE_FEED_URL"],
     )
 
-    # Make sure SparkleUpdateInfoProvider is present and uses the correct repo.
     expected_args = {"appcast_url": "%SPARKLE_FEED_URL%"}
     verify_processor_args(
         "SparkleUpdateInfoProvider", recipes["download"], expected_args
@@ -108,7 +111,7 @@ def test():
             "Karabiner_multitouchextension.app",
         ],
         "catalogs": ["testing"],
-        "description": "MacBook keyboard remapper.",
+        "description": description,
         "developer": developer,
         "display_name": app_name,
         "name": "%NAME%",
@@ -128,17 +131,13 @@ def test():
     }
     verify_processor_args("MunkiImporter", recipes["munki"], expected_args)
 
-    # Make sure JSS recipe inputs are correct.
     assert_equals("Productivity", recipes["jss"]["Input"]["CATEGORY"])
     assert_equals("%NAME%-update-smart", recipes["jss"]["Input"]["GROUP_NAME"])
     assert_equals("SmartGroupTemplate.xml", recipes["jss"]["Input"]["GROUP_TEMPLATE"])
     assert_equals(app_name, recipes["jss"]["Input"]["NAME"])
     assert_equals("Testing", recipes["jss"]["Input"]["POLICY_CATEGORY"])
     assert_equals("PolicyTemplate.xml", recipes["jss"]["Input"]["POLICY_TEMPLATE"])
-    assert_equals(
-        "MacBook keyboard remapper.",
-        recipes["jss"]["Input"]["SELF_SERVICE_DESCRIPTION"],
-    )
+    assert_equals(description, recipes["jss"]["Input"]["SELF_SERVICE_DESCRIPTION"])
     assert_equals("%NAME%.png", recipes["jss"]["Input"]["SELF_SERVICE_ICON"])
 
     expected_args = {
