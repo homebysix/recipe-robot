@@ -561,23 +561,23 @@ def inspect_archive(input_path, args, facts):
     unpacked_dir = os.path.join(CACHE_DIR, "unpacked")
     if not os.path.exists(unpacked_dir):
         os.mkdir(unpacked_dir)
-    archive_cmds = {
-        "zip": '/usr/bin/unzip "{}" -d "{}"'.format(input_path, unpacked_dir),
-        "tgz": '/usr/bin/tar -zxvf "{}" -C "{}"'.format(input_path, unpacked_dir),
-    }
+    archive_cmds = (
+        ("zip", '/usr/bin/unzip "{}" -d "{}"'.format(input_path, unpacked_dir)),
+        ("tgz", '/usr/bin/tar -zxvf "{}" -C "{}"'.format(input_path, unpacked_dir)),
+    )
     for fmt in archive_cmds:
-        exitcode, _, _ = get_exitcode_stdout_stderr(archive_cmds[fmt])
+        exitcode, _, _ = get_exitcode_stdout_stderr(fmt[1])
         if exitcode == 0:
             # Confirmed: the download was an archive. Make a note of that.
-            robo_print("Successfully unarchived %s" % fmt, LogLevel.VERBOSE, 4)
-            facts["download_format"] = fmt
+            robo_print("Successfully unarchived %s" % fmt[0], LogLevel.VERBOSE, 4)
+            facts["download_format"] = fmt[0]
 
             # If the download filename was ambiguous, change it.
             if not facts.get("download_filename", input_path).endswith(
                 SUPPORTED_ARCHIVE_FORMATS
             ):
                 facts["download_filename"] = "{}.{}".format(
-                    facts.get("download_filename", os.path.basename(input_path)), fmt
+                    facts.get("download_filename", os.path.basename(input_path)), fmt[0]
                 )
 
             # Locate and inspect any apps or pkgs on the root level.
