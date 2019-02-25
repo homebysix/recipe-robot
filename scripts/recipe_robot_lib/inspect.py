@@ -1669,14 +1669,15 @@ def inspect_pkg(input_path, args, facts):
         # Add apps found to blocking applications, unless
         # otherwise specified.
         non_blocking_apps = (
-            "Uninstaller.app",
-            "Installer.app",
-            "Uninstall.app",
-            "Install.app",
+            "autoupdate.app",
+            "install.app",
+            "installer.app",
+            "uninstall.app",
+            "uninstaller.app",
         )
         for app in [os.path.basename(x["path"]) for x in found_apps]:
             if app not in facts["blocking_applications"]:
-                if app in non_blocking_apps:
+                if app.lower() in non_blocking_apps:
                     robo_print("Found application: %s" % app, LogLevel.VERBOSE, 4)
                 else:
                     robo_print(
