@@ -20,7 +20,7 @@
 """
 test_functional.py
 
-Functional tests for Recipe Robot.
+Functional test support functions for Recipe Robot.
 
 Since it's apparently a thing, test scenarios are run by a fictional
 character. We will use "Robby the Robot" for ours.
@@ -40,6 +40,8 @@ from recipe_robot_lib import FoundationPlist
 # TODO (Shea): Mock up an "app" for testing purposes.
 # TODO (Shea): Add arguments to only produce certain RecipeTypes. This will
 # allow us to narrow the tests down.
+# TODO (Elliot): Build tests for AppStoreApp recipes, which don't have download
+# recipe parents.
 
 
 def robot_runner(input_path, app, dev):

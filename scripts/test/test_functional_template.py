@@ -20,7 +20,7 @@
 """
 test_functional_template.py
 
-Functional tests template for Recipe Robot.
+Functional tests for Recipe Robot.
 
 Since it's apparently a thing, test scenarios are run by a fictional
 character. We will use "Robby the Robot" for ours.

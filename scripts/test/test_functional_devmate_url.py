@@ -41,7 +41,7 @@ from recipe_robot_lib import FoundationPlist
 
 
 def test():
-    # Robby is thinking of a new app to test...
+    # Robby really likes the name "Waltr" so here goes...
     app_name = "Waltr"
     developer = "Dmytro Makukha"
     input_path = "https://dl.devmate.com/com.softorino.Waltr/WALTR.dmg"
