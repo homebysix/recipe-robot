@@ -46,33 +46,27 @@ from recipe_robot_lib import FoundationPlist
 
 def robot_runner(input_path, app, dev):
     """For given input, run Recipe Robot and return the output recipes as dicts."""
+
     # Read preferences.
     prefs = FoundationPlist.readPlist(
         os.path.expanduser("~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
     )
+
+    # Create recipes.
     destination = get_output_path(prefs, app, dev)
     clean_folder(destination)
     subprocess.check_call(
         ["./recipe-robot", "--ignore-existing", "--verbose", input_path]
     )
+
     # Process the output recipes into dicts.
-    recipes = {
-        "download": FoundationPlist.readPlist(
-            get_output_path(prefs, app, dev, recipe_type="download")
-        ),
-        "pkg": FoundationPlist.readPlist(
-            get_output_path(prefs, app, dev, recipe_type="pkg")
-        ),
-        "munki": FoundationPlist.readPlist(
-            get_output_path(prefs, app, dev, recipe_type="munki")
-        ),
-        "install": FoundationPlist.readPlist(
-            get_output_path(prefs, app, dev, recipe_type="install")
-        ),
-        "jss": FoundationPlist.readPlist(
-            get_output_path(prefs, app, dev, recipe_type="jss")
-        ),
-    }
+    recipes = {}
+    for recipe_type in ("download", "pkg", "munki", "install", "jss"):
+        recipe_path = get_output_path(prefs, app, dev, recipe_type=recipe_type)
+        if not os.path.isfile(recipe_path):
+            recipes[recipe_type] = {}
+        else:
+            recipes[recipe_type] = FoundationPlist.readPlist(recipe_path)
 
     return recipes
 
