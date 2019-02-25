@@ -139,7 +139,7 @@ recipe-robot --verbose https://api.vivi.io/mac-pkg
 
 Sparkle feed blocks Python user-agent:
 ```
-recipe-robot --verbose http://bohemiancoding.com/static/download/sketch.zip
+recipe-robot --verbose https://download.sketchapp.com/sketch.zip
 ```
 
 Downloaded disk image requires agreement to license before mounting:
@@ -221,4 +221,3 @@ A prefpane within a dmg:
 ```
 recipe-robot --verbose https://bahoom.com/hyperdock/HyperDock.dmg
 ```
-
