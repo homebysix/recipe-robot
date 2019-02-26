@@ -199,7 +199,7 @@ recipe-robot --verbose https://updates.aviatorbrowser.com/Aviator.dmg
 
 Direct download URL (dmg) is a different format than the Sparkle download URL (zip):
 ```
-recipe-robot --verbose https://tunnelblick.net/release/Tunnelblick_3.5.3_build_4270.4371.dmg
+recipe-robot --verbose https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
 ```
 
 An app installer at the root level of the DMG (Can we have some kind of warning about this?):

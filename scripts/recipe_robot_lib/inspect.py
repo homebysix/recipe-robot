@@ -1044,6 +1044,8 @@ def inspect_download_url(input_path, args, facts):
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
+            # TODO: Handle requests with cookies (e.g. S3 pre-signed URLs).
+            # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
             try:
                 raw_download = useragent_urlopen(checked_url, "Mozilla/5.0")
                 facts["user-agent"] = "Mozilla/5.0"
@@ -1959,6 +1961,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
+            # TODO: Handle requests with cookies (e.g. S3 pre-signed URLs).
+            # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
             try:
                 raw_xml = useragent_urlopen(checked_url, "Mozilla/5.0")
                 facts["user-agent"] = "Mozilla/5.0"
