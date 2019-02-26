@@ -184,7 +184,7 @@ def check_url(url):
             robo_print(
                 "Domain does not have a valid SSL certificate.", LogLevel.VERBOSE, 4
             )
-        except Exception as err:
+        except Exception as err:  # pylint: disable=W0703
             robo_print(
                 "An error occurred while checking for an HTTPS URL: %s" % err,
                 LogLevel.VERBOSE,
@@ -898,11 +898,11 @@ def inspect_disk_image(input_path, args, facts):
             dmg_dict = FoundationPlist.readPlist(
                 os.path.join(CACHE_DIR, "dmg_attach.plist")
             )
-        except Exception as error:
+        except Exception as err:  # pylint: disable=W0703
             raise RoboError(
                 "Shoot, I had trouble parsing the output of hdiutil while mounting the "
                 "downloaded dmg. Sorry about that.",
-                error,
+                err,
             )
         for entity in dmg_dict["system-entities"]:
             if "mount-point" in entity:
@@ -1047,7 +1047,7 @@ def inspect_download_url(input_path, args, facts):
             try:
                 raw_download = useragent_urlopen(checked_url, "Mozilla/5.0")
                 facts["user-agent"] = "Mozilla/5.0"
-            except Exception as err:
+            except Exception as err:  # pylint: disable=W0703
                 facts["warnings"].append(
                     "Error encountered during file download. (%s)" % err
                 )
@@ -1875,7 +1875,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             files_rss = "https://sourceforge.net/projects/%s/rss" % proj_name
             try:
                 raw_xml = urlopen(files_rss)
-            except Exception as err:
+            except Exception as err:  # pylint: disable=W0703
                 facts["warnings"].append(
                     "Error occurred while inspecting SourceForge RSS feed: %s" % err
                 )
@@ -1962,7 +1962,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             try:
                 raw_xml = useragent_urlopen(checked_url, "Mozilla/5.0")
                 facts["user-agent"] = "Mozilla/5.0"
-            except Exception as err:
+            except Exception as err:  # pylint: disable=W0703
                 facts["warnings"].append(
                     "Error occurred while downloading Sparkle feed (%s)" % err
                 )
