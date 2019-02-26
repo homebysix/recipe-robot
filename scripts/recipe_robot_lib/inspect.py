@@ -163,18 +163,18 @@ def check_url(url):
             provided as input (e.g. switching from HTTP to HTTPS).
         code: The HTTP status code returned by the URL header check.
     """
-    p = urlparse(url)
+    prs = urlparse(url)
     # TODO (Elliot): Support URLs with hard-coded port other than 80/443.
-    if p.scheme == "https" or ":" in p.netloc:
+    if prs.scheme == "https" or ":" in prs.netloc:
         return url
-    elif p.scheme == "http":
+    elif prs.scheme == "http":
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
         try:
             # Try switching to HTTPS.
-            c = httplib.HTTPSConnection(p.netloc, 443, timeout=10)
-            c.request("HEAD", p.path)
-            r = c.getresponse()
-            if r.status < 400:
+            cnx = httplib.HTTPSConnection(prs.netloc, 443, timeout=10)
+            cnx.request("HEAD", prs.path)
+            res = cnx.getresponse()
+            if res.status < 400:
                 url = "https" + url[4:]
                 robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
                 return url
