@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Changed
 - Only download and pkg recipe types are enabled by default on first run.
 - Display recipe types in specified order when displaying configuration options. (#67)
+- Made Recipe Robot less likely to give "user-agent" related warnings unnecessarily.
 
 ### Fixed
 - Resolved a minor bug in which Recipe Robot would incorrectly treat a zip file as a tgz file.

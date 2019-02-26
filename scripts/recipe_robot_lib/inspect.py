@@ -1046,12 +1046,6 @@ def inspect_download_url(input_path, args, facts):
             # Try again, this time with a user-agent.
             try:
                 raw_download = useragent_urlopen(checked_url, "Mozilla/5.0")
-                facts["warnings"].append(
-                    "I had to use a different user-agent in order to "
-                    "download this file. If you run the recipes and get a "
-                    '"Can\'t open URL" error, it means AutoPkg encountered '
-                    "the same problem."
-                )
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
                 facts["warnings"].append(
@@ -1086,6 +1080,15 @@ def inspect_download_url(input_path, args, facts):
         )
         # TODO: If input path was HTTP, revert to that and try again.
         return facts
+
+    # Warn if we had to add a user agent in order to access URLs above.
+    if "user-agent" in facts:
+        facts["warnings"].append(
+            "I had to use a different user-agent in order to "
+            "download this file. If you run the recipes and get a "
+            '"Can\'t open URL" error, it means AutoPkg encountered '
+            "the same problem."
+        )
 
     # Get the actual filename from the server, if it exists.
     if "Content-Disposition" in raw_download.info():
@@ -1958,12 +1961,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             # Try again, this time with a user-agent.
             try:
                 raw_xml = useragent_urlopen(checked_url, "Mozilla/5.0")
-                facts["warnings"].append(
-                    "I had to use a different user-agent in order to read "
-                    "this Sparkle feed. If you run the recipes and get a "
-                    '"Can\'t open URL" error, it means AutoPkg encountered '
-                    "the same problem."
-                )
                 facts["user-agent"] = "Mozilla/5.0"
             except Exception as err:
                 facts["warnings"].append(
@@ -2007,6 +2004,15 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         )
         # TODO: If input path was HTTP, revert to that and try again.
         return facts
+
+    # Warn if we had to add a user agent in order to access URLs above.
+    if "user-agent" in facts:
+        facts["warnings"].append(
+            "I had to use a different user-agent in order to read "
+            "this Sparkle feed. If you run the recipes and get a "
+            '"Can\'t open URL" error, it means AutoPkg encountered '
+            "the same problem."
+        )
 
     # Parse the Sparkle feed.
     xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
