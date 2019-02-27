@@ -70,7 +70,7 @@ extension Process: ChainableTask, CancelableTask {
     // so either we have to subclass Process, or we fake a var parameter by building a static table, or
     // we stuff data in using the objc runtime using objc_getAssociatedObject.  I'm going with the static table approach
     // ProcessAssociatedData encapsulates a dictionary of [processIdentifier : cancellationHandler]
-    
+
     func cancelled(handler: @escaping CancellationHandler) -> Self {
         ProcessAssociatedData.registerCancellationHandler(for:self, cancellationHandler:handler)
         if (terminationHandler == nil) {
@@ -93,7 +93,7 @@ extension Process: ChainableTask, CancelableTask {
             self.terminate()
         }
     }
-    
+
     func stderr(message: @escaping (String) -> (Void)) -> ChainableTask {
         let standardErrPipe = Pipe()
         standardErrPipe.fileHandleForReading.readabilityHandler = ({
@@ -254,7 +254,7 @@ class Task: Taskable, CancelableTask {
     }
 
     internal var cancellationHandler: CancellationHandler?
-    
+
     func cancelled(handler: @escaping CancellationHandler) -> Self {
         cancellationHandler = handler
         return self

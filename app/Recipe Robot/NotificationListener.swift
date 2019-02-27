@@ -55,7 +55,7 @@ enum NoteType: Int {
             return ""
         }
     }
-    
+
     var color: Color {
         switch self {
         case .Error: return Color.Red

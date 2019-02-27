@@ -37,7 +37,7 @@ class FeedMeDropImageView: NSImageView {
 
         controller.task.appOrRecipe = file
         controller.performSegue(withIdentifier:"FeedMeSegue", sender: self)
- 
+
         return true
     }
 

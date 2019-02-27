@@ -9,9 +9,9 @@
 
 
 // Debug Information Format
-// 
+//
 // The type of debug information to produce.
-// 
+//
 // * *DWARF:* Object files and linked products will use DWARF as the debug information
 // format. [dwarf]
 // * *DWARF with dSYM File:* Object files and linked products will use DWARF as the debug
@@ -25,7 +25,7 @@ ENABLE_NS_ASSERTIONS = NO
 
 
 // Produce debugging information
-// 
+//
 // Produce debugging information. This information is required for shader debugging and
 // profiling.
 
@@ -33,7 +33,7 @@ MTL_ENABLE_DEBUG_INFO = NO
 
 
 // Swift Optimization Level
-// 
+//
 // * *None:* Compile without any optimization. [-Onone]
 // * *Optimize for Speed:* [-O]
 // * *Optimize for Size:* [-Osize]

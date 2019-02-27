@@ -119,7 +119,7 @@ class FeedMeViewController: RecipeRobotViewController {
         if urlTextField.stringValue.isEmpty {
             return
         }
-        
+
         guard let url = NSURL(string: urlTextField.stringValue) else {
             return
         }
@@ -144,7 +144,7 @@ class PreferenceViewController: RecipeRobotViewController {
     @IBOutlet weak var recipeLocation: NSTextField!
 
     @IBOutlet weak var jssCheckBox: NSButton!
-    
+
     private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? Set<String>()
 
     // MARK: Overrides
@@ -243,7 +243,7 @@ extension PreferenceViewController {
         panel.beginSheetModal(for: self.view.window!) {
             [weak self] result in
             if (result.rawValue == NSApplication.ModalResponse.OK.rawValue) {
-                
+
                 guard let strongSelf = self else {
                     return
                 }

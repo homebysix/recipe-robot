@@ -134,7 +134,7 @@ static NSString *NO_HELP_AVAILABLE() {
                 }
 
                 NSInteger titleSize = (NSInteger) (fontSize * HELP_POPOVER_TITLE_FACTOR);
-                
+
                 self.helpTitleFont = [NSFont fontWithDescriptor:currentFont.fontDescriptor
                                                   size:titleSize];
 

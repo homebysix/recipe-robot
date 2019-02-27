@@ -78,7 +78,7 @@ class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
         }
 
     }
-    
+
     func animateDismissal(of viewController: NSViewController, from fromViewController: NSViewController) {
         viewController.view.wantsLayer = true
         viewController.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
@@ -112,7 +112,7 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
             }, completionHandler: { () -> Void in
         })
     }
-    
+
     func animateDismissal(of viewController: NSViewController, from fromViewController: NSViewController) {
         let dRect = fromViewController.view.frame
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
