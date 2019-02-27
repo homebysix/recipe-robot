@@ -1,6 +1,9 @@
-# We're effectively using this package as module
+# We're using this package as a module.
 try:
     from FoundationPlist import *
-except:
-    print "WARNING: using 'from plistlib import *' instead of 'from FoundationPlist import *' in " + __name__
+except ImportError:
+    print(
+        "WARNING: using 'from plistlib import *' instead of "
+        "'from FoundationPlist import *' in " + __name__
+    )
     from plistlib import *
