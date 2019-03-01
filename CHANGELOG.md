@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file. This projec
 ### Fixed
 - Resolved a minor bug in which Recipe Robot would incorrectly treat a zip file as a tgz file.
 
+### Removed
+- Removed internal support for piped commands, in order to simplify shell-out process. Should have no effect on functionality.
+
+
 ## [1.1.2] - 2019-02-24
 
 ### Changed

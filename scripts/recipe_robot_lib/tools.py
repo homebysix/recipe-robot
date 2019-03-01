@@ -272,7 +272,7 @@ def extract_app_icon(facts, png_path):
             )
 
 
-def get_exitcode_stdout_stderr(cmd, stdin=""):
+def get_exitcode_stdout_stderr(cmd):
     """Execute the external command and get its exitcode, stdout and stderr.
 
     Args:
@@ -284,24 +284,14 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
         err: String from standard error.
     """
     if "|" in cmd:
-        cmd_parts = cmd.split("|")
-    else:
-        cmd_parts = [cmd]
-
-    i = 0
-    p = {}
-    for cmd_part in cmd_parts:
-        cmd_part = cmd_part.strip()
-        if i == 0:
-            p[i] = Popen(shlex.split(cmd_part), stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        else:
-            p[i] = Popen(
-                shlex.split(cmd_part), stdin=p[i - 1].stdout, stdout=PIPE, stderr=PIPE
-            )
-        i = i + 1
-
-    out, err = p[i - 1].communicate(stdin)
-    exitcode = p[i - 1].returncode
+        raise RoboError(
+            "Piped commands are deprecated. Please report this issue:\n"
+            "    https://github.com/homebysix/recipe-robot/issues/new\n"
+            "Command: {}".format(cmd)
+        )
+    proc = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
+    out, err = proc.communicate()
+    exitcode = proc.returncode
 
     return exitcode, out, err
 
