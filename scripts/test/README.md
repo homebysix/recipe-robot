@@ -10,7 +10,9 @@ You must have the `nose` tool installed.
 
 Also check Recipe Robot's config to make sure download, pkg, munki, and jss recipes are enabled. Also turn on the "strip developer suffixes" and turn off the "use official jss-recipes style" options.
 
-    ./scripts/recipe-robot --configure
+    defaults write com.elliotjordan.recipe-robot RecipeTypes -array "download" "pkg" "munki" "jss" "install"
+    defaults write com.elliotjordan.recipe-robot StripDeveloperSuffixes -bool true
+    defaults write com.elliotjordan.recipe-robot FollowOfficialJSSRecipesFormat -bool false
 
 Make sure your working directory is the __scripts__ folder.
 
