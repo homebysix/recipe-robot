@@ -8,9 +8,6 @@ repos:
   - id: check-case-conflict
   - id: check-docstring-first
   - id: check-merge-conflict
-  - id: check-symlinks
-  - id: check-xml
-  - id: check-yaml
   - id: mixed-line-ending
   - id: no-commit-to-branch
   - id: trailing-whitespace
@@ -19,3 +16,12 @@ repos:
   rev: 18.9b0
   hooks:
   - id: black
+- repo: https://github.com/asottile/blacken-docs
+  rev: v0.4.0
+  hooks:
+  - id: blacken-docs
+    additional_dependencies: [black==18.9b0]
+- repo: https://github.com/homebysix/pre-commit-macadmin
+  rev: ce3b97ad56608c8c0d0ee7fb83cd8c5fbbd3610e
+  hooks:
+  - id: check-plists
