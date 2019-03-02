@@ -273,7 +273,7 @@ def generate_download_recipe(facts, prefs, recipe):
             ("SOURCEFORGE_FILE_PATTERN", "SOURCEFORGE_PROJECT_ID"),
         )
         sf_url_provider = SourceForgeURLProvider(
-            SOURCEFORGE_FILE_PATTERN="\\.%s" % facts["download_format"],
+            SOURCEFORGE_FILE_PATTERN="\\.%s\\/download$" % facts["download_format"],
             SOURCEFORGE_PROJECT_ID=facts["sourceforge_id"],
         )
         recipe.append_processor(sf_url_provider)

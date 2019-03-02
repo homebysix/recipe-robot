@@ -59,7 +59,7 @@ def test():
         assert_in("Process", recipes[recipe_type])
 
     expected_args = {
-        "SOURCEFORGE_FILE_PATTERN": "\.dmg",
+        "SOURCEFORGE_FILE_PATTERN": "\\.dmg\/download$",
         "SOURCEFORGE_PROJECT_ID": 148156,
     }
     verify_processor_args(
