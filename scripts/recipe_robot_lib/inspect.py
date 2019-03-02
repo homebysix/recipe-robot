@@ -1115,12 +1115,12 @@ def inspect_download_url(input_path, args, facts):
         file_size_dl = 0
         block_sz = 8192
         while True:
-            buffer = raw_download.read(block_sz)
-            if not buffer:
+            chunk = raw_download.read(block_sz)
+            if not chunk:
                 break
             # Write downloaded chunk.
-            file_size_dl += len(buffer)
-            download_file.write(buffer)
+            file_size_dl += len(chunk)
+            download_file.write(chunk)
             # Show progress if file size is known.
             if file_size > 0:
                 p = float(file_size_dl) / file_size
