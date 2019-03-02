@@ -641,7 +641,7 @@ def generate_munki_recipe(facts, prefs, recipe):
         extract_app_icon(facts, extracted_icon)
     else:
         facts["warnings"].append(
-            "I don't have enough information to create a PNG icon for this " "app."
+            "I don't have enough information to create a PNG icon for this app."
         )
 
     return recipe
@@ -963,7 +963,7 @@ def generate_jss_recipe(facts, prefs, recipe):
         extract_app_icon(facts, extracted_icon)
     else:
         facts["warnings"].append(
-            "I don't have enough information to create a PNG icon for this " "app."
+            "I don't have enough information to create a PNG icon for this app."
         )
 
     # Put fully constructed JSSImporter arguments into the process list.
