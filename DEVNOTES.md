@@ -2,10 +2,11 @@
 
 Some scattered notes to assist in the design and development of Recipe Robot.
 
-<!-- MarkdownTOC autolink=true depth=4 bracket=round -->
+<!-- MarkdownTOC -->
 
 - [Facts](#facts)
 - [Interesting examples and edge cases to use for testing:](#interesting-examples-and-edge-cases-to-use-for-testing)
+- [Content Types](#content-types)
 
 <!-- /MarkdownTOC -->
 
@@ -221,3 +222,24 @@ A prefpane within a dmg:
 ```
 recipe-robot --verbose https://bahoom.com/hyperdock/HyperDock.dmg
 ```
+
+## Content Types
+
+To get an grasp of the typical content types that Recipe Robot will be dealing with, I ran `curl -sIL` on every SPARKLE_FEED_URL and DOWNLOAD_URL in the homebysix-recipes repo. Here are the content types that were returned:
+
+| Type                                | Count |  
+| ----------------------------------- | ----- |  
+| text/html                           | 101   |  
+| application/xml                     | 62    |  
+| application/zip                     | 33    |  
+| application/x-apple-diskimage       | 24    |  
+| text/xml                            | 24    |  
+| application/octet-stream            | 22    |  
+| text/plain                          | 7     |  
+| application/xhtml+xml               | 5     |  
+| application/rss+xml                 | 3     |  
+| binary/octet-stream                 | 3     |  
+| application/vnd.apple.installer+xml | 1     |  
+| application/x-bzip2                 | 1     |  
+| application/x-rss+xml               | 1     |  
+| plain/text                          | 1     |  
