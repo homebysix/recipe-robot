@@ -243,3 +243,5 @@ To get an grasp of the typical content types that Recipe Robot will be dealing w
 | application/x-bzip2                 | 1     |  
 | application/x-rss+xml               | 1     |  
 | plain/text                          | 1     |  
+
+("text/html" also includes error messages caused by input variables in URL.)
