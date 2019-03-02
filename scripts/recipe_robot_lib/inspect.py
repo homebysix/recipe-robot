@@ -192,10 +192,10 @@ def check_url(url):
             )
 
     # Use HTTP if HTTPS fails.
-    c = httplib.HTTPConnection(p.netloc, 80, timeout=10)
-    c.request("HEAD", p.path)
-    r = c.getresponse()
-    # TODO (Elliot): Mitigation of errors based on r.status.
+    cnx = httplib.HTTPConnection(prs.netloc, 80, timeout=10)  # pylint: disable=R0204
+    cnx.request("HEAD", prs.path)
+    res = cnx.getresponse()
+    # TODO (Elliot): Mitigation of errors based on res.status.
 
     return url
 
