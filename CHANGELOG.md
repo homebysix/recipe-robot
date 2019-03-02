@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+### added
+- A warning will be displayed if the "content-type" header of downloaded files seems unusual.
+
 ### Changed
 - Only download and pkg recipe types are enabled by default on first run.
 - Display recipe types in specified order when displaying configuration options. (#67)

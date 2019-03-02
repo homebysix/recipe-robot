@@ -1092,6 +1092,20 @@ def inspect_download_url(input_path, args, facts):
             "the same problem."
         )
 
+    # Warn if the content-type is known not to be a downloadable file.
+    # TODO: If content-type is HTML, try parsing for download URLs and
+    # use URLTextSearcher.
+    # TODO: If content-type is XML, see if it's a Sparkle feed or parse for
+    # download URLs and use URLTextSearcher.
+    if raw_download.info().getheaders("Content-Type"):
+        content_type = raw_download.info().getheaders("Content-Type")[0]
+        if not content_type.startswith(("binary/", "application/")):
+            facts["warnings"].append(
+                "This download's Content-Type ({}) is unusual for a download.".format(
+                    content_type
+                )
+            )
+
     # Get the actual filename from the server, if it exists.
     if "Content-Disposition" in raw_download.info():
         content_disp = raw_download.info()["Content-Disposition"]
@@ -1106,7 +1120,7 @@ def inspect_download_url(input_path, args, facts):
     facts["download_filename"] = filename
 
     # Write the downloaded file to the cache folder, showing progress.
-    if len(raw_download.info().getheaders("Content-Length")) > 0:
+    if raw_download.info().getheaders("Content-Length"):
         file_size = int(raw_download.info().getheaders("Content-Length")[0])
     else:
         # File size is unknown, so we can't show progress.
