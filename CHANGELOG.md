@@ -5,8 +5,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
-### added
+### Added
 - A warning will be displayed if the "content-type" header of downloaded files seems unusual.
+- A warning will be displayed if a reliable version could not be determined (specifically from unsigned apps hosted by SourceForge). (#144)
 
 ### Changed
 - Only download and pkg recipe types are enabled by default on first run.
