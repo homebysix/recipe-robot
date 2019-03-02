@@ -302,7 +302,7 @@ def generate_download_recipe(facts, prefs, recipe):
             )
         elif "sourceforge_id" in facts:
             # SourceForge does not provide reliable version information, but signed apps
-            # are generally handled with a Versioner or AppDmgVersioner processor..
+            # are generally handled with a Versioner or AppDmgVersioner processor.
             url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
             if not facts.get("codesign_reqs") and not facts.get("codesign_authorities"):
                 # If no signing, chances are low that we have version information.
