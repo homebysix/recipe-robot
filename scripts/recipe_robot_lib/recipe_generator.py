@@ -294,12 +294,40 @@ def generate_download_recipe(facts, prefs, recipe):
 
     url_downloader = processor.URLDownloader()
 
-    if not is_dynamic_url_source(facts) and "download_url" in facts:
-        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-        url_downloader.url = "%DOWNLOAD_URL%"
-        url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
-    else:
-        url_downloader.filename = "%NAME%-%version%.{}".format(facts["download_format"])
+    if "download_url" in facts:
+        if facts.get("sparkle_provides_version") or "github_repo" in facts:
+            # Sparkle and GitHub provide version information.
+            url_downloader.filename = "%NAME%-%version%.{}".format(
+                facts["download_format"]
+            )
+        elif "sourceforge_id" in facts:
+            # SourceForge does not provide reliable version information, but signed apps
+            # are generally handled with a Versioner or AppDmgVersioner processor..
+            url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
+            if not facts.get("codesign_reqs") and not facts.get("codesign_authorities"):
+                # If no signing, chances are low that we have version information.
+                if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
+                    facts["warnings"].append(
+                        "I couldn't a reliable source of version information. You may need to "
+                        "manually add Unarchiver and Versioner processors "
+                        "to your download recipe."
+                    )
+                if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
+                    facts["warnings"].append(
+                        "I couldn't a reliable source of version information. You may need to "
+                        "manually add a Versioner or AppDmgVersioner processor "
+                        "to your download recipe."
+                    )
+                if facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
+                    facts["warnings"].append(
+                        "I couldn't a reliable source of version information. You may need to "
+                        "manually add FlatPkgUnpacker and Versioner processors "
+                        "to your download recipe."
+                    )
+        else:
+            keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
+            url_downloader.url = "%DOWNLOAD_URL%"
+            url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
 
     if "user-agent" in facts:
         url_downloader.request_headers = {"user-agent": facts["user-agent"]}
@@ -310,7 +338,7 @@ def generate_download_recipe(facts, prefs, recipe):
     recipe.append_processor(end_of_check_phase)
 
     # TODO (Shea): Refactor to get_codesigning and get_unarchiver funcs.
-    if facts.get("codesign_reqs") or len(facts["codesign_authorities"]) > 0:
+    if facts.get("codesign_reqs") or facts.get("codesign_authorities"):
 
         if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             unarchiver = processor.Unarchiver()
@@ -346,7 +374,10 @@ def generate_download_recipe(facts, prefs, recipe):
         # TODO (Shea): Extract method -> get_versioner
         if needs_versioner(facts):
             versioner = processor.Versioner()
-            if facts["codesign_input_filename"].endswith(".pkg"):
+            if (
+                facts.get("codesign_input_filename", "").endswith(".pkg")
+                or "pkg" in facts["inspections"]
+            ):
                 facts["warnings"].append(
                     "To add a Versioner processor with a pkg as input requires quite "
                     "a bit of customization. I'm going to take my best shot, but I "
@@ -409,14 +440,6 @@ def warn_about_app_store_generation(facts, recipe_type):
     )
 
 
-def is_dynamic_url_source(facts):
-    """Returns True if the URL source is Sparkle, GitHub, or SourceForge."""
-    return any(
-        url_type in facts
-        for url_type in ("sparkle_feed", "github_repo", "sourceforge_id")
-    )
-
-
 def get_code_signature_verifier(input_path, facts):
     """Build a CodeSignatureVerifier.
 
@@ -437,10 +460,10 @@ def get_code_signature_verifier(input_path, facts):
 
 
 def needs_versioner(facts):
-    format = facts["download_format"]
+    download_format = facts["download_format"]
     sparkle_version = facts.get("sparkle_provides_version", False)
     format_needs_versioner = any(
-        format in formats
+        download_format in formats
         for formats in (SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS)
     )
     return format_needs_versioner and not sparkle_version
