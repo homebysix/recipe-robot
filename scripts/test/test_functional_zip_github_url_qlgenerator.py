@@ -18,7 +18,7 @@
 
 
 """
-test_functional_sourceforge_url.py
+test_functional_zip_github_url_qlgenerator.py
 
 Functional tests for Recipe Robot.
 
@@ -40,12 +40,12 @@ from nose.tools import *
 
 
 def test():
-    # Robby is running out of disk space, and has a strange fondness for
-    # defunct SourceForge projects.
-    app_name = "GrandPerspective"
-    developer = "Erwin Bonsma"
-    description = "Graphically shows disk usage for Macs"
-    input_path = "http://grandperspectiv.sourceforge.net"
+    # Robby just learned how to create AutoPkg recipes for QuickLook generators, and he
+    # wants to show off.
+    app_name = "Provisioning"
+    developer = "Craig Hockenberry"
+    description = "A Quick Look plug-in for .mobileprovision files."
+    input_path = "https://github.com/chockenberry/Provisioning"
 
     if not input_path:
         return
@@ -58,17 +58,16 @@ def test():
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
 
-    expected_args = {
-        "SOURCEFORGE_FILE_PATTERN": "\\.dmg\/download$",
-        "SOURCEFORGE_PROJECT_ID": 148156,
-    }
-    verify_processor_args(
-        "com.github.jessepeterson.munki.GrandPerspective/SourceForgeURLProvider",
-        recipes["download"],
-        expected_args,
+    assert_equals(
+        "chockenberry/Provisioning", recipes["download"]["Input"]["GITHUB_REPO"]
     )
 
-    expected_args = {"filename": "%NAME%.dmg"}
+    expected_args = {"github_repo": "%GITHUB_REPO%"}
+    verify_processor_args(
+        "GitHubReleasesInfoProvider", recipes["download"], expected_args
+    )
+
+    expected_args = {"filename": "%NAME%-%version%.zip"}
     verify_processor_args("URLDownloader", recipes["download"], expected_args)
 
     assert_in(
@@ -76,32 +75,38 @@ def test():
         [processor["Processor"] for processor in recipes["download"]["Process"]],
     )
 
-    expected_args = {
-        "input_path": "%pathname%/{}.app".format(app_name),
-        "requirement": (
-            'anchor apple generic and identifier "net.sourceforge.grandperspectiv" and '
-            "(certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or "
-            "certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
-            "certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and "
-            'certificate leaf[subject.OU] = "3Z75QZGN66")'
-        ),
-    }
-    verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
+    assert_equals("com.iconfactory.Provisioning", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
     expected_args = {
-        "input_plist_path": "%pathname%/GrandPerspective.app/Contents/Info.plist",
-        "plist_version_key": "CFBundleShortVersionString",
+        "archive_path": "%pathname%",
+        "destination_path": "%RECIPE_CACHE_DIR%/%NAME%",
+        "purge_destination": True,
     }
-    verify_processor_args("Versioner", recipes["download"], expected_args)
+    verify_processor_args("Unarchiver", recipes["pkg"], expected_args)
 
-    assert_equals(
-        "net.sourceforge.grandperspectiv", recipes["pkg"]["Input"]["BUNDLE_ID"]
-    )
+    expected_args = {
+        "pkgdirs": {"Library": "0775", "Library/QuickLook": "0775"},
+        "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+    }
+    verify_processor_args("PkgRootCreator", recipes["pkg"], expected_args)
 
-    assert_in(
-        "AppPkgCreator",
-        [processor["Processor"] for processor in recipes["pkg"]["Process"]],
-    )
+    expected_args = {
+        "destination_path": "%pkgroot%/Library/QuickLook/Provisioning.qlgenerator",
+        "source_path": "%pathname%/Provisioning.qlgenerator",
+    }
+    verify_processor_args("Copier", recipes["pkg"], expected_args)
+
+    expected_args = {
+        "pkg_request": {
+            "chown": [{"group": "admin", "path": "Library/QuickLook", "user": "root"}],
+            "id": "%BUNDLE_ID%",
+            "options": "purge_ds_store",
+            "pkgname": "%NAME%-%version%",
+            "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+            "version": "%version%",
+        }
+    }
+    verify_processor_args("PkgCreator", recipes["pkg"], expected_args)
 
     expected_pkginfo = {
         "catalogs": ["testing"],
@@ -114,8 +119,25 @@ def test():
     assert_equals(expected_pkginfo, recipes["munki"]["Input"]["pkginfo"])
 
     expected_args = {
+        "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
+        "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
+    }
+    verify_processor_args("DmgCreator", recipes["munki"], expected_args)
+
+    expected_args = {
+        "installs_item_paths": ["/Library/QuickLook/Provisioning.qlgenerator"]
+    }
+    verify_processor_args("MunkiInstallsItemsCreator", recipes["munki"], expected_args)
+
+    expected_args = {
         "pkg_path": "%pathname%",
         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
+        "additional_makepkginfo_options": [
+            "--itemname",
+            "Provisioning.qlgenerator",
+            "--destinationpath",
+            "/Library/QuickLook",
+        ],
     }
     verify_processor_args("MunkiImporter", recipes["munki"], expected_args)
 
@@ -142,11 +164,17 @@ def test():
     verify_processor_args("JSSImporter", recipes["jss"], expected_args)
 
     expected_args = {
-        "dmg_path": "%pathname%",
+        "dmg_path": "%RECIPE_CACHE_DIR%/%NAME%.dmg",
+        "dmg_root": "%RECIPE_CACHE_DIR%/%NAME%",
+    }
+    verify_processor_args("DmgCreator", recipes["install"], expected_args)
+
+    expected_args = {
+        "dmg_path": "%dmg_path%",
         "items_to_copy": [
             {
-                "destination_path": "/Applications",
-                "source_item": "{}.app".format(app_name),
+                "destination_path": "/Library/QuickLook",
+                "source_item": "{}.qlgenerator".format(app_name),
             }
         ],
     }

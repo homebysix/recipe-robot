@@ -93,7 +93,7 @@ class Facts(RoboDict):
 
     def is_from_app_store(self):
         """Can't make this recipe if the app is from the App Store."""
-        return self["is_from_app_store"]
+        return self.get("is_from_app_store")
 
 
 # pylint: disable=too-few-public-methods, too-many-ancestors

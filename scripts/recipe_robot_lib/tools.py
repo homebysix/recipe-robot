@@ -67,6 +67,14 @@ ALL_SUPPORTED_FORMATS = (
     SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS + SUPPORTED_INSTALL_FORMATS
 )
 
+# Build the list of bundle types we support, and their destinations. ("app" should be listed first.)
+SUPPORTED_BUNDLE_TYPES = {
+    "app": "/Applications",
+    "prefpane": "/Library/PreferencePanes",
+    "qlgenerator": "/Library/QuickLook",
+    "plugin": "/Library/Internet Plug-Ins",
+}
+
 # Global variables.
 CACHE_DIR = os.path.join(
     os.path.expanduser("~/Library/Caches/Recipe Robot"),
@@ -201,6 +209,16 @@ def strip_dev_suffix(dev):
                 dev = dev.rstrip(" .")[: len(dev) - len(suffix) - 1].rstrip(",. ")
                 break
     return dev
+
+
+def get_bundle_name_key(facts):
+    """Returns the key used to store the bundle name. This is usually "app_name"
+    but could be "prefpane_name". If both exist in facts, "app_name" wins.
+    """
+    bundle_name_keys = [
+        x + "_name" for x in SUPPORTED_BUNDLE_TYPES if x + "_name" in facts
+    ]
+    return bundle_name_keys[0] if bundle_name_keys else None
 
 
 def recipe_dirpath(app_name, dev, prefs):

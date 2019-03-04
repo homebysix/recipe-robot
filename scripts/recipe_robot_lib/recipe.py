@@ -27,7 +27,12 @@ Recipes: Container class for Recipe objects.
 
 from recipe_robot_lib import processor
 from recipe_robot_lib.roboabc import RoboDict, RoboList
-from recipe_robot_lib.tools import LogLevel, __version__, robo_print
+from recipe_robot_lib.tools import (
+    LogLevel,
+    __version__,
+    get_bundle_name_key,
+    robo_print,
+)
 
 try:
     from recipe_robot_lib import FoundationPlist
@@ -114,7 +119,12 @@ class Recipe(RoboDict):
 
     def set_parent_from(self, prefs, facts, recipe_type):
         """Set parent recipe based on prefs, facts, and a type."""
-        elements = (prefs["RecipeIdentifierPrefix"], recipe_type, facts["app_name"])
+        bundle_name_key = get_bundle_name_key(facts)
+        elements = (
+            prefs["RecipeIdentifierPrefix"],
+            recipe_type,
+            facts[bundle_name_key],
+        )
         self["keys"]["ParentRecipe"] = ".".join(elements).replace(" ", "")
 
     def append_processor(self, val):

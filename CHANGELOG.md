@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 ### Added
+- Recipe Robot can now create recipes for basic non-app bundles (e.g. prefpane, plugin) contained in zip or dmg downloads.
 - A warning will be displayed if the "content-type" header of downloaded files seems unusual.
 - A warning will be displayed if a reliable version could not be determined (specifically from unsigned apps hosted by SourceForge). (#144)
 

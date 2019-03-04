@@ -18,7 +18,7 @@
 
 
 """
-test_functional_sourceforge_url.py
+test_functional_dmg_download_url_prefpane.py
 
 Functional tests for Recipe Robot.
 
@@ -40,12 +40,11 @@ from nose.tools import *
 
 
 def test():
-    # Robby is running out of disk space, and has a strange fondness for
-    # defunct SourceForge projects.
-    app_name = "GrandPerspective"
-    developer = "Erwin Bonsma"
-    description = "Graphically shows disk usage for Macs"
-    input_path = "http://grandperspectiv.sourceforge.net"
+    # Robby just learned how to create AutoPkg recipes for prefpanes. Practice makes perfect.
+    app_name = "HyperDock"
+    developer = "Christian  Baumgart"
+    description = "Select windows by hovering over a dock item."
+    input_path = "https://bahoom.com/hyperdock/download"
 
     if not input_path:
         return
@@ -58,17 +57,9 @@ def test():
         assert_in("Input", recipes[recipe_type])
         assert_in("Process", recipes[recipe_type])
 
-    expected_args = {
-        "SOURCEFORGE_FILE_PATTERN": "\\.dmg\/download$",
-        "SOURCEFORGE_PROJECT_ID": 148156,
-    }
-    verify_processor_args(
-        "com.github.jessepeterson.munki.GrandPerspective/SourceForgeURLProvider",
-        recipes["download"],
-        expected_args,
-    )
+    assert_equals(input_path, recipes["download"]["Input"]["DOWNLOAD_URL"])
 
-    expected_args = {"filename": "%NAME%.dmg"}
+    expected_args = {"filename": "%NAME%.dmg", "url": "%DOWNLOAD_URL%"}
     verify_processor_args("URLDownloader", recipes["download"], expected_args)
 
     assert_in(
@@ -77,31 +68,52 @@ def test():
     )
 
     expected_args = {
-        "input_path": "%pathname%/{}.app".format(app_name),
+        "input_path": "%pathname%/{}.prefpane".format(app_name),
         "requirement": (
-            'anchor apple generic and identifier "net.sourceforge.grandperspectiv" and '
-            "(certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or "
+            'anchor apple generic and identifier "de.bahoom.HyperDock.prefpane" '
+            "and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or "
             "certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
             "certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and "
-            'certificate leaf[subject.OU] = "3Z75QZGN66")'
+            'certificate leaf[subject.OU] = "4EA894RLMQ")'
         ),
     }
     verify_processor_args("CodeSignatureVerifier", recipes["download"], expected_args)
 
     expected_args = {
-        "input_plist_path": "%pathname%/GrandPerspective.app/Contents/Info.plist",
+        "input_plist_path": "%pathname%/{}.prefpane/Contents/Info.plist".format(
+            app_name
+        ),
         "plist_version_key": "CFBundleShortVersionString",
     }
     verify_processor_args("Versioner", recipes["download"], expected_args)
 
-    assert_equals(
-        "net.sourceforge.grandperspectiv", recipes["pkg"]["Input"]["BUNDLE_ID"]
-    )
+    assert_equals("de.bahoom.HyperDock.prefpane", recipes["pkg"]["Input"]["BUNDLE_ID"])
 
-    assert_in(
-        "AppPkgCreator",
-        [processor["Processor"] for processor in recipes["pkg"]["Process"]],
-    )
+    expected_args = {
+        "pkgdirs": {"Library": "0775", "Library/PreferencePanes": "0775"},
+        "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+    }
+    verify_processor_args("PkgRootCreator", recipes["pkg"], expected_args)
+
+    expected_args = {
+        "destination_path": "%pkgroot%/Library/PreferencePanes/HyperDock.prefpane",
+        "source_path": "%pathname%/HyperDock.prefpane",
+    }
+    verify_processor_args("Copier", recipes["pkg"], expected_args)
+
+    expected_args = {
+        "pkg_request": {
+            "chown": [
+                {"group": "admin", "path": "Library/PreferencePanes", "user": "root"}
+            ],
+            "id": "%BUNDLE_ID%",
+            "options": "purge_ds_store",
+            "pkgname": "%NAME%-%version%",
+            "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+            "version": "%version%",
+        }
+    }
+    verify_processor_args("PkgCreator", recipes["pkg"], expected_args)
 
     expected_pkginfo = {
         "catalogs": ["testing"],
@@ -114,8 +126,19 @@ def test():
     assert_equals(expected_pkginfo, recipes["munki"]["Input"]["pkginfo"])
 
     expected_args = {
+        "installs_item_paths": ["/Library/PreferencePanes/HyperDock.prefpane"]
+    }
+    verify_processor_args("MunkiInstallsItemsCreator", recipes["munki"], expected_args)
+
+    expected_args = {
         "pkg_path": "%pathname%",
         "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
+        "additional_makepkginfo_options": [
+            "--itemname",
+            "HyperDock.prefpane",
+            "--destinationpath",
+            "/Library/PreferencePanes",
+        ],
     }
     verify_processor_args("MunkiImporter", recipes["munki"], expected_args)
 
@@ -145,8 +168,8 @@ def test():
         "dmg_path": "%pathname%",
         "items_to_copy": [
             {
-                "destination_path": "/Applications",
-                "source_item": "{}.app".format(app_name),
+                "destination_path": "/Library/PreferencePanes",
+                "source_item": "{}.prefpane".format(app_name),
             }
         ],
     }

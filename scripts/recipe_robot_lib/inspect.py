@@ -43,6 +43,7 @@ from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
     CACHE_DIR,
     SUPPORTED_ARCHIVE_FORMATS,
+    SUPPORTED_BUNDLE_TYPES,
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_INSTALL_FORMATS,
     LogLevel,
@@ -200,7 +201,7 @@ def check_url(url):
     return url
 
 
-def inspect_app(input_path, args, facts):
+def inspect_app(input_path, args, facts, bundle_type="app"):
     """Process an app
 
     Gather information required to create a recipe.
@@ -212,15 +213,17 @@ def inspect_app(input_path, args, facts):
         facts: A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
+        bundle_type: Type or file extension of the bundle we're inspecting.
+            Typically "app" but we also support "prefpane" and others.
 
     Returns:
         facts dictionary.
     """
     # Only proceed if we haven't inspected this app yet.
-    if "app" in facts["inspections"]:
+    if bundle_type in facts["inspections"]:
         return facts
     else:
-        facts["inspections"].append("app")
+        facts["inspections"].append(bundle_type)
 
     # Save the path of the app. (Used when overriding AppStoreApp
     # recipes.)
@@ -228,67 +231,86 @@ def inspect_app(input_path, args, facts):
 
     # Record this app as a blocking application (for munki recipe based
     # on pkg).
-    facts["blocking_applications"].append(os.path.basename(input_path))
+    if bundle_type == "app":
+        facts["blocking_applications"].append(os.path.basename(input_path))
 
     # Read the app's Info.plist.
-    robo_print("Validating app...", LogLevel.VERBOSE)
+    robo_print("Validating {}...".format(bundle_type), LogLevel.VERBOSE)
     try:
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
-        robo_print("App seems valid", LogLevel.VERBOSE, 4)
+        robo_print("This {} seems valid".format(bundle_type), LogLevel.VERBOSE, 4)
     except (ValueError, FoundationPlist.NSPropertyListSerializationException) as error:
-        raise RoboError("%s doesn't look like a valid app to me." % input_path, error)
+        raise RoboError(
+            "{} doesn't look like a valid {} to me.".format(input_path, bundle_type),
+            error,
+        )
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
-    app_file = os.path.basename(input_path)[:-4]
+    app_file = os.path.splitext(os.path.basename(input_path))[0]
 
     # Determine the name of the app. (Overwrites any previous app_name,
     # because the app Info.plist itself is the most reliable source.)
-    app_name = ""
-    robo_print("Getting app name...", LogLevel.VERBOSE)
-    if "CFBundleName" in info_plist:
-        app_name = info_plist["CFBundleName"]
-    elif "CFBundleExecutable" in info_plist:
-        app_name = info_plist["CFBundleExecutable"]
-    else:
-        app_name = app_file
-    robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
-    facts["app_name"] = app_name
+    if bundle_type == "app" or (
+        bundle_type != "app" and "app" not in facts["inspections"]
+    ):
+        app_name = ""
+        robo_print("Getting bundle name...", LogLevel.VERBOSE)
+        if "CFBundleName" in info_plist:
+            app_name = info_plist["CFBundleName"]
+        elif "CFBundleExecutable" in info_plist:
+            app_name = info_plist["CFBundleExecutable"]
+        else:
+            app_name = app_file
+        robo_print("Bundle name is: %s" % app_name, LogLevel.VERBOSE, 4)
+        facts[bundle_type + "_name"] = app_name
 
     # If the app's filename is different than the app's name, we need to
     # make a note of that. Many recipes require another input variable
     # for this.
     if app_name != app_file:
-        robo_print("App name differs from the actual app filename.", LogLevel.VERBOSE)
-        robo_print("Actual app filename: %s.app" % app_file, LogLevel.VERBOSE, 4)
+        robo_print(
+            "Bundle name differs from the actual {} filename.".format(bundle_type),
+            LogLevel.VERBOSE,
+        )
+        robo_print(
+            "Actual {0} filename: {1}.{0}".format(bundle_type, app_file),
+            LogLevel.VERBOSE,
+            4,
+        )
         facts["app_file"] = app_file
 
     # Determine the bundle identifier of the app. (Overwrites any
     # previous bundle_id, because the app itself is the most reliable
     # source.)
-    bundle_id = ""
-    robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
-    if "CFBundleIdentifier" in info_plist:
-        bundle_id = info_plist["CFBundleIdentifier"]
-        robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
-        facts["bundle_id"] = bundle_id
-    else:
-        facts["warnings"].append(
-            "{} doesn't seem to have a bundle identifier.".format(app_name)
-        )
+    if bundle_type == "app" or (
+        bundle_type != "app" and "app" not in facts["inspections"]
+    ):
+        bundle_id = ""
+        robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
+        if "CFBundleIdentifier" in info_plist:
+            bundle_id = info_plist["CFBundleIdentifier"]
+            robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
+            facts["bundle_id"] = bundle_id
+        else:
+            facts["warnings"].append(
+                "{} doesn't seem to have a bundle identifier.".format(app_name)
+            )
 
     # Leave a hint for people testing Recipe Robot on itself.
     if (
-        bundle_id == "com.elliotjordan.recipe-robot"
+        bundle_type == "app"
+        and bundle_id == "com.elliotjordan.recipe-robot"
         and "github_url" not in facts["inspections"]
     ):
         facts["warnings"].append(
-            "Try using my GitHub URL as input instead of the app itself. "
-            "You may also need to use --ignore-existing."
+            "I see what you did there! Try using my GitHub URL "
+            "as input instead of the app itself. You may also "
+            "need to use --ignore-existing."
         )
 
     # Attempt to determine how to download this app.
-    if "sparkle_feed" not in facts:
+    if bundle_type == "app" and "sparkle_feed" not in facts:
         sparkle_feed = ""
         download_format = ""
         robo_print("Checking for a Sparkle feed...", LogLevel.VERBOSE)
@@ -296,19 +318,21 @@ def inspect_app(input_path, args, facts):
             sparkle_feed = info_plist["SUFeedURL"]
         elif "SUOriginalFeedURL" in info_plist:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
-        elif os.path.exists("%s/Contents/Frameworks/DevMateKit.framework" % input_path):
-            sparkle_feed = ("https://updates.devmate.com/%s.xml") % bundle_id
+        elif os.path.exists(
+            "{}/Contents/Frameworks/DevMateKit.framework".format(input_path)
+        ):
+            sparkle_feed = "https://updates.devmate.com/{}.xml".format(bundle_id)
         if sparkle_feed != "" and sparkle_feed != "NULL":
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
         else:
             robo_print("No Sparkle feed", LogLevel.VERBOSE, 4)
 
-    if "is_from_app_store" not in facts:
+    if bundle_type == "app" and "is_from_app_store" not in facts:
         robo_print(
             "Determining whether app was downloaded from the Mac App Store...",
             LogLevel.VERBOSE,
         )
-        if os.path.exists("%s/Contents/_MASReceipt/receipt" % input_path):
+        if os.path.exists("{}/Contents/_MASReceipt/receipt".format(input_path)):
             robo_print("App came from the App Store", LogLevel.VERBOSE, 4)
             facts["is_from_app_store"] = True
         else:
@@ -351,41 +375,45 @@ def inspect_app(input_path, args, facts):
                 version_key = "CFBundleVersion"
         if version_key not in ("", None):
             robo_print(
-                "Version key is: %s (%s)" % (version_key, info_plist[version_key]),
+                "Version key is: {} ({})".format(version_key, info_plist[version_key]),
                 LogLevel.VERBOSE,
                 4,
             )
             facts["version_key"] = version_key
         else:
             raise RoboError(
-                "Sorry, I can't determine which version key to use for this app."
+                "Sorry, I can't determine which version key to use for this {}.".format(
+                    bundle_type
+                )
             )
 
     # Determine path to the app's icon.
     if "icon_path" not in facts and not args.skip_icon:
         icon_path = ""
-        robo_print("Looking for app icon...", LogLevel.VERBOSE)
+        robo_print("Looking for icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:
             icon_path = os.path.join(
                 input_path, "Contents", "Resources", info_plist["CFBundleIconFile"]
             )
         else:
-            facts["warnings"].append("Can't determine app icon.")
+            facts["warnings"].append("Can't determine icon.")
         if icon_path not in ("", None):
-            robo_print("App icon is: %s" % icon_path, LogLevel.VERBOSE, 4)
+            robo_print("Icon is: {}".format(icon_path), LogLevel.VERBOSE, 4)
             facts["icon_path"] = icon_path
 
     # Attempt to get a description of the app.
     if "description" not in facts:
-        robo_print("Getting app description...", LogLevel.VERBOSE)
+        robo_print("Getting description...", LogLevel.VERBOSE)
         description, source = get_app_description(app_name)
         if description is not None:
             robo_print(
-                "Description (from %s): %s" % (source, description), LogLevel.VERBOSE, 4
+                "Description (from {}): {}".format(source, description),
+                LogLevel.VERBOSE,
+                4,
             )
             facts["description"] = description
         else:
-            robo_print("Can't retrieve app description.", LogLevel.VERBOSE, 4)
+            robo_print("Can't retrieve description.", LogLevel.VERBOSE, 4)
 
     # Gather info from code signing attributes, including:
     #    - Code signature verification requirements
@@ -398,7 +426,7 @@ def inspect_app(input_path, args, facts):
         developer = ""
         codesign_version = ""
         robo_print("Gathering code signature information...", LogLevel.VERBOSE)
-        cmd = '/usr/bin/codesign --display --verbose=2 -r- "%s"' % (input_path)
+        cmd = '/usr/bin/codesign --display --verbose=2 -r- "{}"'.format(input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             # From stdout:
@@ -422,7 +450,9 @@ def inspect_app(input_path, args, facts):
                     codesign_version = line[len(vers_marker) : len(vers_marker) + 1]
                     if codesign_version == "1":
                         facts["warnings"].append(
-                            "This app uses an obsolete code signature."
+                            "This {} uses an obsolete code signature.".format(
+                                bundle_type
+                            )
                         )
                         # Clear code signature markers, treat app as
                         # unsigned.
@@ -430,21 +460,21 @@ def inspect_app(input_path, args, facts):
                         codesign_authorities = []
                         break
         if codesign_reqs == "" and len(codesign_authorities) == 0:
-            robo_print("App is not signed", LogLevel.VERBOSE, 4)
+            robo_print("This {} is not signed".format(bundle_type), LogLevel.VERBOSE, 4)
         else:
             robo_print(
                 "Code signature verification requirements recorded", LogLevel.VERBOSE, 4
             )
             facts["codesign_reqs"] = codesign_reqs
             robo_print(
-                "%s authority names recorded" % len(codesign_authorities),
+                "{} authority names recorded".format(len(codesign_authorities)),
                 LogLevel.VERBOSE,
                 4,
             )
             facts["codesign_authorities"] = codesign_authorities
             facts["codesign_input_filename"] = os.path.basename(input_path)
         if developer not in ("", None):
-            robo_print("Developer: %s" % developer, LogLevel.VERBOSE, 4)
+            robo_print("Developer: {}".format(developer), LogLevel.VERBOSE, 4)
             facts["developer"] = developer
 
     return facts
@@ -580,23 +610,34 @@ def inspect_archive(input_path, args, facts):
                     facts.get("download_filename", os.path.basename(input_path)), fmt[0]
                 )
 
-            # Locate and inspect any apps or pkgs on the root level.
+            # Locate and inspect any apps, non-app bundles, or pkgs on the root level.
             stop_searching_archive = False
             for this_file in os.listdir(unpacked_dir):
-                if this_file.endswith(".app"):
+                if this_file.lower().endswith(".app"):
                     facts = inspect_app(
                         os.path.join(unpacked_dir, this_file), args, facts
                     )
                     stop_searching_archive = True
                     return facts
-                elif this_file.endswith(SUPPORTED_INSTALL_FORMATS):
+                elif this_file.lower().endswith(
+                    tuple([x for x in SUPPORTED_BUNDLE_TYPES])
+                ):
+                    facts = inspect_app(
+                        os.path.join(unpacked_dir, this_file),
+                        args,
+                        facts,
+                        bundle_type=os.path.splitext(this_file)[1].lower().lstrip("."),
+                    )
+                    stop_searching_archive = True
+                    return facts
+                elif this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
                     facts = inspect_pkg(
                         os.path.join(unpacked_dir, this_file), args, facts
                     )
                     stop_searching_archive = True
                     return facts
 
-            # Didn't find an app or pkg on the root level? Look deeper.
+            # Didn't find an app, prefpane, or pkg on the root level? Look deeper.
             if stop_searching_archive is False:
                 for dirpath, dirnames, filenames in os.walk(unpacked_dir):
                     for dirname in dirnames:
@@ -605,6 +646,22 @@ def inspect_archive(input_path, args, facts):
                         elif dirname.endswith(".app"):
                             facts = inspect_app(
                                 os.path.join(dirpath, dirname), args, facts
+                            )
+                            facts["relative_path"] = (
+                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
+                                + "/"
+                            )
+                            return facts
+                        elif dirname.endswith(
+                            tuple([x for x in SUPPORTED_BUNDLE_TYPES])
+                        ):
+                            facts = inspect_app(
+                                os.path.join(dirpath, dirname),
+                                args,
+                                facts,
+                                bundle_type=os.path.splitext(dirname)[1]
+                                .lower()
+                                .lstrip("."),
                             )
                             facts["relative_path"] = (
                                 os.path.relpath(os.path.join(dirpath), unpacked_dir)
@@ -909,7 +966,7 @@ def inspect_disk_image(input_path, args, facts):
                 dmg_mount = entity["mount-point"]
                 break
         for this_file in os.listdir(dmg_mount):
-            if this_file.endswith(".app"):
+            if this_file.lower().endswith(".app"):
                 # Copy app to cache folder.
                 # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
                 attached_app_path = os.path.join(dmg_mount, this_file)
@@ -924,7 +981,26 @@ def inspect_disk_image(input_path, args, facts):
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 facts = inspect_app(cached_app_path, args, facts)
                 break
-            if this_file.endswith(SUPPORTED_INSTALL_FORMATS):
+            elif this_file.lower().endswith(tuple([x for x in SUPPORTED_BUNDLE_TYPES])):
+                # Copy bundle to cache folder.
+                attached_app_path = os.path.join(dmg_mount, this_file)
+                cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
+                if not os.path.exists(cached_app_path):
+                    try:
+                        shutil.copytree(attached_app_path, cached_app_path)
+                    except shutil.Error:
+                        pass
+                # Unmount attached volume when done.
+                cmd = '/usr/bin/hdiutil detach "%s"' % dmg_mount
+                exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+                facts = inspect_app(
+                    cached_app_path,
+                    args,
+                    facts,
+                    bundle_type=os.path.splitext(this_file)[1].lower().lstrip("."),
+                )
+                break
+            if this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
