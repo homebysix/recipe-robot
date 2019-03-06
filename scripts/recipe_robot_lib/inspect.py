@@ -309,6 +309,18 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             "need to use --ignore-existing."
         )
 
+    # Warn if this looks like an installer app.
+    if (
+        bundle_type == "app"
+        and app_name.startswith("Install ")
+        or app_name.endswith(" Installer.app")
+    ):
+        facts["warnings"].append(
+            "Heads up! This app looks like an installer app rather than the actual app you "
+            "wanted. You may need to manually extract and repackage the app, or download the "
+            "app from a different source."
+        )
+
     # Attempt to determine how to download this app.
     if bundle_type == "app" and "sparkle_feed" not in facts:
         sparkle_feed = ""

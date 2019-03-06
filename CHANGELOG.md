@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. This projec
 - Recipe Robot can now create recipes for basic non-app bundles (e.g. prefpane, plugin) contained in zip or dmg downloads.
 - A warning will be displayed if the "content-type" header of downloaded files seems unusual.
 - A warning will be displayed if a reliable version could not be determined (specifically from unsigned apps hosted by SourceForge). (#144)
+- A warning will be displayed if an installer app is detected (e.g. "Install Hazel.app").
 
 ### Changed
 - Only download and pkg recipe types are enabled by default on first run.
