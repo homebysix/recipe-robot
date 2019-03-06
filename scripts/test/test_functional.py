@@ -55,7 +55,7 @@ def robot_runner(input_path, app, dev):
         ["./recipe-robot", "--ignore-existing", "--verbose", input_path]
     )
     assert_equal(
-        retcode, 0, "{}: Recipe Robot returned nonzero return code.".format(app)
+        retcode, 0, "{}: Recipe Robot returned nonzero return code.".format(input_path)
     )
 
 
