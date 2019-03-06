@@ -815,6 +815,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "download")
 
     # Save bundle identifier.
+    # TODO: Try to make AppPkgCreator work with exclamation points in app names. Example:
+    # 'https://s3.amazonaws.com/shirtpocket/SuperDuper/SuperDuper!.dmg'
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
