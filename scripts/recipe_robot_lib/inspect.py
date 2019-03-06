@@ -1134,6 +1134,7 @@ def inspect_download_url(input_path, args, facts):
             # Try again, this time with a user-agent.
             # TODO: Handle requests with cookies (e.g. S3 pre-signed URLs).
             # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
+            # TODO: Try /usr/bin/curl instead?
             try:
                 raw_download = useragent_urlopen(checked_url, "Mozilla/5.0")
                 facts["user-agent"] = "Mozilla/5.0"
@@ -2067,6 +2068,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             # Try again, this time with a user-agent.
             # TODO: Handle requests with cookies (e.g. S3 pre-signed URLs).
             # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
+            # TODO: Try /usr/bin/curl instead?
             try:
                 raw_xml = useragent_urlopen(checked_url, "Mozilla/5.0")
                 facts["user-agent"] = "Mozilla/5.0"
