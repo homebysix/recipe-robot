@@ -290,7 +290,7 @@ def extract_app_icon(facts, png_path):
             )
 
 
-def get_exitcode_stdout_stderr(cmd):
+def get_exitcode_stdout_stderr(cmd, stdin=""):
     """Execute the external command and get its exitcode, stdout and stderr.
 
     Args:
@@ -307,8 +307,8 @@ def get_exitcode_stdout_stderr(cmd):
             "    https://github.com/homebysix/recipe-robot/issues/new\n"
             "Command: {}".format(cmd)
         )
-    proc = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
-    out, err = proc.communicate()
+    proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    out, err = proc.communicate(stdin)
     exitcode = proc.returncode
 
     return exitcode, out, err
