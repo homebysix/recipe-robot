@@ -30,10 +30,12 @@ character. We will use "Robby the Robot" for ours.
 import os
 import shutil
 import subprocess
+from random import shuffle
 
 # pylint: disable=unused-wildcard-import, wildcard-import
 from nose.tools import *
 from recipe_robot_lib import FoundationPlist
+from sample_data import SAMPLE_DATA
 
 # pylint: enable=unused-wildcard-import, wildcard-import
 
@@ -43,32 +45,27 @@ from recipe_robot_lib import FoundationPlist
 # TODO (Elliot): Build tests for AppStoreApp recipes, which don't have download
 # recipe parents.
 
+RECIPE_TYPES = ("download", "pkg", "munki", "install", "jss")
+
 
 def robot_runner(input_path, app, dev):
     """For given input, run Recipe Robot and return the output recipes as dicts."""
 
-    # Read preferences.
-    prefs = FoundationPlist.readPlist(
-        os.path.expanduser("~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
-    )
-
-    # Create recipes.
-    destination = get_output_path(prefs, app, dev)
-    clean_folder(destination)
-    subprocess.check_call(
+    retcode = subprocess.call(
         ["./recipe-robot", "--ignore-existing", "--verbose", input_path]
     )
+    assert_equal(
+        retcode, 0, "{}: Recipe Robot returned nonzero return code.".format(app)
+    )
 
-    # Process the output recipes into dicts.
-    recipes = {}
-    for recipe_type in ("download", "pkg", "munki", "install", "jss"):
-        recipe_path = get_output_path(prefs, app, dev, recipe_type=recipe_type)
-        if not os.path.isfile(recipe_path):
-            recipes[recipe_type] = {}
-        else:
-            recipes[recipe_type] = FoundationPlist.readPlist(recipe_path)
 
-    return recipes
+def autopkg_runner(recipe_path):
+    """For given recipe path, run AutoPkg and make sure the return code is zero."""
+
+    retcode = subprocess.call(["/usr/local/bin/autopkg", "run", recipe_path])
+    assert_equal(
+        retcode, 0, "{}: AutoPkg returned nonzero return code.".format(recipe_path)
+    )
 
 
 def verify_processor_args(processor_name, recipe, expected_args):
@@ -100,3 +97,31 @@ def clean_folder(path):
     """Delete the RecipeCreateLocation subdir if it exists."""
     if os.path.exists(path):
         shutil.rmtree(path)
+
+
+def test():
+    """Functional tests"""
+
+    # Read preferences.
+    prefs = FoundationPlist.readPlist(
+        os.path.expanduser("~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
+    )
+
+    shuffle(SAMPLE_DATA)
+    for app in SAMPLE_DATA:
+
+        # Remove output folder, if it exists.
+        destination = get_output_path(prefs, app["app_name"], app["developer"])
+        clean_folder(destination)
+
+        yield robot_runner, app["input_path"], app["app_name"], app["developer"]
+
+        recipes = {}
+        for recipe_type in RECIPE_TYPES:
+            recipe_path = get_output_path(
+                prefs, app["app_name"], app["developer"], recipe_type=recipe_type
+            )
+            if recipe_type in ("download", "pkg"):
+                # TODO: Remove AutoPkg cache folder, if it exists.
+                if os.path.isfile(recipe_path):
+                    yield autopkg_runner, recipe_path
