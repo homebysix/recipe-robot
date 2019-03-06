@@ -211,14 +211,18 @@ def strip_dev_suffix(dev):
     return dev
 
 
-def get_bundle_name_key(facts):
+def get_bundle_name_info(facts):
     """Returns the key used to store the bundle name. This is usually "app_name"
     but could be "prefpane_name". If both exist in facts, "app_name" wins.
     """
-    bundle_name_keys = [
-        x + "_name" for x in SUPPORTED_BUNDLE_TYPES if x + "_name" in facts
-    ]
-    return bundle_name_keys[0] if bundle_name_keys else None
+    if "app" in facts["inspections"]:
+        bundle_type = "app"
+        bundle_name_key = "app_name"
+    else:
+        bundle_types = [x for x in SUPPORTED_BUNDLE_TYPES if x in facts["inspections"]]
+        bundle_type = bundle_types[0] if bundle_types else None
+        bundle_name_key = bundle_type + "_name" if bundle_types else None
+    return bundle_type, bundle_name_key
 
 
 def recipe_dirpath(app_name, dev, prefs):

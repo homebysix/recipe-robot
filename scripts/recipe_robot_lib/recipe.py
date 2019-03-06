@@ -30,7 +30,7 @@ from recipe_robot_lib.roboabc import RoboDict, RoboList
 from recipe_robot_lib.tools import (
     LogLevel,
     __version__,
-    get_bundle_name_key,
+    get_bundle_name_info,
     robo_print,
 )
 
@@ -119,7 +119,7 @@ class Recipe(RoboDict):
 
     def set_parent_from(self, prefs, facts, recipe_type):
         """Set parent recipe based on prefs, facts, and a type."""
-        bundle_name_key = get_bundle_name_key(facts)
+        _, bundle_name_key = get_bundle_name_info(facts)
         elements = (
             prefs["RecipeIdentifierPrefix"],
             recipe_type,

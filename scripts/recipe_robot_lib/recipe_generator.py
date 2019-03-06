@@ -42,7 +42,7 @@ from .tools import (
     create_dest_dirs,
     create_existing_recipe_list,
     extract_app_icon,
-    get_bundle_name_key,
+    get_bundle_name_info,
     get_exitcode_stdout_stderr,
     recipe_dirpath,
     robo_join,
@@ -65,9 +65,8 @@ def generate_recipes(facts, prefs):
     recipes = facts["recipes"]
     # A bundle name key like "app_name" or "prefpane_name" is required, because
     # it's strong evidence that we have enough facts to create a recipe set.
-    bundle_name_key = get_bundle_name_key(facts)
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     if bundle_name_key:
-        bundle_type = bundle_name_key.replace("_name", "")
         if not facts["args"].ignore_existing:
             create_existing_recipe_list(facts)
     else:
@@ -163,8 +162,7 @@ def required_repo_reminder(repo_name, repo_url, facts):
 def build_recipes(facts, preferred, prefs):
     """Create a recipe for each preferred type we know about."""
     recipe_dest_dir = facts["recipe_dest_dir"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     for recipe in preferred:
 
         keys = recipe["keys"]
@@ -238,8 +236,7 @@ def generate_download_recipe(facts, prefs, recipe):
     """
     # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
 
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -545,8 +542,7 @@ def generate_munki_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     robo_print("Generating %s recipe..." % recipe["type"])
 
     recipe.set_description(
@@ -795,8 +791,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # Can't make this recipe without a bundle identifier.
     # TODO(Elliot): Bundle id is also provided by AppDmgVersioner and some
     # Sparkle feeds. When those are present, can we proceed even though we
@@ -845,15 +840,16 @@ def generate_pkg_recipe(facts, prefs, recipe):
             # if bundle_type is qlgenerator.
             recipe.append_processor(
                 {
+                    "Processor": "PkgRootCreator",
                     "Arguments": {
                         "pkgdirs": get_pkgdirs(SUPPORTED_BUNDLE_TYPES[bundle_type]),
-                        "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+                        "pkgroot": "%RECIPE_CACHE_DIR%/pkgroot",
                     },
-                    "Processor": "PkgRootCreator",
                 }
             )
             recipe.append_processor(
                 {
+                    "Processor": "Copier",
                     "Arguments": {
                         "destination_path": "%pkgroot%/{}/{}.{}".format(
                             SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip("/"),
@@ -866,11 +862,11 @@ def generate_pkg_recipe(facts, prefs, recipe):
                             bundle_type,
                         ),
                     },
-                    "Processor": "Copier",
                 }
             )
             recipe.append_processor(
                 {
+                    "Processor": "PkgCreator",
                     "Arguments": {
                         "pkg_request": {
                             "chown": [
@@ -885,11 +881,10 @@ def generate_pkg_recipe(facts, prefs, recipe):
                             "id": "%BUNDLE_ID%",
                             "options": "purge_ds_store",
                             "pkgname": "%NAME%-%version%",
-                            "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+                            "pkgroot": "%pkgroot%",
                             "version": "%version%",
                         }
                     },
-                    "Processor": "PkgCreator",
                 }
             )
 
@@ -929,15 +924,16 @@ def generate_pkg_recipe(facts, prefs, recipe):
             # if bundle_type is qlgenerator.
             recipe.append_processor(
                 {
+                    "Processor": "PkgRootCreator",
                     "Arguments": {
                         "pkgdirs": get_pkgdirs(SUPPORTED_BUNDLE_TYPES[bundle_type]),
-                        "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+                        "pkgroot": "%RECIPE_CACHE_DIR%/pkgroot",
                     },
-                    "Processor": "PkgRootCreator",
                 }
             )
             recipe.append_processor(
                 {
+                    "Processor": "Copier",
                     "Arguments": {
                         "destination_path": "%pkgroot%/{}/{}.{}".format(
                             SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip("/"),
@@ -950,11 +946,11 @@ def generate_pkg_recipe(facts, prefs, recipe):
                             bundle_type,
                         ),
                     },
-                    "Processor": "Copier",
                 }
             )
             recipe.append_processor(
                 {
+                    "Processor": "PkgCreator",
                     "Arguments": {
                         "pkg_request": {
                             "chown": [
@@ -969,11 +965,10 @@ def generate_pkg_recipe(facts, prefs, recipe):
                             "id": "%BUNDLE_ID%",
                             "options": "purge_ds_store",
                             "pkgname": "%NAME%-%version%",
-                            "pkgroot": "%RECIPE_CACHE_DIR%/%NAME%",
+                            "pkgroot": "%pkgroot%",
                             "version": "%version%",
                         }
                     },
-                    "Processor": "PkgCreator",
                 }
             )
 
@@ -999,8 +994,7 @@ def generate_install_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
         return
@@ -1097,8 +1091,7 @@ def generate_jss_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
         facts["warnings"].append(
@@ -1205,8 +1198,7 @@ def generate_lanrev_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1264,8 +1256,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1320,8 +1311,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1431,8 +1421,7 @@ def generate_ds_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1507,8 +1496,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     # And a BigFix recipe example:
     # - https://github.com/CLCMacTeam/AutoPkgBESEngine/blob/dd1603c3fc39c1b9530b49e2a08d3eb0bbeb19a1/Examples/TextWrangler.bigfix.recipe
     keys = recipe["keys"]
-    bundle_name_key = get_bundle_name_key(facts)
-    bundle_type = bundle_name_key.replace("_name", "")
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
