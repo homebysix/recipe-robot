@@ -1175,7 +1175,7 @@ def inspect_download_url(input_path, args, facts):
     # download URLs and use URLTextSearcher.
     if raw_download.info().getheaders("Content-Type"):
         content_type = raw_download.info().getheaders("Content-Type")[0]
-        if not content_type.startswith(("binary/", "application/")):
+        if not content_type.startswith(("binary/", "application/", "file/")):
             facts["warnings"].append(
                 "This download's Content-Type ({}) is unusual for a download.".format(
                     content_type
