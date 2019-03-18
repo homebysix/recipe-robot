@@ -22,6 +22,6 @@ repos:
   - id: blacken-docs
     additional_dependencies: [black==18.9b0]
 - repo: https://github.com/homebysix/pre-commit-macadmin
-  rev: v1.0.0
+  rev: v1.0.5
   hooks:
   - id: check-plists
