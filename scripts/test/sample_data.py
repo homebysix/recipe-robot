@@ -1381,7 +1381,7 @@ SAMPLE_DATA = [
         "app_name": "Spring Tool Suite",
         "bundle_id": "org.springsource.sts.ide",
         "developer": "Pivotal",
-        "input_path": "https://spring.io/tools",
+        "input_path": "https://download.springsource.com/release/STS4/4.1.2.RELEASE/dist/e4.10/spring-tool-suite-4-4.1.2.RELEASE-e4.10.0-macosx.cocoa.x86_64.dmg",
     },
     {
         "app_name": "NetSpot",
@@ -1418,18 +1418,6 @@ SAMPLE_DATA = [
         "bundle_id": "org.open-scap.scap-workbench",
         "developer": "",
         "input_path": "https://github.com/OpenSCAP/scap-workbench",
-    },
-    {
-        "app_name": "Process Monitor",
-        "bundle_id": "com.sqwarq.Process-Monitor",
-        "developer": "Philip Stokes",
-        "input_path": "https://s3.amazonaws.com/sqwarq.com/AppCasts/procmon-updates.xml",
-    },
-    {
-        "app_name": "HyperDither",
-        "bundle_id": "com.tinrocket.hyperdither",
-        "developer": "",
-        "input_path": "https://dl.dropboxusercontent.com/u/27496801/Tinrocket.com/HyperDither/HyperDither%20by%20Tinrocket.zip?dl=1",
     },
     {
         "app_name": "Solstice",
