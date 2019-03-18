@@ -989,7 +989,9 @@ def inspect_disk_image(input_path, args, facts):
                     except shutil.Error:
                         pass
                 # Unmount attached volume when done.
-                cmd = '/usr/bin/hdiutil detach "%s"' % dmg_mount
+                # TODO: Handle unicode characters here. Example:
+                # http://download.ap.bittorrent.com/track/stable/endpoint/utmac/os/osx
+                cmd = '/usr/bin/hdiutil detach "{}"'.format(dmg_mount)
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 facts = inspect_app(cached_app_path, args, facts)
                 break
