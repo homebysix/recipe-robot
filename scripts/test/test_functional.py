@@ -62,7 +62,7 @@ def robot_runner(input_path, app, dev):
 def autopkg_runner(recipe_path):
     """For given recipe path, run AutoPkg and make sure the return code is zero."""
 
-    retcode = subprocess.call(["/usr/local/bin/autopkg", "run", recipe_path])
+    retcode = subprocess.call(["/usr/local/bin/autopkg", "run", recipe_path, "--quiet"])
     assert_equal(
         retcode, 0, "{}: AutoPkg returned nonzero return code.".format(recipe_path)
     )
