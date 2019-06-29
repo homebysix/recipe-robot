@@ -50,7 +50,7 @@ enum NoteType: Int {
     var prefix: String {
         switch self {
         case .Error, .Warnings, .Reminders:
-            return "[\(self.key.uppercased)]"
+            return "[\(String(describing: self.key.uppercased))]"
         default:
             return ""
         }
