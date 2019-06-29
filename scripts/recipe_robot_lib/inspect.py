@@ -1229,14 +1229,15 @@ def inspect_download_url(input_path, args, facts):
             # Show progress if file size is known.
             if file_size > 0:
                 p = float(file_size_dl) / file_size
-                status = r"    {0:.2%}".format(p)
+                stat_fmt = r"    {0:0.0%}" if args.app_mode else r"    {0:.2%}"
+                status = stat_fmt.format(p)
                 status = status + chr(8) * (len(status) + 1)
                 if args.app_mode:
                     # Show progress in 10% increments.
                     if (file_size_dl / block_sz) % (file_size / block_sz / 10) == 0:
                         robo_print(status, LogLevel.VERBOSE)
                 else:
-                    # Show progress in real time.
+                    # Show progress in 0.01% increments.
                     sys.stdout.flush()
                     sys.stdout.write(status)
     robo_print(
