@@ -28,6 +28,7 @@ create autopkg recipes for the specified app.
 # TODO: refactor code issuing warnings about missing processors/repos.
 # pylint: disable=no-member
 
+from __future__ import absolute_import
 import os
 
 from . import processor

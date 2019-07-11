@@ -32,6 +32,7 @@ but also robo_prints the message as well.
 
 
 # pylint: disable=no-name-in-module
+from __future__ import absolute_import
 from Foundation import NSDistributedNotificationCenter, NSNotificationDeliverImmediately
 
 from .roboabc import RoboDict, RoboList

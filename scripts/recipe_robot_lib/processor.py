@@ -28,6 +28,7 @@ AutoPkg autopkglib.
 """
 
 
+from __future__ import absolute_import
 import sys
 
 from .tools import robo_print

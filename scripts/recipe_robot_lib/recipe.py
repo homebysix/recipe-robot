@@ -25,6 +25,7 @@ Recipes: Container class for Recipe objects.
 """
 
 
+from __future__ import absolute_import
 from recipe_robot_lib import processor
 from recipe_robot_lib.roboabc import RoboDict, RoboList
 from recipe_robot_lib.tools import (

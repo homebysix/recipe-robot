@@ -43,6 +43,7 @@ and writePlistToString().
 # PyLint cannot properly find names inside Cocoa libraries, so issues bogus
 # No name 'Foo' in module 'Bar' warnings. Disable them.
 # pylint: disable=E0611
+from __future__ import absolute_import
 from Foundation import NSData
 from Foundation import NSPropertyListSerialization
 from Foundation import NSPropertyListMutableContainers

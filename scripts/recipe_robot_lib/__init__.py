@@ -22,6 +22,7 @@ recipe_robot_lib
 """
 
 
+from __future__ import absolute_import
 from .recipe_generator import generate_recipes
 
 # TODO (Shea): We can import stuff better here to cut down on length of calls.
