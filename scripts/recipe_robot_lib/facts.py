@@ -40,6 +40,13 @@ from .tools import LogLevel, robo_print
 
 # pylint: enable=no-name-in-module
 
+# Remap basestring in Python 3
+# Credit: https://github.com/munki/munki/blob/ff6248daafa527def0fd109e0c72c69ca179702c
+# /code/client/munkilib/wrappers.py#L121-L125
+try:
+    _ = basestring
+except NameError:
+    basestring = str  # pylint: disable=W0622
 
 # pylint: disable=too-few-public-methods
 class NotificationMixin(object):
