@@ -25,9 +25,8 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 """
 
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
-from __future__ import absolute_import
 import os
 import re
 import shlex
@@ -161,23 +160,18 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
 
     line = color + indents + prefix + message + suffix
 
-    if log_level in (LogLevel.ERROR, LogLevel.WARNING):
-        print_func = _print_stderr
-    else:
-        print_func = _print_stdout
-
     if (
-        (
-            log_level
-            in (LogLevel.ERROR, LogLevel.REMINDER, LogLevel.WARNING, LogLevel.LOG)
-        )
+        log_level in (LogLevel.ERROR, LogLevel.REMINDER, LogLevel.WARNING, LogLevel.LOG)
         or (log_level is LogLevel.DEBUG and OutputMode.debug_mode)
         or (
             log_level is LogLevel.VERBOSE
             and (OutputMode.verbose_mode or OutputMode.debug_mode)
         )
     ):
-        print_func(line)
+        if log_level in (LogLevel.ERROR, LogLevel.WARNING):
+            print(line, file=sys.stderr)
+        else:
+            print(line)
 
 
 def strip_dev_suffix(dev):
@@ -319,14 +313,6 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
     exitcode = proc.returncode
 
     return exitcode, out, err
-
-
-def _print_stderr(p):
-    print >>sys.stderr, p
-
-
-def _print_stdout(p):
-    print(p)
 
 
 def print_welcome_text():
