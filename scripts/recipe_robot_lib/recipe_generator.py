@@ -280,7 +280,7 @@ def generate_download_recipe(facts, prefs, recipe):
     # TODO (Shea): Extract method(s) to get_source_processor()
     elif "sourceforge_id" in facts:
         SourceForgeURLProvider = processor.ProcessorFactory(
-            "com.github.jessepeterson.munki.GrandPerspective/" "SourceForgeURLProvider",
+            "com.github.jessepeterson.munki.GrandPerspective/SourceForgeURLProvider",
             ("SOURCEFORGE_FILE_PATTERN", "SOURCEFORGE_PROJECT_ID"),
         )
         sf_url_provider = SourceForgeURLProvider(
@@ -364,7 +364,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 facts.get("relative_path", ""), facts["codesign_input_filename"]
             )
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-            input_path = "%RECIPE_CACHE_DIR%/%NAME%/" "{}{}".format(
+            input_path = "%RECIPE_CACHE_DIR%/%NAME%/{}{}".format(
                 facts.get("relative_path", ""), facts["codesign_input_filename"]
             )
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
