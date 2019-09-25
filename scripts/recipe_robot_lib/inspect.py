@@ -486,6 +486,18 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             )
             facts["codesign_authorities"] = codesign_authorities
             facts["codesign_input_filename"] = os.path.basename(input_path)
+            # Check for overly loose requirements.
+            # https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
+            if codesign_reqs in (
+                "anchor apple generic",
+                "anchor trusted",
+                "certificate anchor trusted",
+            ):
+                facts["warnings"].append(
+                    "This {}'s code signing designated requirements are set very "
+                    "broadly. You may want to politely suggest that the developer "
+                    "set a stricter requirement.".format(bundle_type)
+                )
         if developer not in ("", None):
             robo_print("Developer: {}".format(developer), LogLevel.VERBOSE, 4)
             facts["developer"] = developer
