@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. This projec
 - A warning will be displayed if a reliable version could not be determined (specifically from unsigned apps hosted by SourceForge). (#144)
 - A warning will be displayed if an installer app is detected (e.g. "Install Hazel.app").
 - Issue templates, Apache 2.0 license, and code of conduct added to GitHub project.
+- Recipe Robot warns if a code signing requirements is unnecessarily loose (e.g. `anchor trusted`).
 
 ### Changed
 - Only download and pkg recipe types are enabled by default on first run.
