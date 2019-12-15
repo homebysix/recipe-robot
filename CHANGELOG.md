@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [1.2.0] - Unreleased
+## [1.2.0] - 2019-12-15
 
 ### Added
 - Recipe Robot can now create recipes for basic non-app bundles (e.g. prefpane, plugin) contained in zip or dmg downloads.
