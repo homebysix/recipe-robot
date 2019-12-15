@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [Unreleased]
+## [1.2.0] - Unreleased
 
 ### Added
 - Recipe Robot can now create recipes for basic non-app bundles (e.g. prefpane, plugin) contained in zip or dmg downloads.
@@ -238,7 +238,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/homebysix/recipe-robot/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/homebysix/recipe-robot/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/homebysix/recipe-robot/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/homebysix/recipe-robot/compare/v1.0.5...v1.1.0
