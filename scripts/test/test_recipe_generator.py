@@ -25,6 +25,7 @@ Unit tests for recipe_generator.
 
 
 # pylint: disable=unused-wildcard-import, wildcard-import
+from __future__ import absolute_import
 from nose.tools import *
 
 # pylint: enable=unused-wildcard-import, wildcard-import
@@ -75,11 +76,3 @@ class TestRecipeGenerator(object):
                 "sparkle_provides_version": False,
             }
             assert_false(recipe_generator.needs_versioner(install_facts))
-
-    def test_is_dynamic_url_source(self):
-        for source in ("sparkle_feed", "github_repo", "sourceforge_id"):
-            true_facts = {source: None}
-            assert_true(recipe_generator.is_dynamic_url_source(true_facts))
-        for source in ("download_url", "Unexpected"):
-            false_facts = {source: None}
-            assert_false(recipe_generator.is_dynamic_url_source(false_facts))

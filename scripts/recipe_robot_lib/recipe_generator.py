@@ -28,13 +28,14 @@ create autopkg recipes for the specified app.
 # TODO: refactor code issuing warnings about missing processors/repos.
 # pylint: disable=no-member
 
+from __future__ import absolute_import
 import os
 
 from . import processor
-
 from .exceptions import RoboError
 from .tools import (
     SUPPORTED_ARCHIVE_FORMATS,
+    SUPPORTED_BUNDLE_TYPES,
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_INSTALL_FORMATS,
     LogLevel,
@@ -42,6 +43,7 @@ from .tools import (
     create_dest_dirs,
     create_existing_recipe_list,
     extract_app_icon,
+    get_bundle_name_info,
     get_exitcode_stdout_stderr,
     recipe_dirpath,
     robo_join,
@@ -62,7 +64,10 @@ def generate_recipes(facts, prefs):
         prefs: The dictionary containing a key/value pair for each preference.
     """
     recipes = facts["recipes"]
-    if "app_name" in facts:
+    # A bundle name key like "app_name" or "prefpane_name" is required, because
+    # it's strong evidence that we have enough facts to create a recipe set.
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
+    if bundle_name_key:
         if not facts["args"].ignore_existing:
             create_existing_recipe_list(facts)
     else:
@@ -102,7 +107,7 @@ def generate_recipes(facts, prefs):
 
     # Prepare the destination directory.
     recipe_dest_dir = recipe_dirpath(
-        facts["app_name"], facts.get("developer", None), prefs
+        facts[bundle_name_key], facts.get("developer", None), prefs
     )
     facts["recipe_dest_dir"] = recipe_dest_dir
     create_dest_dirs(recipe_dest_dir)
@@ -158,16 +163,18 @@ def required_repo_reminder(repo_name, repo_url, facts):
 def build_recipes(facts, preferred, prefs):
     """Create a recipe for each preferred type we know about."""
     recipe_dest_dir = facts["recipe_dest_dir"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     for recipe in preferred:
 
         keys = recipe["keys"]
-        keys["Input"]["NAME"] = facts["app_name"]
+
+        keys["Input"]["NAME"] = facts[bundle_name_key]
 
         # Set the recipe filename (spaces are OK).
-        recipe["filename"] = "%s.%s.recipe" % (facts["app_name"], recipe["type"])
+        recipe["filename"] = "%s.%s.recipe" % (facts[bundle_name_key], recipe["type"])
 
         # Set the recipe identifier.
-        clean_name = facts["app_name"].replace(" ", "").replace("+", "Plus")
+        clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
         keys["Identifier"] = "%s.%s.%s" % (
             prefs["RecipeIdentifierPrefix"],
             recipe["type"],
@@ -230,13 +237,17 @@ def generate_download_recipe(facts, prefs, recipe):
     """
     # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
+
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    recipe.set_description("Downloads the latest version of %s." % facts["app_name"])
+    recipe.set_description(
+        "Downloads the latest version of %s." % facts[bundle_name_key]
+    )
 
     # TODO (Shea): Extract method(s) to get_source_processor()
     if "sparkle_feed" in facts:
@@ -269,11 +280,11 @@ def generate_download_recipe(facts, prefs, recipe):
     # TODO (Shea): Extract method(s) to get_source_processor()
     elif "sourceforge_id" in facts:
         SourceForgeURLProvider = processor.ProcessorFactory(
-            "com.github.jessepeterson.munki.GrandPerspective/" "SourceForgeURLProvider",
+            "com.github.jessepeterson.munki.GrandPerspective/SourceForgeURLProvider",
             ("SOURCEFORGE_FILE_PATTERN", "SOURCEFORGE_PROJECT_ID"),
         )
         sf_url_provider = SourceForgeURLProvider(
-            SOURCEFORGE_FILE_PATTERN="\\.%s" % facts["download_format"],
+            SOURCEFORGE_FILE_PATTERN="\\.%s\\/download$" % facts["download_format"],
             SOURCEFORGE_PROJECT_ID=facts["sourceforge_id"],
         )
         recipe.append_processor(sf_url_provider)
@@ -294,12 +305,40 @@ def generate_download_recipe(facts, prefs, recipe):
 
     url_downloader = processor.URLDownloader()
 
-    if not is_dynamic_url_source(facts) and "download_url" in facts:
-        keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-        url_downloader.url = "%DOWNLOAD_URL%"
-        url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
-    else:
-        url_downloader.filename = "%NAME%-%version%.{}".format(facts["download_format"])
+    if "download_url" in facts:
+        if facts.get("sparkle_provides_version") or "github_repo" in facts:
+            # Sparkle and GitHub provide version information.
+            url_downloader.filename = "%NAME%-%version%.{}".format(
+                facts["download_format"]
+            )
+        elif "sourceforge_id" in facts:
+            # SourceForge does not provide reliable version information, but signed apps
+            # are generally handled with a Versioner or AppDmgVersioner processor.
+            url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
+            if not facts.get("codesign_reqs") and not facts.get("codesign_authorities"):
+                # If no signing, chances are low that we have version information.
+                if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
+                    facts["warnings"].append(
+                        "I couldn't a reliable source of version information. You may need to "
+                        "manually add Unarchiver and Versioner processors "
+                        "to your download recipe."
+                    )
+                if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
+                    facts["warnings"].append(
+                        "I couldn't a reliable source of version information. You may need to "
+                        "manually add a Versioner or AppDmgVersioner processor "
+                        "to your download recipe."
+                    )
+                if facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
+                    facts["warnings"].append(
+                        "I couldn't a reliable source of version information. You may need to "
+                        "manually add FlatPkgUnpacker and Versioner processors "
+                        "to your download recipe."
+                    )
+        else:
+            keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
+            url_downloader.url = "%DOWNLOAD_URL%"
+            url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
 
     if "user-agent" in facts:
         url_downloader.request_headers = {"user-agent": facts["user-agent"]}
@@ -310,7 +349,7 @@ def generate_download_recipe(facts, prefs, recipe):
     recipe.append_processor(end_of_check_phase)
 
     # TODO (Shea): Refactor to get_codesigning and get_unarchiver funcs.
-    if facts.get("codesign_reqs") or len(facts["codesign_authorities"]) > 0:
+    if facts.get("codesign_reqs") or facts.get("codesign_authorities"):
 
         if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             unarchiver = processor.Unarchiver()
@@ -325,7 +364,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 facts.get("relative_path", ""), facts["codesign_input_filename"]
             )
         elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-            input_path = "%RECIPE_CACHE_DIR%/%NAME%/" "{}{}".format(
+            input_path = "%RECIPE_CACHE_DIR%/%NAME%/{}{}".format(
                 facts.get("relative_path", ""), facts["codesign_input_filename"]
             )
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
@@ -346,7 +385,10 @@ def generate_download_recipe(facts, prefs, recipe):
         # TODO (Shea): Extract method -> get_versioner
         if needs_versioner(facts):
             versioner = processor.Versioner()
-            if facts["codesign_input_filename"].endswith(".pkg"):
+            if (
+                facts.get("codesign_input_filename", "").endswith(".pkg")
+                or "pkg" in facts["inspections"]
+            ):
                 facts["warnings"].append(
                     "To add a Versioner processor with a pkg as input requires quite "
                     "a bit of customization. I'm going to take my best shot, but I "
@@ -383,16 +425,18 @@ def generate_download_recipe(facts, prefs, recipe):
                 )
             else:
                 if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-                    versioner.input_plist_path = "%pathname%/{}{}.app/Contents/Info.plist".format(
+                    versioner.input_plist_path = "%pathname%/{}{}.{}/Contents/Info.plist".format(
                         facts.get("relative_path", ""),
-                        facts.get("app_file", facts["app_name"]),
+                        facts.get("app_file", facts[bundle_name_key]),
+                        bundle_type,
                     )
                 else:
                     versioner.input_plist_path = (
                         "%RECIPE_CACHE_DIR%/%NAME%/"
-                        "{}{}.app/Contents/Info.plist".format(
+                        "{}{}.{}/Contents/Info.plist".format(
                             facts.get("relative_path", ""),
-                            facts.get("app_file", facts["app_name"]),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
                         )
                     )
             versioner.plist_version_key = facts["version_key"]
@@ -406,14 +450,6 @@ def warn_about_app_store_generation(facts, recipe_type):
     facts["warnings"].append(
         "Skipping %s recipe, because this app was downloaded from the "
         "App Store." % recipe_type
-    )
-
-
-def is_dynamic_url_source(facts):
-    """Returns True if the URL source is Sparkle, GitHub, or SourceForge."""
-    return any(
-        url_type in facts
-        for url_type in ("sparkle_feed", "github_repo", "sourceforge_id")
     )
 
 
@@ -437,10 +473,10 @@ def get_code_signature_verifier(input_path, facts):
 
 
 def needs_versioner(facts):
-    format = facts["download_format"]
+    download_format = facts["download_format"]
     sparkle_version = facts.get("sparkle_provides_version", False)
     format_needs_versioner = any(
-        format in formats
+        download_format in formats
         for formats in (SUPPORTED_IMAGE_FORMATS, SUPPORTED_ARCHIVE_FORMATS)
     )
     return format_needs_versioner and not sparkle_version
@@ -507,18 +543,19 @@ def generate_munki_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     robo_print("Generating %s recipe..." % recipe["type"])
 
     recipe.set_description(
         "Downloads the latest version of %s and imports it "
-        "into Munki." % facts["app_name"]
+        "into Munki." % facts[bundle_name_key]
     )
     recipe.set_parent_from(prefs, facts, "download")
 
     keys["Input"]["MUNKI_REPO_SUBDIR"] = "apps/%NAME%"
     keys["Input"]["pkginfo"] = {
         "catalogs": ["testing"],
-        "display_name": facts["app_name"],
+        "display_name": facts[bundle_name_key],
         "name": "%NAME%",
         "unattended_install": True,
     }
@@ -542,12 +579,19 @@ def generate_munki_recipe(facts, prefs, recipe):
     # Set default variable to use for substitution.
     import_file_var = "%pathname%"
 
+    # Create empty container for additional makepkginfo options.
+    addl_makepkginfo_opts = []
+
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
+        # If the app is not signed, we need a versioner processor here.
         if (
             facts.get("codesign_reqs", "") == ""
             and len(facts["codesign_authorities"]) == 0
         ):
-            if facts["version_key"] == "CFBundleShortVersionString":
+            if (
+                facts["version_key"] == "CFBundleShortVersionString"
+                and bundle_type == "app"
+            ):
                 recipe.append_processor(
                     {
                         "Processor": "AppDmgVersioner",
@@ -555,20 +599,35 @@ def generate_munki_recipe(facts, prefs, recipe):
                     }
                 )
             else:
-                recipe.append_processor(
-                    {
-                        "Processor": "Versioner",
-                        "Arguments": {
-                            "input_plist_path": (
-                                "%pathname%/{}{}.app/Contents/Info.plist".format(
-                                    facts.get("relative_path", ""),
-                                    facts.get("app_file", facts["app_name"]),
-                                )
-                            ),
-                            "plist_version_key": facts["version_key"],
-                        },
-                    }
-                )
+                versioner = {
+                    "Processor": "Versioner",
+                    "Arguments": {
+                        "input_plist_path": (
+                            "%pathname%/{}{}.{}/Contents/Info.plist".format(
+                                facts.get("relative_path", ""),
+                                facts.get("app_file", facts[bundle_name_key]),
+                                bundle_type,
+                            )
+                        )
+                    },
+                }
+                if facts["version_key"] != "CFBundleShortVersionString":
+                    versioner["Arguments"]["plist_version_key"] = facts["version_key"]
+                recipe.append_processor(versioner)
+        if bundle_type != "app":
+            # Add --itemname option.
+            itemname = "{}{}.{}".format(
+                facts.get("relative_path", ""),
+                facts.get("app_file", facts[bundle_name_key]),
+                bundle_type,
+            )
+            addl_makepkginfo_opts.append("--itemname")
+            addl_makepkginfo_opts.append(itemname)
+
+            # Add --destinationpath option.
+            destinationpath = SUPPORTED_BUNDLE_TYPES[bundle_type]
+            addl_makepkginfo_opts.append("--destinationpath")
+            addl_makepkginfo_opts.append(destinationpath)
 
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
         if (
@@ -597,11 +656,41 @@ def generate_munki_recipe(facts, prefs, recipe):
             }
         )
         import_file_var = "%dmg_path%"
+        if bundle_type != "app":
+            # Add --itemname option.
+            itemname = "{}{}.{}".format(
+                facts.get("relative_path", ""),
+                facts.get("app_file", facts[bundle_name_key]),
+                bundle_type,
+            )
+            addl_makepkginfo_opts.append("--itemname")
+            addl_makepkginfo_opts.append(itemname)
+
+            # Add --destinationpath option.
+            destinationpath = SUPPORTED_BUNDLE_TYPES[bundle_type]
+            addl_makepkginfo_opts.append("--destinationpath")
+            addl_makepkginfo_opts.append(destinationpath)
 
     # Set blocking applications, if we found any.
     if len(facts["blocking_applications"]) > 0 and "pkg" in facts["inspections"]:
         keys["Input"]["pkginfo"]["blocking_applications"] = list(
             set(facts["blocking_applications"])
+        )
+
+    if bundle_type != "app":
+        recipe.append_processor(
+            {
+                "Processor": "MunkiInstallsItemsCreator",
+                "Arguments": {
+                    "installs_item_paths": [
+                        "{}/{}.{}".format(
+                            SUPPORTED_BUNDLE_TYPES[bundle_type],
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        )
+                    ]
+                },
+            }
         )
 
     if facts["version_key"] != "CFBundleShortVersionString":
@@ -611,40 +700,52 @@ def generate_munki_recipe(facts, prefs, recipe):
                 "Arguments": {"additional_pkginfo": {"version": "%version%"}},
             }
         )
-        recipe.append_processor(
-            {
-                "Processor": "MunkiImporter",
-                "Arguments": {
-                    "pkg_path": import_file_var,
-                    "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
-                    "version_comparison_key": facts["version_key"],
-                },
-            }
-        )
+        munki_importer = {
+            "Processor": "MunkiImporter",
+            "Arguments": {
+                "pkg_path": import_file_var,
+                "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
+                "version_comparison_key": facts["version_key"],
+            },
+        }
     else:
-        recipe.append_processor(
-            {
-                "Processor": "MunkiImporter",
-                "Arguments": {
-                    "pkg_path": import_file_var,
-                    "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
-                },
-            }
-        )
+        munki_importer = {
+            "Processor": "MunkiImporter",
+            "Arguments": {
+                "pkg_path": import_file_var,
+                "repo_subdirectory": "%MUNKI_REPO_SUBDIR%",
+            },
+        }
+
+    if addl_makepkginfo_opts:
+        munki_importer["Arguments"][
+            "additional_makepkginfo_options"
+        ] = addl_makepkginfo_opts
+
+    recipe.append_processor(munki_importer)
 
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
         extracted_icon = robo_join(
-            recipe_dirpath(facts["app_name"], facts.get("developer", None), prefs),
-            facts["app_name"] + ".png",
+            recipe_dirpath(facts[bundle_name_key], facts.get("developer", None), prefs),
+            facts[bundle_name_key] + ".png",
         )
         extract_app_icon(facts, extracted_icon)
     else:
         facts["warnings"].append(
-            "I don't have enough information to create a PNG icon for this " "app."
+            "I don't have enough information to create a PNG icon for this app."
         )
 
     return recipe
+
+
+def get_pkgdirs(path):
+    """Given a destination path, create the dictionary used for PkgRootCreator."""
+    path_parts = os.path.split(path.lstrip("/"))
+    pkgdirs = {}
+    for index, dir in enumerate(path_parts):
+        pkgdirs["/".join(path_parts[: index + 1])] = "0775"
+    return pkgdirs
 
 
 def generate_app_store_pkg_recipe(facts, prefs, recipe):
@@ -691,6 +792,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # Can't make this recipe without a bundle identifier.
     # TODO(Elliot): Bundle id is also provided by AppDmgVersioner and some
     # Sparkle feeds. When those are present, can we proceed even though we
@@ -707,30 +809,88 @@ def generate_pkg_recipe(facts, prefs, recipe):
     robo_print("Generating %s recipe..." % recipe["type"])
 
     recipe.set_description(
-        "Downloads the latest version of %s and creates a package." % facts["app_name"]
+        "Downloads the latest version of %s and creates a package."
+        % facts[bundle_name_key]
     )
 
     recipe.set_parent_from(prefs, facts, "download")
 
     # Save bundle identifier.
+    # TODO: Try to make AppPkgCreator work with exclamation points in app names. Example:
+    # 'https://s3.amazonaws.com/shirtpocket/SuperDuper/SuperDuper!.dmg'
     keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         # TODO: if "pkg" in facts["inspections"] then use PkgCopier.
-        if "relative_path" in facts:
+        if bundle_type == "app":
+            if "relative_path" in facts:
+                recipe.append_processor(
+                    {
+                        "Processor": "AppPkgCreator",
+                        "Arguments": {
+                            "app_path": "%pathname%/{}{}.{}".format(
+                                facts.get("relative_path", ""),
+                                facts.get("app_file", facts[bundle_name_key]),
+                                bundle_type,
+                            )
+                        },
+                    }
+                )
+            else:
+                recipe.append_processor({"Processor": "AppPkgCreator"})
+        else:
+            # TODO: Create postinstall script for running `qlmanage -r`
+            # if bundle_type is qlgenerator.
             recipe.append_processor(
                 {
-                    "Processor": "AppPkgCreator",
+                    "Processor": "PkgRootCreator",
                     "Arguments": {
-                        "app_path": "%pathname%/{}{}.app".format(
-                            facts.get("relative_path", ""),
-                            facts.get("app_file", facts["app_name"]),
-                        )
+                        "pkgdirs": get_pkgdirs(SUPPORTED_BUNDLE_TYPES[bundle_type]),
+                        "pkgroot": "%RECIPE_CACHE_DIR%/pkgroot",
                     },
                 }
             )
-        else:
-            recipe.append_processor({"Processor": "AppPkgCreator"})
+            recipe.append_processor(
+                {
+                    "Processor": "Copier",
+                    "Arguments": {
+                        "destination_path": "%pkgroot%/{}/{}.{}".format(
+                            SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip("/"),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        ),
+                        "source_path": "%pathname%/{}{}.{}".format(
+                            facts.get("relative_path", ""),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        ),
+                    },
+                }
+            )
+            recipe.append_processor(
+                {
+                    "Processor": "PkgCreator",
+                    "Arguments": {
+                        "pkg_request": {
+                            "chown": [
+                                {
+                                    "group": "admin",
+                                    "path": SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip(
+                                        "/"
+                                    ),
+                                    "user": "root",
+                                }
+                            ],
+                            "id": "%BUNDLE_ID%",
+                            "options": "purge_ds_store",
+                            "pkgname": "%NAME%-%version%",
+                            "pkgroot": "%pkgroot%",
+                            "version": "%version%",
+                        }
+                    },
+                }
+            )
+
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
         if (
             facts.get("codesign_reqs", "") == ""
@@ -749,26 +909,68 @@ def generate_pkg_recipe(facts, prefs, recipe):
                 }
             )
         # TODO: if "pkg" in facts["inspections"] then use PkgCopier.
-        if "relative_path" in facts:
+        if bundle_type == "app":
             recipe.append_processor(
                 {
                     "Processor": "AppPkgCreator",
                     "Arguments": {
-                        "app_path": "%RECIPE_CACHE_DIR%/%NAME%/"
-                        "{}{}.app".format(
+                        "app_path": "%RECIPE_CACHE_DIR%/%NAME%/{}{}.{}".format(
                             facts.get("relative_path", ""),
-                            facts.get("app_file", facts["app_name"]),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
                         )
                     },
                 }
             )
         else:
+            # TODO: Create postinstall script for running `qlmanage -r`
+            # if bundle_type is qlgenerator.
             recipe.append_processor(
                 {
-                    "Processor": "AppPkgCreator",
+                    "Processor": "PkgRootCreator",
                     "Arguments": {
-                        "app_path": "%RECIPE_CACHE_DIR%/%NAME%/"
-                        "{0}.app".format(facts.get("app_file", facts["app_name"]))
+                        "pkgdirs": get_pkgdirs(SUPPORTED_BUNDLE_TYPES[bundle_type]),
+                        "pkgroot": "%RECIPE_CACHE_DIR%/pkgroot",
+                    },
+                }
+            )
+            recipe.append_processor(
+                {
+                    "Processor": "Copier",
+                    "Arguments": {
+                        "destination_path": "%pkgroot%/{}/{}.{}".format(
+                            SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip("/"),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        ),
+                        "source_path": "%RECIPE_CACHE_DIR%/%NAME%/{}{}.{}".format(
+                            facts.get("relative_path", ""),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        ),
+                    },
+                }
+            )
+            recipe.append_processor(
+                {
+                    "Processor": "PkgCreator",
+                    "Arguments": {
+                        "pkg_request": {
+                            "chown": [
+                                {
+                                    "group": "admin",
+                                    "path": SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip(
+                                        "/"
+                                    ),
+                                    "user": "root",
+                                }
+                            ],
+                            "id": "%BUNDLE_ID%",
+                            "options": "purge_ds_store",
+                            "pkgname": "%NAME%-%version%",
+                            "pkgroot": "%pkgroot%",
+                            "version": "%version%",
+                        }
                     },
                 }
             )
@@ -795,13 +997,16 @@ def generate_install_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    recipe.set_description("Installs the latest version of %s." % facts["app_name"])
+    recipe.set_description(
+        "Installs the latest version of %s." % facts[bundle_name_key]
+    )
 
     recipe.set_parent_from(prefs, facts, "download")
 
@@ -813,11 +1018,12 @@ def generate_install_recipe(facts, prefs, recipe):
                     "dmg_path": "%pathname%",
                     "items_to_copy": [
                         {
-                            "source_item": "{}{}.app".format(
+                            "source_item": "{}{}.{}".format(
                                 facts.get("relative_path", ""),
-                                facts.get("app_file", facts["app_name"]),
+                                facts.get("app_file", facts[bundle_name_key]),
+                                bundle_type,
                             ),
-                            "destination_path": "/Applications",
+                            "destination_path": SUPPORTED_BUNDLE_TYPES[bundle_type],
                         }
                     ],
                 },
@@ -855,11 +1061,12 @@ def generate_install_recipe(facts, prefs, recipe):
                     "dmg_path": "%dmg_path%",
                     "items_to_copy": [
                         {
-                            "source_item": "{}{}.app".format(
+                            "source_item": "{}{}.{}".format(
                                 facts.get("relative_path", ""),
-                                facts.get("app_file", facts["app_name"]),
+                                facts.get("app_file", facts[bundle_name_key]),
+                                bundle_type,
                             ),
-                            "destination_path": "/Applications",
+                            "destination_path": SUPPORTED_BUNDLE_TYPES[bundle_type],
                         }
                     ],
                 },
@@ -887,6 +1094,7 @@ def generate_jss_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # Can't make this recipe without a bundle identifier.
     if "bundle_id" not in facts:
         facts["warnings"].append(
@@ -900,12 +1108,12 @@ def generate_jss_recipe(facts, prefs, recipe):
     robo_print("Generating %s recipe..." % recipe["type"])
 
     if prefs.get("FollowOfficialJSSRecipesFormat", False) is True:
-        clean_name = facts["app_name"].replace(" ", "").replace("+", "Plus")
+        clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
         keys["Identifier"] = "com.github.jss-recipes.jss.%s" % clean_name
 
     recipe.set_description(
         "Downloads the latest version of %s and imports it "
-        "into your JSS." % facts["app_name"]
+        "into your JSS." % facts[bundle_name_key]
     )
 
     recipe.set_parent_from(prefs, facts, "pkg")
@@ -920,11 +1128,11 @@ def generate_jss_recipe(facts, prefs, recipe):
     keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
     keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
     if not os.path.exists(
-        robo_join(prefs["RecipeCreateLocation"], "%s.png" % facts["app_name"])
+        robo_join(prefs["RecipeCreateLocation"], "%s.png" % facts[bundle_name_key])
     ):
         facts["reminders"].append(
             "Make sure to keep %s.png with the jss recipe so JSSImporter can "
-            "use it." % facts["app_name"]
+            "use it." % facts[bundle_name_key]
         )
     keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
     keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
@@ -954,16 +1162,22 @@ def generate_jss_recipe(facts, prefs, recipe):
     if "app_file" in facts:
         jssimporter_arguments["jss_inventory_name"] = facts["app_file"]
 
+    if bundle_type != "app":
+        facts["reminders"].append(
+            "Because this item is not an app, you'll need to manually create an "
+            "extension attribute XML template to use with this JSS recipe."
+        )
+
     # Extract the app's icon and save it to disk.
     if "icon_path" in facts:
         extracted_icon = robo_join(
-            recipe_dirpath(facts["app_name"], facts.get("developer", None), prefs),
-            facts["app_name"] + ".png",
+            recipe_dirpath(facts[bundle_name_key], facts.get("developer", None), prefs),
+            facts[bundle_name_key] + ".png",
         )
         extract_app_icon(facts, extracted_icon)
     else:
         facts["warnings"].append(
-            "I don't have enough information to create a PNG icon for this " "app."
+            "I don't have enough information to create a PNG icon for this app."
         )
 
     # Put fully constructed JSSImporter arguments into the process list.
@@ -987,6 +1201,7 @@ def generate_lanrev_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1005,7 +1220,7 @@ def generate_lanrev_recipe(facts, prefs, recipe):
 
     recipe.set_description(
         "Downloads the latest version of %s and copies it "
-        "into your LANrev Server." % facts["app_name"]
+        "into your LANrev Server." % facts[bundle_name_key]
     )
 
     recipe.set_parent_from(prefs, facts, "pkg")
@@ -1044,6 +1259,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1062,7 +1278,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
 
     recipe.set_description(
         "Downloads the latest version of %s and copies it "
-        "into your SCCM Server." % facts["app_name"]
+        "into your SCCM Server." % facts[bundle_name_key]
     )
     recipe.set_parent_from(prefs, facts, "pkg")
 
@@ -1098,6 +1314,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1117,7 +1334,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
     recipe.set_description(
         "Downloads the latest version of %s, creates a "
         "fileset, and copies it into your FileWave "
-        "Server." % facts["app_name"]
+        "Server." % facts[bundle_name_key]
     )
 
     recipe.set_parent_from(prefs, facts, "download")
@@ -1132,9 +1349,10 @@ def generate_filewave_recipe(facts, prefs, recipe):
                 "Processor": "Versioner",
                 "Arguments": {
                     "input_plist_path": (
-                        "%pathname%/{}{}.app/Contents/Info.plist".format(
+                        "%pathname%/{}{}.{}/Contents/Info.plist".format(
                             facts.get("relative_path", ""),
-                            facts.get("app_file", facts["app_name"]),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
                         )
                     ),
                     "plist_version_key": facts["version_key"],
@@ -1174,12 +1392,18 @@ def generate_filewave_recipe(facts, prefs, recipe):
             "Arguments": {
                 "fw_app_bundle_id": facts["bundle_id"],
                 "fw_app_version": "%version%",
-                "fw_import_source": "%%RECIPE_CACHE_DIR%%/%%NAME%%/"
-                "%s.app" % facts.get("app_file", facts["app_name"]),
+                "fw_import_source": "%RECIPE_CACHE_DIR%/%NAME%/{}{}.{}".format(
+                    facts.get("relative_path", ""),
+                    facts.get("app_file", facts[bundle_name_key]),
+                    bundle_type,
+                ),
                 "fw_fileset_name": "%NAME% - %version%",
                 "fw_fileset_group": "Testing",
-                "fw_destination_root": "/Applications/"
-                "%s.app" % facts.get("app_file", facts["app_name"]),
+                "fw_destination_root": "{}/{}.{}".format(
+                    SUPPORTED_BUNDLE_TYPES[bundle_type],
+                    facts.get("app_file", facts[bundle_name_key]),
+                    bundle_type,
+                ),
             },
         }
     )
@@ -1200,6 +1424,7 @@ def generate_ds_recipe(facts, prefs, recipe):
             by this function!
     """
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1218,7 +1443,7 @@ def generate_ds_recipe(facts, prefs, recipe):
 
     recipe.set_description(
         "Downloads the latest version of %s and copies it "
-        "to your DeployStudio packages." % facts["app_name"]
+        "to your DeployStudio packages." % facts[bundle_name_key]
     )
 
     recipe.set_parent_from(prefs, facts, "pkg")
@@ -1274,6 +1499,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     # And a BigFix recipe example:
     # - https://github.com/CLCMacTeam/AutoPkgBESEngine/blob/dd1603c3fc39c1b9530b49e2a08d3eb0bbeb19a1/Examples/TextWrangler.bigfix.recipe
     keys = recipe["keys"]
+    bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1283,7 +1509,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
 
     recipe.set_description(
         "Downloads the latest version of %s and imports it "
-        "into your BigFix server." % facts["app_name"]
+        "into your BigFix server." % facts[bundle_name_key]
     )
 
     recipe.set_parent_from(prefs, facts, "download")
@@ -1298,16 +1524,20 @@ def generate_bigfix_recipe(facts, prefs, recipe):
                 "bes_version": "%version%",
                 "bes_title": "Install/Upgrade: "
                 + facts["developer"]
-                + " %NAME% %version% - Mac OS X",
+                + " %NAME% %version% - macOS",
                 # TODO: Might be a problem with <![CDATA[ being escaped incorrectly in resulting recipe
                 "bes_description": "<p>This task will install/upgrade: %NAME% %version%</p>",
                 "bes_category": "Software Installers",
                 "bes_relevance": [
                     "mac of operating system",
                     'system version >= "10.6.8"',
-                    'not exists folder "/Applications/%s.app" whose '
+                    'not exists folder "{}/{}.{}" whose '
                     '(version of it >= "%%version%%" '
-                    "as version)" % facts.get("app_file", facts["app_name"]),
+                    "as version)".format(
+                        SUPPORTED_BUNDLE_TYPES[bundle_type],
+                        facts.get("app_file", facts[bundle_name_key]),
+                        bundle_type,
+                    ),
                 ],
                 "bes_actions": {
                     "1": {
@@ -1317,7 +1547,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
                         # 		- facts["download_format"]
                         # 		- facts["download_filename"]
                         # 		- facts["app_name_key"]
-                        # 		- facts["app_name"]
+                        # 		- facts[bundle_name_key]
                         # 		- facts["description"]
                         # 		- facts["bundle_id"]
                         #
@@ -1332,7 +1562,7 @@ parameter "bundle_id" = "{}"
                             facts["download_format"],
                             facts["download_filename"],
                             facts["app_name_key"],
-                            facts["app_name"],
+                            facts[bundle_name_key],
                             facts["bundle_id"],
                         )
                         + """

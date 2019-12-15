@@ -32,6 +32,7 @@ but also robo_prints the message as well.
 
 
 # pylint: disable=no-name-in-module
+from __future__ import absolute_import
 from Foundation import NSDistributedNotificationCenter, NSNotificationDeliverImmediately
 
 from .roboabc import RoboDict, RoboList
@@ -39,6 +40,13 @@ from .tools import LogLevel, robo_print
 
 # pylint: enable=no-name-in-module
 
+# Remap basestring in Python 3
+# Credit: https://github.com/munki/munki/blob/ff6248daafa527def0fd109e0c72c69ca179702c
+# /code/client/munkilib/wrappers.py#L121-L125
+try:
+    _ = basestring
+except NameError:
+    basestring = str  # pylint: disable=W0622
 
 # pylint: disable=too-few-public-methods
 class NotificationMixin(object):
@@ -93,7 +101,7 @@ class Facts(RoboDict):
 
     def is_from_app_store(self):
         """Can't make this recipe if the app is from the App Store."""
-        return self["is_from_app_store"]
+        return self.get("is_from_app_store")
 
 
 # pylint: disable=too-few-public-methods, too-many-ancestors

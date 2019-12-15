@@ -2,10 +2,11 @@
 
 Some scattered notes to assist in the design and development of Recipe Robot.
 
-<!-- MarkdownTOC autolink=true depth=4 bracket=round -->
+<!-- MarkdownTOC -->
 
 - [Facts](#facts)
 - [Interesting examples and edge cases to use for testing:](#interesting-examples-and-edge-cases-to-use-for-testing)
+- [Content Types](#content-types)
 
 <!-- /MarkdownTOC -->
 
@@ -139,7 +140,7 @@ recipe-robot --verbose https://api.vivi.io/mac-pkg
 
 Sparkle feed blocks Python user-agent:
 ```
-recipe-robot --verbose http://bohemiancoding.com/static/download/sketch.zip
+recipe-robot --verbose https://download.sketchapp.com/sketch.zip
 ```
 
 Downloaded disk image requires agreement to license before mounting:
@@ -199,7 +200,7 @@ recipe-robot --verbose https://updates.aviatorbrowser.com/Aviator.dmg
 
 Direct download URL (dmg) is a different format than the Sparkle download URL (zip):
 ```
-recipe-robot --verbose https://tunnelblick.net/release/Tunnelblick_3.5.3_build_4270.4371.dmg
+recipe-robot --verbose https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
 ```
 
 An app installer at the root level of the DMG (Can we have some kind of warning about this?):
@@ -222,3 +223,25 @@ A prefpane within a dmg:
 recipe-robot --verbose https://bahoom.com/hyperdock/HyperDock.dmg
 ```
 
+## Content Types
+
+To get an grasp of the typical content types that Recipe Robot will be dealing with, I ran `curl -sIL` on every SPARKLE_FEED_URL and DOWNLOAD_URL in the homebysix-recipes repo. Here are the content types that were returned:
+
+| Type                                | Count |  
+| ----------------------------------- | ----- |  
+| text/html                           | 101   |  
+| application/xml                     | 62    |  
+| application/zip                     | 33    |  
+| application/x-apple-diskimage       | 24    |  
+| text/xml                            | 24    |  
+| application/octet-stream            | 22    |  
+| text/plain                          | 7     |  
+| application/xhtml+xml               | 5     |  
+| application/rss+xml                 | 3     |  
+| binary/octet-stream                 | 3     |  
+| application/vnd.apple.installer+xml | 1     |  
+| application/x-bzip2                 | 1     |  
+| application/x-rss+xml               | 1     |  
+| plain/text                          | 1     |  
+
+("text/html" also includes error messages caused by input variables in URL.)

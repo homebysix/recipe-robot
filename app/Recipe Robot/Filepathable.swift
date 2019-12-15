@@ -73,7 +73,7 @@ extension NSTextField: FilepathValidator {
         attrs?[NSAttributedString.Key.foregroundColor] = valid ? NSColor.lightGray : NSColor.red
         cell.placeholderAttributedString = NSAttributedString(string: string, attributes: attrs)
         placeholderAttributedString = cell.placeholderAttributedString
-        
+
         return valid
     }
 

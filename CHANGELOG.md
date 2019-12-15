@@ -3,9 +3,29 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [Unreleased]
+## [1.2.0] - Unreleased
 
-- Nothing yet.
+### Added
+- Recipe Robot can now create recipes for basic non-app bundles (e.g. prefpane, plugin) contained in zip or dmg downloads.
+- A warning will be displayed if the "content-type" header of downloaded files seems unusual.
+- A warning will be displayed if a reliable version could not be determined (specifically from unsigned apps hosted by SourceForge). (#144)
+- A warning will be displayed if an installer app is detected (e.g. "Install Hazel.app").
+- Issue templates, Apache 2.0 license, and code of conduct added to GitHub project.
+- Recipe Robot warns if a code signing requirements is unnecessarily loose (e.g. `anchor trusted`).
+
+### Changed
+- Only download and pkg recipe types are enabled by default on first run.
+- Display recipe types in specified order when displaying configuration options. (#67)
+- Made Recipe Robot less likely to give "user-agent" related warnings unnecessarily.
+
+### Fixed
+- Resolved a minor bug in which Recipe Robot would incorrectly treat a zip file as a tgz file.
+- Resolved an issue with SourceForge file regex. (#144)
+- Fixed rounding download progress to nearest 10% in app output.
+
+### Removed
+- Removed internal support for piped commands, in order to simplify shell-out process. Should have no effect on functionality.
+
 
 ## [1.1.2] - 2019-02-24
 
@@ -218,7 +238,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/homebysix/recipe-robot/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/homebysix/recipe-robot/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/homebysix/recipe-robot/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/homebysix/recipe-robot/compare/v1.0.5...v1.1.0

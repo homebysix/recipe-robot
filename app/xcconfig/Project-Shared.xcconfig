@@ -7,10 +7,10 @@
 
 
 // Always Search User Paths (Deprecated)
-// 
+//
 // This setting is deprecated as of Xcode 8.3 and may not be supported in future
 // versions. It is recommended that you disable the setting.
-// 
+//
 // If enabled, both `#include <header.h>`-style and `#include "header.h"`-style
 // directives search the paths in `USER_HEADER_SEARCH_PATHS` before
 // `HEADER_SEARCH_PATHS`. As a consequence, user headers, such as your own `String.h`
@@ -18,7 +18,7 @@
 // done using the `-iquote` flag for the paths provided in `USER_HEADER_SEARCH_PATHS`. If
 // disabled and your compiler fully supports separate user paths, user headers are only
 // accessible with `#include "header.h"`-style preprocessor directives.
-// 
+//
 // For backwards compatibility reasons, this setting is enabled by default. Disabling it
 // is strongly recommended.
 
@@ -59,7 +59,7 @@ CLANG_WARN_UNREACHABLE_CODE = YES
 
 
 // Code Signing Identity
-// 
+//
 // The name, also known as the *common name*, of a valid code-signing certificate in a
 // keychain within your keychain path. A missing or invalid certificate will cause a
 // build error.
@@ -69,7 +69,7 @@ CODE_SIGN_IDENTITY = -
 
 
 // Strip Debug Symbols During Copy
-// 
+//
 // Specifies whether binary files that are copied during the build, such as in a Copy
 // Bundle Resources or Copy Files build phase, should be stripped of debugging symbols.
 // It does not cause the linked product of a target to be stripped—use
@@ -94,7 +94,7 @@ GCC_WARN_UNUSED_FUNCTION = YES
 GCC_WARN_UNUSED_VARIABLE = YES
 
 // macOS Deployment Target
-// 
+//
 // Code will load on this and later versions of macOS. Framework APIs that are
 // unavailable in earlier versions will be weak-linked; your code should check for `null`
 // function pointers or specific system versions before calling newer APIs.
@@ -104,7 +104,7 @@ MACOSX_DEPLOYMENT_TARGET = 10.13
 
 
 // Base SDK
-// 
+//
 // The name or path of the base SDK being used during the build. The product will be
 // built against the headers and libraries located inside the indicated SDK. This path
 // will be prepended to all search paths, and will be passed through the environment to

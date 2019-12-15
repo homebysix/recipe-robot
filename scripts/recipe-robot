@@ -70,14 +70,15 @@ def main():
         robo_print(
             "Recipe Robot requires AutoPkg. Please download and install the "
             "latest version: https://github.com/autopkg/autopkg/releases/latest",
-            LogLevel.ERROR)
+            LogLevel.ERROR,
+        )
         sys.exit(1)
 
     try:
         setup(facts)
         print_welcome_text()
         prefs = init_prefs(facts)
-        first_timer = prefs.get('RecipeCreateCount', 0) == 0
+        first_timer = prefs.get("RecipeCreateCount", 0) == 0
 
         # Collect facts from the input path, based on the type of path.
         # TODO (Shea): Standardize on always returning Facts, even though they
@@ -85,13 +86,16 @@ def main():
         process_input_path(facts)
 
         # Time the execution of generating recipes.
-        time, _ = recipe_robot_lib.generate_recipes(facts, prefs)  # pylint: disable=assignment-from-no-return
+        # pylint: disable=assignment-from-no-return
+        time, _ = recipe_robot_lib.generate_recipes(facts, prefs)
+        # pylint: enable=assignment-from-no-return
         facts["execution_time"] = time
 
         # Pat on the back!
         congratulate(prefs, first_timer)
     except KeyboardInterrupt:
-        robo_print("\nAborting Recipe Robot!", LogLevel.ERROR)
+        robo_print("\n", LogLevel.LOG)
+        robo_print("Recipe Robot was killed by Control-C.", LogLevel.ERROR)
         sys.exit(0)
     except RoboError as error:
         message = error.message
@@ -103,13 +107,11 @@ def main():
         sys.exit(1)
     # TODO: Any code requiring exceptions should do local handling, then
     # re-raise as a RoboException subclass.
-    except (RoboException, Exception) as error:   # pylint: disable=broad-except
-        message = ("Recipe Robot exploded with unexpected error: %s" %
-                   error.message)
+    except (RoboException, Exception) as error:  # pylint: disable=broad-except
+        message = "Recipe Robot exploded with unexpected error: %s" % error.message
         if facts["args"].verbose:
             message += "\n%s" % traceback.format_exc(error)
         else:
-            # TODO: Is this overkill?
             message += "\nRun with -v/--verbose for more info."
         facts["errors"].append(message)
         print_death_text()
@@ -124,14 +126,13 @@ def main():
 
         # If debug is on, print all the things.
         if OutputMode.debug_mode:
-            debug_dump({
-                "Command line arguments": facts["args"],
-                "Supported file formats": ALL_SUPPORTED_FORMATS,
-                "Preferences for this session": prefs,
-                "Recipe information": facts["recipes"],
-                # TODO: This is redundant. Perhaps just pull out other
-                # keys we're interested in.
-                "Facts we have collected": facts})
+            debug_dump(
+                {
+                    "Supported file formats": ALL_SUPPORTED_FORMATS,
+                    "Preferences for this session": prefs,
+                    "Facts we have collected": facts,
+                }
+            )
 
 
 def setup(facts):
@@ -168,48 +169,59 @@ def build_argument_parser():
         Parser object.
     """
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument(
         "input_path",
-        nargs='?',
+        nargs="?",
         help="Path from which to derive AutoPkg recipes. This can be one of "
-             "the following: existing app, Sparkle feed, GitHub URL, "
-             "BitBucket URL, SourceForge URL, or direct download URL.")
+        "the following: existing app, Sparkle feed, GitHub URL, "
+        "BitBucket URL, SourceForge URL, or direct download URL.",
+    )
     parser.add_argument(
         "--app-mode",
         action="store_true",
         help="Strip colors from Recipe Robot output. Designed for improved "
-             "interoperability with the Recipe Robot native OS X app.")
+        "interoperability with the Recipe Robot native macOS app.",
+    )
     parser.add_argument(
-        "--config", "--configure", "-c",
+        "--config",
+        "--configure",
+        "-c",
         action="store_true",
-        help="Adjust Recipe Robot preferences prior to generating recipes.")
+        help="Adjust Recipe Robot preferences prior to generating recipes.",
+    )
     parser.add_argument(
         "--debug",
         action="store_true",
         help="Generate extremely detailed output. Meant to help trace issues "
-             "with Recipe Robot. (Debug mode also enables verbose output.)")
+        "with Recipe Robot. (Debug mode also enables verbose output.)",
+    )
     parser.add_argument(
         "--ignore-existing",
         action="store_true",
-        help="Creates recipes even if \"autopkg search\" results show that "
-             "recipes already exist for this app.")
+        help='Creates recipes even if "autopkg search" results show that '
+        "recipes already exist for this app.",
+    )
     parser.add_argument(
         "--keep-cache",
         action="store_true",
         help="Keep the Recipe Robot cache, instead of performing the usual "
-             "cleanup. This allows you to manually inspect the files Recipe "
-             "Robot downloaded. The cache will be cleared again upon next "
-             "run.")
+        "cleanup. This allows you to manually inspect the files Recipe "
+        "Robot downloaded. The cache will be cleared again upon next "
+        "run.",
+    )
     parser.add_argument(
         "--skip-icon",
         action="store_true",
-        help="Do not extract an icon from the source app.")
+        help="Do not extract an icon from the source app.",
+    )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="store_true",
-        help="Generate additional output about the process.")
+        help="Generate additional output about the process.",
+    )
     return parser
 
 
@@ -219,9 +231,10 @@ def configure_from_args(facts):
     # If --ignore-existing was specified, print a warning.
     if args.ignore_existing is True:
         facts["warnings"].append(
-            "Will build recipes even if they already exist in \"autopkg "
+            'Will build recipes even if they already exist in "autopkg '
             "search\" results. Please don't upload duplicate recipes to "
-            "public AutoPkg repos on GitHub.")
+            "public AutoPkg repos on GitHub."
+        )
 
     # If --verbose was specified, set verbose mode to True.
     if args.verbose is True or OutputMode.verbose_mode is True:
@@ -253,7 +266,7 @@ def init_prefs(facts):
     recipes = facts["recipes"]
     # If prefs file exists, try to read from it.
     prefs = get_user_defaults()
-    if prefs and 'RecipeTypes' in prefs:
+    if prefs and "RecipeTypes" in prefs:
         for recipe in recipes:
             # Load preferred recipe types.
             recipe["preferred"] = recipe["type"] in prefs["RecipeTypes"]
@@ -328,10 +341,11 @@ def set_recipe_preferences(prefs, recipes):
                 if "DSPackagesPath" not in prefs:
                     prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
                 robo_print("\nLocation of your DeployStudio packages:")
-                robo_print("This where packages will be copied in order to "
-                           "appear in DeployStudio.\n")
-                choice = raw_input(
-                    "[%s]: " % prefs["DSPackagesPath"])
+                robo_print(
+                    "This where packages will be copied in order to "
+                    "appear in DeployStudio.\n"
+                )
+                choice = raw_input("[%s]: " % prefs["DSPackagesPath"])
                 if choice != "":
                     prefs["DSPackagesPath"] = str(choice).rstrip("/ ")
 
@@ -343,14 +357,13 @@ def set_recipe_preferences(prefs, recipes):
                 else:
                     follow_jss_recipes_format = "Y"
                 robo_print("\nFollow official jss-recipes style format? (Y/N)")
-                robo_print("See details here: "
-                           "https://github.com/autopkg/jss-recipes"
-                           "#style-guide\n")
+                robo_print(
+                    "See details here: "
+                    "https://github.com/autopkg/jss-recipes"
+                    "#style-guide\n"
+                )
                 choice = raw_input("[%s]: " % follow_jss_recipes_format)
-                if choice.lower() in affirmatives:
-                    prefs["FollowOfficialJSSRecipesFormat"] = True
-                else:
-                    prefs["FollowOfficialJSSRecipesFormat"] = False
+                prefs["FollowOfficialJSSRecipesFormat"] = choice.lower() in affirmatives
 
             # If Munki recipes are among the preferred types,
             # prompt for whether to strip developer suffixes like Inc and Ltd.
@@ -361,10 +374,7 @@ def set_recipe_preferences(prefs, recipes):
                     strip_dev_suffixes = "Y"
                 robo_print("\nStrip suffixes from developer names? (Y/N)")
                 choice = raw_input("[%s]: " % strip_dev_suffixes)
-                if choice.lower() in affirmatives:
-                    prefs["StripDeveloperSuffixes"] = True
-                else:
-                    prefs["StripDeveloperSuffixes"] = False
+                prefs["StripDeveloperSuffixes"] = choice.lower() in affirmatives
 
 
 def get_recipe_identifier_prefix(prefs):
@@ -379,9 +389,11 @@ def get_recipe_identifier_prefix(prefs):
             default_username = "your_name_here"
         prefs["RecipeIdentifierPrefix"] = "com.github.%s" % default_username
     robo_print("\nRecipe identifier prefix")
-    robo_print("This is your default identifier, in reverse-domain "
-               "notation.\n(If you have a GitHub account, it's customary to "
-               "use com.github.<your GitHub username>.)\n")
+    robo_print(
+        "This is your default identifier, in reverse-domain "
+        "notation.\n(If you have a GitHub account, it's customary to "
+        "use com.github.<your GitHub username>.)\n"
+    )
     choice = raw_input("[%s]: " % prefs["RecipeIdentifierPrefix"])
     if choice != "":
         prefs["RecipeIdentifierPrefix"] = str(choice).rstrip(". ")
@@ -395,12 +407,11 @@ def get_recipe_creation_location(prefs):
     """
     if "RecipeCreateLocation" not in prefs:
         prefs["RecipeCreateLocation"] = os.path.expanduser(
-            "~/Library/AutoPkg/Recipe Robot Output")
+            "~/Library/AutoPkg/Recipe Robot Output"
+        )
     robo_print("\nLocation to save new recipes")
-    robo_print("This is where on disk your newly created recipes will be "
-               "saved.\n")
-    choice = raw_input(
-        "[%s]: " % prefs["RecipeCreateLocation"])
+    robo_print("This is where on disk your newly created recipes will be saved.\n")
+    choice = raw_input("[%s]: " % prefs["RecipeCreateLocation"])
     if choice != "":
         prefs["RecipeCreateLocation"] = str(choice).rstrip("/ ")
 
@@ -415,18 +426,16 @@ def get_preferred_recipe_types(prefs, recipes):
     """
     prefs["RecipeTypes"] = []
     robo_print("\nPreferred recipe types")
-    robo_print("Choose which recipe types will be offered to you by "
-               "default.\n")
+    robo_print("Choose which recipe types will be offered to you by default.\n")
     while True:
         i = 0
         for recipe in recipes:
-            if recipe["preferred"] is False:
-                indicator = " "
-            else:
-                indicator = "*"
-            robo_print("[%s] %s. %s - %s" %
-                       (indicator, i, recipe["type"], recipe["description"]),
-                       indent=2)
+            indicator = "*" if recipe["preferred"] else " "
+            robo_print(
+                "[%s] %s. %s - %s"
+                % (indicator, i, recipe["type"], recipe["description"]),
+                indent=2,
+            )
             i += 1
         robo_print("A. Enable all recipe types.", indent=6)
         robo_print("D. Disable all recipe types.", indent=6)
@@ -435,7 +444,8 @@ def get_preferred_recipe_types(prefs, recipes):
         choice = raw_input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ].\nWhen you're satisfied "
-            "with your choices, type an \"S\" to save and proceed: ")
+            'with your choices, type an "S" to save and proceed: '
+        )
         if choice.upper() == "S":
             break
         elif choice.upper() == "A":
@@ -454,15 +464,24 @@ def get_preferred_recipe_types(prefs, recipes):
                 else:
                     recipes[choice]["preferred"] = False
             except (ValueError, IndexError):
-                invalid_option_msg = ("%s is not a valid option. Please try "
-                                      "again.\n" % choice)
+                invalid_option_msg = (
+                    "%s is not a valid option. Please try again.\n" % choice
+                )
                 robo_print(invalid_option_msg, LogLevel.WARNING)
                 continue
 
             # Automatically enable download recipe type if required.
-            if recipes[choice]["type"] in ("munki", "pkg", "install", "jss",
-                                           "lanrev", "ds", "sccm",
-                                           "filewave", "bigfix"):
+            if recipes[choice]["type"] in (
+                "munki",
+                "pkg",
+                "install",
+                "jss",
+                "lanrev",
+                "ds",
+                "sccm",
+                "filewave",
+                "bigfix",
+            ):
                 for recipe in recipes:
                     if recipe["type"] == "download":
                         recipe["preferred"] = True
@@ -480,9 +499,7 @@ def debug_dump(items):
         items: A dict of dicts of all the things to dump to output.
     """
     for key, value in items.iteritems():
-        robo_print("%s:\n%s\n" % (key.upper(), pprint.pformat(value)),
-                   LogLevel.DEBUG)
-
+        robo_print("%s:\n%s\n" % (key.upper(), pprint.pformat(value)), LogLevel.DEBUG)
 
 
 if __name__ == "__main__":

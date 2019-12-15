@@ -24,6 +24,7 @@ Look at a path or URL for an app and generate facts about it.
 """
 
 
+from __future__ import absolute_import
 import httplib
 import json
 import os
@@ -43,6 +44,7 @@ from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
     CACHE_DIR,
     SUPPORTED_ARCHIVE_FORMATS,
+    SUPPORTED_BUNDLE_TYPES,
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_INSTALL_FORMATS,
     LogLevel,
@@ -163,18 +165,18 @@ def check_url(url):
             provided as input (e.g. switching from HTTP to HTTPS).
         code: The HTTP status code returned by the URL header check.
     """
-    p = urlparse(url)
+    prs = urlparse(url)
     # TODO (Elliot): Support URLs with hard-coded port other than 80/443.
-    if p.scheme == "https" or ":" in p.netloc:
+    if prs.scheme == "https" or ":" in prs.netloc:
         return url
-    elif p.scheme == "http":
+    elif prs.scheme == "http":
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
         try:
             # Try switching to HTTPS.
-            c = httplib.HTTPSConnection(p.netloc, 443, timeout=10)
-            c.request("HEAD", p.path)
-            r = c.getresponse()
-            if r.status < 400:
+            cnx = httplib.HTTPSConnection(prs.netloc, 443, timeout=10)
+            cnx.request("HEAD", prs.path)
+            res = cnx.getresponse()
+            if res.status < 400:
                 url = "https" + url[4:]
                 robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
                 return url
@@ -184,7 +186,7 @@ def check_url(url):
             robo_print(
                 "Domain does not have a valid SSL certificate.", LogLevel.VERBOSE, 4
             )
-        except Exception as err:
+        except Exception as err:  # pylint: disable=W0703
             robo_print(
                 "An error occurred while checking for an HTTPS URL: %s" % err,
                 LogLevel.VERBOSE,
@@ -192,15 +194,15 @@ def check_url(url):
             )
 
     # Use HTTP if HTTPS fails.
-    c = httplib.HTTPConnection(p.netloc, 80, timeout=10)
-    c.request("HEAD", p.path)
-    r = c.getresponse()
-    # TODO (Elliot): Mitigation of errors based on r.status.
+    cnx = httplib.HTTPConnection(prs.netloc, 80, timeout=10)  # pylint: disable=R0204
+    cnx.request("HEAD", prs.path)
+    res = cnx.getresponse()
+    # TODO (Elliot): Mitigation of errors based on res.status.
 
     return url
 
 
-def inspect_app(input_path, args, facts):
+def inspect_app(input_path, args, facts, bundle_type="app"):
     """Process an app
 
     Gather information required to create a recipe.
@@ -212,15 +214,17 @@ def inspect_app(input_path, args, facts):
         facts: A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
+        bundle_type: Type or file extension of the bundle we're inspecting.
+            Typically "app" but we also support "prefpane" and others.
 
     Returns:
         facts dictionary.
     """
     # Only proceed if we haven't inspected this app yet.
-    if "app" in facts["inspections"]:
+    if bundle_type in facts["inspections"]:
         return facts
     else:
-        facts["inspections"].append("app")
+        facts["inspections"].append(bundle_type)
 
     # Save the path of the app. (Used when overriding AppStoreApp
     # recipes.)
@@ -228,67 +232,98 @@ def inspect_app(input_path, args, facts):
 
     # Record this app as a blocking application (for munki recipe based
     # on pkg).
-    facts["blocking_applications"].append(os.path.basename(input_path))
+    if bundle_type == "app":
+        facts["blocking_applications"].append(os.path.basename(input_path))
 
     # Read the app's Info.plist.
-    robo_print("Validating app...", LogLevel.VERBOSE)
+    robo_print("Validating {}...".format(bundle_type), LogLevel.VERBOSE)
     try:
         info_plist = FoundationPlist.readPlist(input_path + "/Contents/Info.plist")
-        robo_print("App seems valid", LogLevel.VERBOSE, 4)
+        robo_print("This {} seems valid".format(bundle_type), LogLevel.VERBOSE, 4)
     except (ValueError, FoundationPlist.NSPropertyListSerializationException) as error:
-        raise RoboError("%s doesn't look like a valid app to me." % input_path, error)
+        raise RoboError(
+            "{} doesn't look like a valid {} to me.".format(input_path, bundle_type),
+            error,
+        )
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
-    app_file = os.path.basename(input_path)[:-4]
+    app_file = os.path.splitext(os.path.basename(input_path))[0]
 
     # Determine the name of the app. (Overwrites any previous app_name,
     # because the app Info.plist itself is the most reliable source.)
-    app_name = ""
-    robo_print("Getting app name...", LogLevel.VERBOSE)
-    if "CFBundleName" in info_plist:
-        app_name = info_plist["CFBundleName"]
-    elif "CFBundleExecutable" in info_plist:
-        app_name = info_plist["CFBundleExecutable"]
-    else:
-        app_name = app_file
-    robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
-    facts["app_name"] = app_name
+    if bundle_type == "app" or (
+        bundle_type != "app" and "app" not in facts["inspections"]
+    ):
+        app_name = ""
+        robo_print("Getting bundle name...", LogLevel.VERBOSE)
+        if "CFBundleName" in info_plist:
+            app_name = info_plist["CFBundleName"]
+        elif "CFBundleExecutable" in info_plist:
+            app_name = info_plist["CFBundleExecutable"]
+        else:
+            app_name = app_file
+        robo_print("Bundle name is: %s" % app_name, LogLevel.VERBOSE, 4)
+        facts[bundle_type + "_name"] = app_name
 
     # If the app's filename is different than the app's name, we need to
     # make a note of that. Many recipes require another input variable
     # for this.
     if app_name != app_file:
-        robo_print("App name differs from the actual app filename.", LogLevel.VERBOSE)
-        robo_print("Actual app filename: %s.app" % app_file, LogLevel.VERBOSE, 4)
+        robo_print(
+            "Bundle name differs from the actual {} filename.".format(bundle_type),
+            LogLevel.VERBOSE,
+        )
+        robo_print(
+            "Actual {0} filename: {1}.{0}".format(bundle_type, app_file),
+            LogLevel.VERBOSE,
+            4,
+        )
         facts["app_file"] = app_file
 
     # Determine the bundle identifier of the app. (Overwrites any
     # previous bundle_id, because the app itself is the most reliable
     # source.)
-    bundle_id = ""
-    robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
-    if "CFBundleIdentifier" in info_plist:
-        bundle_id = info_plist["CFBundleIdentifier"]
-        robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
-        facts["bundle_id"] = bundle_id
-    else:
-        facts["warnings"].append(
-            "{} doesn't seem to have a bundle identifier.".format(app_name)
-        )
+    if bundle_type == "app" or (
+        bundle_type != "app" and "app" not in facts["inspections"]
+    ):
+        bundle_id = ""
+        robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
+        if "CFBundleIdentifier" in info_plist:
+            bundle_id = info_plist["CFBundleIdentifier"]
+            robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
+            facts["bundle_id"] = bundle_id
+        else:
+            facts["warnings"].append(
+                "{} doesn't seem to have a bundle identifier.".format(app_name)
+            )
 
     # Leave a hint for people testing Recipe Robot on itself.
     if (
-        bundle_id == "com.elliotjordan.recipe-robot"
+        bundle_type == "app"
+        and bundle_id == "com.elliotjordan.recipe-robot"
         and "github_url" not in facts["inspections"]
     ):
         facts["warnings"].append(
-            "Try using my GitHub URL as input instead of the app itself. "
-            "You may also need to use --ignore-existing."
+            "I see what you did there! Try using my GitHub URL "
+            "as input instead of the app itself. You may also "
+            "need to use --ignore-existing."
+        )
+
+    # Warn if this looks like an installer app.
+    if (
+        bundle_type == "app"
+        and app_name.startswith("Install ")
+        or app_name.endswith(" Installer.app")
+    ):
+        facts["warnings"].append(
+            "Heads up! This app looks like an installer app rather than the actual app you "
+            "wanted. You may need to manually extract and repackage the app, or download the "
+            "app from a different source."
         )
 
     # Attempt to determine how to download this app.
-    if "sparkle_feed" not in facts:
+    if bundle_type == "app" and "sparkle_feed" not in facts:
         sparkle_feed = ""
         download_format = ""
         robo_print("Checking for a Sparkle feed...", LogLevel.VERBOSE)
@@ -296,19 +331,21 @@ def inspect_app(input_path, args, facts):
             sparkle_feed = info_plist["SUFeedURL"]
         elif "SUOriginalFeedURL" in info_plist:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
-        elif os.path.exists("%s/Contents/Frameworks/DevMateKit.framework" % input_path):
-            sparkle_feed = ("https://updates.devmate.com/%s.xml") % bundle_id
+        elif os.path.exists(
+            "{}/Contents/Frameworks/DevMateKit.framework".format(input_path)
+        ):
+            sparkle_feed = "https://updates.devmate.com/{}.xml".format(bundle_id)
         if sparkle_feed != "" and sparkle_feed != "NULL":
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
         else:
             robo_print("No Sparkle feed", LogLevel.VERBOSE, 4)
 
-    if "is_from_app_store" not in facts:
+    if bundle_type == "app" and "is_from_app_store" not in facts:
         robo_print(
             "Determining whether app was downloaded from the Mac App Store...",
             LogLevel.VERBOSE,
         )
-        if os.path.exists("%s/Contents/_MASReceipt/receipt" % input_path):
+        if os.path.exists("{}/Contents/_MASReceipt/receipt".format(input_path)):
             robo_print("App came from the App Store", LogLevel.VERBOSE, 4)
             facts["is_from_app_store"] = True
         else:
@@ -351,41 +388,45 @@ def inspect_app(input_path, args, facts):
                 version_key = "CFBundleVersion"
         if version_key not in ("", None):
             robo_print(
-                "Version key is: %s (%s)" % (version_key, info_plist[version_key]),
+                "Version key is: {} ({})".format(version_key, info_plist[version_key]),
                 LogLevel.VERBOSE,
                 4,
             )
             facts["version_key"] = version_key
         else:
             raise RoboError(
-                "Sorry, I can't determine which version key to use for this app."
+                "Sorry, I can't determine which version key to use for this {}.".format(
+                    bundle_type
+                )
             )
 
     # Determine path to the app's icon.
     if "icon_path" not in facts and not args.skip_icon:
         icon_path = ""
-        robo_print("Looking for app icon...", LogLevel.VERBOSE)
+        robo_print("Looking for icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:
             icon_path = os.path.join(
                 input_path, "Contents", "Resources", info_plist["CFBundleIconFile"]
             )
         else:
-            facts["warnings"].append("Can't determine app icon.")
+            facts["warnings"].append("Can't determine icon.")
         if icon_path not in ("", None):
-            robo_print("App icon is: %s" % icon_path, LogLevel.VERBOSE, 4)
+            robo_print("Icon is: {}".format(icon_path), LogLevel.VERBOSE, 4)
             facts["icon_path"] = icon_path
 
     # Attempt to get a description of the app.
     if "description" not in facts:
-        robo_print("Getting app description...", LogLevel.VERBOSE)
+        robo_print("Getting description...", LogLevel.VERBOSE)
         description, source = get_app_description(app_name)
         if description is not None:
             robo_print(
-                "Description (from %s): %s" % (source, description), LogLevel.VERBOSE, 4
+                "Description (from {}): {}".format(source, description),
+                LogLevel.VERBOSE,
+                4,
             )
             facts["description"] = description
         else:
-            robo_print("Can't retrieve app description.", LogLevel.VERBOSE, 4)
+            robo_print("Can't retrieve description.", LogLevel.VERBOSE, 4)
 
     # Gather info from code signing attributes, including:
     #    - Code signature verification requirements
@@ -398,7 +439,7 @@ def inspect_app(input_path, args, facts):
         developer = ""
         codesign_version = ""
         robo_print("Gathering code signature information...", LogLevel.VERBOSE)
-        cmd = 'codesign --display --verbose=2 -r- "%s"' % (input_path)
+        cmd = '/usr/bin/codesign --display --verbose=2 -r- "{}"'.format(input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             # From stdout:
@@ -410,7 +451,8 @@ def inspect_app(input_path, args, facts):
             authority_marker = "Authority="
             dev_marker = "Authority=Developer ID Application: "
             vers_marker = "Sealed Resources version="
-            for line in err.split("\n"):  # The info we need is in stderr.
+            # The info we need is in stderr.
+            for line in err.decode("utf-8").split("\n"):
                 if line.startswith(authority_marker):
                     codesign_authorities.append(line[len(authority_marker) :])
                 if line.startswith(dev_marker):
@@ -421,7 +463,9 @@ def inspect_app(input_path, args, facts):
                     codesign_version = line[len(vers_marker) : len(vers_marker) + 1]
                     if codesign_version == "1":
                         facts["warnings"].append(
-                            "This app uses an obsolete code signature."
+                            "This {} uses an obsolete code signature.".format(
+                                bundle_type
+                            )
                         )
                         # Clear code signature markers, treat app as
                         # unsigned.
@@ -429,21 +473,33 @@ def inspect_app(input_path, args, facts):
                         codesign_authorities = []
                         break
         if codesign_reqs == "" and len(codesign_authorities) == 0:
-            robo_print("App is not signed", LogLevel.VERBOSE, 4)
+            robo_print("This {} is not signed".format(bundle_type), LogLevel.VERBOSE, 4)
         else:
             robo_print(
                 "Code signature verification requirements recorded", LogLevel.VERBOSE, 4
             )
             facts["codesign_reqs"] = codesign_reqs
             robo_print(
-                "%s authority names recorded" % len(codesign_authorities),
+                "{} authority names recorded".format(len(codesign_authorities)),
                 LogLevel.VERBOSE,
                 4,
             )
             facts["codesign_authorities"] = codesign_authorities
             facts["codesign_input_filename"] = os.path.basename(input_path)
+            # Check for overly loose requirements.
+            # https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
+            if codesign_reqs in (
+                "anchor apple generic",
+                "anchor trusted",
+                "certificate anchor trusted",
+            ):
+                facts["warnings"].append(
+                    "This {}'s code signing designated requirements are set very "
+                    "broadly. You may want to politely suggest that the developer "
+                    "set a stricter requirement.".format(bundle_type)
+                )
         if developer not in ("", None):
-            robo_print("Developer: %s" % developer, LogLevel.VERBOSE, 4)
+            robo_print("Developer: {}".format(developer), LogLevel.VERBOSE, 4)
             facts["developer"] = developer
 
     return facts
@@ -499,7 +555,7 @@ def get_app_description(app_name):
         },
     ]
     for source in desc_sources:
-        cmd = 'curl --silent "%s"' % source["url"]
+        cmd = '/usr/bin/curl --silent "%s"' % source["url"]
         _, out, _ = get_exitcode_stdout_stderr(cmd)
         result = re.search(source["pattern"], out)
         if result:
@@ -560,42 +616,53 @@ def inspect_archive(input_path, args, facts):
     unpacked_dir = os.path.join(CACHE_DIR, "unpacked")
     if not os.path.exists(unpacked_dir):
         os.mkdir(unpacked_dir)
-    archive_cmds = {
-        "zip": '/usr/bin/unzip "{}" -d "{}"'.format(input_path, unpacked_dir),
-        "tgz": '/usr/bin/tar -zxvf "{}" -C "{}"'.format(input_path, unpacked_dir),
-    }
+    archive_cmds = (
+        ("zip", '/usr/bin/unzip "{}" -d "{}"'.format(input_path, unpacked_dir)),
+        ("tgz", '/usr/bin/tar -zxvf "{}" -C "{}"'.format(input_path, unpacked_dir)),
+    )
     for fmt in archive_cmds:
-        exitcode, _, _ = get_exitcode_stdout_stderr(archive_cmds[fmt])
+        exitcode, _, _ = get_exitcode_stdout_stderr(fmt[1])
         if exitcode == 0:
             # Confirmed: the download was an archive. Make a note of that.
-            robo_print("Successfully unarchived %s" % fmt, LogLevel.VERBOSE, 4)
-            facts["download_format"] = fmt
+            robo_print("Successfully unarchived %s" % fmt[0], LogLevel.VERBOSE, 4)
+            facts["download_format"] = fmt[0]
 
             # If the download filename was ambiguous, change it.
             if not facts.get("download_filename", input_path).endswith(
                 SUPPORTED_ARCHIVE_FORMATS
             ):
                 facts["download_filename"] = "{}.{}".format(
-                    facts.get("download_filename", os.path.basename(input_path)), fmt
+                    facts.get("download_filename", os.path.basename(input_path)), fmt[0]
                 )
 
-            # Locate and inspect any apps or pkgs on the root level.
+            # Locate and inspect any apps, non-app bundles, or pkgs on the root level.
             stop_searching_archive = False
             for this_file in os.listdir(unpacked_dir):
-                if this_file.endswith(".app"):
+                if this_file.lower().endswith(".app"):
                     facts = inspect_app(
                         os.path.join(unpacked_dir, this_file), args, facts
                     )
                     stop_searching_archive = True
                     return facts
-                elif this_file.endswith(SUPPORTED_INSTALL_FORMATS):
+                elif this_file.lower().endswith(
+                    tuple([x for x in SUPPORTED_BUNDLE_TYPES])
+                ):
+                    facts = inspect_app(
+                        os.path.join(unpacked_dir, this_file),
+                        args,
+                        facts,
+                        bundle_type=os.path.splitext(this_file)[1].lower().lstrip("."),
+                    )
+                    stop_searching_archive = True
+                    return facts
+                elif this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
                     facts = inspect_pkg(
                         os.path.join(unpacked_dir, this_file), args, facts
                     )
                     stop_searching_archive = True
                     return facts
 
-            # Didn't find an app or pkg on the root level? Look deeper.
+            # Didn't find an app, prefpane, or pkg on the root level? Look deeper.
             if stop_searching_archive is False:
                 for dirpath, dirnames, filenames in os.walk(unpacked_dir):
                     for dirname in dirnames:
@@ -604,6 +671,22 @@ def inspect_archive(input_path, args, facts):
                         elif dirname.endswith(".app"):
                             facts = inspect_app(
                                 os.path.join(dirpath, dirname), args, facts
+                            )
+                            facts["relative_path"] = (
+                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
+                                + "/"
+                            )
+                            return facts
+                        elif dirname.endswith(
+                            tuple([x for x in SUPPORTED_BUNDLE_TYPES])
+                        ):
+                            facts = inspect_app(
+                                os.path.join(dirpath, dirname),
+                                args,
+                                facts,
+                                bundle_type=os.path.splitext(dirname)[1]
+                                .lower()
+                                .lstrip("."),
                             )
                             facts["relative_path"] = (
                                 os.path.relpath(os.path.join(dirpath), unpacked_dir)
@@ -897,18 +980,18 @@ def inspect_disk_image(input_path, args, facts):
             dmg_dict = FoundationPlist.readPlist(
                 os.path.join(CACHE_DIR, "dmg_attach.plist")
             )
-        except Exception as error:
+        except Exception as err:  # pylint: disable=W0703
             raise RoboError(
                 "Shoot, I had trouble parsing the output of hdiutil while mounting the "
                 "downloaded dmg. Sorry about that.",
-                error,
+                err,
             )
         for entity in dmg_dict["system-entities"]:
             if "mount-point" in entity:
                 dmg_mount = entity["mount-point"]
                 break
         for this_file in os.listdir(dmg_mount):
-            if this_file.endswith(".app"):
+            if this_file.lower().endswith(".app"):
                 # Copy app to cache folder.
                 # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
                 attached_app_path = os.path.join(dmg_mount, this_file)
@@ -919,11 +1002,32 @@ def inspect_disk_image(input_path, args, facts):
                     except shutil.Error:
                         pass
                 # Unmount attached volume when done.
-                cmd = '/usr/bin/hdiutil detach "%s"' % dmg_mount
+                # TODO: Handle unicode characters here. Example:
+                # http://download.ap.bittorrent.com/track/stable/endpoint/utmac/os/osx
+                cmd = '/usr/bin/hdiutil detach "{}"'.format(dmg_mount)
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 facts = inspect_app(cached_app_path, args, facts)
                 break
-            if this_file.endswith(SUPPORTED_INSTALL_FORMATS):
+            elif this_file.lower().endswith(tuple([x for x in SUPPORTED_BUNDLE_TYPES])):
+                # Copy bundle to cache folder.
+                attached_app_path = os.path.join(dmg_mount, this_file)
+                cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
+                if not os.path.exists(cached_app_path):
+                    try:
+                        shutil.copytree(attached_app_path, cached_app_path)
+                    except shutil.Error:
+                        pass
+                # Unmount attached volume when done.
+                cmd = '/usr/bin/hdiutil detach "%s"' % dmg_mount
+                exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+                facts = inspect_app(
+                    cached_app_path,
+                    args,
+                    facts,
+                    bundle_type=os.path.splitext(this_file)[1].lower().lstrip("."),
+                )
+                break
+            if this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
                 break
     else:
@@ -1043,16 +1147,13 @@ def inspect_download_url(input_path, args, facts):
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
+            # TODO: Handle requests with cookies (e.g. S3 pre-signed URLs).
+            # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
+            # TODO: Try /usr/bin/curl instead?
             try:
                 raw_download = useragent_urlopen(checked_url, "Mozilla/5.0")
-                facts["warnings"].append(
-                    "I had to use a different user-agent in order to "
-                    "download this file. If you run the recipes and get a "
-                    '"Can\'t open URL" error, it means AutoPkg encountered '
-                    "the same problem."
-                )
                 facts["user-agent"] = "Mozilla/5.0"
-            except Exception as err:
+            except Exception as err:  # pylint: disable=W0703
                 facts["warnings"].append(
                     "Error encountered during file download. (%s)" % err
                 )
@@ -1086,6 +1187,29 @@ def inspect_download_url(input_path, args, facts):
         # TODO: If input path was HTTP, revert to that and try again.
         return facts
 
+    # Warn if we had to add a user agent in order to access URLs above.
+    if "user-agent" in facts:
+        facts["warnings"].append(
+            "I had to use a different user-agent in order to "
+            "download this file. If you run the recipes and get a "
+            '"Can\'t open URL" error, it means AutoPkg encountered '
+            "the same problem."
+        )
+
+    # Warn if the content-type is known not to be a downloadable file.
+    # TODO: If content-type is HTML, try parsing for download URLs and
+    # use URLTextSearcher.
+    # TODO: If content-type is XML, see if it's a Sparkle feed or parse for
+    # download URLs and use URLTextSearcher.
+    if raw_download.info().getheaders("Content-Type"):
+        content_type = raw_download.info().getheaders("Content-Type")[0]
+        if not content_type.startswith(("binary/", "application/", "file/")):
+            facts["warnings"].append(
+                "This download's Content-Type ({}) is unusual for a download.".format(
+                    content_type
+                )
+            )
+
     # Get the actual filename from the server, if it exists.
     if "Content-Disposition" in raw_download.info():
         content_disp = raw_download.info()["Content-Disposition"]
@@ -1100,7 +1224,7 @@ def inspect_download_url(input_path, args, facts):
     facts["download_filename"] = filename
 
     # Write the downloaded file to the cache folder, showing progress.
-    if len(raw_download.info().getheaders("Content-Length")) > 0:
+    if raw_download.info().getheaders("Content-Length"):
         file_size = int(raw_download.info().getheaders("Content-Length")[0])
     else:
         # File size is unknown, so we can't show progress.
@@ -1109,23 +1233,24 @@ def inspect_download_url(input_path, args, facts):
         file_size_dl = 0
         block_sz = 8192
         while True:
-            buffer = raw_download.read(block_sz)
-            if not buffer:
+            chunk = raw_download.read(block_sz)
+            if not chunk:
                 break
             # Write downloaded chunk.
-            file_size_dl += len(buffer)
-            download_file.write(buffer)
+            file_size_dl += len(chunk)
+            download_file.write(chunk)
             # Show progress if file size is known.
             if file_size > 0:
                 p = float(file_size_dl) / file_size
-                status = r"    {0:.2%}".format(p)
+                stat_fmt = r"    {0:0.0%}" if args.app_mode else r"    {0:.2%}"
+                status = stat_fmt.format(p)
                 status = status + chr(8) * (len(status) + 1)
                 if args.app_mode:
                     # Show progress in 10% increments.
                     if (file_size_dl / block_sz) % (file_size / block_sz / 10) == 0:
                         robo_print(status, LogLevel.VERBOSE)
                 else:
-                    # Show progress in real time.
+                    # Show progress in 0.01% increments.
                     sys.stdout.flush()
                     sys.stdout.write(status)
     robo_print(
@@ -1595,6 +1720,8 @@ def inspect_pkg(input_path, args, facts):
     cmd = '/usr/sbin/pkgutil --expand "%s" "%s"' % (input_path, expand_path)
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
+        # TODO: Support package bundles here. Example:
+        # https://pqrs.org/osx/karabiner/files/KeyRemap4MacBook-7.4.0.pkg.zip
         facts["warnings"].append("Unable to expand package: %s" % input_path)
     else:
         # Locate and inspect the app.
@@ -1668,14 +1795,15 @@ def inspect_pkg(input_path, args, facts):
         # Add apps found to blocking applications, unless
         # otherwise specified.
         non_blocking_apps = (
-            "Uninstaller.app",
-            "Installer.app",
-            "Uninstall.app",
-            "Install.app",
+            "autoupdate.app",
+            "install.app",
+            "installer.app",
+            "uninstall.app",
+            "uninstaller.app",
         )
         for app in [os.path.basename(x["path"]) for x in found_apps]:
             if app not in facts["blocking_applications"]:
-                if app in non_blocking_apps:
+                if app.lower() in non_blocking_apps:
                     robo_print("Found application: %s" % app, LogLevel.VERBOSE, 4)
                 else:
                     robo_print(
@@ -1870,7 +1998,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             files_rss = "https://sourceforge.net/projects/%s/rss" % proj_name
             try:
                 raw_xml = urlopen(files_rss)
-            except Exception as err:
+            except Exception as err:  # pylint: disable=W0703
                 facts["warnings"].append(
                     "Error occurred while inspecting SourceForge RSS feed: %s" % err
                 )
@@ -1954,16 +2082,13 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
+            # TODO: Handle requests with cookies (e.g. S3 pre-signed URLs).
+            # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
+            # TODO: Try /usr/bin/curl instead?
             try:
                 raw_xml = useragent_urlopen(checked_url, "Mozilla/5.0")
-                facts["warnings"].append(
-                    "I had to use a different user-agent in order to read "
-                    "this Sparkle feed. If you run the recipes and get a "
-                    '"Can\'t open URL" error, it means AutoPkg encountered '
-                    "the same problem."
-                )
                 facts["user-agent"] = "Mozilla/5.0"
-            except Exception as err:
+            except Exception as err:  # pylint: disable=W0703
                 facts["warnings"].append(
                     "Error occurred while downloading Sparkle feed (%s)" % err
                 )
@@ -2005,6 +2130,15 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         )
         # TODO: If input path was HTTP, revert to that and try again.
         return facts
+
+    # Warn if we had to add a user agent in order to access URLs above.
+    if "user-agent" in facts:
+        facts["warnings"].append(
+            "I had to use a different user-agent in order to read "
+            "this Sparkle feed. If you run the recipes and get a "
+            '"Can\'t open URL" error, it means AutoPkg encountered '
+            "the same problem."
+        )
 
     # Parse the Sparkle feed.
     xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"

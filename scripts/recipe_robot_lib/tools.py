@@ -25,6 +25,8 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 """
 
 
+from __future__ import absolute_import, print_function
+
 import os
 import re
 import shlex
@@ -38,6 +40,7 @@ from urllib import quote_plus
 
 # pylint: disable=no-name-in-module
 from Foundation import NSUserDefaults
+
 # pylint: enable=no-name-in-module
 
 from .exceptions import RoboError
@@ -52,26 +55,39 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-__version__ = '1.1.2'
+__version__ = "1.2.0"
 ENDC = "\033[0m"
 PREFS_FILE = os.path.expanduser(
-    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
+    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
+)
 
 # Build the list of download formats we know about.
 SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
 SUPPORTED_ARCHIVE_FORMATS = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
 SUPPORTED_INSTALL_FORMATS = ("pkg",)
-ALL_SUPPORTED_FORMATS = (SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS +
-                         SUPPORTED_INSTALL_FORMATS)
+ALL_SUPPORTED_FORMATS = (
+    SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS + SUPPORTED_INSTALL_FORMATS
+)
+
+# Build the list of bundle types we support, and their destinations. ("app" should be listed first.)
+SUPPORTED_BUNDLE_TYPES = {
+    "app": "/Applications",
+    "prefpane": "/Library/PreferencePanes",
+    "qlgenerator": "/Library/QuickLook",
+    "plugin": "/Library/Internet Plug-Ins",
+}
 
 # Global variables.
-CACHE_DIR = os.path.join(os.path.expanduser("~/Library/Caches/Recipe Robot"),
-                         datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"))
+CACHE_DIR = os.path.join(
+    os.path.expanduser("~/Library/Caches/Recipe Robot"),
+    datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"),
+)
 color_setting = False
 
 
 class LogLevel(object):
     """Specify colors that are used in Terminal output."""
+
     DEBUG = ("\033[95m", "DEBUG")
     ERROR = ("\033[1;38;5;196m", "ERROR")
     LOG = ("", "")
@@ -114,6 +130,7 @@ def timed(func):
     Modifies func to return a tuple of:
         (execution time, original func's return value)
     """
+
     @wraps(func)
     def run_func(*args, **kwargs):
         """Time a function."""
@@ -121,6 +138,7 @@ def timed(func):
         result = func(*args, **kwargs)
         end = timeit.default_timer()
         return (end - start, result)
+
     return run_func
 
 
@@ -142,43 +160,72 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
 
     line = color + indents + prefix + message + suffix
 
-    if log_level in (LogLevel.ERROR, LogLevel.WARNING):
-        print_func = _print_stderr
-    else:
-        print_func = _print_stdout
-
-    if ((log_level in (LogLevel.ERROR, LogLevel.REMINDER, LogLevel.WARNING,
-                       LogLevel.LOG)) or
-        (log_level is LogLevel.DEBUG and OutputMode.debug_mode) or
-        (log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or
-                                            OutputMode.debug_mode))):
-        print_func(line)
+    if (
+        log_level in (LogLevel.ERROR, LogLevel.REMINDER, LogLevel.WARNING, LogLevel.LOG)
+        or (log_level is LogLevel.DEBUG and OutputMode.debug_mode)
+        or (
+            log_level is LogLevel.VERBOSE
+            and (OutputMode.verbose_mode or OutputMode.debug_mode)
+        )
+    ):
+        if log_level in (LogLevel.ERROR, LogLevel.WARNING):
+            print(line, file=sys.stderr)
+        else:
+            print(line)
 
 
 def strip_dev_suffix(dev):
-    '''Removes corporation suffix from developer names, if present.'''
-    corp_suffixes = ('incorporated', 'corporation', 'limited', 'oy/ltd',
-                     'pty ltd', 'pty. ltd', 'pvt ltd', 'pvt. ltd', 's.a r.l',
-                     'sa rl', 'sarl', 'srl', 'corp', 'gmbh', 'l.l.c', 'inc',
-                     'llc', 'ltd', 'pvt', 'oy', 'sa', 'ab',)
-    if dev not in (None, ''):
+    """Removes corporation suffix from developer names, if present."""
+    corp_suffixes = (
+        "incorporated",
+        "corporation",
+        "limited",
+        "oy/ltd",
+        "pty ltd",
+        "pty. ltd",
+        "pvt ltd",
+        "pvt. ltd",
+        "s.a r.l",
+        "sa rl",
+        "sarl",
+        "srl",
+        "corp",
+        "gmbh",
+        "l.l.c",
+        "inc",
+        "llc",
+        "ltd",
+        "pvt",
+        "oy",
+        "sa",
+        "ab",
+    )
+    if dev not in (None, ""):
         for suffix in corp_suffixes:
-            if dev.lower().rstrip(' .').endswith(suffix):
-                dev = dev.rstrip(' .')[:len(dev)-len(suffix)-1].rstrip(',. ')
+            if dev.lower().rstrip(" .").endswith(suffix):
+                dev = dev.rstrip(" .")[: len(dev) - len(suffix) - 1].rstrip(",. ")
                 break
     return dev
 
 
+def get_bundle_name_info(facts):
+    """Returns the key used to store the bundle name. This is usually "app_name"
+    but could be "prefpane_name". If both exist in facts, "app_name" wins.
+    """
+    if "app" in facts["inspections"]:
+        bundle_type = "app"
+        bundle_name_key = "app_name"
+    else:
+        bundle_types = [x for x in SUPPORTED_BUNDLE_TYPES if x in facts["inspections"]]
+        bundle_type = bundle_types[0] if bundle_types else None
+        bundle_name_key = bundle_type + "_name" if bundle_types else None
+    return bundle_type, bundle_name_key
+
+
 def recipe_dirpath(app_name, dev, prefs):
-    '''Returns a macOS-friendly path to use for recipes.'''
+    """Returns a macOS-friendly path to use for recipes."""
     # Special characters that shouldn't be in macOS file/folder names.
-    char_replacements = (
-        ('/', '-'),
-        ('\\', '-'),
-        (':', '-'),
-        ('*', '-'),
-        ('?', ''),
-    )
+    char_replacements = (("/", "-"), ("\\", "-"), (":", "-"), ("*", "-"), ("?", ""))
     for char in char_replacements:
         app_name = app_name.replace(char[0], char[1])
     path_components = [prefs["RecipeCreateLocation"]]
@@ -208,13 +255,12 @@ def create_dest_dirs(path):
         try:
             os.makedirs(dest_dir)
         except OSError as error:
-            raise RoboError("Unable to create directory at %s." % dest_dir,
-                            error)
+            raise RoboError("Unable to create directory at %s." % dest_dir, error)
 
 
 def extract_app_icon(facts, png_path):
     """Convert the app's icns file to 300x300 png at the specified path.
-    300x300 is Munki's preferred size, and 128x128 is Casper's preferred size,
+    300x300 is Munki's preferred size, and 128x128 is Jamf Pro's preferred size,
     as of 2015-08-01.
 
     Args:
@@ -231,15 +277,18 @@ def extract_app_icon(facts, png_path):
         icon_path = icon_path + ".icns"
 
     if not os.path.exists(png_path_absolute):
-        cmd = ("sips -s format png \"%s\" --out \"%s\" "
-               "--resampleHeightWidthMax 300" % (icon_path, png_path_absolute))
+        cmd = (
+            '/usr/bin/sips -s format png "%s" --out "%s" '
+            "--resampleHeightWidthMax 300" % (icon_path, png_path_absolute)
+        )
         exitcode, _, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             robo_print("%s" % png_path, LogLevel.VERBOSE, 4)
             facts["icons"].append(png_path)
         else:
             facts["warnings"].append(
-                "An error occurred during icon extraction: %s" % err)
+                "An error occurred during icon extraction: %s" % err
+            )
 
 
 def get_exitcode_stdout_stderr(cmd, stdin=""):
@@ -254,43 +303,22 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
         err: String from standard error.
     """
     if "|" in cmd:
-        cmd_parts = cmd.split("|")
-    else:
-        cmd_parts = [cmd]
-
-    i = 0
-    p = {}
-    for cmd_part in cmd_parts:
-        cmd_part = cmd_part.strip()
-        if i == 0:
-            p[i] = Popen(shlex.split(cmd_part),
-                         stdin=PIPE,
-                         stdout=PIPE,
-                         stderr=PIPE)
-        else:
-            p[i] = Popen(shlex.split(cmd_part),
-                         stdin=p[i-1].stdout,
-                         stdout=PIPE,
-                         stderr=PIPE)
-        i = i + 1
-
-    out, err = p[i-1].communicate(stdin)
-    exitcode = p[i-1].returncode
+        raise RoboError(
+            "Piped commands are deprecated. Please report this issue:\n"
+            "    https://github.com/homebysix/recipe-robot/issues/new\n"
+            "Command: {}".format(cmd)
+        )
+    proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    out, err = proc.communicate(stdin)
+    exitcode = proc.returncode
 
     return exitcode, out, err
 
 
-def _print_stderr(p):
-    print >> sys.stderr, p
-
-
-def _print_stdout(p):
-    print(p)
-
-
 def print_welcome_text():
     """Print the text that appears when you run Recipe Robot."""
-    welcome_text = """
+    welcome_text = (
+        """
                       -----------------------------------
                      |  Welcome to Recipe Robot v%s.  |
                       -----------------------------------
@@ -299,7 +327,9 @@ def print_welcome_text():
                                    d-||-b
                                      ||
                                    _/  \_
-    """ % __version__
+    """
+        % __version__
+    )
 
     robo_print(welcome_text)
 
@@ -326,13 +356,17 @@ def write_report(report, report_file):
 
 
 def get_user_defaults():
-    defaults = NSUserDefaults.alloc().initWithSuiteName_('com.elliotjordan.recipe-robot')
+    defaults = NSUserDefaults.alloc().initWithSuiteName_(
+        "com.elliotjordan.recipe-robot"
+    )
     default_dict = defaults.dictionaryRepresentation()
     return default_dict if len(default_dict) else None
 
 
 def save_user_defaults(prefs):
-    defaults = NSUserDefaults.alloc().initWithSuiteName_('com.elliotjordan.recipe-robot')
+    defaults = NSUserDefaults.alloc().initWithSuiteName_(
+        "com.elliotjordan.recipe-robot"
+    )
     for key, value in prefs.iteritems():
         defaults.setValue_forKey_(value, key)
 
@@ -363,21 +397,24 @@ def create_existing_recipe_list(facts):
     if app_name_no_space not in recipe_searches:
         recipe_searches.append(app_name_no_space)
 
-    app_name_no_symbol = quote_plus(re.sub(r'[^\w]', '', app_name))
+    app_name_no_symbol = quote_plus(re.sub(r"[^\w]", "", app_name))
     if app_name_no_symbol not in recipe_searches:
         recipe_searches.append(app_name_no_symbol)
 
     for this_search in recipe_searches:
-        robo_print("Searching for existing AutoPkg recipes for %s..." %
-                   this_search, LogLevel.VERBOSE)
+        robo_print(
+            "Searching for existing AutoPkg recipes for %s..." % this_search,
+            LogLevel.VERBOSE,
+        )
         # TODO: Check for token in AutoPkg preferences.
         if os.path.isfile(os.path.expanduser("~/.autopkg_gh_token")):
             robo_print("Using GitHub token file", LogLevel.VERBOSE, 4)
-            cmd = ("/usr/local/bin/autopkg search --path-only --use-token "
-                   "%s" % this_search)
+            cmd = (
+                "/usr/local/bin/autopkg search --path-only --use-token "
+                "%s" % this_search
+            )
         else:
-            cmd = ("/usr/local/bin/autopkg search --path-only %s" %
-                   this_search)
+            cmd = "/usr/local/bin/autopkg search --path-only %s" % this_search
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
         if exitcode == 0:
@@ -390,8 +427,7 @@ def create_existing_recipe_list(facts):
                     if line.lower().startswith(recipe_name.lower()):
                         # An existing recipe was found.
                         if is_existing is False:
-                            robo_print("Found existing recipe(s):",
-                                       LogLevel.LOG, 4)
+                            robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
                             is_existing = True
                             recipe["existing"] = True
                         robo_print(recipe_name, LogLevel.LOG, 8)
@@ -405,13 +441,15 @@ def create_existing_recipe_list(facts):
                     "\n\t- Write your own recipe using one of the above as "
                     "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
                     "the creation of a new child recipe, as seen here:\n\t  "
-                    "https://youtu.be/5VKDzY8bBxI?t=2829")
+                    "https://youtu.be/5VKDzY8bBxI?t=2829"
+                )
             else:
                 robo_print("No results", LogLevel.VERBOSE, 4)
         else:
             raise RoboError(
                 "I encountered this error while checking for "
-                "existing recipes: {}".format(err))
+                "existing recipes: {}".format(err)
+            )
 
 
 def congratulate(prefs, first_timer):

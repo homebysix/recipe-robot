@@ -25,9 +25,15 @@ Recipes: Container class for Recipe objects.
 """
 
 
+from __future__ import absolute_import
 from recipe_robot_lib import processor
 from recipe_robot_lib.roboabc import RoboDict, RoboList
-from recipe_robot_lib.tools import LogLevel, __version__, robo_print
+from recipe_robot_lib.tools import (
+    LogLevel,
+    __version__,
+    get_bundle_name_info,
+    robo_print,
+)
 
 try:
     from recipe_robot_lib import FoundationPlist
@@ -36,19 +42,43 @@ except ImportError:
     import plistlib as FoundationPlist
 
 
-# TODO(Elliot): Create a way to specify the display order of this list. (#67)
-RECIPE_TYPES = {
-    "download": "Downloads an app in whatever format the developer provides.",
-    "munki": "Imports into your Munki repository.",
-    "pkg": "Creates a standard pkg installer file.",
-    "install": "Installs the app on the computer running AutoPkg.",
-    "jss": "Imports into your Casper JSS and creates necessary groups, policies, etc.",
-    "lanrev": "Imports into your LANrev server.",
-    "sccm": "Creates a cmmac package for deploying via Microsoft SCCM.",
-    "ds": "Imports into your DeployStudio Packages folder.",
-    "filewave": "Imports a fileset into your FileWave server.",
-    "bigfix": "Builds a .bes deployment file and imports it into your BigFix console",
-}
+# fmt: off
+RECIPE_TYPES = (
+    {
+        "type": "download",
+        "desc": "Downloads an app in whatever format the developer provides.",
+    }, {
+        "type": "pkg",
+        "desc": "Creates a standard pkg installer file."
+    }, {
+        "type": "munki",
+        "desc": "Imports into your Munki repository."
+    }, {
+        "type": "jss",
+        "desc": "Imports into Jamf Pro and creates necessary groups, policies, "
+                "etc.",
+    }, {
+        "type": "ds",
+        "desc": "Imports into your DeployStudio Packages folder."
+    }, {
+        "type": "filewave",
+        "desc": "Imports a fileset into your FileWave server."
+    }, {
+        "type": "lanrev",
+        "desc": "Imports into your LANrev server."
+    }, {
+        "type": "sccm",
+        "desc": "Creates a cmmac package for deploying via Microsoft SCCM.",
+    }, {
+        "type": "bigfix",
+        "desc": "Builds a .bes deployment file and imports it into your "
+                "BigFix console",
+    }, {
+        "type": "install",
+        "desc": "Installs the app on the computer running AutoPkg."
+    },
+)
+# fmt: on
 
 
 class Recipe(RoboDict):
@@ -57,11 +87,13 @@ class Recipe(RoboDict):
     def __init__(self, recipe_type, description):
         """Build a recipe dictionary."""
         super(Recipe, self).__init__()
+        default_enabled = ("download", "pkg")
+        preferred = True if recipe_type in default_enabled else False
         self.update(
             {
                 "type": recipe_type,
                 "description": description,
-                "preferred": True,
+                "preferred": preferred,
                 "existing": False,
             }
         )
@@ -88,7 +120,12 @@ class Recipe(RoboDict):
 
     def set_parent_from(self, prefs, facts, recipe_type):
         """Set parent recipe based on prefs, facts, and a type."""
-        elements = (prefs["RecipeIdentifierPrefix"], recipe_type, facts["app_name"])
+        _, bundle_name_key = get_bundle_name_info(facts)
+        elements = (
+            prefs["RecipeIdentifierPrefix"],
+            recipe_type,
+            facts[bundle_name_key],
+        )
         self["keys"]["ParentRecipe"] = ".".join(elements).replace(" ", "")
 
     def append_processor(self, val):
@@ -103,4 +140,9 @@ class Recipes(RoboList):
     def __init__(self):
         """Store information related to each supported recipe type."""
         super(Recipes, self).__init__()
-        self.extend([Recipe(recipe, desc) for recipe, desc in RECIPE_TYPES.items()])
+        self.extend(
+            [
+                Recipe(recipe_type["type"], recipe_type["desc"])
+                for recipe_type in RECIPE_TYPES
+            ]
+        )
