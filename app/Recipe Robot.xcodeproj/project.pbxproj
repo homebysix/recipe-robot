@@ -403,6 +403,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1038;
+				MARKETING_VERSION = 1.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -411,6 +414,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1038;
+				MARKETING_VERSION = 1.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
