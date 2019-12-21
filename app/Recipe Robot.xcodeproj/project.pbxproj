@@ -387,6 +387,7 @@
 			baseConfigurationReference = D5416420220E96EC00A886AF /* Project-Debug.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CODE_SIGN_IDENTITY = "";
 			};
 			name = Debug;
 		};
@@ -395,6 +396,7 @@
 			baseConfigurationReference = D541641B220E96EC00A886AF /* Project-Release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CODE_SIGN_IDENTITY = "";
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
