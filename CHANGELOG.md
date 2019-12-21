@@ -3,7 +3,19 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [1.2.1] - 2019-12-21
+
+### Fixed
+- Resolved Xcode signing issue that resulted in "damaged" warning upon launching Recipe Robot 1.2.0. (#154)
+
+### Changed
+- Various automatic syntax updates to align with Swift 5.
+
+
 ## [1.2.0] - 2019-12-15
+
+### Known Issue
+- Issue with Xcode signing may result in Gatekeeper showing "app is damaged" warning upon launch. Fixed in v1.2.1.
 
 ### Added
 - Recipe Robot can now create recipes for basic non-app bundles (e.g. prefpane, plugin) contained in zip or dmg downloads.
@@ -238,7 +250,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/homebysix/recipe-robot/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/homebysix/recipe-robot/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/homebysix/recipe-robot/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/homebysix/recipe-robot/compare/v1.1.0...v1.1.1
