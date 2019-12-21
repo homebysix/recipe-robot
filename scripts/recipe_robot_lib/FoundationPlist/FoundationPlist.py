@@ -79,7 +79,11 @@ def readPlist(filepath):
     (which is usually a dictionary).
     """
     plistData = NSData.dataWithContentsOfFile_(filepath)
-    dataObject, dummy_plistFormat, error = NSPropertyListSerialization.propertyListFromData_mutabilityOption_format_errorDescription_(
+    (
+        dataObject,
+        dummy_plistFormat,
+        error,
+    ) = NSPropertyListSerialization.propertyListFromData_mutabilityOption_format_errorDescription_(
         plistData, NSPropertyListMutableContainers, None, None
     )
     if dataObject is None:
@@ -99,7 +103,11 @@ def readPlistFromString(data):
         plistData = buffer(data)
     except TypeError as err:
         raise NSPropertyListSerializationException(err)
-    dataObject, dummy_plistFormat, error = NSPropertyListSerialization.propertyListFromData_mutabilityOption_format_errorDescription_(
+    (
+        dataObject,
+        dummy_plistFormat,
+        error,
+    ) = NSPropertyListSerialization.propertyListFromData_mutabilityOption_format_errorDescription_(
         plistData, NSPropertyListMutableContainers, None, None
     )
     if dataObject is None:
@@ -116,7 +124,10 @@ def writePlist(dataObject, filepath):
     """
     Write 'rootObject' as a plist to filepath.
     """
-    plistData, error = NSPropertyListSerialization.dataFromPropertyList_format_errorDescription_(
+    (
+        plistData,
+        error,
+    ) = NSPropertyListSerialization.dataFromPropertyList_format_errorDescription_(
         dataObject, NSPropertyListXMLFormat_v1_0, None
     )
     if plistData is None:
@@ -136,7 +147,10 @@ def writePlist(dataObject, filepath):
 
 def writePlistToString(rootObject):
     """Return 'rootObject' as a plist-formatted string."""
-    plistData, error = NSPropertyListSerialization.dataFromPropertyList_format_errorDescription_(
+    (
+        plistData,
+        error,
+    ) = NSPropertyListSerialization.dataFromPropertyList_format_errorDescription_(
         rootObject, NSPropertyListXMLFormat_v1_0, None
     )
     if plistData is None:
