@@ -251,7 +251,7 @@
 			attributes = {
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "Elliot Jordan";
 				TargetAttributes = {
 					8B42AC7D1B5C5BEC0058A814 = {
@@ -260,7 +260,7 @@
 					};
 					8B42AC8D1B5C5BEC0058A814 = {
 						CreatedOnToolsVersion = 6.3.2;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 1130;
 						TestTargetID = 8B42AC7D1B5C5BEC0058A814;
 					};
 				};
@@ -425,6 +425,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D5416418220E96EC00A886AF /* Recipe RobotTests-Debug.xcconfig */;
 			buildSettings = {
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -432,6 +433,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */;
 			buildSettings = {
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
