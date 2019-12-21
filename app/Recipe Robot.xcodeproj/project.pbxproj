@@ -251,7 +251,7 @@
 			attributes = {
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "Elliot Jordan";
 				TargetAttributes = {
 					8B42AC7D1B5C5BEC0058A814 = {
@@ -260,7 +260,7 @@
 					};
 					8B42AC8D1B5C5BEC0058A814 = {
 						CreatedOnToolsVersion = 6.3.2;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 1130;
 						TestTargetID = 8B42AC7D1B5C5BEC0058A814;
 					};
 				};
@@ -387,6 +387,7 @@
 			baseConfigurationReference = D5416420220E96EC00A886AF /* Project-Debug.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CODE_SIGN_IDENTITY = "";
 			};
 			name = Debug;
 		};
@@ -395,6 +396,7 @@
 			baseConfigurationReference = D541641B220E96EC00A886AF /* Project-Release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CODE_SIGN_IDENTITY = "";
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -403,6 +405,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1038;
+				MARKETING_VERSION = 1.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -411,6 +416,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1038;
+				MARKETING_VERSION = 1.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -419,6 +427,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D5416418220E96EC00A886AF /* Recipe RobotTests-Debug.xcconfig */;
 			buildSettings = {
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -426,6 +435,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */;
 			buildSettings = {
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
