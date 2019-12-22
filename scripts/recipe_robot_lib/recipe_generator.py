@@ -251,9 +251,8 @@ def generate_download_recipe(facts, prefs, recipe):
 
     # TODO (Shea): Extract method(s) to get_source_processor()
     if "sparkle_feed" in facts:
-        keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
         sparkle_processor = processor.SparkleUpdateInfoProvider(
-            appcast_url="%SPARKLE_FEED_URL%"
+            appcast_url=facts["sparkle_feed"]
         )
 
         if "user-agent" in facts:
@@ -265,15 +264,14 @@ def generate_download_recipe(facts, prefs, recipe):
 
     # TODO (Shea): Extract method(s) to get_source_processor()
     elif "github_repo" in facts:
-        keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
         if facts.get("use_asset_regex", False):
             gh_release_info_provider = processor.GitHubReleasesInfoProvider(
                 asset_regex=".*\\.%s$" % facts["download_format"],
-                github_repo="%GITHUB_REPO%",
+                github_repo=facts["github_repo"],
             )
         else:
             gh_release_info_provider = processor.GitHubReleasesInfoProvider(
-                github_repo="%GITHUB_REPO%"
+                github_repo=facts["github_repo"]
             )
         recipe.append_processor(gh_release_info_provider)
 
@@ -336,8 +334,7 @@ def generate_download_recipe(facts, prefs, recipe):
                         "to your download recipe."
                     )
         else:
-            keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-            url_downloader.url = "%DOWNLOAD_URL%"
+            url_downloader.url = facts["download_url"]
             url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
 
     if "user-agent" in facts:
@@ -815,11 +812,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
 
     recipe.set_parent_from(prefs, facts, "download")
 
-    # Save bundle identifier.
     # TODO: Try to make AppPkgCreator work with exclamation points in app names. Example:
     # 'https://s3.amazonaws.com/shirtpocket/SuperDuper/SuperDuper!.dmg'
-    keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
-
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         # TODO: if "pkg" in facts["inspections"] then use PkgCopier.
         if bundle_type == "app":
@@ -881,7 +875,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                                     "user": "root",
                                 }
                             ],
-                            "id": "%BUNDLE_ID%",
+                            "id": facts["bundle_id"],
                             "options": "purge_ds_store",
                             "pkgname": "%NAME%-%version%",
                             "pkgroot": "%pkgroot%",
@@ -965,7 +959,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                                     "user": "root",
                                 }
                             ],
-                            "id": "%BUNDLE_ID%",
+                            "id": facts["bundle_id"],
                             "options": "purge_ds_store",
                             "pkgname": "%NAME%-%version%",
                             "pkgroot": "%pkgroot%",
