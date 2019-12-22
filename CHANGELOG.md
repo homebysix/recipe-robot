@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased]
+
+### Changed
+- Recipe Robot no longer assigns AutoPkg input variables for `DOWNLOAD_URL`, `SPARKLE_FEED_URL`, `GITHUB_REPO`, and `BUNDLE_ID`. Instead, it hard-codes these values into the appropriate processor arguments. [@jazzace](https://github.com/jazzace) nicely summarizes the benefit of this change [here](https://youtu.be/BI10WWrgG2A?t=2620).
+
+
 ## [1.2.1] - 2019-12-21
 
 ### Fixed
