@@ -357,11 +357,11 @@ def set_recipe_preferences(prefs, recipes):
                     follow_jss_recipes_format = "N"
                 else:
                     follow_jss_recipes_format = "Y"
-                robo_print("\nFollow official jss-recipes style format? (Y/N)")
                 robo_print(
-                    "See details here: "
-                    "https://github.com/autopkg/jss-recipes"
-                    "#style-guide\n"
+                    "\nFollow official jss-recipes style format? (Y/N)"
+                    "\nProbably unnecessary unless you are contributing "
+                    "\nto the jss-recipes repository. See details here: "
+                    "\nhttps://github.com/autopkg/jss-recipes#style-guide\n"
                 )
                 choice = raw_input("[%s]: " % follow_jss_recipes_format)
                 prefs["FollowOfficialJSSRecipesFormat"] = choice.lower() in affirmatives
