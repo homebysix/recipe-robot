@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased]
 
+### Added
+- Recipe Robot now supports the creation of "jss-upload" type recipes, which imports a package into Jamf Pro but does not create any policies or groups. (#153)
+
 ### Changed
 - Recipe Robot no longer assigns AutoPkg input variables for `DOWNLOAD_URL`, `SPARKLE_FEED_URL`, `GITHUB_REPO`, and `BUNDLE_ID`. Instead, it hard-codes these values into the appropriate processor arguments. [@jazzace](https://github.com/jazzace) nicely summarizes the benefit of this change [here](https://youtu.be/BI10WWrgG2A?t=2620).
 

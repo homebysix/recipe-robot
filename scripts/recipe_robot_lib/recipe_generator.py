@@ -214,7 +214,7 @@ def get_generation_func(facts, prefs, recipe):
     if recipe["type"] not in prefs["RecipeTypes"]:
         return None
 
-    func_name = ["generate", recipe["type"], "recipe"]
+    func_name = ["generate", recipe["type"].replace("-", "_"), "recipe"]
 
     if recipe["type"] in ("munki", "pkg") and facts.is_from_app_store():
         func_name.insert(1, "app_store")
@@ -1173,6 +1173,61 @@ def generate_jss_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "I don't have enough information to create a PNG icon for this app."
         )
+
+    # Put fully constructed JSSImporter arguments into the process list.
+    recipe.append_processor(
+        {"Processor": "JSSImporter", "Arguments": jssimporter_arguments}
+    )
+
+    return recipe
+
+
+def generate_jss_upload_recipe(facts, prefs, recipe):
+    """Generate an upload-only JSS recipe on passed recipe dict.
+
+    Args:
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs: The dictionary containing a key/value pair for each
+            preference.
+        recipe: The recipe to operate on. This recipe will be mutated
+            by this function!
+    """
+    # TODO: Possibly combine with generate_jss_upload_recipe() to handle multiple
+    # "varietals" of the same recipe type?
+    keys = recipe["keys"]
+    _, bundle_name_key = get_bundle_name_info(facts)
+    # Can't make this recipe without a bundle identifier.
+    if "bundle_id" not in facts:
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input."
+            % recipe["type"]
+        )
+        return
+
+    robo_print("Generating %s recipe..." % recipe["type"])
+
+    if prefs.get("FollowOfficialJSSRecipesFormat", False) is True:
+        clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
+        keys["Identifier"] = "com.github.jss-recipes.jss-upload.%s" % clean_name
+
+    recipe.set_description(
+        "Downloads the latest version of %s and uploads the package "
+        "to your JSS." % facts[bundle_name_key]
+    )
+
+    recipe.set_parent_from(prefs, facts, "pkg")
+
+    keys["Input"]["CATEGORY"] = "Productivity"
+    facts["reminders"].append(
+        "Remember to manually set the category in the jss-upload recipe. I've set "
+        'it to "Productivity" by default.'
+    )
+
+    jssimporter_arguments = {"prod_name": "%NAME%", "category": "%CATEGORY%"}
 
     # Put fully constructed JSSImporter arguments into the process list.
     recipe.append_processor(

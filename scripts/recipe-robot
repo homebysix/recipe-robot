@@ -330,6 +330,7 @@ def set_recipe_preferences(prefs, recipes):
             init_recipes().
     """
     affirmatives = ("y", "yes", "true", "ok", "yep", "sure")
+    seen_jss_format_prompt = False
 
     for recipe in recipes:
         if recipe["preferred"] is True:
@@ -351,7 +352,7 @@ def set_recipe_preferences(prefs, recipes):
 
             # If JSS recipes are among the preferred types,
             # prompt for whether to follow "official" jss-recipes style.
-            if recipe["type"] == "jss":
+            if not seen_jss_format_prompt and recipe["type"] in ("jss", "jss-upload"):
                 if prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
                     follow_jss_recipes_format = "N"
                 else:
@@ -364,6 +365,8 @@ def set_recipe_preferences(prefs, recipes):
                 )
                 choice = raw_input("[%s]: " % follow_jss_recipes_format)
                 prefs["FollowOfficialJSSRecipesFormat"] = choice.lower() in affirmatives
+                # Only show prompt once, even if both jss and jss-upload types are selected.
+                seen_jss_format_prompt = True
 
             # If Munki recipes are among the preferred types,
             # prompt for whether to strip developer suffixes like Inc and Ltd.
@@ -471,22 +474,25 @@ def get_preferred_recipe_types(prefs, recipes):
                 continue
 
             # Automatically enable download recipe type if required.
-            if recipes[choice]["type"] in (
+            requires_download = (
                 "munki",
                 "pkg",
                 "install",
                 "jss",
+                "jss-upload",
                 "lanrev",
                 "ds",
                 "sccm",
                 "filewave",
                 "bigfix",
-            ):
+            )
+            if recipes[choice]["type"] in requires_download:
                 for recipe in recipes:
                     if recipe["type"] == "download":
                         recipe["preferred"] = True
             # Automatically enable pkg recipe type if required.
-            if recipes[choice]["type"] in ("jss", "lanrev", "ds", "sccm"):
+            requires_pkg = ("jss", "jss-upload", "lanrev", "ds", "sccm")
+            if recipes[choice]["type"] in requires_pkg:
                 for recipe in recipes:
                     if recipe["type"] == "pkg":
                         recipe["preferred"] = True

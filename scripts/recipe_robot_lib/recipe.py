@@ -58,6 +58,10 @@ RECIPE_TYPES = (
         "desc": "Imports into Jamf Pro and creates necessary groups, policies, "
                 "etc.",
     }, {
+        "type": "jss-upload",
+        "desc": "Imports package only into Jamf Pro. Does not create policies "
+                "or groups.",
+    }, {
         "type": "ds",
         "desc": "Imports into your DeployStudio Packages folder."
     }, {
