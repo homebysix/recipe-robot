@@ -330,7 +330,6 @@ def set_recipe_preferences(prefs, recipes):
             init_recipes().
     """
     affirmatives = ("y", "yes", "true", "ok", "yep", "sure")
-    seen_jss_format_prompt = False
 
     for recipe in recipes:
         if recipe["preferred"] is True:
@@ -352,7 +351,7 @@ def set_recipe_preferences(prefs, recipes):
 
             # If JSS recipes are among the preferred types,
             # prompt for whether to follow "official" jss-recipes style.
-            if not seen_jss_format_prompt and recipe["type"] in ("jss", "jss-upload"):
+            if recipe["type"] == "jss":
                 if prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
                     follow_jss_recipes_format = "N"
                 else:
@@ -365,8 +364,6 @@ def set_recipe_preferences(prefs, recipes):
                 )
                 choice = raw_input("[%s]: " % follow_jss_recipes_format)
                 prefs["FollowOfficialJSSRecipesFormat"] = choice.lower() in affirmatives
-                # Only show prompt once, even if both jss and jss-upload types are selected.
-                seen_jss_format_prompt = True
 
             # If Munki recipes are among the preferred types,
             # prompt for whether to strip developer suffixes like Inc and Ltd.
