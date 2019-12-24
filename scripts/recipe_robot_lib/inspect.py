@@ -543,13 +543,13 @@ def get_app_description(app_name):
     desc_sources = [
         {
             "name": "MacUpdate",
-            "pattern": r"=\"shortdescr\">(?P<desc>.*)</span>",
-            "url": "https://www.macupdate.com/find/mac/%s" % app_name,
+            "pattern": r"=\"mu_card_line_info_description\">(?P<desc>.*?)</div>",
+            "url": "https://www.macupdate.com/find/mac/context=%s" % app_name,
         },
         {
             "name": "AlternativeTo",
             "pattern": r"<div class=\"itemDesc( read-more-box)?\">\s+"
-            '<p class="text">(?P<desc>.*)</p>',
+            '<p class="text">(?P<desc>.*?)</p>',
             "url": "https://alternativeto.net/browse/search"
             "/?ignoreExactMatch=true&q=%s" % app_name,
         },

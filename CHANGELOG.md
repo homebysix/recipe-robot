@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file. This projec
 - Recipe Robot no longer assigns AutoPkg input variables for `DOWNLOAD_URL`, `SPARKLE_FEED_URL`, `GITHUB_REPO`, and `BUNDLE_ID`. Instead, it hard-codes these values into the appropriate processor arguments. [@jazzace](https://github.com/jazzace) nicely summarizes the benefit of this change [here](https://youtu.be/BI10WWrgG2A?t=2620).
 - Added detail to the `--configure` option that clarifies that following the official "jss-recipes" style format is unnecessary unless you're contributing to [jss-recipes](https://www.github.com/autopkg/jss-recipes).
 
+### Fixed
+- Updated regular expression used to grab app descriptions from MacUpdate.
+
 
 ## [1.2.1] - 2019-12-21
 
