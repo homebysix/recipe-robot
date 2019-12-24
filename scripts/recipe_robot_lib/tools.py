@@ -52,10 +52,10 @@ except ImportError:
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
 try:
-    from recipe_robot_lib import FoundationPlist
+    from recipe_robot_lib import FoundationPlist as plistlib
 except ImportError:
-    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
-    import plistlib as FoundationPlist
+    robo_print("Importing plistlib", LogLevel.WARNING)
+    import plistlib
 
 
 __version__ = "1.3.0"
@@ -355,7 +355,7 @@ def reset_term_colors():
 
 
 def write_report(report, report_file):
-    FoundationPlist.writePlist(report, report_file)
+    plistlib.writePlist(report, report_file)
 
 
 def get_user_defaults():

@@ -37,10 +37,10 @@ from recipe_robot_lib.tools import (
 )
 
 try:
-    from recipe_robot_lib import FoundationPlist
+    from recipe_robot_lib import FoundationPlist as plistlib
 except ImportError:
-    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
-    import plistlib as FoundationPlist
+    robo_print("Importing plistlib", LogLevel.WARNING)
+    import plistlib
 
 
 # fmt: off
@@ -113,7 +113,7 @@ class Recipe(RoboDict):
 
     def write(self, path):
         """Write the recipe to disk."""
-        FoundationPlist.writePlist(self["keys"], path)
+        plistlib.writePlist(self["keys"], path)
 
     def set_description(self, description):
         """Save a description that explains what this recipe does."""

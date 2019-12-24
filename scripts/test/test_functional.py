@@ -36,7 +36,7 @@ from random import shuffle
 
 from nose.tools import *
 
-from recipe_robot_lib import FoundationPlist
+from recipe_robot_lib import FoundationPlist as plistlib
 
 from .sample_data import SAMPLE_DATA
 
@@ -106,7 +106,7 @@ def test():
     """Functional tests"""
 
     # Read preferences.
-    prefs = FoundationPlist.readPlist(
+    prefs = plistlib.readPlist(
         os.path.expanduser("~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
     )
 
