@@ -60,6 +60,11 @@ from recipe_robot_lib.tools import (
     save_user_defaults,
 )
 
+try:
+    input = raw_input  # Python 2
+except NameError:
+    pass  # Python 3
+
 
 def main():
     """Make the magic happen."""
@@ -98,7 +103,7 @@ def main():
         robo_print("Recipe Robot was killed by Control-C.", LogLevel.ERROR)
         sys.exit(0)
     except RoboError as error:
-        message = error.message
+        message = str(error)
         if OutputMode.debug_mode and error.error:
             message += error.error
 
@@ -108,7 +113,7 @@ def main():
     # TODO: Any code requiring exceptions should do local handling, then
     # re-raise as a RoboException subclass.
     except (RoboException, Exception) as error:  # pylint: disable=broad-except
-        message = "Recipe Robot exploded with unexpected error: %s" % error.message
+        message = "Recipe Robot exploded with unexpected error: %s" % str(error)
         if facts["args"].verbose:
             message += "\n%s" % traceback.format_exc(error)
         else:
@@ -345,7 +350,7 @@ def set_recipe_preferences(prefs, recipes):
                     "This where packages will be copied in order to "
                     "appear in DeployStudio.\n"
                 )
-                choice = raw_input("[%s]: " % prefs["DSPackagesPath"])
+                choice = input("[%s]: " % prefs["DSPackagesPath"])
                 if choice != "":
                     prefs["DSPackagesPath"] = str(choice).rstrip("/ ")
 
@@ -362,7 +367,7 @@ def set_recipe_preferences(prefs, recipes):
                     "\nto the jss-recipes repository. See details here: "
                     "\nhttps://github.com/autopkg/jss-recipes#style-guide\n"
                 )
-                choice = raw_input("[%s]: " % follow_jss_recipes_format)
+                choice = input("[%s]: " % follow_jss_recipes_format)
                 prefs["FollowOfficialJSSRecipesFormat"] = choice.lower() in affirmatives
 
             # If Munki recipes are among the preferred types,
@@ -373,7 +378,7 @@ def set_recipe_preferences(prefs, recipes):
                 else:
                     strip_dev_suffixes = "Y"
                 robo_print("\nStrip suffixes from developer names? (Y/N)")
-                choice = raw_input("[%s]: " % strip_dev_suffixes)
+                choice = input("[%s]: " % strip_dev_suffixes)
                 prefs["StripDeveloperSuffixes"] = choice.lower() in affirmatives
 
 
@@ -394,7 +399,7 @@ def get_recipe_identifier_prefix(prefs):
         "notation.\n(If you have a GitHub account, it's customary to "
         "use com.github.<your GitHub username>.)\n"
     )
-    choice = raw_input("[%s]: " % prefs["RecipeIdentifierPrefix"])
+    choice = input("[%s]: " % prefs["RecipeIdentifierPrefix"])
     if choice != "":
         prefs["RecipeIdentifierPrefix"] = str(choice).rstrip(". ")
 
@@ -411,7 +416,7 @@ def get_recipe_creation_location(prefs):
         )
     robo_print("\nLocation to save new recipes")
     robo_print("This is where on disk your newly created recipes will be saved.\n")
-    choice = raw_input("[%s]: " % prefs["RecipeCreateLocation"])
+    choice = input("[%s]: " % prefs["RecipeCreateLocation"])
     if choice != "":
         prefs["RecipeCreateLocation"] = str(choice).rstrip("/ ")
 
@@ -441,7 +446,7 @@ def get_preferred_recipe_types(prefs, recipes):
         robo_print("D. Disable all recipe types.", indent=6)
         robo_print("Q. Quit without saving changes.", indent=6)
         robo_print("S. Save changes and proceed.", indent=6)
-        choice = raw_input(
+        choice = input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ].\nWhen you're satisfied "
             'with your choices, type an "S" to save and proceed: '
@@ -501,8 +506,10 @@ def debug_dump(items):
     Args:
         items: A dict of dicts of all the things to dump to output.
     """
-    for key, value in items.iteritems():
-        robo_print("%s:\n%s\n" % (key.upper(), pprint.pformat(value)), LogLevel.DEBUG)
+    for key in items.keys():
+        robo_print(
+            "%s:\n%s\n" % (key.upper(), pprint.pformat(items[key])), LogLevel.DEBUG
+        )
 
 
 if __name__ == "__main__":

@@ -36,7 +36,11 @@ from datetime import datetime
 from functools import wraps
 from random import choice as random_choice
 from subprocess import PIPE, Popen
-from urllib import quote_plus
+
+try:
+    from urllib.parse import quote_plus  # Python 3
+except ImportError:
+    from urllib import quote_plus  # Python 2
 
 # pylint: disable=no-name-in-module
 from Foundation import NSUserDefaults
@@ -367,8 +371,8 @@ def save_user_defaults(prefs):
     defaults = NSUserDefaults.alloc().initWithSuiteName_(
         "com.elliotjordan.recipe-robot"
     )
-    for key, value in prefs.iteritems():
-        defaults.setValue_forKey_(value, key)
+    for key in prefs.keys():
+        defaults.setValue_forKey_(prefs[key], key)
 
 
 def any_item_in_string(items, test_string):

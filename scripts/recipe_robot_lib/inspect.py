@@ -25,7 +25,6 @@ Look at a path or URL for an app and generate facts about it.
 
 
 from __future__ import absolute_import
-import httplib
 import json
 import os
 import re
@@ -33,8 +32,6 @@ import shutil
 import sys
 from distutils.version import LooseVersion, StrictVersion
 from ssl import CertificateError, SSLError
-from urllib2 import HTTPError, Request, URLError, urlopen
-from urlparse import urlparse
 from xml.etree.ElementTree import ParseError, parse
 
 import xattr
@@ -52,6 +49,16 @@ from recipe_robot_lib.tools import (
     get_exitcode_stdout_stderr,
     robo_print,
 )
+
+try:
+    from http import client as httplib  # Python 3
+    from urllib.request import urlopen, Request
+    from urllib.error import URLError, HTTPError
+    from urllib.parse import urlparse
+except ImportError:
+    import httplib  # Python 2
+    from urllib2 import HTTPError, Request, URLError, urlopen
+    from urlparse import urlparse
 
 
 def process_input_path(facts):
@@ -559,7 +566,7 @@ def get_app_description(app_name):
         _, out, _ = get_exitcode_stdout_stderr(cmd)
         result = re.search(source["pattern"], out)
         if result:
-            description = unicode(html_decode(result.group("desc")), "utf-8")
+            description = html_decode(result.group("desc")).decode("utf-8")
             return description, source["name"]
     return None, None
 
@@ -1247,7 +1254,7 @@ def inspect_download_url(input_path, args, facts):
                 status = status + chr(8) * (len(status) + 1)
                 if args.app_mode:
                     # Show progress in 10% increments.
-                    if (file_size_dl / block_sz) % (file_size / block_sz / 10) == 0:
+                    if (file_size_dl // block_sz) % (file_size // block_sz // 10) == 0:
                         robo_print(status, LogLevel.VERBOSE)
                 else:
                     # Show progress in 0.01% increments.
