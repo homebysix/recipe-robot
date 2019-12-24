@@ -29,6 +29,7 @@ create autopkg recipes for the specified app.
 # pylint: disable=no-member
 
 from __future__ import absolute_import
+
 import os
 
 from . import processor

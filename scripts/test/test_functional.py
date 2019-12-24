@@ -27,16 +27,17 @@ character. We will use "Robby the Robot" for ours.
 """
 
 
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
+
 import os
 import shutil
 import subprocess
 from random import shuffle
 
-# pylint: disable=unused-wildcard-import, wildcard-import
 from nose.tools import *
+
 from recipe_robot_lib import FoundationPlist
+
 from .sample_data import SAMPLE_DATA
 
 # pylint: enable=unused-wildcard-import, wildcard-import

@@ -26,6 +26,7 @@ Unit tests for recipe_generator.
 
 # pylint: disable=unused-wildcard-import, wildcard-import
 from __future__ import absolute_import
+
 from nose.tools import *
 
 # pylint: enable=unused-wildcard-import, wildcard-import

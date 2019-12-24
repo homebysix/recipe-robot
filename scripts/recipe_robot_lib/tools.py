@@ -37,11 +37,6 @@ from functools import wraps
 from random import choice as random_choice
 from subprocess import PIPE, Popen
 
-try:
-    from urllib.parse import quote_plus  # Python 3
-except ImportError:
-    from urllib import quote_plus  # Python 2
-
 # pylint: disable=no-name-in-module
 from Foundation import NSUserDefaults
 
@@ -49,6 +44,10 @@ from Foundation import NSUserDefaults
 
 from .exceptions import RoboError
 
+try:
+    from urllib.parse import quote_plus  # Python 3
+except ImportError:
+    from urllib import quote_plus  # Python 2
 
 # TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
 # Or not use it at all (i.e. use the preferences system correctly). (#16)
