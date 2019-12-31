@@ -442,16 +442,17 @@ def get_preferred_recipe_types(prefs, recipes):
                 indent=2,
             )
             i += 1
-        robo_print("A. Enable all recipe types.", indent=6)
-        robo_print("D. Disable all recipe types.", indent=6)
-        robo_print("Q. Quit without saving changes.", indent=6)
-        robo_print("S. Save changes and proceed.", indent=6)
+        robo_print("A: Enable all recipe types.", indent=6)
+        robo_print("D: Disable all recipe types.", indent=6)
+        robo_print("Q: Quit without saving changes.", indent=6)
+        robo_print("S or Return: Save changes and proceed.", indent=6)
         choice = input(
             "\nType a number to toggle the corresponding recipe "
             "type between ON [*] and OFF [ ].\nWhen you're satisfied "
-            'with your choices, type an "S" to save and proceed: '
+            'with your choices, type an "S" or press Return to '
+            "save and proceed: "
         )
-        if choice.upper() == "S":
+        if choice.upper() in ("S", ""):
             break
         elif choice.upper() == "A":
             for recipe in recipes:
