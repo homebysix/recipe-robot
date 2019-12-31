@@ -163,6 +163,10 @@ Each time Recipe Robot produces a batch of recipes for you, I suggest you check 
 
 If you provide Recipe Robot with the path to an app that came from the Mac App Store, it will create an override for use with Nick McSpadden's [AppStoreApp recipes](https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe). Please see the details in his README for requirements necessary to use these overrides.
 
+### JSS Recipes
+
+If all you need to do is to build a JSS recipe that uses an existing pkg recipe as its parent, you may want to check out [JSSRecipeCreator](https://github.com/jssimporter/JSSRecipeCreator), which can build both conventional (\*.jss.recipe) and "package only" (\*.jss-upload.recipe) type recipes. Recipe Robot is not designed to create child recipes for existing parent recipes, although [with some tweaking](https://youtu.be/5VKDzY8bBxI?t=2829) you can certainly use it that way.
+
 
 ## Troubleshooting
 
