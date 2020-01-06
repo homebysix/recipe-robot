@@ -38,7 +38,14 @@ from random import choice as random_choice
 from subprocess import PIPE, Popen
 
 # pylint: disable=no-name-in-module
-from Foundation import NSUserDefaults
+from Foundation import (
+    CFPreferencesAppSynchronize,
+    CFPreferencesCopyAppValue,
+    CFPreferencesCopyKeyList,
+    CFPreferencesSetAppValue,
+    kCFPreferencesAnyHost,
+    kCFPreferencesCurrentUser,
+)
 
 # pylint: enable=no-name-in-module
 
@@ -78,6 +85,19 @@ SUPPORTED_BUNDLE_TYPES = {
     "qlgenerator": "/Library/QuickLook",
     "plugin": "/Library/Internet Plug-Ins",
 }
+
+# Known Recipe Robot preference keys. All other keys will be removed from
+# the com.elliotjordan.recipe-robot.plist preference file.
+PREFERENCE_KEYS = (
+    "DSPackagesPath",
+    "FollowOfficialJSSRecipesFormat",
+    "LastRecipeRobotVersion",
+    "RecipeCreateCount",
+    "RecipeCreateLocation",
+    "RecipeIdentifierPrefix",
+    "RecipeTypes",
+    "StripDeveloperSuffixes",
+)
 
 # Global variables.
 CACHE_DIR = os.path.join(
@@ -358,19 +378,18 @@ def write_report(report, report_file):
 
 
 def get_user_defaults():
-    defaults = NSUserDefaults.alloc().initWithSuiteName_(
-        "com.elliotjordan.recipe-robot"
-    )
-    default_dict = defaults.dictionaryRepresentation()
-    return default_dict if len(default_dict) else None
+    prefs_dict = {
+        key: CFPreferencesCopyAppValue(key, BUNDLE_ID) for key in PREFERENCE_KEYS
+    }
+    return prefs_dict
 
 
 def save_user_defaults(prefs):
-    defaults = NSUserDefaults.alloc().initWithSuiteName_(
-        "com.elliotjordan.recipe-robot"
-    )
-    for key in prefs.keys():
-        defaults.setValue_forKey_(prefs[key], key)
+    # Save latest values for all Recipe Robot keys.
+    for key in PREFERENCE_KEYS:
+        if prefs.get(key):
+            CFPreferencesSetAppValue(key, prefs[key], BUNDLE_ID)
+    CFPreferencesAppSynchronize(BUNDLE_ID)
 
 
 def any_item_in_string(items, test_string):
