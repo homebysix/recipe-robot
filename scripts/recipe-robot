@@ -282,7 +282,10 @@ def init_prefs(facts):
 
         # This seems to be necessary in order to avoid an error when reading
         # the plist back during subsequent runs.
-        prefs["RecipeCreateCount"] = int(prefs.get("RecipeCreateCount", 0))
+        recipe_create_count = prefs.get("RecipeCreateCount")
+        prefs["RecipeCreateCount"] = (
+            int(recipe_create_count) if recipe_create_count else 0
+        )
 
     else:
         # The prefs file doesn't exist.
