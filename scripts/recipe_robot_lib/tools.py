@@ -60,9 +60,8 @@ except ImportError:
 
 __version__ = "1.3.0"
 ENDC = "\033[0m"
-PREFS_FILE = os.path.expanduser(
-    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
-)
+BUNDLE_ID = "com.elliotjordan.recipe-robot"
+PREFS_FILE = os.path.expanduser("~/Library/Preferences/%s.plist" % BUNDLE_ID)
 
 # Build the list of download formats we know about.
 SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
