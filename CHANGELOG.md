@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. This projec
 - Various minor adjustments to continue preparing for Python 3 compatibility.
 
 ### Fixed
+- Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.
 - Updated regular expression used to grab app descriptions from MacUpdate.
 
 
