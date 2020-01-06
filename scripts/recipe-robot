@@ -38,6 +38,11 @@ if sys.platform != "darwin":
     print("Recipe Robot requires macOS.")
     sys.exit(1)
 
+# Not yet compatible with Python 3, but we're getting there.
+if sys.version_info.major > 2:
+    print("This version of Recipe Robot is built for Python 2.")
+    sys.exit(1)
+
 # TODO (Shea): Clean up importing from our library.
 import recipe_robot_lib
 from recipe_robot_lib import tools
