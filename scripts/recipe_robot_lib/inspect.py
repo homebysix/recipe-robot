@@ -318,6 +318,12 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             "need to use --ignore-existing."
         )
 
+    # Just keeping things lighthearted...
+    if bundle_type == "app" and "disaster" in app_name.lower():
+        facts["warnings"].append(
+            "Uh-oh. Looks like you're creating a recipe for disaster!"
+        )
+
     # Warn if this looks like an installer app.
     if (
         bundle_type == "app"
