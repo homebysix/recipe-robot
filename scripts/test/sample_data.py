@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 
 # List of sample data sets used to test Recipe Robot with various apps.
 SAMPLE_DATA = [

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
