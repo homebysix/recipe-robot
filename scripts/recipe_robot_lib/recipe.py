@@ -27,6 +27,8 @@ Recipes: Container class for Recipe objects.
 
 from __future__ import absolute_import
 
+import plistlib
+
 from recipe_robot_lib import processor
 from recipe_robot_lib.roboabc import RoboDict, RoboList
 from recipe_robot_lib.tools import (
@@ -35,13 +37,6 @@ from recipe_robot_lib.tools import (
     get_bundle_name_info,
     robo_print,
 )
-
-try:
-    from recipe_robot_lib import FoundationPlist as plistlib
-except ImportError:
-    robo_print("Importing plistlib", LogLevel.WARNING)
-    import plistlib
-
 
 # fmt: off
 RECIPE_TYPES = (

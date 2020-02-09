@@ -28,6 +28,7 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 from __future__ import absolute_import, print_function
 
 import os
+import plistlib
 import re
 import shlex
 import sys
@@ -36,6 +37,7 @@ from datetime import datetime
 from functools import wraps
 from random import choice as random_choice
 from subprocess import PIPE, Popen
+from urllib.parse import quote_plus
 
 # pylint: disable=no-name-in-module
 from Foundation import (
@@ -47,22 +49,9 @@ from Foundation import (
     kCFPreferencesCurrentUser,
 )
 
-# pylint: enable=no-name-in-module
-
 from .exceptions import RoboError
 
-try:
-    from urllib.parse import quote_plus  # Python 3
-except ImportError:
-    from urllib import quote_plus  # Python 2
-
-# TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
-# Or not use it at all (i.e. use the preferences system correctly). (#16)
-try:
-    from recipe_robot_lib import FoundationPlist as plistlib
-except ImportError:
-    robo_print("Importing plistlib", LogLevel.WARNING)
-    import plistlib
+# pylint: enable=no-name-in-module
 
 
 __version__ = "1.3.0"

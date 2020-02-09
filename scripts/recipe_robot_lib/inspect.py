@@ -28,15 +28,19 @@ from __future__ import absolute_import
 
 import json
 import os
+import plistlib
 import re
 import shutil
 import sys
 from distutils.version import LooseVersion, StrictVersion
+from http import client as httplib
 from ssl import CertificateError, SSLError
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 from xml.etree.ElementTree import ParseError, parse
 
 import xattr
-from recipe_robot_lib import FoundationPlist as plistlib
 from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
@@ -50,16 +54,6 @@ from recipe_robot_lib.tools import (
     get_exitcode_stdout_stderr,
     robo_print,
 )
-
-try:
-    from http import client as httplib  # Python 3
-    from urllib.request import urlopen, Request
-    from urllib.error import URLError, HTTPError
-    from urllib.parse import urlparse
-except ImportError:
-    import httplib  # Python 2
-    from urllib2 import HTTPError, Request, URLError, urlopen
-    from urlparse import urlparse
 
 
 def process_input_path(facts):
