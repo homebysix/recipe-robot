@@ -106,7 +106,7 @@ def parse_ftp_header(line, header):
         header["http_result_description"] = line
 
 
-def parse_headers(raw_headers):
+def parse_headers(raw_headers, url=""):
     """Parse headers from curl."""
     header = {}
     clear_header(header)
@@ -115,7 +115,7 @@ def parse_headers(raw_headers):
             parse_http_protocol(line, header)
         elif ": " in line:
             parse_http_header(line, header)
-        elif env["url"].startswith("ftp://"):
+        elif url.startswith("ftp://"):
             parse_ftp_header(line, header)
         elif line == "":
             # we got an empty line; end of headers (or curl exited)
