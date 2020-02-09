@@ -525,7 +525,7 @@ def get_download_link_from_xattr(input_path, args, facts):
                 LogLevel.VERBOSE,
                 4,
             )
-    except KeyError as err:
+    except KeyError:
         robo_print(
             "Unable to derive a download URL from file metadata.", LogLevel.WARNING
         )
@@ -1212,7 +1212,7 @@ def inspect_github_url(input_path, args, facts):
         try:
             with open(github_token_file, "r") as tokenfile:
                 github_token = tokenfile.read().strip()
-        except IOError as err:
+        except IOError:
             facts["warnings"].append(
                 "Couldn't read GitHub token file at {}.".format(github_token_file)
             )
@@ -1409,7 +1409,7 @@ def get_most_likely_app(app_list):
     # Criteria 2: If only one app installs into the /Applications folder, choose that one.
     installs_to_apps = []
     for index, candidate in enumerate(app_list):
-        head, tail = os.path.split(candidate["path"])
+        head, _ = os.path.split(candidate["path"])
         if head.endswith("/Applications"):
             installs_to_apps.append(index)
     if len(installs_to_apps) == 1:
@@ -1457,7 +1457,7 @@ def inspect_pkg(input_path, args, facts):
     # Check whether package is signed.
     robo_print("Checking whether package is signed...", LogLevel.VERBOSE)
     cmd = '/usr/sbin/pkgutil --check-signature "%s"' % input_path
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    exitcode, out, _ = get_exitcode_stdout_stderr(cmd)
     if exitcode == 1:
         robo_print("Package is not signed", LogLevel.VERBOSE, 4)
     elif exitcode == 0:
@@ -1514,7 +1514,7 @@ def inspect_pkg(input_path, args, facts):
     if os.path.exists(expand_path):
         shutil.rmtree(expand_path)
     cmd = '/usr/sbin/pkgutil --expand "%s" "%s"' % (input_path, expand_path)
-    exitcode, out, err = get_exitcode_stdout_stderr(cmd)
+    exitcode, out, _ = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         # TODO: Support package bundles here. Example:
         # https://pqrs.org/osx/karabiner/files/KeyRemap4MacBook-7.4.0.pkg.zip
