@@ -175,8 +175,7 @@ def download_to_file(url, filename, headers=None):
     """Download content to a file with default curl options."""
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
-    curl_cmd.append(url)
-    curl_cmd.extend(["-o", filename])
+    curl_cmd.extend([url, "-o", filename])
     download_with_curl(curl_cmd, text=False)
     if os.path.exists(filename):
         return filename
