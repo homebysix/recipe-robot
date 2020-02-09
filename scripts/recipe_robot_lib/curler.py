@@ -134,7 +134,10 @@ def parse_headers(raw_headers, url=""):
 
 
 def execute_curl(curl_cmd, text=True):
-    """Execute curl command. Return stdout, stderr and return code."""
+    """Execute curl command.
+
+    Return stdout, stderr and return code.
+    """
     try:
         result = subprocess.run(
             curl_cmd,
