@@ -400,7 +400,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         if exitcode == 0:
             # From stdout:
             reqs_marker = "designated => "
-            for line in out.split("\n"):
+            for line in out.splitlines():
                 if line.startswith(reqs_marker):
                     codesign_reqs = line[len(reqs_marker) :]
             # From stderr:
@@ -408,7 +408,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             dev_marker = "Authority=Developer ID Application: "
             vers_marker = "Sealed Resources version="
             # The info we need is in stderr.
-            for line in err.decode("utf-8").split("\n"):
+            for line in err.splitlines():
                 if line.startswith(authority_marker):
                     codesign_authorities.append(line[len(authority_marker) :])
                 if line.startswith(dev_marker):
@@ -1468,7 +1468,7 @@ def inspect_pkg(input_path, args, facts):
             developer = ""
             robo_print("Getting developer from pkg signature...", LogLevel.VERBOSE)
             marker = "    1. Developer ID Installer: "
-            for line in out.split("\n"):
+            for line in out.splitlines():
                 if line.startswith(marker):
                     if " (" in line:
                         line = line.split(" (")[0]
@@ -1484,8 +1484,8 @@ def inspect_pkg(input_path, args, facts):
         if len(facts["codesign_authorities"]) == 0:
             codesign_authorities = []
             robo_print("Getting package signature authority names...", LogLevel.VERBOSE)
-            for line in out.split("\n"):
-                if re.match("^    [\d]\. ", line):
+            for line in out.splitlines():
+                if re.match(r"^    [\d]\. ", line):
                     codesign_authorities.append(line[7:])
             if len(codesign_authorities) > 0:
                 robo_print(
