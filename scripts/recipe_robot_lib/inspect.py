@@ -174,8 +174,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
     # Only proceed if we haven't inspected this app yet.
     if bundle_type in facts["inspections"]:
         return facts
-    else:
-        facts["inspections"].append(bundle_type)
+    facts["inspections"].append(bundle_type)
 
     # Save the path of the app. (Used when overriding AppStoreApp
     # recipes.)
@@ -551,8 +550,7 @@ def inspect_archive(input_path, args, facts):
     # Only proceed if we haven't inspected this pkg yet.
     if "archive" in facts["inspections"]:
         return facts
-    else:
-        facts["inspections"].append("archive")
+    facts["inspections"].append("archive")
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
@@ -705,8 +703,7 @@ def inspect_bitbucket_url(input_path, args, facts):
     # Only proceed if we haven't inspected this BitBucket URL yet.
     if "bitbucket_url" in facts["inspections"]:
         return facts
-    else:
-        facts["inspections"].append("bitbucket_url")
+    facts["inspections"].append("bitbucket_url")
 
     # Grab the BitBucket repo path.
     bitbucket_repo = ""
@@ -836,8 +833,7 @@ def inspect_disk_image(input_path, args, facts):
     # Only proceed if we haven't inspected this pkg yet.
     if "disk_image" in facts["inspections"]:
         return facts
-    else:
-        facts["inspections"].append("disk_image")
+    facts["inspections"].append("disk_image")
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
@@ -1206,8 +1202,7 @@ def inspect_github_url(input_path, args, facts):
     # Only proceed if we haven't inspected this GitHub URL yet.
     if "github_url" in facts["inspections"]:
         return facts
-    else:
-        facts["inspections"].append("github_url")
+    facts["inspections"].append("github_url")
 
     # Use AutoPkg GitHub token, if file exists.
     # TODO: Also check for GITHUB_TOKEN preference.
@@ -1453,8 +1448,7 @@ def inspect_pkg(input_path, args, facts):
     # Only proceed if we haven't inspected this pkg yet.
     if "pkg" in facts["inspections"]:
         return facts
-    else:
-        facts["inspections"].append("pkg")
+    facts["inspections"].append("pkg")
 
     # See if we can determine the download URL from the file metadata.
     if "download_url" not in facts:
@@ -1678,8 +1672,7 @@ def inspect_sourceforge_url(input_path, args, facts):
     # Only proceed if we haven't inspected this SourceForge URL yet.
     if "sourceforge_url" in facts["inspections"]:
         return facts
-    else:
-        facts["inspections"].append("sourceforge_url")
+    facts["inspections"].append("sourceforge_url")
 
     # Determine the name of the SourceForge project.
     proj_name = ""
@@ -1826,8 +1819,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Only proceed if we haven't inspected this Sparkle feed yet.
     if "sparkle_feed_url" in facts["inspections"]:
         return facts
-    else:
-        facts["inspections"].append("sparkle_feed_url")
+    facts["inspections"].append("sparkle_feed_url")
 
     # Save the Sparkle feed URL to the dictionary of facts.
     robo_print("Sparkle feed is: %s" % input_path, LogLevel.VERBOSE, 4)
