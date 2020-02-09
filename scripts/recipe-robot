@@ -115,7 +115,7 @@ def main():
     except (RoboException, Exception) as error:  # pylint: disable=broad-except
         message = "Recipe Robot exploded with unexpected error: %s" % str(error)
         if facts["args"].verbose:
-            message += "\n%s" % traceback.format_exc(error)
+            message += "\n%s" % traceback.format_exc()
         else:
             message += "\nRun with -v/--verbose for more info."
         facts["errors"].append(message)
