@@ -33,11 +33,7 @@ import re
 import shutil
 import sys
 from distutils.version import LooseVersion, StrictVersion
-from http import client as httplib
-from ssl import CertificateError, SSLError
-from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
-from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 
 import xattr
@@ -506,11 +502,10 @@ def get_app_description(app_name):
         },
     ]
     for source in desc_sources:
-        cmd = '/usr/bin/curl --silent "%s"' % source["url"]
-        _, out, _ = get_exitcode_stdout_stderr(cmd)
+        out = curler.download(source["url"], text=True)
         result = re.search(source["pattern"], out)
         if result:
-            description = html_decode(result.group("desc")).decode("utf-8")
+            description = html_decode(result.group("desc"))
             return description, source["name"]
     return None, None
 
@@ -719,140 +714,105 @@ def inspect_bitbucket_url(input_path, args, facts):
     r_obj = re.search(r"(?<=https://bitbucket\.org/)[\w-]+/[\w-]+", input_path)
     if r_obj is not None:
         bitbucket_repo = r_obj.group(0)
-    if bitbucket_repo not in ("", None):
-        robo_print("BitBucket repo is: %s" % bitbucket_repo, LogLevel.VERBOSE, 4)
-        facts["bitbucket_repo"] = bitbucket_repo
-
-        # Use GitHub API to obtain information about the repo and
-        # releases.
-        repo_api_url = "https://api.bitbucket.org/2.0/repositories/%s" % bitbucket_repo
-        releases_api_url = (
-            "https://api.bitbucket.org/2.0/repositories/%s/downloads" % bitbucket_repo
-        )
-        try:
-            raw_json_repo = urlopen(repo_api_url).read()
-            parsed_repo = json.loads(raw_json_repo)
-            raw_json_release = urlopen(releases_api_url).read()
-            parsed_release = json.loads(raw_json_release)
-        except HTTPError as err:
-            if err.code == 403:
-                facts["warnings"].append(
-                    "Error occurred while getting information from the BitBucket API. "
-                    "If you've been creating a lot of recipes quickly, you may have "
-                    "hit the rate limit. Give it a few minutes, then try again. "
-                    "(%s)" % err
-                )
-                return facts
-            if err.code == 404:
-                facts["warnings"].append("BitBucket API URL not found. (%s)" % err)
-                return facts
-            else:
-                facts["warnings"].append(
-                    "Error occurred while getting information from the BitBucket API. "
-                    "(%s)" % err
-                )
-                return facts
-        except URLError as err:
-            if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-                # TODO(Elliot): Try again using curl? (#19)
-                facts["warnings"].append(
-                    "I got an SSLv3 handshake error while getting information from the "
-                    "BitBucket API, and I don't yet know what to do with that. "
-                    "(%s)" % err
-                )
-                return facts
-            else:
-                facts["warnings"].append(
-                    "Error encountered while getting information from the BitBucket "
-                    "API. (%s)" % err
-                )
-                return facts
-
-        # Get app name.
-        if "app_name" not in facts:
-            app_name = ""
-            robo_print("Getting app name...", LogLevel.VERBOSE)
-            if parsed_repo.get("name", "") not in ("", None):
-                app_name = parsed_repo["name"]
-            if app_name not in ("", None):
-                robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
-                facts["app_name"] = app_name
-
-        # Get full name of owner.
-        developer = ""
-        if "developer" not in facts:
-            developer = parsed_repo["owner"]["display_name"]
-        if developer not in ("", None):
-            robo_print(
-                "BitBucket owner full name is: %s" % developer, LogLevel.VERBOSE, 4
-            )
-            facts["developer"] = developer
-
-        # Get app description.
-        if "description" not in facts:
-            description = ""
-            robo_print("Getting BitBucket description...", LogLevel.VERBOSE)
-            if parsed_repo.get("description", "") not in ("", None):
-                description = parsed_repo["description"]
-            if description not in ("", None):
-                robo_print(
-                    "BitBucket description is: %s" % description, LogLevel.VERBOSE, 4
-                )
-                facts["description"] = description
-            else:
-                facts["warnings"].append("Could not detect BitBucket description.")
-
-        # Get download format of latest release.
-        if "download_format" not in facts or "download_url" not in facts:
-            download_format = ""
-            download_url = ""
-            robo_print(
-                "Getting information from latest BitBucket release...", LogLevel.VERBOSE
-            )
-            if "values" in parsed_release:
-                # TODO (Elliot): Use find_supported_release() instead of these
-                # nested loops. May need to flatten the 'asset' dict first.
-                for this_format in ALL_SUPPORTED_FORMATS:
-                    for asset in parsed_release["values"]:
-                        if download_format not in ("", None):
-                            break
-                        if asset["links"]["self"]["href"].endswith(this_format):
-                            download_format = this_format
-                            download_url = asset["links"]["self"]["href"]
-                            break
-            if download_format not in ("", None):
-                robo_print(
-                    "BitBucket release download format is: %s" % download_format,
-                    LogLevel.VERBOSE,
-                    4,
-                )
-                facts["download_format"] = download_format
-            else:
-                facts["warnings"].append(
-                    "Could not detect BitBucket release download format."
-                )
-            if download_url not in ("", None):
-                robo_print(
-                    "BitBucket release download URL is: %s" % download_url,
-                    LogLevel.VERBOSE,
-                    4,
-                )
-                facts["download_url"] = download_url
-                facts = inspect_download_url(download_url, args, facts)
-            else:
-                facts["warnings"].append(
-                    "Could not detect BitBucket release download URL."
-                )
-
-        # Warn user if the BitBucket project is private.
-        if parsed_repo.get("is_private", False) is not False:
-            facts["warnings"].append(
-                'This BitBucket project is marked "private" and recipes '
-                "you generate may not work for others."
-            )
-
-    else:
+    if bitbucket_repo in ("", None):
         facts["warnings"].append("Could not detect BitBucket repo.")
+        return facts
+
+    robo_print("BitBucket repo is: %s" % bitbucket_repo, LogLevel.VERBOSE, 4)
+    facts["bitbucket_repo"] = bitbucket_repo
+
+    # Use GitHub API to obtain information about the repo and
+    # releases.
+    repo_api_url = "https://api.bitbucket.org/2.0/repositories/%s" % bitbucket_repo
+    releases_api_url = (
+        "https://api.bitbucket.org/2.0/repositories/%s/downloads" % bitbucket_repo
+    )
+
+    # TODO: Check for 403 rate-limiting errors without making 2
+    # separate curl requests.
+    raw_json_repo = curler.download(repo_api_url, text=True)
+    parsed_repo = json.loads(raw_json_repo)
+    raw_json_release = curler.download(releases_api_url, text=True)
+    parsed_release = json.loads(raw_json_release)
+
+    # Get app name.
+    if "app_name" not in facts:
+        app_name = ""
+        robo_print("Getting app name...", LogLevel.VERBOSE)
+        if parsed_repo.get("name", "") not in ("", None):
+            app_name = parsed_repo["name"]
+        if app_name not in ("", None):
+            robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
+            facts["app_name"] = app_name
+
+    # Get full name of owner.
+    developer = ""
+    if "developer" not in facts:
+        developer = parsed_repo["owner"]["display_name"]
+    if developer not in ("", None):
+        robo_print("BitBucket owner full name is: %s" % developer, LogLevel.VERBOSE, 4)
+        facts["developer"] = developer
+
+    # Get app description.
+    if "description" not in facts:
+        description = ""
+        robo_print("Getting BitBucket description...", LogLevel.VERBOSE)
+        if parsed_repo.get("description", "") not in ("", None):
+            description = parsed_repo["description"]
+        if description not in ("", None):
+            robo_print(
+                "BitBucket description is: %s" % description, LogLevel.VERBOSE, 4
+            )
+            facts["description"] = description
+        else:
+            facts["warnings"].append("Could not detect BitBucket description.")
+
+    # Get download format of latest release.
+    if "download_format" not in facts or "download_url" not in facts:
+        download_format = ""
+        download_url = ""
+        robo_print(
+            "Getting information from latest BitBucket release...", LogLevel.VERBOSE
+        )
+        if "values" in parsed_release:
+            # TODO (Elliot): Use find_supported_release() instead of these
+            # nested loops. May need to flatten the 'asset' dict first.
+            for this_format in ALL_SUPPORTED_FORMATS:
+                for asset in parsed_release["values"]:
+                    if download_format not in ("", None):
+                        break
+                    if asset["links"]["self"]["href"].endswith(this_format):
+                        download_format = this_format
+                        download_url = asset["links"]["self"]["href"]
+                        break
+        if download_format not in ("", None):
+            robo_print(
+                "BitBucket release download format is: %s" % download_format,
+                LogLevel.VERBOSE,
+                4,
+            )
+            facts["download_format"] = download_format
+        else:
+            facts["warnings"].append(
+                "Could not detect BitBucket release download format."
+            )
+        if download_url not in ("", None):
+            robo_print(
+                "BitBucket release download URL is: %s" % download_url,
+                LogLevel.VERBOSE,
+                4,
+            )
+            facts["download_url"] = download_url
+            facts = inspect_download_url(download_url, args, facts)
+        else:
+            facts["warnings"].append("Could not detect BitBucket release download URL.")
+
+    # Warn user if the BitBucket project is private.
+    if parsed_repo.get("is_private", False) is not False:
+        facts["warnings"].append(
+            'This BitBucket project is marked "private" and recipes '
+            "you generate may not work for others."
+        )
 
     return facts
 
@@ -1074,68 +1034,25 @@ def inspect_download_url(input_path, args, facts):
     # specified.
     facts["specify_filename"] = not input_path.endswith(filename)
 
-    # Check to make sure URL is valid, and switch to HTTPS if possible.
-    checked_url = check_url(input_path)
-    if checked_url.startswith("http:"):
-        facts["warnings"].append(
-            "This download URL is not using HTTPS. I recommend contacting the "
-            "developer and politely suggesting that they secure their download URL. "
-            "(Example: https://twitter.com/homebysix/status/714508127228403712)"
-        )
-
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading
     # big files? https://gist.github.com/gourneau/1430932 (#24)
     robo_print("Downloading file for further inspection...", LogLevel.VERBOSE)
 
-    # Actually download the file.
-    try:
-        raw_download = urlopen(checked_url)
-    except HTTPError as err:
-        if err.code == 403:
-            # Try again, this time with a user-agent.
-            # TODO: Handle requests with cookies (e.g. S3 pre-signed URLs).
-            # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
-            # TODO: Try /usr/bin/curl instead?
-            try:
-                raw_download = useragent_urlopen(checked_url, "Mozilla/5.0")
-                facts["user-agent"] = "Mozilla/5.0"
-            except Exception as err:  # pylint: disable=W0703
-                facts["warnings"].append(
-                    "Error encountered during file download. (%s)" % err
-                )
-                return facts
-        if err.code == 404:
-            facts["warnings"].append("Download URL not found. (%s)" % err)
-            return facts
-        else:
-            facts["warnings"].append(
-                "Error encountered during file download. (%s)" % err
-            )
-            return facts
-    except URLError as err:
-        if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-            # TODO(Elliot): Try again using curl? (#19)
-            facts["warnings"].append(
-                "I got an SSLv3 handshake error, and I don't yet know what to "
-                "do with that. (%s)" % err
-            )
-            return facts
-        else:
-            facts["warnings"].append(
-                "Error encountered during file download. (%s)" % err.reason
-            )
-            return facts
-    except CertificateError as err:
+    # Check to make sure URL is valid, and switch to HTTPS if possible.
+    checked_url, head, user_agent = curler.check_url(input_path)
+
+    if int(head.get("http_result_code")) >= 400:
         facts["warnings"].append(
-            "There seems to be a problem with the developer's SSL certificate. "
-            "(%s)" % err
+            "Error encountered during file download. (%s)"
+            % int(head.get("http_result_code"))
         )
-        # TODO: If input path was HTTP, revert to that and try again.
         return facts
 
-    # Warn if we had to add a user agent in order to access URLs above.
-    if "user-agent" in facts:
+    if user_agent:
+        # Add a user-agent to the facts if it fixed a 403.
+        # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
+        facts["user-agent"] = user_agent
         facts["warnings"].append(
             "I had to use a different user-agent in order to "
             "download this file. If you run the recipes and get a "
@@ -1143,13 +1060,21 @@ def inspect_download_url(input_path, args, facts):
             "the same problem."
         )
 
+    if checked_url.startswith("http:"):
+        facts["warnings"].append(
+            "Download is not using HTTPS. I recommend contacting "
+            "the developer and politely suggesting that they secure "
+            "their web host. (Example: "
+            "https://twitter.com/homebysix/status/714508127228403712)"
+        )
+
     # Warn if the content-type is known not to be a downloadable file.
     # TODO: If content-type is HTML, try parsing for download URLs and
     # use URLTextSearcher.
     # TODO: If content-type is XML, see if it's a Sparkle feed or parse for
     # download URLs and use URLTextSearcher.
-    if raw_download.info().getheaders("Content-Type"):
-        content_type = raw_download.info().getheaders("Content-Type")[0]
+    if "content-type" in head:
+        content_type = head["content-type"]
         if not content_type.startswith(("binary/", "application/", "file/")):
             facts["warnings"].append(
                 "This download's Content-Type ({}) is unusual for a download.".format(
@@ -1158,8 +1083,8 @@ def inspect_download_url(input_path, args, facts):
             )
 
     # Get the actual filename from the server, if it exists.
-    if "Content-Disposition" in raw_download.info():
-        content_disp = raw_download.info()["Content-Disposition"]
+    if "content-disposition" in head:
+        content_disp = head["content-disposition"]
         r_obj = re.search(r"filename=\"(.+)\"\;", content_disp)
         if r_obj is not None:
             filename = r_obj.group(1)
@@ -1170,36 +1095,8 @@ def inspect_download_url(input_path, args, facts):
         filename = "download"
     facts["download_filename"] = filename
 
-    # Write the downloaded file to the cache folder, showing progress.
-    if raw_download.info().getheaders("Content-Length"):
-        file_size = int(raw_download.info().getheaders("Content-Length")[0])
-    else:
-        # File size is unknown, so we can't show progress.
-        file_size = 0
-    with open(os.path.join(CACHE_DIR, filename), "wb") as download_file:
-        file_size_dl = 0
-        block_sz = 8192
-        while True:
-            chunk = raw_download.read(block_sz)
-            if not chunk:
-                break
-            # Write downloaded chunk.
-            file_size_dl += len(chunk)
-            download_file.write(chunk)
-            # Show progress if file size is known.
-            if file_size > 0:
-                p = float(file_size_dl) / file_size
-                stat_fmt = r"    {0:0.0%}" if args.app_mode else r"    {0:.2%}"
-                status = stat_fmt.format(p)
-                status = status + chr(8) * (len(status) + 1)
-                if args.app_mode:
-                    # Show progress in 10% increments.
-                    if (file_size_dl // block_sz) % (file_size // block_sz // 10) == 0:
-                        robo_print(status, LogLevel.VERBOSE)
-                else:
-                    # Show progress in 0.01% increments.
-                    sys.stdout.flush()
-                    sys.stdout.write(status)
+    # Write the downloaded file to the cache folder.
+    _ = curler.download_to_file(checked_url, os.path.join(CACHE_DIR, filename))
     robo_print(
         "Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4
     )
@@ -1279,14 +1176,15 @@ def inspect_download_url(input_path, args, facts):
     return facts
 
 
-def github_urlopen(url, github_token):
+def github_urlopen(url, github_token, text=False):
     """For a given URL, return the urlopen response after adding the GitHub token."""
 
-    req = Request(url)
     if github_token:
-        req.add_header("Authorization", "token " + github_token)
+        headers = {"Authorization": "token %s" % github_token}
+    else:
+        headers = {}
 
-    return urlopen(req)
+    return curler.download(url, headers=headers, text=text)
 
 
 def inspect_github_url(input_path, args, facts):
@@ -1346,163 +1244,122 @@ def inspect_github_url(input_path, args, facts):
         github_repo = parsed_url.netloc.split(".")[0] + "/" + path[0]
     else:
         github_repo = path[0] + "/" + path[1]
-    if github_repo not in ("", None):
-        robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
-        facts["github_repo"] = github_repo
-
-        # Leave a hint for people testing Recipe Robot on itself.
-        if github_repo == "homebysix/recipe-robot":
-            if args.ignore_existing is True:
-                facts["reminders"].append(
-                    "Congratulations! You've achieved Recipe Robot recursion."
-                )
-            else:
-                facts["warnings"].append(
-                    "Try using the --ignore-existing flag if you want me to "
-                    "create recipes for myself."
-                )
-
-        # Use GitHub API to obtain information about the repo and
-        # releases.
-        repo_api_url = "https://api.github.com/repos/%s" % github_repo
-        releases_api_url = (
-            "https://api.github.com/repos/%s/releases/latest" % github_repo
-        )
-        user_api_url = "https://api.github.com/users/%s" % github_repo.split("/")[0]
-
-        # Download the information from the GitHub API.
-        try:
-            raw_json_repo = github_urlopen(repo_api_url, github_token).read()
-            raw_json_release = github_urlopen(releases_api_url, github_token).read()
-            raw_json_user = github_urlopen(user_api_url, github_token).read()
-        except HTTPError as err:
-            if err.code == 403:
-                facts["warnings"].append(
-                    "Error occurred while getting information from the GitHub API. If "
-                    "you've been creating a lot of recipes quickly, you may have hit "
-                    "the rate limit. Give it a few minutes, then try again. (%s)" % err
-                )
-                return facts
-            if err.code == 404:
-                facts["warnings"].append("GitHub API URL not found. (%s)" % err)
-                return facts
-            else:
-                facts["warnings"].append(
-                    "Error occurred while getting information from the GitHub API. "
-                    "(%s)" % err
-                )
-                # TODO: All of these return facts can just be return, since
-                # dicts are passed by reference.
-                return facts
-        except URLError as err:
-            if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-                # TODO(Elliot): Try again using curl? (#19)
-                facts["warnings"].append(
-                    "I got an SSLv3 handshake error while getting information from the "
-                    "GitHub API, and I don't yet know what to do with that. (%s)" % err
-                )
-                return facts
-            else:
-                facts["warnings"].append(
-                    "Error encountered while getting information from the GitHub API. "
-                    "(%s)" % err
-                )
-                return facts
-
-        # Parse the downloaded JSON.
-        parsed_repo = json.loads(raw_json_repo)
-        parsed_release = json.loads(raw_json_release)
-        parsed_user = json.loads(raw_json_user)
-
-        # Get app name.
-        if "app_name" not in facts:
-            app_name = ""
-            robo_print("Getting app name...", LogLevel.VERBOSE)
-            if parsed_repo.get("name", None) is not None:
-                app_name = parsed_repo["name"]
-            if app_name not in ("", None):
-                robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
-                facts["app_name"] = app_name
-
-        # Get app description.
-        if "description" not in facts:
-            description = ""
-            robo_print("Getting GitHub description...", LogLevel.VERBOSE)
-            if parsed_repo.get("description", None) is not None:
-                description = parsed_repo["description"]
-            if description not in ("", None):
-                robo_print(
-                    "GitHub description is: %s" % description, LogLevel.VERBOSE, 4
-                )
-                facts["description"] = description
-            else:
-                facts["warnings"].append("No GitHub description provided.")
-
-        # Get download format of latest release.
-        if "download_format" not in facts or "download_url" not in facts:
-            download_format = ""
-            download_url = ""
-            robo_print(
-                "Getting information from latest GitHub release...", LogLevel.VERBOSE
-            )
-            if "assets" in parsed_release:
-                download_format, download_url = find_supported_release(
-                    parsed_release["assets"], "browser_download_url"
-                )
-                if len(parsed_release["assets"]) > 1:
-                    facts["use_asset_regex"] = True
-                    robo_print("Multiple formats available.", LogLevel.VERBOSE, 4)
-            if download_format not in ("", None):
-                robo_print(
-                    "GitHub release download format is: %s" % download_format,
-                    LogLevel.VERBOSE,
-                    4,
-                )
-                facts["download_format"] = download_format
-            else:
-                facts["warnings"].append(
-                    "Could not detect GitHub release download format."
-                )
-            if download_url not in ("", None):
-                robo_print(
-                    "GitHub release download URL is: %s" % download_url,
-                    LogLevel.VERBOSE,
-                    4,
-                )
-                facts["download_url"] = download_url
-                facts = inspect_download_url(download_url, args, facts)
-            else:
-                facts["warnings"].append(
-                    "Could not detect GitHub release download URL."
-                )
-
-        # Get the developer's name from GitHub.
-        if "developer" not in facts:
-            developer = ""
-            robo_print("Getting developer name from GitHub...", LogLevel.VERBOSE)
-            if "name" in parsed_user:
-                developer = parsed_user["name"]
-            if developer not in ("", None):
-                robo_print("GitHub developer is: %s" % developer, LogLevel.VERBOSE, 4)
-                facts["developer"] = developer
-            else:
-                facts["warnings"].append("Could not detect GitHub developer.")
-
-        # Warn user if the GitHub project is private.
-        if parsed_repo.get("private", False) is not False:
-            facts["warnings"].append(
-                'This GitHub project is marked "private" and recipes you '
-                "generate may not work for others."
-            )
-
-        # Warn user if the GitHub project is a fork.
-        if parsed_repo.get("fork", False) is not False:
-            facts["warnings"].append(
-                "This GitHub project is a fork. You may want to try again "
-                "with the original repo URL instead."
-            )
-    else:
+    if github_repo in ("", None):
         facts["warnings"].append("Could not detect GitHub repo.")
+        return facts
+
+    robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
+    facts["github_repo"] = github_repo
+
+    # Leave a hint for people testing Recipe Robot on itself.
+    if github_repo == "homebysix/recipe-robot":
+        if args.ignore_existing is True:
+            facts["reminders"].append(
+                "Congratulations! You've achieved Recipe Robot recursion."
+            )
+        else:
+            facts["warnings"].append(
+                "Try using the --ignore-existing flag if you want me to "
+                "create recipes for myself."
+            )
+
+    # Use GitHub API to obtain information about the repo and
+    # releases.
+    repo_api_url = "https://api.github.com/repos/%s" % github_repo
+    releases_api_url = "https://api.github.com/repos/%s/releases/latest" % github_repo
+    user_api_url = "https://api.github.com/users/%s" % github_repo.split("/")[0]
+
+    # Download the information from the GitHub API.
+    raw_json_repo = github_urlopen(repo_api_url, github_token, text=True)
+    raw_json_release = github_urlopen(releases_api_url, github_token, text=True)
+    raw_json_user = github_urlopen(user_api_url, github_token, text=True)
+
+    # Parse the downloaded JSON.
+    parsed_repo = json.loads(raw_json_repo)
+    parsed_release = json.loads(raw_json_release)
+    parsed_user = json.loads(raw_json_user)
+
+    # Get app name.
+    if "app_name" not in facts:
+        app_name = ""
+        robo_print("Getting app name...", LogLevel.VERBOSE)
+        if parsed_repo.get("name", None) is not None:
+            app_name = parsed_repo["name"]
+        if app_name not in ("", None):
+            robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
+            facts["app_name"] = app_name
+
+    # Get app description.
+    if "description" not in facts:
+        description = ""
+        robo_print("Getting GitHub description...", LogLevel.VERBOSE)
+        if parsed_repo.get("description", None) is not None:
+            description = parsed_repo["description"]
+        if description not in ("", None):
+            robo_print("GitHub description is: %s" % description, LogLevel.VERBOSE, 4)
+            facts["description"] = description
+        else:
+            facts["warnings"].append("No GitHub description provided.")
+
+    # Get download format of latest release.
+    if "download_format" not in facts or "download_url" not in facts:
+        download_format = ""
+        download_url = ""
+        robo_print(
+            "Getting information from latest GitHub release...", LogLevel.VERBOSE
+        )
+        if "assets" in parsed_release:
+            download_format, download_url = find_supported_release(
+                parsed_release["assets"], "browser_download_url"
+            )
+            if len(parsed_release["assets"]) > 1:
+                facts["use_asset_regex"] = True
+                robo_print("Multiple formats available.", LogLevel.VERBOSE, 4)
+        if download_format not in ("", None):
+            robo_print(
+                "GitHub release download format is: %s" % download_format,
+                LogLevel.VERBOSE,
+                4,
+            )
+            facts["download_format"] = download_format
+        else:
+            facts["warnings"].append("Could not detect GitHub release download format.")
+        if download_url not in ("", None):
+            robo_print(
+                "GitHub release download URL is: %s" % download_url,
+                LogLevel.VERBOSE,
+                4,
+            )
+            facts["download_url"] = download_url
+            facts = inspect_download_url(download_url, args, facts)
+        else:
+            facts["warnings"].append("Could not detect GitHub release download URL.")
+
+    # Get the developer's name from GitHub.
+    if "developer" not in facts:
+        developer = ""
+        robo_print("Getting developer name from GitHub...", LogLevel.VERBOSE)
+        if "name" in parsed_user:
+            developer = parsed_user["name"]
+        if developer not in ("", None):
+            robo_print("GitHub developer is: %s" % developer, LogLevel.VERBOSE, 4)
+            facts["developer"] = developer
+        else:
+            facts["warnings"].append("Could not detect GitHub developer.")
+
+    # Warn user if the GitHub project is private.
+    if parsed_repo.get("private", False) is not False:
+        facts["warnings"].append(
+            'This GitHub project is marked "private" and recipes you '
+            "generate may not work for others."
+        )
+
+    # Warn user if the GitHub project is a fork.
+    if parsed_repo.get("fork", False) is not False:
+        facts["warnings"].append(
+            "This GitHub project is a fork. You may want to try again "
+            "with the original repo URL instead."
+        )
 
     return facts
 
@@ -1852,136 +1709,100 @@ def inspect_sourceforge_url(input_path, args, facts):
         proj_name = proj_str[: proj_str.find(marker)]
     else:
         facts["warnings"].append("Unable to parse SourceForge URL.")
-    if proj_name not in ("", None):
-
-        # Use SourceForge API to obtain project information.
-        project_api_url = "https://sourceforge.net/rest/p/" + proj_name
-        try:
-            raw_json = urlopen(project_api_url).read()
-        except HTTPError as err:
-            if err.code == 403:
-                facts["warnings"].append(
-                    "Error occurred while getting information from the SourceForge "
-                    "API. If you've been creating a lot of recipes quickly, you may "
-                    "have hit the rate limit. Give it a few minutes, then try again. "
-                    "(%s)" % err
-                )
-                return facts
-            if err.code == 404:
-                facts["warnings"].append("SourceForge API URL not found. (%s)" % err)
-                return facts
-            else:
-                facts["warnings"].append(
-                    "Error occurred while getting information from the SourceForge "
-                    "API. (%s)" % err
-                )
-                return facts
-        except URLError as err:
-            if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-                # TODO(Elliot): Try again using curl? (#19)
-                facts["warnings"].append(
-                    "I got an SSLv3 handshake error while getting information "
-                    "from the SourceForge API, and I don't yet know what to "
-                    "do with that. (%s)" % err
-                )
-                return facts
-            else:
-                facts["warnings"].append(
-                    "Error encountered while getting information from the "
-                    "SourceForge API. (%s)" % err
-                )
-                return facts
-        parsed_json = json.loads(raw_json)
-
-        # Get app name.
-        if "app_name" not in facts:
-            if "shortname" in parsed_json or "name" in parsed_json:
-                # Record the shortname, if shortname isn't blank.
-                if parsed_json["shortname"] not in ("", None):
-                    app_name = parsed_json["shortname"]
-                # Overwrite shortname with name, if name isn't blank.
-                if parsed_json["name"] not in ("", None):
-                    app_name = parsed_json["name"]
-            if app_name not in ("", None):
-                robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
-                facts["app_name"] = app_name
-
-        # Determine project ID.
-        proj_id = ""
-        robo_print("Getting SourceForge project ID...", LogLevel.VERBOSE)
-        for this_dict in parsed_json["tools"]:
-            if "sourceforge_group_id" in this_dict:
-                proj_id = this_dict["sourceforge_group_id"]
-        if proj_id not in ("", None):
-            robo_print("SourceForge project ID is: %s" % proj_id, LogLevel.VERBOSE, 4)
-            facts["sourceforge_id"] = proj_id
-        else:
-            facts["warnings"].append("Could not detect SourceForge project ID.")
-
-        # Get project description.
-        if "description" not in facts:
-            description = ""
-            robo_print("Getting SourceForge description...", LogLevel.VERBOSE)
-            if "summary" in parsed_json:
-                if parsed_json["summary"] not in ("", None):
-                    description = parsed_json["summary"]
-                elif parsed_json["short_description"] not in ("", None):
-                    description = parsed_json["short_description"]
-            if description not in ("", None):
-                robo_print(
-                    "SourceForge description is: %s" % description, LogLevel.VERBOSE, 4
-                )
-                facts["description"] = description
-            else:
-                facts["warnings"].append("Could not detect SourceForge description.")
-
-        # Get download format of latest release.
-        if "download_url" not in facts:
-
-            # Download the RSS feed and parse it.
-            # Example: https://sourceforge.net/projects/grandperspectiv/rss
-            # Example: https://sourceforge.net/projects/cord/rss
-            files_rss = "https://sourceforge.net/projects/%s/rss" % proj_name
-            try:
-                raw_xml = urlopen(files_rss)
-            except Exception as err:  # pylint: disable=W0703
-                facts["warnings"].append(
-                    "Error occurred while inspecting SourceForge RSS feed: %s" % err
-                )
-            doc = ElementTree.fromstring(raw_xml)
-
-            # Get the latest download URL.
-            download_url = ""
-            robo_print(
-                "Determining download URL from SourceForge RSS feed...",
-                LogLevel.VERBOSE,
-            )
-            for item in doc.iterfind("channel/item"):
-                # TODO(Elliot): The extra-info tag is not a reliable
-                # indicator of which item should actually be downloaded.
-                # (#21) Example:
-                # https://sourceforge.net/projects/grandperspectiv/rss
-                search = "{https://sourceforge.net/api/files.rdf#}extra-info"
-                if item.find(search).text.startswith("data"):
-                    download_url = item.find("link").text.rstrip("/download")
-                    break
-            if download_url not in ("", None):
-                facts = inspect_download_url(download_url, args, facts)
-            else:
-                facts["warnings"].append(
-                    "Could not detect SourceForge latest release download_url."
-                )
-
-        # Warn user if the SourceForge project is private.
-        if "private" in parsed_json:
-            if parsed_json["private"] is True:
-                facts["warnings"].append(
-                    'This SourceForge project is marked "private" and '
-                    "recipes you generate may not work for others."
-                )
-
-    else:
+    if proj_name in ("", None):
         facts["warnings"].append("Could not detect SourceForge project name.")
+        return facts
+
+    # Use SourceForge API to obtain project information.
+    project_api_url = "https://sourceforge.net/rest/p/" + proj_name
+    raw_json = curler.download(project_api_url, text=True)
+    parsed_json = json.loads(raw_json)
+
+    # Get app name.
+    if "app_name" not in facts:
+        if "shortname" in parsed_json or "name" in parsed_json:
+            # Record the shortname, if shortname isn't blank.
+            if parsed_json["shortname"] not in ("", None):
+                app_name = parsed_json["shortname"]
+            # Overwrite shortname with name, if name isn't blank.
+            if parsed_json["name"] not in ("", None):
+                app_name = parsed_json["name"]
+        if app_name not in ("", None):
+            robo_print("App name is: %s" % app_name, LogLevel.VERBOSE, 4)
+            facts["app_name"] = app_name
+
+    # Determine project ID.
+    proj_id = ""
+    robo_print("Getting SourceForge project ID...", LogLevel.VERBOSE)
+    for this_dict in parsed_json["tools"]:
+        if "sourceforge_group_id" in this_dict:
+            proj_id = this_dict["sourceforge_group_id"]
+    if proj_id not in ("", None):
+        robo_print("SourceForge project ID is: %s" % proj_id, LogLevel.VERBOSE, 4)
+        facts["sourceforge_id"] = proj_id
+    else:
+        facts["warnings"].append("Could not detect SourceForge project ID.")
+
+    # Get project description.
+    if "description" not in facts:
+        description = ""
+        robo_print("Getting SourceForge description...", LogLevel.VERBOSE)
+        if "summary" in parsed_json:
+            if parsed_json["summary"] not in ("", None):
+                description = parsed_json["summary"]
+            elif parsed_json["short_description"] not in ("", None):
+                description = parsed_json["short_description"]
+        if description not in ("", None):
+            robo_print(
+                "SourceForge description is: %s" % description, LogLevel.VERBOSE, 4
+            )
+            facts["description"] = description
+        else:
+            facts["warnings"].append("Could not detect SourceForge description.")
+
+    # Get download format of latest release.
+    if "download_url" not in facts:
+
+        # Download the RSS feed and parse it.
+        # Example: https://sourceforge.net/projects/grandperspectiv/rss
+        # Example: https://sourceforge.net/projects/cord/rss
+        files_rss = "https://sourceforge.net/projects/%s/rss" % proj_name
+        try:
+            raw_xml = curler.download(files_rss, text=True)
+        except Exception as err:  # pylint: disable=W0703
+            facts["warnings"].append(
+                "Error occurred while inspecting SourceForge RSS feed: %s" % err
+            )
+        doc = ElementTree.fromstring(raw_xml)
+
+        # Get the latest download URL.
+        download_url = ""
+        robo_print(
+            "Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE,
+        )
+        for item in doc.iterfind("channel/item"):
+            # TODO(Elliot): The extra-info tag is not a reliable
+            # indicator of which item should actually be downloaded.
+            # (#21) Example:
+            # https://sourceforge.net/projects/grandperspectiv/rss
+            search = "{https://sourceforge.net/api/files.rdf#}extra-info"
+            if item.find(search).text.startswith("data"):
+                download_url = item.find("link").text.rstrip("/download")
+                break
+        if download_url not in ("", None):
+            facts = inspect_download_url(download_url, args, facts)
+        else:
+            facts["warnings"].append(
+                "Could not detect SourceForge latest release download_url."
+            )
+
+    # Warn user if the SourceForge project is private.
+    if "private" in parsed_json:
+        if parsed_json["private"] is True:
+            facts["warnings"].append(
+                'This SourceForge project is marked "private" and '
+                "recipes you generate may not work for others."
+            )
 
     return facts
 
@@ -2013,72 +1834,16 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     facts["sparkle_feed"] = input_path
 
     # Check to make sure URL is valid, and switch to HTTPS if possible.
-    checked_url = check_url(input_path)
-    if checked_url.startswith("http:"):
-        facts["warnings"].append(
-            "This Sparkle feed is not using HTTPS. I recommend contacting "
-            "the developer and politely suggesting that they secure "
-            "their Sparkle feed. (Example: "
-            "https://twitter.com/homebysix/status/714508127228403712)"
-        )
+    checked_url, head, user_agent = curler.check_url(input_path)
 
-    # Download the Sparkle feed.
-    try:
-        raw_xml = download(checked_url, text=True)
-    except HTTPError as err:
-        if err.code == 403:
-            # Try again, this time with a user-agent.
-            # TODO: Handle requests with cookies (e.g. S3 pre-signed URLs).
-            # Example: https://tunnelblick.net/release/Tunnelblick_3.7.8_build_5180.dmg
-            # TODO: Try /usr/bin/curl instead?
-            try:
-                raw_xml = useragent_urlopen(checked_url, "Mozilla/5.0")
-                facts["user-agent"] = "Mozilla/5.0"
-            except Exception as err:  # pylint: disable=W0703
-                facts["warnings"].append(
-                    "Error occurred while downloading Sparkle feed (%s)" % err
-                )
-                # Remove Sparkle feed if it's not usable.
-                facts.pop("sparkle_feed", None)
-                return facts
-        if err.code == 404:
-            facts["warnings"].append("Sparkle feed not found. (%s)" % err)
-            facts.pop("sparkle_feed", None)
-            return facts
-        else:
-            facts["warnings"].append(
-                "Error occurred while getting information from the Sparkle "
-                "feed. (%s)" % err
-            )
-            facts.pop("sparkle_feed", None)
-            return facts
-    except URLError as err:
-        if str(err.reason).startswith("[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]"):
-            # TODO(Elliot): Try again using curl? (#19)
-            facts["warnings"].append(
-                "I got an SSLv3 handshake error while getting information "
-                "from the Sparkle feed, and I don't yet know what to do with "
-                "that.  (%s)" % err
-            )
-            facts.pop("sparkle_feed", None)
-            return facts
-        else:
-            facts["warnings"].append(
-                "Error encountered while getting information from the "
-                "Sparkle feed. (%s)" % err
-            )
-            facts.pop("sparkle_feed", None)
-            return facts
-    except CertificateError as err:
-        facts["warnings"].append(
-            "There seems to be a problem with the developer's SSL "
-            "certificate. (%s)" % err
-        )
-        # TODO: If input path was HTTP, revert to that and try again.
+    if int(head.get("http_result_code")) >= 400:
+        # Remove Sparkle feed if it's not usable.
+        facts.pop("sparkle_feed", None)
         return facts
 
-    # Warn if we had to add a user agent in order to access URLs above.
-    if "user-agent" in facts:
+    if user_agent:
+        # Add a user-agent to the facts if it fixed a 403.
+        facts["user-agent"] = user_agent
         facts["warnings"].append(
             "I had to use a different user-agent in order to read "
             "this Sparkle feed. If you run the recipes and get a "
@@ -2086,8 +1851,16 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             "the same problem."
         )
 
-    # Parse the Sparkle feed.
-    xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
+    if checked_url.startswith("http:"):
+        facts["warnings"].append(
+            "This Sparkle feed is not using HTTPS. I recommend contacting "
+            "the developer and politely suggesting that they secure "
+            "their web host. (Example: "
+            "https://twitter.com/homebysix/status/714508127228403712)"
+        )
+
+    # Download and parse the Sparkle feed.
+    raw_xml = curler.download(checked_url, text=True)
     try:
         doc = ElementTree.fromstring(raw_xml)
     except ElementTree.ParseError as err:
@@ -2103,7 +1876,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     for item in doc.iterfind("channel/item/enclosure"):
         latest_url = item.attrib.get("url")
         for vers_tag in ("shortVersionString", "version"):
-            encl_vers = item.get("{%s}%s" % (xmlns, vers_tag))
+            encl_vers = item.get(
+                "{http://www.andymatuschak.org/xml-namespaces/sparkle}%s" % vers_tag
+            )
             if encl_vers not in (None, ""):
                 sparkle_provides_version = True
                 if LooseVersion(encl_vers) > LooseVersion(latest_version):
