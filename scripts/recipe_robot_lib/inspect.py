@@ -42,6 +42,7 @@ from xml.etree import ElementTree
 
 import xattr
 from recipe_robot_lib.exceptions import RoboError
+from recipe_robot_lib.curler import *
 from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
     CACHE_DIR,
@@ -2080,7 +2081,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # Download the Sparkle feed.
     try:
-        raw_xml = urlopen(checked_url)
+        raw_xml = download(checked_url, text=True)
     except HTTPError as err:
         if err.code == 403:
             # Try again, this time with a user-agent.
