@@ -314,12 +314,6 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
         out: String from standard output.
         err: String from standard error.
     """
-    if "|" in cmd:
-        raise RoboError(
-            "Piped commands are deprecated. Please report this issue:\n"
-            "    https://github.com/homebysix/recipe-robot/issues/new\n"
-            "Command: {}".format(cmd)
-        )
     proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate(stdin)
     exitcode = proc.returncode

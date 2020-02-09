@@ -18,6 +18,9 @@ All notable changes to this project will be documented in this file. This projec
 - Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.
 - Updated regular expression used to grab app descriptions from MacUpdate.
 
+### Removed
+- Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.
+
 
 ## [1.2.1] - 2019-12-21
 
