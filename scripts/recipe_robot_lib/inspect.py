@@ -849,8 +849,7 @@ def inspect_disk_image(input_path, args, facts):
             dmg_plist.write(out)
         try:
             dmg_info = plistlib.readPlist(os.path.join(CACHE_DIR, "dmg_info.plist"))
-            if dmg_info.get("Properties").get("Software License Agreement") == True:
-                dmg_has_sla = True
+            dmg_has_sla = dmg_info.get("Properties").get("Software License Agreement")
         except plistlib.NSPropertyListSerializationException:
             pass
 
