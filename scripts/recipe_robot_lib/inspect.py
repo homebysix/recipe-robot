@@ -38,7 +38,7 @@ from ssl import CertificateError, SSLError
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
-from xml.etree.ElementTree import ParseError, parse
+from xml.etree import ElementTree
 
 import xattr
 from recipe_robot_lib.exceptions import RoboError
@@ -1761,8 +1761,8 @@ def inspect_pkg(input_path, args, facts):
                         "Trying to get bundle identifier from PackageInfo file...",
                         LogLevel.VERBOSE,
                     )
-                    pkginfo_file = open(os.path.join(dirpath, filename), "r")
-                    pkginfo_parsed = parse(pkginfo_file)
+                    with open(os.path.join(dirpath, filename), "r") as pkginfo_file:
+                        pkginfo_parsed = ElementTree.parse(pkginfo_file)
                     bundle_id = ""
                     if "bundle_id" not in facts:
                         bundle_id = pkginfo_parsed.getroot().attrib["identifier"]
@@ -2004,7 +2004,7 @@ def inspect_sourceforge_url(input_path, args, facts):
                 facts["warnings"].append(
                     "Error occurred while inspecting SourceForge RSS feed: %s" % err
                 )
-            doc = parse(raw_xml)
+            doc = ElementTree.fromstring(raw_xml)
 
             # Get the latest download URL.
             download_url = ""
@@ -2145,8 +2145,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Parse the Sparkle feed.
     xmlns = "http://www.andymatuschak.org/xml-namespaces/sparkle"
     try:
-        doc = parse(raw_xml)
-    except ParseError as err:
+        doc = ElementTree.fromstring(raw_xml)
+    except ElementTree.ParseError as err:
         facts["warnings"].append("Error occurred while parsing Sparkle feed (%s)" % err)
         facts.pop("sparkle_feed", None)
         return facts
