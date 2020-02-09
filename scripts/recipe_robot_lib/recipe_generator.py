@@ -371,8 +371,8 @@ def generate_download_recipe(facts, prefs, recipe):
             input_path = "%pathname%"
         else:
             facts["warnings"].append(
-                "CodeSignatureVerifier cannot be created! "
-                "The download format is not recognized"
+                "CodeSignatureVerifier cannot be created. "
+                "The download format is not recognized."
             )
             input_path = None
 
