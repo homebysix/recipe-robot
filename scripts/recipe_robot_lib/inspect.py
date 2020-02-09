@@ -502,7 +502,7 @@ def get_app_description(app_name):
             "pattern": r"<div class=\"itemDesc( read-more-box)?\">\s+"
             '<p class="text">(?P<desc>.*?)</p>',
             "url": "https://alternativeto.net/browse/search"
-            "/?ignoreExactMatch=true&q=%s" % app_name,
+            "/?ignoreExactMatch=true&platform=mac&q=%s" % app_name,
         },
     ]
     for source in desc_sources:
