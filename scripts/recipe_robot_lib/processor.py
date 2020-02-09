@@ -32,13 +32,13 @@ from __future__ import absolute_import
 
 import sys
 
-from .tools import robo_print
+from .tools import robo_print, LogLevel
 
 sys.path.append("/Library/AutoPkg")
 try:
     import autopkglib
 except ImportError:
-    robo_print("AutoPkg must be installed!")
+    robo_print("AutoPkg must be installed!", LogLevel.ERROR)
     sys.exit(1)
 
 
