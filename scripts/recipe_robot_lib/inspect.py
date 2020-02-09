@@ -523,7 +523,7 @@ def get_download_link_from_xattr(input_path, args, facts):
         where_froms_string = xattr.getxattr(
             input_path, "com.apple.metadata:kMDItemWhereFroms"
         )
-        where_froms = plistlib.readPlistFromString(where_froms_string)
+        where_froms = plistlib.loads(where_froms_string)
         if len(where_froms) > 0:
             facts["download_url"] = where_froms[0]
             robo_print(
