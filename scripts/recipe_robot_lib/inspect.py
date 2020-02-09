@@ -481,16 +481,6 @@ def html_decode(the_string):
     return the_string
 
 
-def useragent_urlopen(url, useragent):
-    """For a given URL, return the urlopen response after adding the GitHub token."""
-
-    req = Request(url)
-    if useragent:
-        req.add_header("User-agent", useragent)
-
-    return urlopen(req)
-
-
 def get_app_description(app_name):
     """Use an app's name to generate a description.
 
