@@ -41,16 +41,13 @@ from .tools import LogLevel, robo_print
 
 # pylint: enable=no-name-in-module
 
-# Remap basestring in Python 3
-basestring = str  # pylint: disable=W0622
-
 # pylint: disable=too-few-public-methods
 class NotificationMixin(object):
     """Adds a send_notification method to Notifying classes."""
 
     def send_notification(self, message):
         """Send an NSNotification to our stored center."""
-        if isinstance(message, basestring):
+        if isinstance(message, str):
             message = message.encode("utf-8")
         userInfo = {"message": message}  # pylint: disable=invalid-name
         self.notification_center.postNotificationName_object_userInfo_options_(
@@ -87,7 +84,7 @@ class Facts(RoboDict):
         )
 
     def __setitem__(self, key, val):
-        if isinstance(val, basestring):
+        if isinstance(val, str):
             val = NotifyingString(self.default_suffix, val)
         elif isinstance(val, list):
             val = NotifyingList(self.default_suffix, val)
