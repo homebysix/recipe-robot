@@ -166,7 +166,7 @@ class NotifyingString(NotificationMixin, str):
         # that allows messages to be sent between applications.
         self.notification_center = NSDistributedNotificationCenter.defaultCenter()
         self.send_notification(text)
-        super(NotifyingString, self).__init__(self, text)
+        super(NotifyingString, self).__init__()
 
     # pylint: enable=unused-argument
 
