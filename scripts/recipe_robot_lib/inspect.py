@@ -41,8 +41,8 @@ from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 
 import xattr
+from recipe_robot_lib import curler
 from recipe_robot_lib.exceptions import RoboError
-from recipe_robot_lib.curler import *
 from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
     CACHE_DIR,
@@ -155,54 +155,6 @@ def process_input_path(facts):
 
     if inspect_func:
         facts = inspect_func(input_path, args, facts)
-
-
-def check_url(url):
-    """Test a URL's headers, and switch to HTTPS if available.
-
-    Args:
-        url: The URL to check.
-
-    Returns:
-        url: The URL that was tested, which may not be the same as the URL
-            provided as input (e.g. switching from HTTP to HTTPS).
-        code: The HTTP status code returned by the URL header check.
-    """
-    prs = urlparse(url)
-    # TODO (Elliot): Support URLs with hard-coded port other than 80/443.
-    if prs.scheme == "https" or ":" in prs.netloc:
-        return url
-    elif prs.scheme == "http":
-        robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
-        try:
-            # Try switching to HTTPS.
-            cnx = httplib.HTTPSConnection(prs.netloc, 443, timeout=10)
-            cnx.request("HEAD", prs.path)
-            res = cnx.getresponse()
-            if res.status < 400:
-                url = "https" + url[4:]
-                robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
-                return url
-            else:
-                robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
-        except (CertificateError, SSLError) as err:
-            robo_print(
-                "Domain does not have a valid SSL certificate.", LogLevel.VERBOSE, 4
-            )
-        except Exception as err:  # pylint: disable=W0703
-            robo_print(
-                "An error occurred while checking for an HTTPS URL: %s" % err,
-                LogLevel.VERBOSE,
-                4,
-            )
-
-    # Use HTTP if HTTPS fails.
-    cnx = httplib.HTTPConnection(prs.netloc, 80, timeout=10)  # pylint: disable=R0204
-    cnx.request("HEAD", prs.path)
-    res = cnx.getresponse()
-    # TODO (Elliot): Mitigation of errors based on res.status.
-
-    return url
 
 
 def inspect_app(input_path, args, facts, bundle_type="app"):
