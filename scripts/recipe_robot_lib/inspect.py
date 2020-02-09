@@ -1206,8 +1206,8 @@ def inspect_download_url(input_path, args, facts):
 
     # Just in case the "download" was actually a Sparkle feed.
     hidden_sparkle = False
-    with open(os.path.join(CACHE_DIR, filename), "r") as download_file:
-        if download_file.read()[:6] == "<?xml ":
+    with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
+        if download_file.read(6).lower() == b"<?xml ":
             robo_print("This download is actually a Sparkle feed", LogLevel.VERBOSE, 4)
             hidden_sparkle = True
     if hidden_sparkle is True:
@@ -1241,8 +1241,8 @@ def inspect_download_url(input_path, args, facts):
     robo_print("Opening downloaded file...", LogLevel.VERBOSE)
 
     # If the file is a webpage (e.g. 404 message), warn the user now.
-    with open(os.path.join(CACHE_DIR, filename), "r") as download:
-        if "html" in download.readline().lower():
+    with open(os.path.join(CACHE_DIR, filename), "rb") as download:
+        if b"html" in download.read(30).lower():
             facts["warnings"].append(
                 "There's a good chance that the file failed to download. "
                 "Looks like a webpage was downloaded instead."
