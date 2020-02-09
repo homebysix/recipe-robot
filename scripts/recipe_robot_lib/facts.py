@@ -147,7 +147,7 @@ class NotifyingString(NotificationMixin, str):
             message_type: String name appended to message identifier.
             text: Optional string to use to fill the instance.
         """
-        instance = super(NotifyingString, cls).__new__(cls, text.encode("utf-8"))
+        instance = super(NotifyingString, cls).__new__(cls, text)
         instance.message_type = message_type
         return instance
 
