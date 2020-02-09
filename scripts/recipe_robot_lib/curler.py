@@ -155,7 +155,7 @@ def execute_curl(curl_cmd, text=True):
 def download_with_curl(curl_cmd, text=True):
     """Launch curl, return its output, and handle failures."""
     proc_stdout, proc_stderr, retcode = execute_curl(curl_cmd, text)
-    robo_print(f"Curl command: {curl_cmd}", LogLevel.VERBOSE, 4)
+    robo_print(f"Curl command: {curl_cmd}", LogLevel.DEBUG, 4)
     if retcode:  # Non-zero exit code from curl => problem with download
         curl_err = parse_curl_error(proc_stderr)
         raise RoboError(f"curl failure: {curl_err} (exit code {retcode})")
