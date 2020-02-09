@@ -1738,13 +1738,14 @@ def inspect_pkg(input_path, args, facts):
                     payload_id += 1
 
         # Add apps found to blocking applications, unless
-        # otherwise specified.
+        # otherwise specified. These all must be lowercase.
         non_blocking_apps = (
             "autoupdate.app",
             "install.app",
             "installer.app",
             "uninstall.app",
             "uninstaller.app",
+            "python.app",
         )
         for app in [os.path.basename(x["path"]) for x in found_apps]:
             if app not in facts["blocking_applications"]:
