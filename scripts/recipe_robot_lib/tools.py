@@ -336,7 +336,11 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
     out, err = proc.communicate(stdin)
     exitcode = proc.returncode
 
-    return exitcode, out.decode("utf-8"), err.decode("utf-8")
+    return (
+        exitcode,
+        out.decode("utf-8", "backslashreplace"),
+        err.decode("utf-8", "backslashreplace"),
+    )
 
 
 def print_welcome_text():
