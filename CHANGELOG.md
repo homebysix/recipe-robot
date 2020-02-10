@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 ### Added
+- Rewrote significant portions of Recipe Robot to use `curl` instead of Python's urllib. This adds flexibility and mimics AutoPkg's behavior, but may result in changes in behavior from Recipe Robot 1.x.
 - The `recipe-robot` script now supports the creation of "jss-upload" type recipes, which imports a package into Jamf Pro but does not create any policies or groups. (#153)
 
 ### Changed
@@ -20,6 +21,11 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Removed
 - Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.
+- Temporarily removed 403 error detection (usually due to rate-limiting) for BitBucket, GitHub, and SourceForge API calls.
+
+### Known Issues
+- App description lookup may not be working.
+- Progress indication during file download is no longer shown. I hope to restore this feature in a later version.
 
 
 ## [1.2.1] - 2019-12-21
