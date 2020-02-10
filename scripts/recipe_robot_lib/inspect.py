@@ -845,7 +845,7 @@ def inspect_disk_image(input_path, args, facts):
     cmd = '/usr/bin/hdiutil imageinfo -plist "%s"' % input_path
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-        with open(os.path.join(CACHE_DIR, "dmg_info.plist"), "wb") as dmg_plist:
+        with open(os.path.join(CACHE_DIR, "dmg_info.plist"), "w") as dmg_plist:
             dmg_plist.write(out)
         try:
             dmg_info = plistlib.readPlist(os.path.join(CACHE_DIR, "dmg_info.plist"))
@@ -878,7 +878,7 @@ def inspect_disk_image(input_path, args, facts):
         out_clean = out[out.find("<?xml") :]
 
         # Locate and inspect the app.
-        with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), "wb") as dmg_plist:
+        with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), "w") as dmg_plist:
             dmg_plist.write(out_clean)
         try:
             dmg_dict = plistlib.readPlist(os.path.join(CACHE_DIR, "dmg_attach.plist"))
