@@ -30,7 +30,7 @@ import subprocess
 from urllib.parse import urlparse
 
 from .exceptions import RoboError
-from .tools import LogLevel, robo_print
+from .tools import GITHUB_DOMAINS, LogLevel, any_item_in_string, robo_print
 
 
 def prepare_curl_cmd():
@@ -192,13 +192,13 @@ def get_headers(url, headers=None):
     return parsed_headers
 
 
-def check_url(url):
+def check_url(url, headers=None):
     """Test a URL's headers, and switch to HTTPS if available."""
 
     # Switch to HTTPS if possible.
     if url.startswith("http:"):
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
-        https_head = get_headers("https" + url[4:])
+        https_head = get_headers("https" + url[4:], headers=headers)
         if int(https_head.get("http_result_code")) < 400:
             robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
             url = "https" + url[4:]
@@ -206,24 +206,23 @@ def check_url(url):
             robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
 
     # Get URL headers.
-    user_agent = None
-    head = get_headers(url)
+    head = get_headers(url, headers=headers)
     http_result = int(head.get("http_result_code"))
 
     # Try to mitigate errors.
     if http_result >= 400:
         robo_print("HTTP error: %s" % http_result, LogLevel.WARNING)
         if http_result == 403:
-            alt_user_agent = (
+            headers["user-agent"] = (
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) "
                 "AppleWebKit/605.1.15 (KHTML, like Gecko) "
                 "Version/13.0.5 Safari/605.1.15"
             )
-            user_agent_head = get_headers(url, headers={"user-agent": alt_user_agent})
+            user_agent_head = get_headers(url, headers=headers)
             if int(user_agent_head.get("http_result_code")) < 400:
                 robo_print(
                     "Using Safari user-agent.", LogLevel.VERBOSE, 4,
                 )
-                return url, user_agent_head, alt_user_agent
+                return url, user_agent_head, headers["user-agent"]
 
     return url, head, None

@@ -42,6 +42,7 @@ from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
     CACHE_DIR,
+    GITHUB_DOMAINS,
     SUPPORTED_ARCHIVE_FORMATS,
     SUPPORTED_BUNDLE_TYPES,
     SUPPORTED_IMAGE_FORMATS,
@@ -49,8 +50,12 @@ from recipe_robot_lib.tools import (
     LogLevel,
     any_item_in_string,
     get_exitcode_stdout_stderr,
+    get_github_token,
     robo_print,
 )
+
+# Initialize token for GitHub authorizations, if it exists.
+GITHUB_TOKEN = get_github_token()
 
 
 def process_input_path(facts):
@@ -82,8 +87,6 @@ def process_input_path(facts):
     facts["blocking_applications"] = []
     facts["codesign_authorities"] = []
 
-    github_domains = ("github.com", "githubusercontent.com", "github.io")
-
     # Determine what kind of input path we are working with, then
     # inspect it.
     inspect_func = None
@@ -94,7 +97,7 @@ def process_input_path(facts):
         ):
             robo_print("Input path looks like a Sparkle feed.", LogLevel.VERBOSE)
             inspect_func = inspect_sparkle_feed_url
-        elif any_item_in_string(github_domains, input_path.lower()):
+        elif any_item_in_string(GITHUB_DOMAINS, input_path.lower()):
             robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
             if "/download/" in input_path.lower():
                 facts["warnings"].append(
@@ -1029,13 +1032,19 @@ def inspect_download_url(input_path, args, facts):
     # specified.
     facts["specify_filename"] = not input_path.endswith(filename)
 
+    # Prepare GitHub token, if we have one.
+    if any_item_in_string(GITHUB_DOMAINS, input_path.lower()) and GITHUB_TOKEN:
+        headers = {"Authorization": "token %s" % GITHUB_TOKEN}
+    else:
+        headers = {}
+
     # Download the file for continued inspection.
     # TODO(Elliot): Maybe something like this is better for downloading
     # big files? https://gist.github.com/gourneau/1430932 (#24)
     robo_print("Downloading file for further inspection...", LogLevel.VERBOSE)
 
     # Check to make sure URL is valid, and switch to HTTPS if possible.
-    checked_url, head, user_agent = curler.check_url(input_path)
+    checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
     if int(head.get("http_result_code")) >= 400:
         facts["warnings"].append(
@@ -1091,7 +1100,9 @@ def inspect_download_url(input_path, args, facts):
     facts["download_filename"] = filename
 
     # Write the downloaded file to the cache folder.
-    _ = curler.download_to_file(checked_url, os.path.join(CACHE_DIR, filename))
+    _ = curler.download_to_file(
+        checked_url, os.path.join(CACHE_DIR, filename), headers=headers
+    )
     robo_print(
         "Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4
     )
@@ -1171,17 +1182,6 @@ def inspect_download_url(input_path, args, facts):
     return facts
 
 
-def github_urlopen(url, github_token, text=False):
-    """For a given URL, return the urlopen response after adding the GitHub token."""
-
-    if github_token:
-        headers = {"Authorization": "token %s" % github_token}
-    else:
-        headers = {}
-
-    return curler.download(url, headers=headers, text=text)
-
-
 def inspect_github_url(input_path, args, facts):
     """Process a GitHub URL
 
@@ -1202,19 +1202,6 @@ def inspect_github_url(input_path, args, facts):
     if "github_url" in facts["inspections"]:
         return facts
     facts["inspections"].append("github_url")
-
-    # Use AutoPkg GitHub token, if file exists.
-    # TODO: Also check for GITHUB_TOKEN preference.
-    github_token_file = os.path.expanduser("~/.autopkg_gh_token")
-    github_token = None
-    if os.path.isfile(github_token_file):
-        try:
-            with open(github_token_file, "r") as tokenfile:
-                github_token = tokenfile.read().strip()
-        except IOError:
-            facts["warnings"].append(
-                "Couldn't read GitHub token file at {}.".format(github_token_file)
-            )
 
     # Grab the GitHub repo path.
     github_repo = ""
@@ -1257,6 +1244,12 @@ def inspect_github_url(input_path, args, facts):
                 "create recipes for myself."
             )
 
+    # Prepare GitHub token, if we have one.
+    if GITHUB_TOKEN:
+        headers = {"Authorization": "token %s" % GITHUB_TOKEN}
+    else:
+        headers = {}
+
     # Use GitHub API to obtain information about the repo and
     # releases.
     repo_api_url = "https://api.github.com/repos/%s" % github_repo
@@ -1264,9 +1257,9 @@ def inspect_github_url(input_path, args, facts):
     user_api_url = "https://api.github.com/users/%s" % github_repo.split("/")[0]
 
     # Download the information from the GitHub API.
-    raw_json_repo = github_urlopen(repo_api_url, github_token, text=True)
-    raw_json_release = github_urlopen(releases_api_url, github_token, text=True)
-    raw_json_user = github_urlopen(user_api_url, github_token, text=True)
+    raw_json_repo = curler.download(repo_api_url, headers=headers, text=True)
+    raw_json_release = curler.download(releases_api_url, headers=headers, text=True)
+    raw_json_user = curler.download(user_api_url, headers=headers, text=True)
 
     # Parse the downloaded JSON.
     parsed_repo = json.loads(raw_json_repo)
@@ -1824,8 +1817,14 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     robo_print("Sparkle feed is: %s" % input_path, LogLevel.VERBOSE, 4)
     facts["sparkle_feed"] = input_path
 
+    # Prepare GitHub token, if we have one.
+    if any_item_in_string(GITHUB_DOMAINS, input_path.lower()) and GITHUB_TOKEN:
+        headers = {"Authorization": "token %s" % GITHUB_TOKEN}
+    else:
+        headers = {}
+
     # Check to make sure URL is valid, and switch to HTTPS if possible.
-    checked_url, head, user_agent = curler.check_url(input_path)
+    checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
     if int(head.get("http_result_code")) >= 400:
         # Remove Sparkle feed if it's not usable.
@@ -1851,7 +1850,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         )
 
     # Download and parse the Sparkle feed.
-    raw_xml = curler.download(checked_url, text=True)
+    raw_xml = curler.download(checked_url, headers=headers, text=True)
     try:
         doc = ElementTree.fromstring(raw_xml)
     except ElementTree.ParseError as err:

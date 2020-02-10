@@ -96,6 +96,8 @@ CACHE_DIR = os.path.join(
 )
 color_setting = False
 
+GITHUB_DOMAINS = ("github.com", "githubusercontent.com", "github.io")
+
 
 class LogLevel(object):
     """Specify colors that are used in Terminal output."""
@@ -184,6 +186,21 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
             print(line, file=sys.stderr)
         else:
             print(line)
+
+
+def get_github_token():
+    """Return AutoPkg GitHub token, if file exists."""
+    # TODO: Also check for GITHUB_TOKEN preference.
+    github_token_file = os.path.expanduser("~/.autopkg_gh_token")
+    if os.path.isfile(github_token_file):
+        try:
+            with open(github_token_file, "r") as tokenfile:
+                return tokenfile.read().strip()
+        except IOError:
+            facts["warnings"].append(
+                "Couldn't read GitHub token file at {}.".format(github_token_file)
+            )
+    return None
 
 
 def strip_dev_suffix(dev):
