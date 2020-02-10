@@ -33,7 +33,7 @@ This two-pronged approach allows AutoPkg novices to easily create recipes that f
 
 The native Recipe Robot app requires macOS 10.13 or higher, but the Python script should work on previous versions of macOS.
 
-You also need [AutoPkg](https://github.com/autopkg/autopkg/releases/latest) 1.0.0 or later installed.
+You also need [AutoPkg](https://github.com/autopkg/autopkg/releases/latest) 2.0.2 or later installed, which includes the version of Python 3 Recipe Robot depends on.
 
 
 ## Mac App Usage
