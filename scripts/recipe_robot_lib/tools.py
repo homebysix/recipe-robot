@@ -331,6 +331,7 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
         out: String from standard output.
         err: String from standard error.
     """
+    robo_print("Shell command: %s" % cmd, LogLevel.DEBUG, 4)
     proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate(stdin)
     exitcode = proc.returncode
