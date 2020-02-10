@@ -866,7 +866,7 @@ def inspect_disk_image(input_path, args, facts):
     # Mount the dmg and look for an app.
     cmd = '/usr/bin/hdiutil attach -nobrowse -plist "%s"' % input_path
     if dmg_has_sla is True:
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd, "Y\n")
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd, stdin=b"Y\n")
     else:
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
