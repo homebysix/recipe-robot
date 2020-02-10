@@ -28,7 +28,6 @@ from __future__ import absolute_import
 
 import json
 import os
-import plistlib
 import re
 import shutil
 import sys
@@ -37,6 +36,7 @@ from urllib.parse import urlparse
 from xml.etree import ElementTree
 
 import xattr
+from recipe_robot_lib import FoundationPlist as plistlib
 from recipe_robot_lib import curler
 from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.tools import (

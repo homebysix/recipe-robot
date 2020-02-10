@@ -30,7 +30,7 @@ character. We will use "Robby the Robot" for ours.
 from __future__ import absolute_import, print_function
 
 import os
-import plistlib
+from recipe_robot_lib import FoundationPlist as plistlib
 import shutil
 import subprocess
 from random import shuffle

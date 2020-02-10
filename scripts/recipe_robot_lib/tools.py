@@ -28,7 +28,6 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 from __future__ import absolute_import, print_function
 
 import os
-import plistlib
 import re
 import shlex
 import sys
@@ -48,6 +47,7 @@ from Foundation import (
     kCFPreferencesAnyHost,
     kCFPreferencesCurrentUser,
 )
+from recipe_robot_lib import FoundationPlist as plistlib
 
 from .exceptions import RoboError
 
