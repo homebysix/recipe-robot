@@ -30,7 +30,7 @@ RoboList:
 
 from __future__ import absolute_import
 
-from collections import MutableMapping, MutableSequence
+from collections.abc import MutableMapping, MutableSequence
 
 
 class RoboDict(MutableMapping):
