@@ -65,7 +65,7 @@ class RoboDict(MutableMapping):
 
 
 class RoboList(MutableSequence):
-    """Base dictionary class for defining special methods and inits.
+    """Base list class for defining special methods and inits.
 
     Doesn't do anything different from list, other than allow easy
     overriding for subclasses.
