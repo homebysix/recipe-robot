@@ -318,7 +318,7 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
     out, err = proc.communicate(stdin)
     exitcode = proc.returncode
 
-    return exitcode, out, err
+    return exitcode, out.decode("utf-8"), err.decode("utf-8")
 
 
 def print_welcome_text():
