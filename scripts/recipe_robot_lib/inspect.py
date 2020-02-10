@@ -31,7 +31,7 @@ import os
 import re
 import shutil
 import sys
-from distutils.version import LooseVersion, StrictVersion
+from distutils.version import StrictVersion
 from urllib.parse import urlparse
 from xml.etree import ElementTree
 
@@ -53,6 +53,13 @@ from recipe_robot_lib.tools import (
     get_github_token,
     robo_print,
 )
+
+sys.path.append("/Library/AutoPkg")
+try:
+    from autopkglib import APLooseVersion
+except ImportError:
+    robo_print("AutoPkg must be installed!", LogLevel.ERROR)
+    sys.exit(1)
 
 # Initialize token for GitHub authorizations, if it exists.
 GITHUB_TOKEN = get_github_token()
@@ -1871,7 +1878,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             )
             if encl_vers not in (None, ""):
                 sparkle_provides_version = True
-                if LooseVersion(encl_vers) > LooseVersion(latest_version):
+                if APLooseVersion(encl_vers) > APLooseVersion(latest_version):
                     latest_version = encl_vers
 
     if sparkle_provides_version is True:
