@@ -35,7 +35,7 @@ from .tools import GITHUB_DOMAINS, LogLevel, any_item_in_string, robo_print
 
 def prepare_curl_cmd():
     """Assemble basic curl command and return it."""
-    return ["/usr/bin/curl", "--compressed", "--location"]
+    return ["/usr/bin/curl", "--compressed", "--location", "--silent", "--show-error"]
 
 
 def add_curl_headers(curl_cmd, headers):
@@ -148,7 +148,7 @@ def execute_curl(curl_cmd, text=True):
             text=text,
         )
     except subprocess.CalledProcessError as err:
-        raise RoboError(err)
+        return err.stdout, err.stderr, err.returncode
     return result.stdout, result.stderr, result.returncode
 
 
@@ -158,7 +158,7 @@ def download_with_curl(curl_cmd, text=True):
     robo_print(f"Curl command: {curl_cmd}", LogLevel.DEBUG, 4)
     if retcode:  # Non-zero exit code from curl => problem with download
         curl_err = parse_curl_error(proc_stderr)
-        raise RoboError(f"curl failure: {curl_err} (exit code {retcode})")
+        robo_print(f"curl failure: {curl_err} (exit code {retcode})", LogLevel.WARNING)
     return proc_stdout
 
 
