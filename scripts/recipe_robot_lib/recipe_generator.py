@@ -1535,8 +1535,8 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     """
 
     robo_print(
-        "Sorry, I don't know how to make a BigFix recipe yet. I'm a "
-        "fast learner, though. Stay tuned.",
+        "Sorry, I don't know how to make a BigFix recipe yet. If you do, "
+        "tell me how with a pull request!",
         LogLevel.WARNING,
     )
     # print(facts)
