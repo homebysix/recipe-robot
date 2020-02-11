@@ -111,7 +111,7 @@ def test():
     )
 
     shuffle(SAMPLE_DATA)
-    for app in SAMPLE_DATA[:1]:
+    for app in SAMPLE_DATA:
 
         if prefs.get("StripDeveloperSuffixes") is True:
             app["developer"] = strip_dev_suffix(app["developer"])
