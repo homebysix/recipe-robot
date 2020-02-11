@@ -53,6 +53,7 @@ class TestProcessor(object):
         expected_variables = (
             "additional_makepkginfo_options",
             "force_munkiimport",
+            "metadata_additions",
             "MUNKI_PKGINFO_FILE_EXTENSION",
             "MUNKI_REPO",
             "munkiimport_appname",
