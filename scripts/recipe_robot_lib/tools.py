@@ -332,15 +332,11 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
         err: String from standard error.
     """
     robo_print("Shell command: %s" % cmd, LogLevel.DEBUG, 4)
-    proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE, text=True)
     out, err = proc.communicate(stdin)
     exitcode = proc.returncode
 
-    return (
-        exitcode,
-        out.decode("utf-8", "backslashreplace"),
-        err.decode("utf-8", "backslashreplace"),
-    )
+    return exitcode, out, err
 
 
 def print_welcome_text():
