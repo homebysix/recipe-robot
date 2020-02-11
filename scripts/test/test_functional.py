@@ -31,6 +31,7 @@ from __future__ import absolute_import, print_function
 
 import os
 from recipe_robot_lib import FoundationPlist as plistlib
+from recipe_robot_lib.tools import strip_dev_suffix
 import shutil
 import subprocess
 from random import shuffle
@@ -110,7 +111,10 @@ def test():
     )
 
     shuffle(SAMPLE_DATA)
-    for app in SAMPLE_DATA:
+    for app in SAMPLE_DATA[:1]:
+
+        if prefs.get("StripDeveloperSuffixes") is True:
+            app["developer"] = strip_dev_suffix(app["developer"])
 
         # Remove output folder, if it exists.
         destination = get_output_path(prefs, app["app_name"], app["developer"])
