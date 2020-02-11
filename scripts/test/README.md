@@ -4,9 +4,9 @@ These modules use `nose` to test various functionalities of Recipe Robot. If use
 
 ## Requirements
 
-You must have the `nose` tool installed.
+You must have the `nose` tool installed (and probably `pip3` to install it).
 
-    pip install nose --user
+    pip3 install nose --user
 
 Also check Recipe Robot's config to make sure download, pkg, munki, and jss recipes are enabled. Also turn on the "strip developer suffixes" and turn off the "use official jss-recipes style" options.
 
@@ -23,6 +23,6 @@ Make sure your working directory is the __scripts__ folder.
 
 Once you've met the above requirements, run the tests with this command:
 
-    nosetests -v test
+    /usr/local/autopkg/python -m nose -v test
 
 "OK" will be displayed in the output if the tests passed.
