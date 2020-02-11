@@ -415,16 +415,21 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
                     codesign_reqs = line[len(reqs_marker) :]
             # From stderr:
             authority_marker = "Authority="
-            dev_marker = "Authority=Developer ID Application: "
+            dev_markers = (
+                "Authority=Developer ID Application: ",
+                "Authority=Mac Developer: ",
+                "Authority=Apple Development: ",
+            )
             vers_marker = "Sealed Resources version="
             # The info we need is in stderr.
             for line in err.splitlines():
                 if line.startswith(authority_marker):
                     codesign_authorities.append(line[len(authority_marker) :])
-                if line.startswith(dev_marker):
-                    if " (" in line:
-                        line = line.split(" (")[0]
-                    developer = line[len(dev_marker) :]
+                for dev_marker in dev_markers:
+                    if line.startswith(dev_marker) and not developer:
+                        if " (" in line:
+                            line = line.split(" (")[0]
+                        developer = line[len(dev_marker) :]
                 if line.startswith(vers_marker):
                     codesign_version = line[len(vers_marker) : len(vers_marker) + 1]
                     if codesign_version == "1":
