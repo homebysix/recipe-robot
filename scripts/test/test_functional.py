@@ -50,7 +50,7 @@ from .sample_data import SAMPLE_DATA
 RECIPE_TYPES = ("download", "pkg", "munki", "install", "jss")
 
 
-def robot_runner(input_path, app, dev):
+def robot_runner(input_path):
     """For given input, run Recipe Robot and return the output recipes as dicts."""
 
     retcode = subprocess.call(
@@ -116,9 +116,8 @@ def test():
         destination = get_output_path(prefs, app["app_name"], app["developer"])
         clean_folder(destination)
 
-        yield robot_runner, app["input_path"], app["app_name"], app["developer"]
+        yield robot_runner, app["input_path"]
 
-        recipes = {}
         for recipe_type in RECIPE_TYPES:
             recipe_path = get_output_path(
                 prefs, app["app_name"], app["developer"], recipe_type=recipe_type
