@@ -26,6 +26,7 @@ Look at a path or URL for an app and generate facts about it.
 
 from __future__ import absolute_import
 
+import html
 import json
 import os
 import re
@@ -520,7 +521,7 @@ def get_app_description(app_name):
         result = re.search(source["pattern"], out)
         if result:
             description = html_decode(result.group("desc"))
-            return description, source["name"]
+            return html.unescape(description), source["name"]
     return None, None
 
 
