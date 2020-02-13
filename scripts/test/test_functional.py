@@ -30,15 +30,15 @@ character. We will use "Robby the Robot" for ours.
 from __future__ import absolute_import, print_function
 
 import os
-from recipe_robot_lib import FoundationPlist as plistlib
-from recipe_robot_lib.tools import strip_dev_suffix
 import shutil
 import subprocess
 from random import shuffle
 
+import yaml
 from nose.tools import *
 
-from .sample_data import SAMPLE_DATA
+from recipe_robot_lib import FoundationPlist as plistlib
+from recipe_robot_lib.tools import strip_dev_suffix
 
 # pylint: enable=unused-wildcard-import, wildcard-import
 
@@ -110,8 +110,13 @@ def test():
         os.path.expanduser("~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
     )
 
-    shuffle(SAMPLE_DATA)
-    for app in SAMPLE_DATA:
+    # Read and randomize sample data.
+    with open("test/sample_data.yaml", "rb") as openfile:
+        sample_data = yaml.load(openfile, Loader=yaml.FullLoader)
+    shuffle(sample_data)
+
+    # Iterate through sample data, generating a recipe for each input.
+    for app in sample_data:
 
         if prefs.get("StripDeveloperSuffixes") is True:
             app["developer"] = strip_dev_suffix(app["developer"])
