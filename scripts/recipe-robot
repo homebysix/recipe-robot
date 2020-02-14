@@ -40,7 +40,7 @@ if sys.platform != "darwin":
 
 # Warn if trying to run on Python 2
 if sys.version_info.major < 3:
-    print("This version of Recipe Robot requires Python 3.")
+    print("ERROR: This version of Recipe Robot requires AutoPkg 2 and Python 3.")
     sys.exit(1)
 
 # TODO (Shea): Clean up importing from our library.
