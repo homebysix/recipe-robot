@@ -80,6 +80,7 @@ SUPPORTED_BUNDLE_TYPES = {
 PREFERENCE_KEYS = (
     "DSPackagesPath",
     "FollowOfficialJSSRecipesFormat",
+    "IgnoreExisting",
     "Initialized",  # Used by the RR app to show/hide config sheet on first launch.
     "LastRecipeRobotVersion",
     "RecipeCreateCount",
