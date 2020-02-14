@@ -87,9 +87,6 @@ def process_input_path(facts):
     if "http" not in input_path:
         input_path = input_path.rstrip("/ ")
 
-    # Put input_path into our facts for reporting purposes
-    facts["input_path"] = input_path
-
     # Initialize facts that are lists.
     facts["inspections"] = []
     facts["blocking_applications"] = []
