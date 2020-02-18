@@ -81,7 +81,8 @@ def main():
 
     try:
         setup(facts)
-        print_welcome_text()
+        if not facts["args"].app_mode:
+            print_welcome_text()
         prefs = init_prefs(facts)
         first_timer = prefs.get("RecipeCreateCount", 0) == 0
 

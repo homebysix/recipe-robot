@@ -368,7 +368,7 @@ def print_death_text():
                                      ||
                                    _/  \_
     """
-    robo_print(death_text, LogLevel.ERROR)
+    robo_print(death_text)
 
 
 def reset_term_colors():

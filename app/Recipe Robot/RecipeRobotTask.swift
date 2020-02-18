@@ -24,28 +24,26 @@ class RecipeRobotTask: Task {
 
     // Task Overrides
     override var executable: String {
-        return "/usr/bin/python"
+        return Bundle.main.path(forResource: "scripts/recipe-robot", ofType: nil)!
     }
 
     override var args: [String]? {
         get {
             var args = [String]()
 
-            if let recipeRobotPy = Bundle.main.path(forResource: "scripts/recipe-robot", ofType: nil){
+            args.append(contentsOf:["--verbose", "--app-mode"])
 
-                args.append(contentsOf:[recipeRobotPy, "--verbose", "--app-mode"])
-
-                // Honor the ignoreExisting of the instance first
-                // If that's unset apply the setting from defaults.
-                if let ignore = self.ignoreExisting {
-                    if ignore {
-                        args.append("--ignore-existing")
-                    }
-                } else if Defaults.sharedInstance.ignoreExisting {
+            // Honor the ignoreExisting of the instance first
+            // If that's unset apply the setting from defaults.
+            if let ignore = self.ignoreExisting {
+                if ignore {
                     args.append("--ignore-existing")
                 }
-                args.append(self.appOrRecipe)
+            } else if Defaults.sharedInstance.ignoreExisting {
+                args.append("--ignore-existing")
             }
+            args.append(contentsOf:["--", self.appOrRecipe])
+
             return args
         }
         set {}
