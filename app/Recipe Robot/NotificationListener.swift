@@ -33,13 +33,13 @@ enum NoteType: Int {
 
     var key: String {
         switch self {
-        case .Info: return "information"
+        case .Complete: return "complete"
         case .Error: return "errors"
+        case .Icons: return "icons"
+        case .Info: return "information"
+        case .Recipes: return "recipes"
         case .Reminders: return "reminders"
         case .Warnings: return "warnings"
-        case .Recipes: return "recipes"
-        case .Icons: return "icons"
-        case .Complete: return "complete"
         }
     }
 

@@ -75,11 +75,13 @@ class Facts(RoboDict):
         super(Facts, self).__init__()
         self._dict.update(
             {
+                "complete": NotifyingList("complete"),
                 "errors": NoisyNotifyingList("errors"),
+                "icons": NotifyingList("icons"),
+                "information": NoisyNotifyingList("information"),
+                "recipes": NotifyingList("recipes"),
                 "reminders": NoisyNotifyingList("reminders"),
                 "warnings": NoisyNotifyingList("warnings"),
-                "recipes": NotifyingList("recipes"),
-                "icons": NotifyingList("icons"),
             }
         )
 
