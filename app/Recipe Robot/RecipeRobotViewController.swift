@@ -123,6 +123,7 @@ class FeedMeViewController: RecipeRobotViewController {
         guard let url = NSURL(string: urlTextField.stringValue) else {
             return
         }
+        print("Received input: \(url.absoluteString!)")
         task.appOrRecipe = url.absoluteString!
         performSegue(withIdentifier: NSStoryboardSegue.Identifier("FeedMeSegue"), sender: self)
     }
@@ -378,6 +379,8 @@ class ProcessingViewController: RecipeRobotViewController {
             b?.image = StatusImage.PartiallyAvailable.image
         }
 
+        print("Executable path: \(task.executable)")
+        print("Command arguments: \(task.args ?? [""])")
         if let icon = task.appIcon {
             appIcon?.image = icon
         }
@@ -458,4 +461,3 @@ class ProcessingViewController: RecipeRobotViewController {
         self.performSegue(withIdentifier:"ProcessingSegue", sender: self)
     }
 }
-

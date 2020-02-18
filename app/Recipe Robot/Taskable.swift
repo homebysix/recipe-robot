@@ -154,7 +154,7 @@ class Task: Taskable, CancelableTask {
             case .BadOutput:
                 return "The received data was bad."
             case .NonZeroExit:
-                return "Error running the command"
+                return "Error running the command."
             }
         }
     }
@@ -185,6 +185,7 @@ class Task: Taskable, CancelableTask {
             fh in
             let data = fh.availableData
             guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
+                print("Unable to decode stderr.")
                 return
             }
             DispatchQueue.main.async {
@@ -201,6 +202,7 @@ class Task: Taskable, CancelableTask {
             fh in
             let data = fh.availableData
             guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
+                print("Unable to decode stdout.")
                 return
             }
             DispatchQueue.main.async {
