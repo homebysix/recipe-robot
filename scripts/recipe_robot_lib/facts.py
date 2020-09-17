@@ -47,8 +47,6 @@ class NotificationMixin(object):
 
     def send_notification(self, message):
         """Send an NSNotification to our stored center."""
-        if isinstance(message, str):
-            message = message.encode("utf-8")
         userInfo = {"message": message}  # pylint: disable=invalid-name
         self.notification_center.postNotificationName_object_userInfo_options_(
             "com.elliotjordan.recipe-robot.dnc.%s" % self.message_type,
