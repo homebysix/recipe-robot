@@ -1130,7 +1130,11 @@ def inspect_download_url(input_path, args, facts):
     hidden_sparkle = False
     with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
         if download_file.read(6).lower() == b"<?xml ":
-            robo_print("This download is actually a Sparkle feed", LogLevel.VERBOSE, 4)
+            robo_print(
+                "Surprise! This download is actually a Sparkle feed",
+                LogLevel.VERBOSE,
+                4,
+            )
             hidden_sparkle = True
     if hidden_sparkle is True:
         os.remove(os.path.join(CACHE_DIR, filename))
