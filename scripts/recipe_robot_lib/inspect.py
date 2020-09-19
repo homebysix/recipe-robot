@@ -1062,7 +1062,7 @@ def inspect_download_url(input_path, args, facts):
     # Check to make sure URL is valid, and switch to HTTPS if possible.
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
-    known_403_on_head = ("github.com", "bitbucket.org")
+    known_403_on_head = ("github.com", "bitbucket.org", "hockeyapp.net")
     if int(head.get("http_result_code")) >= 400:
         if not any((x in checked_url for x in known_403_on_head)):
             facts["warnings"].append(
