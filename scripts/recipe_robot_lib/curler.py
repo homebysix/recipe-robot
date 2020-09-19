@@ -78,8 +78,12 @@ def parse_http_header(line, header):
 def parse_curl_error(proc_stderr):
     """Report curl failure."""
     curl_err = ""
+    if isinstance(proc_stderr, bytes):
+        newline = b"\n"
+    else:
+        newline = "\n"
     try:
-        curl_err = proc_stderr.rstrip("\n")
+        curl_err = proc_stderr.rstrip(newline)
         curl_err = curl_err.split(None, 2)[2]
     except IndexError:
         pass
