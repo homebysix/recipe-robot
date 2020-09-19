@@ -187,9 +187,9 @@ def get_headers(url, headers=None):
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
     curl_cmd.extend(["--head", url])
-    output = download_with_curl(curl_cmd, text=True)
-    parsed_headers = parse_headers(output, url=url)
-    return parsed_headers
+    out, err, retcode = execute_curl(curl_cmd, text=True)
+    parsed_headers = parse_headers(out, url=url)
+    return parsed_headers, retcode
 
 
 def check_url(url, headers=None):
@@ -198,31 +198,32 @@ def check_url(url, headers=None):
     # Switch to HTTPS if possible.
     if url.startswith("http:"):
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
-        https_head = get_headers("https" + url[4:], headers=headers)
-        if int(https_head.get("http_result_code")) < 400:
-            robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
+        head, retcode = get_headers("https" + url[4:], headers=headers)
+        if retcode == 0 and int(head.get("http_result_code")) < 400:
             url = "https" + url[4:]
+            robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
+            return url, head, None
         else:
             robo_print("No usable HTTPS URL found.", LogLevel.VERBOSE, 4)
 
     # Get URL headers.
-    head = get_headers(url, headers=headers)
+    head, retcode = get_headers(url, headers=headers)
     http_result = int(head.get("http_result_code"))
+    if retcode == 0 and http_result < 400:
+        return url, head, None
 
     # Try to mitigate errors.
-    if http_result >= 400:
-        robo_print("HTTP error: %s" % http_result, LogLevel.WARNING)
-        if http_result == 403:
-            headers["user-agent"] = (
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) "
-                "AppleWebKit/605.1.15 (KHTML, like Gecko) "
-                "Version/13.0.5 Safari/605.1.15"
+    if http_result == 403:
+        headers["user-agent"] = (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) "
+            "AppleWebKit/605.1.15 (KHTML, like Gecko) "
+            "Version/13.0.5 Safari/605.1.15"
+        )
+        head, retcode = get_headers(url, headers=headers)
+        if int(head.get("http_result_code")) < 400:
+            robo_print(
+                "Using Safari user-agent.", LogLevel.VERBOSE, 4,
             )
-            user_agent_head = get_headers(url, headers=headers)
-            if int(user_agent_head.get("http_result_code")) < 400:
-                robo_print(
-                    "Using Safari user-agent.", LogLevel.VERBOSE, 4,
-                )
-                return url, user_agent_head, headers["user-agent"]
+            return url, head, headers["user-agent"]
 
     return url, head, None
