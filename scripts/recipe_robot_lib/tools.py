@@ -321,7 +321,7 @@ def extract_app_icon(facts, png_path):
             )
 
 
-def get_exitcode_stdout_stderr(cmd, stdin=""):
+def get_exitcode_stdout_stderr(cmd, stdin="", text=True):
     """Execute the external command and get its exitcode, stdout and stderr.
 
     Args:
@@ -333,8 +333,14 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
         err: String from standard error.
     """
     robo_print("Shell command: %s" % cmd, LogLevel.DEBUG, 4)
-    proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE, text=True)
-    out, err = proc.communicate(stdin)
+    try:
+        # First try to return text output.
+        proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE, text=text)
+        out, err = proc.communicate(stdin)
+    except UnicodeDecodeError:
+        # If that fails, force bytes output.
+        proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE, text=False)
+        out, err = proc.communicate(stdin)
     exitcode = proc.returncode
 
     return exitcode, out, err
