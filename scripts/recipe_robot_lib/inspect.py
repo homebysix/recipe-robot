@@ -869,7 +869,7 @@ def inspect_disk_image(input_path, args, facts):
     # Mount the dmg and look for an app.
     cmd = '/usr/bin/hdiutil attach -nobrowse -plist "%s"' % input_path
     if dmg_has_sla is True:
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd, stdin=b"Y\n")
+        exitcode, out, err = get_exitcode_stdout_stderr(cmd, stdin=b"Y\n", text=False)
     else:
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
@@ -888,10 +888,16 @@ def inspect_disk_image(input_path, args, facts):
 
         # Clean the output for cases where the dmg has a license
         # agreement.
-        out_clean = out[out.find("<?xml") :]
+        if isinstance(out, bytes):
+            xml_tag = b"<?xml"
+            write_mode = "wb"
+        else:
+            xml_tag = "<?xml"
+            write_mode = "w"
+        out_clean = out[out.find(xml_tag) :]
 
         # Locate and inspect the app.
-        with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), "w") as dmg_plist:
+        with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), write_mode) as dmg_plist:
             dmg_plist.write(out_clean)
         try:
             dmg_dict = plistlib.readPlist(os.path.join(CACHE_DIR, "dmg_attach.plist"))
