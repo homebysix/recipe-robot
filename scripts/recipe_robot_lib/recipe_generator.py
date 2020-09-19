@@ -412,21 +412,27 @@ def generate_download_recipe(facts, prefs, recipe):
                     pkgpayloadunpacker.pkg_payload_path = "%found_filename%"
                 else:
                     # Skip FileFinder and specify the filename of the package.
-                    pkgpayloadunpacker.pkg_payload_path = "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
-                        facts["pkg_filename"]
+                    pkgpayloadunpacker.pkg_payload_path = (
+                        "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
+                            facts["pkg_filename"]
+                        )
                     )
 
                 recipe.append_processor(pkgpayloadunpacker)
 
-                versioner.input_plist_path = "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
-                    facts["app_relpath_from_payload"]
+                versioner.input_plist_path = (
+                    "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
+                        facts["app_relpath_from_payload"]
+                    )
                 )
             else:
                 if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-                    versioner.input_plist_path = "%pathname%/{}{}.{}/Contents/Info.plist".format(
-                        facts.get("relative_path", ""),
-                        facts.get("app_file", facts[bundle_name_key]),
-                        bundle_type,
+                    versioner.input_plist_path = (
+                        "%pathname%/{}{}.{}/Contents/Info.plist".format(
+                            facts.get("relative_path", ""),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        )
                     )
                 else:
                     versioner.input_plist_path = (

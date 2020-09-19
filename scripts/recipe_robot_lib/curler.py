@@ -222,7 +222,9 @@ def check_url(url, headers=None):
         head, retcode = get_headers(url, headers=headers)
         if int(head.get("http_result_code")) < 400:
             robo_print(
-                "Using Safari user-agent.", LogLevel.VERBOSE, 4,
+                "Using Safari user-agent.",
+                LogLevel.VERBOSE,
+                4,
             )
             return url, head, headers["user-agent"]
 

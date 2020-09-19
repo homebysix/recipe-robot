@@ -1776,7 +1776,8 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Get the latest download URL.
         download_url = ""
         robo_print(
-            "Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE,
+            "Determining download URL from SourceForge RSS feed...",
+            LogLevel.VERBOSE,
         )
         for item in doc.iterfind("channel/item"):
             # TODO(Elliot): The extra-info tag is not a reliable
