@@ -6,8 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 ### Added
-- Rewrote significant portions of Recipe Robot to use `curl` instead of Python's urllib. This adds flexibility and mimics AutoPkg's behavior, but may result in changes in behavior from Recipe Robot 1.x.
+- Full Python 3 support, which makes Recipe Robot compatible with (and require) AutoPkg 2. Big thanks to [@sheagcraig](https://github.com/sheagcraig) for fixing a particularly sticky bug involving string encoding. (#156, #160, #163)
+- As part of Python 3 transition, rewrote significant portions of Recipe Robot to use `curl` instead of Python's urllib. This adds flexibility and mimics AutoPkg's behavior, but may result in changes in behavior from Recipe Robot 1.x.
 - The `recipe-robot` script now supports the creation of "jss-upload" type recipes, which imports a package into Jamf Pro but does not create any policies or groups. (#153)
+- Recipe Robot now does more thorough pre-checking of URLs: attempts to use HTTPS instead of HTTP when possible, and tries to add a widely used user-agent if a 403 error is encountered.
 
 ### Changed
 - Recipe Robot no longer assigns AutoPkg input variables for `DOWNLOAD_URL`, `SPARKLE_FEED_URL`, `GITHUB_REPO`, and `BUNDLE_ID`. Instead, it hard-codes these values into the appropriate processor arguments. [@jazzace](https://github.com/jazzace) nicely summarizes the benefit of this change [here](https://youtu.be/BI10WWrgG2A?t=2620).
@@ -18,14 +20,16 @@ All notable changes to this project will be documented in this file. This projec
 ### Fixed
 - Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.
 - Updated regular expression used to grab app descriptions from MacUpdate.
+- Fixed an issue that would cause certain GitHub URLs to be parsed incorrectly.
 
 ### Removed
 - Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.
 - Temporarily removed 403 error detection (usually due to rate-limiting) for BitBucket, GitHub, and SourceForge API calls.
 
 ### Known Issues
-- App description lookup may not be working.
+- On macOS 10.14 (and possibly earlier) an incorrect "certificate has expired" warning may appear in the output. (#165)
 - Progress indication during file download is no longer shown. I hope to restore this feature in a later version.
+- The "jss-upload" type is not addressable yet in the Recipe Robot app, only in the script.
 
 
 ## [1.2.1] - 2019-12-21
