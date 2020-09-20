@@ -103,7 +103,7 @@ def parse_ftp_header(line, header):
     elif responsecode.startswith("55"):
         header["http_result_code"] = "404"
         header["http_result_description"] = line
-    elif responsecode == "150" or responsecode == "125":
+    elif responsecode in ("125", "150"):
         header["http_result_code"] = "200"
         header["http_result_description"] = line
 
