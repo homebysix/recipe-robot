@@ -1238,13 +1238,13 @@ def inspect_github_url(input_path, args, facts):
     parsed_url = urlparse(input_path)
     path = parsed_url.path.split("/")
     path.remove("")
-    if "api.github.com" in input_path:
+    if "api.github.com" in parsed_url.netloc:
         if "/repos/" not in input_path:
             message = "GitHub API URL specified is not a repository."
             facts["warnings"].append(message)
         else:
             github_repo = path[1] + "/" + path[2]
-    elif ".github.io" in input_path:
+    elif ".github.io" in parsed_url.netloc:
         github_repo = parsed_url.netloc.split(".")[0] + "/" + path[0]
     else:
         github_repo = path[0] + "/" + path[1]
