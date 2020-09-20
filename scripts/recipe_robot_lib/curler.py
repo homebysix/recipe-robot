@@ -79,11 +79,9 @@ def parse_curl_error(proc_stderr):
     """Report curl failure."""
     curl_err = ""
     if isinstance(proc_stderr, bytes):
-        newline = b"\n"
-    else:
-        newline = "\n"
+        proc_stderr = proc_stderr.decode("utf-8")
     try:
-        curl_err = proc_stderr.rstrip(newline)
+        curl_err = proc_stderr.rstrip("\n")
         curl_err = curl_err.split(None, 2)[2]
     except IndexError:
         pass
