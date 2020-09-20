@@ -121,13 +121,13 @@ def parse_headers(raw_headers, url=""):
             parse_ftp_header(line, header)
         elif line == "":
             # we got an empty line; end of headers (or curl exited)
-            if header.get("http_result_code") in [
+            if header.get("http_result_code") in (
                 "301",
                 "302",
                 "303",
                 "307",
                 "308",
-            ]:
+            ):
                 # redirect, so more headers are coming.
                 # Throw away the headers we've received so far
                 header["http_redirected"] = header.get("location", None)
