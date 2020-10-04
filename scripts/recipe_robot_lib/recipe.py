@@ -27,7 +27,8 @@ Recipes: Container class for Recipe objects.
 
 from __future__ import absolute_import
 
-from recipe_robot_lib import FoundationPlist as plistlib
+import plistlib
+
 from recipe_robot_lib import processor
 from recipe_robot_lib.roboabc import RoboDict, RoboList
 from recipe_robot_lib.tools import (
@@ -107,7 +108,8 @@ class Recipe(RoboDict):
 
     def write(self, path):
         """Write the recipe to disk."""
-        plistlib.writePlist(self["keys"], path)
+        with open(path, "wb") as openfile:
+            plistlib.dump(self["keys"], openfile)
 
     def set_description(self, description):
         """Save a description that explains what this recipe does."""

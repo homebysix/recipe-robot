@@ -29,6 +29,7 @@ from __future__ import absolute_import
 import html
 import json
 import os
+import plistlib
 import re
 import shutil
 import sys
@@ -37,7 +38,6 @@ from urllib.parse import urlparse
 from xml.etree import ElementTree
 
 import xattr
-from recipe_robot_lib import FoundationPlist as plistlib
 from recipe_robot_lib import curler
 from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.tools import (
@@ -196,9 +196,10 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
     # Read the app's Info.plist.
     robo_print("Validating {}...".format(bundle_type), LogLevel.VERBOSE)
     try:
-        info_plist = plistlib.readPlist(input_path + "/Contents/Info.plist")
+        with open(input_path + "/Contents/Info.plist", "rb") as openfile:
+            info_plist = plistlib.load(openfile)
         robo_print("This {} seems valid".format(bundle_type), LogLevel.VERBOSE, 4)
-    except (ValueError, plistlib.NSPropertyListSerializationException) as error:
+    except (AttributeError, TypeError, ValueError) as error:
         raise RoboError(
             "{} doesn't look like a valid {} to me.".format(input_path, bundle_type),
             error,
@@ -530,7 +531,7 @@ def get_download_link_from_xattr(input_path, args, facts):
         where_froms_string = xattr.getxattr(
             input_path, "com.apple.metadata:kMDItemWhereFroms"
         )
-        where_froms = plistlib.readPlistFromString(where_froms_string)
+        where_froms = plistlib.loads(where_froms_string)
         if len(where_froms) > 0:
             facts["download_url"] = where_froms[0]
             robo_print(
@@ -861,9 +862,10 @@ def inspect_disk_image(input_path, args, facts):
         with open(os.path.join(CACHE_DIR, "dmg_info.plist"), "w") as dmg_plist:
             dmg_plist.write(out)
         try:
-            dmg_info = plistlib.readPlist(os.path.join(CACHE_DIR, "dmg_info.plist"))
+            with open(os.path.join(CACHE_DIR, "dmg_info.plist"), "rb") as openfile:
+                dmg_info = plistlib.load(openfile)
             dmg_has_sla = dmg_info.get("Properties").get("Software License Agreement")
-        except plistlib.NSPropertyListSerializationException:
+        except (AttributeError, TypeError, ValueError):
             pass
 
     # Mount the dmg and look for an app.
@@ -900,8 +902,9 @@ def inspect_disk_image(input_path, args, facts):
         with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), write_mode) as dmg_plist:
             dmg_plist.write(out_clean)
         try:
-            dmg_dict = plistlib.readPlist(os.path.join(CACHE_DIR, "dmg_attach.plist"))
-        except Exception as err:  # pylint: disable=W0703
+            with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), "rb") as openfile:
+                dmg_dict = plistlib.load(openfile)
+        except (AttributeError, TypeError, ValueError):
             raise RoboError(
                 "Shoot, I had trouble parsing the output of hdiutil while mounting the "
                 "downloaded dmg. Sorry about that.",
@@ -1409,7 +1412,12 @@ def get_most_likely_app(app_list):
     # Criteria 1: If only one app has a Sparkle feed, choose that one.
     has_sparkle = []
     for index, candidate in enumerate(app_list):
-        info_plist = plistlib.readPlist(candidate["path"] + "/Contents/Info.plist")
+        info_plist = None
+        try:
+            with open(candidate["path"] + "/Contents/Info.plist", "rb") as openfile:
+                info_plist = plistlib.load(openfile)
+        except (AttributeError, TypeError, ValueError):
+            pass
         if (
             "SUFeedURL" in info_plist
             or "SUOriginalFeedURL" in info_plist

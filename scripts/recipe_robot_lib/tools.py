@@ -28,6 +28,7 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 from __future__ import absolute_import, print_function
 
 import os
+import plistlib
 import re
 import shlex
 import sys
@@ -47,7 +48,6 @@ from Foundation import (
     kCFPreferencesAnyHost,
     kCFPreferencesCurrentUser,
 )
-from recipe_robot_lib import FoundationPlist as plistlib
 
 from .exceptions import RoboError
 
@@ -383,7 +383,8 @@ def reset_term_colors():
 
 
 def write_report(report, report_file):
-    plistlib.writePlist(report, report_file)
+    with open(report_file, "wb") as openfile:
+        plistlib.dump(report, openfile)
 
 
 def get_user_defaults():

@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Removed
 - Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.
 - Temporarily removed 403 error detection (usually due to rate-limiting) for BitBucket, GitHub, and SourceForge API calls.
+- Removed all calls to FoundationPlist in support of Python 3 transition. (Left FoundationPlist itself included in source, but will remove in a future release.)
 
 ### Known Issues
 - On macOS 10.14 (and possibly earlier) an incorrect "certificate has expired" warning may appear in the output. (#165)

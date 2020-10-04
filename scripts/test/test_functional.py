@@ -30,6 +30,7 @@ character. We will use "Robby the Robot" for ours.
 from __future__ import absolute_import, print_function
 
 import os
+import plistlib
 import shutil
 import subprocess
 from random import shuffle
@@ -37,7 +38,6 @@ from random import shuffle
 import yaml
 from nose.tools import *
 
-from recipe_robot_lib import FoundationPlist as plistlib
 from recipe_robot_lib.tools import strip_dev_suffix
 
 # pylint: enable=unused-wildcard-import, wildcard-import
@@ -106,9 +106,9 @@ def test():
     """Functional tests"""
 
     # Read preferences.
-    prefs = plistlib.readPlist(
-        os.path.expanduser("~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
-    )
+    prefs_path = "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
+    with open(os.path.expanduser(prefs_path), "rb") as openfile:
+        prefs = plistlib.load(openfile)
 
     # Read and randomize sample data.
     with open("test/sample_data.yaml", "rb") as openfile:
