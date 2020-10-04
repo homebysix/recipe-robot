@@ -29,6 +29,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Known Issues
 - On macOS 10.14 (and possibly earlier) an incorrect "certificate has expired" warning may appear in the output. (#165)
 - Progress indication during file download is no longer shown. I hope to restore this feature in a later version.
+- Script output does not appear in the app until the script is completely done processing. I hope to restore realtime output in a later version.
 - The "jss-upload" type is not addressable yet in the Recipe Robot app, only in the script.
 
 
