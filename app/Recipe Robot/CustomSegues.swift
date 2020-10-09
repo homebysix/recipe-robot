@@ -94,7 +94,7 @@ class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
 
 class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
     func animatePresentation(of viewController: NSViewController, from fromViewController: NSViewController) {
-        viewController.view.frame = NSRect(x: NSWidth(fromViewController.view.frame), y: 0, width: NSWidth(fromViewController.view.frame), height: NSHeight(fromViewController.view.frame)); // height
+        viewController.view.frame = NSRect(x: NSWidth(fromViewController.view.frame), y: 0, width: NSWidth(fromViewController.view.frame), height: NSHeight(fromViewController.view.frame))
 
         viewController.view.autoresizingMask = [NSView.AutoresizingMask.width, NSView.AutoresizingMask.height]
 
