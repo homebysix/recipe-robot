@@ -1860,7 +1860,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # Check to make sure URL is valid, and switch to HTTPS if possible.
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
-    print(head)
 
     http_result_code = int(head.get("http_result_code"))
     if http_result_code >= 400 and http_result_code != 405:
