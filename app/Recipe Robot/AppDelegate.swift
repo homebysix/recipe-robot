@@ -36,7 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func openHelpURL(sender: AnyObject) {
         guard let url = URL(string: "https://github.com/homebysix/recipe-robot/blob/master/README.md") else {
-            print ("failed URL conversion")
+            print("failed URL conversion")
             return
         }
 

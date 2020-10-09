@@ -25,7 +25,7 @@ class ReplaceSegue: NSStoryboardSegue {
         if let fromViewController = sourceController as? RecipeRobotViewController {
             if let toViewController = destinationController as? RecipeRobotViewController {
                 // no animation.
-                toViewController.task = fromViewController.task;
+                toViewController.task = fromViewController.task
                 fromViewController.view.window?.contentViewController = toViewController
             }
         }
@@ -35,11 +35,11 @@ class ReplaceSegue: NSStoryboardSegue {
 class PushSegue: NSStoryboardSegue {
     override func perform() {
         guard let sourceViewController = sourceController as? NSViewController else {
-            print ("error coercing sourceController to ViewController")
+            print("error coercing sourceController to ViewController")
             return
         }
-        guard let destinationViewController = destinationController as? NSViewController else  {
-            print ("error coercing destinationController to ViewController")
+        guard let destinationViewController = destinationController as? NSViewController else {
+            print("error coercing destinationController to ViewController")
             return
         }
         sourceViewController.present( destinationViewController, animator: PushTransitionAnimator())
@@ -49,11 +49,11 @@ class PushSegue: NSStoryboardSegue {
 class FadeSegue: NSStoryboardSegue {
     override func perform() {
         guard let sourceViewController = sourceController as? NSViewController else {
-            print ("error coercing sourceController to ViewController")
+            print("error coercing sourceController to ViewController")
             return
         }
-        guard let destinationViewController = destinationController as? NSViewController else  {
-            print ("error coercing destinationController to ViewController")
+        guard let destinationViewController = destinationController as? NSViewController else {
+            print("error coercing destinationController to ViewController")
             return
         }
 
@@ -92,13 +92,9 @@ class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
     }
 }
 
-
 class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
     func animatePresentation(of viewController: NSViewController, from fromViewController: NSViewController) {
-        viewController.view.frame = NSMakeRect(NSWidth(fromViewController.view.frame), // x
-            0, // y
-            NSWidth(fromViewController.view.frame), // width
-            NSHeight(fromViewController.view.frame)); // height
+        viewController.view.frame = NSRect(x: NSWidth(fromViewController.view.frame), y: 0, width: NSWidth(fromViewController.view.frame), height: NSHeight(fromViewController.view.frame)); // height
 
         viewController.view.autoresizingMask = [NSView.AutoresizingMask.width, NSView.AutoresizingMask.height]
 
@@ -106,8 +102,8 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
         let dRect = fromViewController.view.frame
 
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
-            context.duration = 0.5;
-            context.timingFunction = CAMediaTimingFunction(name:CAMediaTimingFunctionName.easeOut)
+            context.duration = 0.5
+            context.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
             viewController.view.animator().frame = dRect
             }, completionHandler: { () -> Void in
         })
@@ -116,8 +112,8 @@ class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
     func animateDismissal(of viewController: NSViewController, from fromViewController: NSViewController) {
         let dRect = fromViewController.view.frame
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
-            context.duration = 0.5;
-            context.timingFunction = CAMediaTimingFunction(name:CAMediaTimingFunctionName.easeIn)
+            context.duration = 0.5
+            context.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeIn)
             viewController.view.animator().frame = dRect
             }, completionHandler: { () -> Void in
                 viewController.view.removeFromSuperview()

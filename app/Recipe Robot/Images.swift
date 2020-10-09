@@ -22,7 +22,7 @@ enum StatusImage: Int {
     case None, Available, PartiallyAvailable, Unavailable
 
     var image: NSImage {
-        switch self{
+        switch self {
         case .None:
             return NSImage(named: "NSStatusNone")!
         case .Available:

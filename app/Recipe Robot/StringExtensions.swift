@@ -53,7 +53,7 @@ private let BracketedColorDict = [
 extension String {
     var color: NSColor {
         for (k, v) in BracketedColorDict {
-            if self.contains(k){
+            if self.contains(k) {
                 return v
             }
         }

@@ -18,8 +18,6 @@
 
 import Cocoa
 
-
-
 class RecipeRobotTask: Task {
 
     // Task Overrides
@@ -31,7 +29,7 @@ class RecipeRobotTask: Task {
         get {
             var args = [String]()
 
-            args.append(contentsOf:["--verbose", "--app-mode"])
+            args.append(contentsOf: ["--verbose", "--app-mode"])
 
             // Honor the ignoreExisting of the instance first
             // If that's unset apply the setting from defaults.
@@ -42,7 +40,7 @@ class RecipeRobotTask: Task {
             } else if Defaults.sharedInstance.ignoreExisting {
                 args.append("--ignore-existing")
             }
-            args.append(contentsOf:["--", self.appOrRecipe])
+            args.append(contentsOf: ["--", self.appOrRecipe])
 
             return args
         }
@@ -63,7 +61,7 @@ class RecipeRobotTask: Task {
 
     var appIcon: NSImage? {
         if let dict = appBundle?.infoDictionary {
-            var iconName: String? = nil
+            var iconName: String?
 
             if let name = dict["CFBundleIconFile"] as? String {
                 iconName = name
@@ -73,8 +71,8 @@ class RecipeRobotTask: Task {
                     iconName = name
             }
 
-            if let iconName = iconName, let iconFile = appBundle?.pathForImageResource(iconName){
-                if let image = NSImage(contentsOfFile: iconFile){
+            if let iconName = iconName, let iconFile = appBundle?.pathForImageResource(iconName) {
+                if let image = NSImage(contentsOfFile: iconFile) {
                     return image
                 }
             }
@@ -88,7 +86,7 @@ class RecipeRobotTask: Task {
 
     // var recipeTypes = []
     var output: String = "~/Library/AutoPkg/Recipe Robot Output/"
-    var includeExisting : Bool = false
+    var includeExisting: Bool = false
 
     private class func taskError(string: String, exitCode: Int32) -> NSError {
         print(string)

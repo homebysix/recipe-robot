@@ -19,7 +19,7 @@
 import Cocoa
 
 extension NSTextStorage {
-    func appendString(string: String, color: NSColor){
+    func appendString(string: String, color: NSColor) {
 
         var attrs = [NSAttributedString.Key: Any]()
         let idx = self.string.count

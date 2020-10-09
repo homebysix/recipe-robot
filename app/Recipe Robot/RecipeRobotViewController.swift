@@ -21,8 +21,7 @@ import AudioToolbox
 import Quartz
 
 //let sound = NSSound(named: "Glass")
-var sound: NSSound? = nil
-
+var sound: NSSound?
 
 // MARK: Base view Controller for Main Storyboard.
 class RecipeRobotViewController: NSViewController {
@@ -89,7 +88,7 @@ class FeedMeViewController: RecipeRobotViewController {
 
         eventMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.flagsChanged) { [weak self](event) -> NSEvent? in
             if let _self = self {
-                if (_self.ignoreButton.state == NSControl.StateValue.on){
+                if _self.ignoreButton.state == NSControl.StateValue.on {
                     _self.ignoreButton.isHidden = false
                 } else {
                     _self.ignoreButton.isHidden = (event.modifierFlags.rawValue & NSEvent.ModifierFlags.option.rawValue) == 0
@@ -109,13 +108,13 @@ class FeedMeViewController: RecipeRobotViewController {
         self.task = RecipeRobotTask()
     }
 
-    @IBAction func changeIgnoreState(sender: NSButton?){
+    @IBAction func changeIgnoreState(sender: NSButton?) {
         if sender === ignoreButton {
             task.ignoreExisting = (sender?.state == NSControl.StateValue.on)
         }
     }
 
-    @IBAction func processRecipe(sender: NSButton?){
+    @IBAction func processRecipe(sender: NSButton?) {
         if urlTextField.stringValue.isEmpty {
             return
         }
@@ -181,7 +180,6 @@ class PreferenceViewController: RecipeRobotViewController {
             }
         }
 
-
         if let recipePath = Defaults.sharedInstance.recipeCreateLocation {
             recipeLocation.stringValue = recipePath
         }
@@ -213,15 +211,14 @@ class PreferenceViewController: RecipeRobotViewController {
 }
 
 extension PreferenceViewController {
-    @IBAction func chooseFilePath(sender: NSButton){
+    @IBAction func chooseFilePath(sender: NSButton) {
         let d = Defaults.sharedInstance
         var directoryURL = NSHomeDirectory()
         if sender === recipeFolderPathButton {
             if let p = d.recipeCreateLocation {
                 directoryURL = p
             }
-        }
-        else if sender === dsFolderPathButton {
+        } else if sender === dsFolderPathButton {
             if let p = d.dsPackagePath {
                 directoryURL = p
             }
@@ -231,7 +228,7 @@ extension PreferenceViewController {
 
         let dir = (directoryURL as NSString).expandingTildeInPath
         var isDir: ObjCBool = ObjCBool(false)
-        if FileManager.default.fileExists(atPath:dir, isDirectory: &isDir) && isDir.boolValue {
+        if FileManager.default.fileExists(atPath: dir, isDirectory: &isDir) && isDir.boolValue {
             panel.directoryURL = URL(fileURLWithPath: dir)
         }
 
@@ -239,11 +236,11 @@ extension PreferenceViewController {
         panel.canChooseDirectories = true
         panel.canCreateDirectories = true
         panel.allowsMultipleSelection = false
-        panel.prompt = "Choose";
+        panel.prompt = "Choose"
 
         panel.beginSheetModal(for: self.view.window!) {
             [weak self] result in
-            if (result.rawValue == NSApplication.ModalResponse.OK.rawValue) {
+            if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
 
                 guard let strongSelf = self else {
                     return
@@ -255,8 +252,7 @@ extension PreferenceViewController {
                     d.recipeCreateLocation = path
                     strongSelf.recipeLocation.stringValue = path
                     _ = strongSelf.recipeLocation.markAsValidDirectory()
-                }
-                else if sender === self!.dsFolderPathButton {
+                } else if sender === self!.dsFolderPathButton {
                     d.dsPackagePath = path
                     strongSelf.dsTextField.stringValue = path
                     _ = strongSelf.dsTextField.markAsValidDirectory()
@@ -268,7 +264,6 @@ extension PreferenceViewController {
 
 // MARK: Preference View Controller: Table View
 extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
-
 
     func numberOfRows(in tableView: NSTableView) -> Int {
         return RecipeType.values.count
@@ -303,9 +298,9 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
             break
         }
 
-        if (value == NSControl.StateValue.on.rawValue) {
+        if value == NSControl.StateValue.on.rawValue {
             enabledRecipeTypes = enabledRecipeTypes.union(type.requiredTypeValues)
-        } else if (value == NSControl.StateValue.off.rawValue){
+        } else if value == NSControl.StateValue.off.rawValue {
             if enabledRecipeTypes.count > 0 {
                 guard  enabledRecipeTypes.contains(type.value) else {
                     return
@@ -337,7 +332,7 @@ class ProcessingViewController: RecipeRobotViewController {
     @IBOutlet weak var errorIndicator: NSButton?
 
     private let listener = NotificationListener()
-    private var completionInfo: Dictionary<String,AnyObject>?
+    private var completionInfo: [String: AnyObject]?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -447,17 +442,17 @@ class ProcessingViewController: RecipeRobotViewController {
     }
 
     // MARK: IBActions
-    @IBAction private func openFolder(sender: AnyObject?){
+    @IBAction private func openFolder(sender: AnyObject?) {
         if let loc = Defaults.sharedInstance.recipeCreateLocation {
             let url = URL(fileURLWithPath: loc, isDirectory: true)
             NSWorkspace.shared.open(url)
         }
     }
 
-    @IBAction private func cancelTask(sender: NSButton){
-        if (cancelButton.identifier?.rawValue != "Alldone") {
+    @IBAction private func cancelTask(sender: NSButton) {
+        if cancelButton.identifier?.rawValue != "Alldone" {
             self.task.cancel()
         }
-        self.performSegue(withIdentifier:"ProcessingSegue", sender: self)
+        self.performSegue(withIdentifier: "ProcessingSegue", sender: self)
     }
 }

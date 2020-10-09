@@ -30,20 +30,18 @@ protocol InteractableTaskable: Taskable {
     func isInteractive(string: String) -> Bool
 }
 
-typealias CancellationHandler = () -> (Void)
+typealias CancellationHandler = () -> Void
 protocol CancelableTask {
     func cancelled(handler: @escaping CancellationHandler) -> Self
     func cancel()
 }
 
-protocol ChainableTask : CancelableTask {
-    func stdout(message: @escaping (String) -> (Void)) -> ChainableTask
-    func stderr(message: @escaping (String) -> (Void)) -> ChainableTask
-    func completed(complete: @escaping (Error?) -> (Void)) -> ChainableTask
+protocol ChainableTask: CancelableTask {
+    func stdout(message: @escaping (String) -> Void) -> ChainableTask
+    func stderr(message: @escaping (String) -> Void) -> ChainableTask
+    func completed(complete: @escaping (Error?) -> Void) -> ChainableTask
     func run() -> Self
 }
-
-
 
 extension Taskable where Self: InteractableTaskable {
     var expectedPrompts: [String] {
@@ -52,14 +50,14 @@ extension Taskable where Self: InteractableTaskable {
 }
 
 struct ProcessAssociatedData {
-    static var cancellationHandlerTable:[Int32:CancellationHandler] = [:]
-    static func removeCancellationHandler(for process:Process) {
+    static var cancellationHandlerTable: [Int32: CancellationHandler] = [:]
+    static func removeCancellationHandler(for process: Process) {
           cancellationHandlerTable[process.processIdentifier] = nil
     }
-    static func registerCancellationHandler(for process:Process, cancellationHandler: @escaping CancellationHandler) {
+    static func registerCancellationHandler(for process: Process, cancellationHandler: @escaping CancellationHandler) {
           cancellationHandlerTable[process.processIdentifier] = cancellationHandler
    }
-    static func cancellationHandler(for process:Process) -> CancellationHandler? {
+    static func cancellationHandler(for process: Process) -> CancellationHandler? {
          return cancellationHandlerTable[process.processIdentifier]
     }
 }
@@ -72,12 +70,12 @@ extension Process: ChainableTask, CancelableTask {
     // ProcessAssociatedData encapsulates a dictionary of [processIdentifier : cancellationHandler]
 
     func cancelled(handler: @escaping CancellationHandler) -> Self {
-        ProcessAssociatedData.registerCancellationHandler(for:self, cancellationHandler:handler)
-        if (terminationHandler == nil) {
+        ProcessAssociatedData.registerCancellationHandler(for: self, cancellationHandler: handler)
+        if terminationHandler == nil {
             // terminationHandler may also be set in the func completed() below, so we don't want to overwrite that.
             terminationHandler = ({
                 _ in
-                ProcessAssociatedData.removeCancellationHandler(for:self)
+                ProcessAssociatedData.removeCancellationHandler(for: self)
             })
 
         }
@@ -86,15 +84,15 @@ extension Process: ChainableTask, CancelableTask {
 
     func cancel() {
         if self.isRunning {
-            if let handler = ProcessAssociatedData.cancellationHandler(for:self) {
-                ProcessAssociatedData.removeCancellationHandler(for:self)
+            if let handler = ProcessAssociatedData.cancellationHandler(for: self) {
+                ProcessAssociatedData.removeCancellationHandler(for: self)
                 handler()
             }
             self.terminate()
         }
     }
 
-    func stderr(message: @escaping (String) -> (Void)) -> ChainableTask {
+    func stderr(message: @escaping (String) -> Void) -> ChainableTask {
         let standardErrPipe = Pipe()
         standardErrPipe.fileHandleForReading.readabilityHandler = ({
             fh in
@@ -108,7 +106,7 @@ extension Process: ChainableTask, CancelableTask {
         return self
     }
 
-    func stdout(message: @escaping (String) -> (Void)) -> ChainableTask {
+    func stdout(message: @escaping (String) -> Void) -> ChainableTask {
         let standardOutPipe = Pipe()
         standardOutPipe.fileHandleForReading.readabilityHandler = ({
             fh in
@@ -122,15 +120,15 @@ extension Process: ChainableTask, CancelableTask {
         return self
     }
 
-    func completed(complete: @escaping (Error?) -> (Void)) -> ChainableTask {
+    func completed(complete: @escaping (Error?) -> Void) -> ChainableTask {
         terminationHandler = ({
             aTask in
-            if ( aTask.terminationStatus != 0 ){
+            if  aTask.terminationStatus != 0 {
                 complete(nil)
             } else {
                 complete(Task.ErrorEnum.NonZeroExit)
             }
-            ProcessAssociatedData.removeCancellationHandler(for:self)
+            ProcessAssociatedData.removeCancellationHandler(for: self)
         })
         return self
     }
@@ -169,17 +167,17 @@ class Task: Taskable, CancelableTask {
         return path!
     }
 
-    convenience init(executable: String){
+    convenience init(executable: String) {
         self.init()
         self.path = executable
     }
 
-    convenience init(executable: String, args: [String]){
+    convenience init(executable: String, args: [String]) {
         self.init(executable: executable)
         self.args = args
     }
 
-    func stderr(message: @escaping (String) -> (Void)) -> ChainableTask {
+    func stderr(message: @escaping (String) -> Void) -> ChainableTask {
         let stdErrorPipe = Pipe()
         stdErrorPipe.fileHandleForReading.readabilityHandler = ({
             fh in
@@ -196,7 +194,7 @@ class Task: Taskable, CancelableTask {
         return self
     }
 
-    func stdout(message: @escaping (String) -> (Void)) -> ChainableTask {
+    func stdout(message: @escaping (String) -> Void) -> ChainableTask {
         let stdOutPipe = Pipe()
         stdOutPipe.fileHandleForReading.readabilityHandler = ({
             fh in
@@ -213,7 +211,7 @@ class Task: Taskable, CancelableTask {
         return self
     }
 
-    func completed(complete: @escaping (Error?) -> (Void)) -> ChainableTask {
+    func completed(complete: @escaping (Error?) -> Void) -> ChainableTask {
         process.terminationHandler = ({
             aTask in
 
@@ -248,7 +246,7 @@ class Task: Taskable, CancelableTask {
         environment["NSUnbufferedIO"] = "YES"
         process.environment = environment
 
-        if !process.isRunning && FileManager.default.isExecutableFile(atPath: executable){
+        if !process.isRunning && FileManager.default.isExecutableFile(atPath: executable) {
             process.launch()
         }
 
@@ -274,7 +272,7 @@ class Task: Taskable, CancelableTask {
 
 class InteractiveTask: Task, InteractableTaskable {
 
-    private var inHandler:((String) -> (String)?)?
+    private var inHandler: ((String) -> (String)?)?
 
     func isInteractive(string: String) -> Bool {
         return expectedPrompts.filter({
@@ -288,7 +286,7 @@ class InteractiveTask: Task, InteractableTaskable {
         return self
     }
 
-    func stdout(message: @escaping (String) -> (Void)) -> Self {
+    func stdout(message: @escaping (String) -> Void) -> Self {
         let standardOutPipe = Pipe()
         standardOutPipe.fileHandleForReading.readabilityHandler = ({ [weak self]
             fh in
@@ -307,7 +305,7 @@ class InteractiveTask: Task, InteractableTaskable {
                 guard let results = inputHandler(decoded) else {
                     return
                 }
-                if (results.isEmpty && _self.process.isRunning){
+                if results.isEmpty && _self.process.isRunning {
                     guard let data = results.data(using: String.Encoding.utf8) else {
                         return
                     }

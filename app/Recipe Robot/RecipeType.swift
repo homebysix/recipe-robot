@@ -53,10 +53,10 @@ enum RecipeType: Int {
         return self.cases.map({ return $0.value })
     }
 
-    static var cases:[RecipeType] {
+    static var cases: [RecipeType] {
         var cases = [RecipeType]()
         var idx = 0
-        while let type = RecipeType(rawValue: idx){
+        while let type = RecipeType(rawValue: idx) {
             cases.append(type)
             idx += 1
         }
