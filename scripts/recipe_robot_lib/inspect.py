@@ -1066,14 +1066,17 @@ def inspect_download_url(input_path, args, facts):
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
     known_403_on_head = ("bitbucket.org", "github.com", "hockeyapp.net")
-    if int(head.get("http_result_code")) >= 400:
+    http_result_code = int(head.get("http_result_code"))
+    if http_result_code >= 400:
         if not any((x in checked_url for x in known_403_on_head)):
             facts["warnings"].append(
                 "Error encountered during file download HEAD check. (%s)"
                 % int(head.get("http_result_code"))
             )
         # Proceed anyway, because sometimes these errors are false positives.
-        # Example: GitHub file downloads often return 403 on HEAD but return 200 on GET.
+        # Examples:
+        # - GitHub file downloads often return 403 on HEAD but return 200 on GET.
+        # - SkyFonts appcast returns 405 on HEAD but returns 200 on GET
 
     if user_agent:
         # Add a user-agent to the facts if it fixed a 403.
@@ -1857,9 +1860,12 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # Check to make sure URL is valid, and switch to HTTPS if possible.
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
+    print(head)
 
-    if int(head.get("http_result_code")) >= 400:
+    http_result_code = int(head.get("http_result_code"))
+    if http_result_code >= 400 and http_result_code != 405:
         # Remove Sparkle feed if it's not usable.
+        # 405 errors are often false positives that don't prevent subsequent GET.
         facts.pop("sparkle_feed", None)
         return facts
 
