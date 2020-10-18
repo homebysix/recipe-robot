@@ -10,12 +10,14 @@ All notable changes to this project will be documented in this file. This projec
 - As part of Python 3 transition, rewrote significant portions of Recipe Robot to use `curl` instead of Python's urllib. This adds flexibility and mimics AutoPkg's behavior, but may result in changes in behavior from Recipe Robot 1.x.
 - The `recipe-robot` script now supports the creation of "jss-upload" type recipes, which imports a package into Jamf Pro but does not create any policies or groups. (#153)
 - Recipe Robot now does more thorough pre-checking of URLs: attempts to use HTTPS instead of HTTP when possible, and tries to add a widely used user-agent if a 403 error is encountered.
+- Added CodeQL scanning to GitHub repo.
 
 ### Changed
 - Recipe Robot no longer assigns AutoPkg input variables for `DOWNLOAD_URL`, `SPARKLE_FEED_URL`, `GITHUB_REPO`, and `BUNDLE_ID`. Instead, it hard-codes these values into the appropriate processor arguments. [@jazzace](https://github.com/jazzace) nicely summarizes the benefit of this change [here](https://youtu.be/BI10WWrgG2A?t=2620).
 - Added detail to the `--configure` option that clarifies that following the official "jss-recipes" style format is unnecessary unless you're contributing to [jss-recipes](https://www.github.com/autopkg/jss-recipes).
 - Recipe Robot script `--configure` option now treats pressing Return the same as pressing "S" to save the list of preferred recipe types, to align with the behavior of other configuration options.
 - Various minor adjustments to continue preparing for Python 3 compatibility.
+- Cleaned up Swift codebase using `swiftlint`.
 
 ### Fixed
 - Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.
