@@ -272,7 +272,7 @@ def init_prefs(facts):
     recipes = facts["recipes"]
     # If prefs file exists, try to read from it.
     prefs = get_user_defaults()
-    if prefs and "RecipeTypes" in prefs:
+    if prefs and prefs.get("RecipeTypes"):
         for recipe in recipes:
             # Load preferred recipe types.
             recipe["preferred"] = recipe["type"] in prefs["RecipeTypes"]

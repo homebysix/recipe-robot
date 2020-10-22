@@ -400,9 +400,10 @@ def save_user_defaults(prefs):
     cfprefs_keylist = CFPreferencesCopyKeyList(
         BUNDLE_ID, kCFPreferencesCurrentUser, kCFPreferencesAnyHost
     )
-    external_keys = [x for x in cfprefs_keylist if x not in PREFERENCE_KEYS]
-    for ext_key in external_keys:
-        CFPreferencesSetAppValue(ext_key, None, BUNDLE_ID)
+    if cfprefs_keylist:
+        external_keys = [x for x in cfprefs_keylist if x not in PREFERENCE_KEYS]
+        for ext_key in external_keys:
+            CFPreferencesSetAppValue(ext_key, None, BUNDLE_ID)
 
     # Save latest values for all Recipe Robot keys.
     for key in PREFERENCE_KEYS:
