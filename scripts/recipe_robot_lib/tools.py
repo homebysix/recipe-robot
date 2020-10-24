@@ -458,39 +458,33 @@ def create_existing_recipe_list(facts):
             cmd = "/usr/local/bin/autopkg search --path-only %s" % this_search
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
-        if exitcode == 0:
-            # Set to False by default. If found, set True.
-            is_existing = False
-            # For each recipe type, see if it exists in the search results.
-            for recipe in recipes:
-                recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
-                for line in out:
-                    if line.lower().startswith(recipe_name.lower()):
-                        # An existing recipe was found.
-                        if is_existing is False:
-                            robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
-                            is_existing = True
-                            recipe["existing"] = True
-                        robo_print(recipe_name, LogLevel.LOG, 8)
-                        break
-            if is_existing is True:
-                raise RoboError(
-                    "Sorry, AutoPkg recipes already exist for this app, and "
-                    "I can't blend new recipes with existing recipes.\n\nHere "
-                    "are my suggestions:\n\t- See if one of the above recipes "
-                    "meets your needs, either as-is or using an override."
-                    "\n\t- Write your own recipe using one of the above as "
-                    "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
-                    "the creation of a new child recipe, as seen here:\n\t  "
-                    "https://youtu.be/5VKDzY8bBxI?t=2829"
-                )
-            else:
-                robo_print("No results", LogLevel.VERBOSE, 4)
-        else:
+        # Set to False by default. If found, set True.
+        is_existing = False
+        # For each recipe type, see if it exists in the search results.
+        for recipe in recipes:
+            recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
+            for line in out:
+                if line.lower().startswith(recipe_name.lower()):
+                    # An existing recipe was found.
+                    if is_existing is False:
+                        robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
+                        is_existing = True
+                        recipe["existing"] = True
+                    robo_print(recipe_name, LogLevel.LOG, 8)
+                    break
+        if is_existing is True:
             raise RoboError(
-                "I encountered this error while checking for "
-                "existing recipes: {}".format(err)
+                "Sorry, AutoPkg recipes already exist for this app, and "
+                "I can't blend new recipes with existing recipes.\n\nHere "
+                "are my suggestions:\n\t- See if one of the above recipes "
+                "meets your needs, either as-is or using an override."
+                "\n\t- Write your own recipe using one of the above as "
+                "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
+                "the creation of a new child recipe, as seen here:\n\t  "
+                "https://youtu.be/5VKDzY8bBxI?t=2829"
             )
+        else:
+            robo_print("No results", LogLevel.VERBOSE, 4)
 
 
 def congratulate(prefs, first_timer):

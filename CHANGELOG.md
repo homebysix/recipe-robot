@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file. This projec
 - Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.
 - Updated regular expression used to grab app descriptions from MacUpdate.
 - Fixed an issue that would cause certain GitHub URLs to be parsed incorrectly.
+- Fixed a bug that occurred when checking for existing recipes using AutoPkg 2. (#171)
 
 ### Removed
 - Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.
