@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file. This projec
 - Recipe Robot script `--configure` option now treats pressing Return the same as pressing "S" to save the list of preferred recipe types, to align with the behavior of other configuration options.
 - Various minor adjustments to continue preparing for Python 3 compatibility.
 - Cleaned up Swift codebase using `swiftlint`.
+- More robust Sparkle feed processing with more detailed version output. (#173)
 
 ### Fixed
 - Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.

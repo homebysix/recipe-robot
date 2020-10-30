@@ -1895,35 +1895,56 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         facts.pop("sparkle_feed", None)
         return facts
 
-    # Determine whether the Sparkle feed provides a version number.
-    sparkle_provides_version = False
-    latest_version = "0"
-    latest_url = ""
+    # Determine what information the Sparkle feed provides.
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
+    sparkle_ns = "{http://www.andymatuschak.org/xml-namespaces/sparkle}"
+    sparkle_provides_version = False
+    sparkle_info = []
     for item in doc.iterfind("channel/item/enclosure"):
-        latest_url = item.attrib.get("url")
-        for vers_tag in ("shortVersionString", "version"):
-            encl_vers = item.get(
-                "{http://www.andymatuschak.org/xml-namespaces/sparkle}%s" % vers_tag
-            )
-            if encl_vers not in (None, ""):
-                sparkle_provides_version = True
-                if APLooseVersion(encl_vers) > APLooseVersion(latest_version):
-                    latest_version = encl_vers
+        encl_vers = item.get(sparkle_ns + "version")
+        encl_shortvers = item.get(sparkle_ns + "shortVersionString")
+        if encl_vers or encl_shortvers:
+            sparkle_provides_version = True
+        sparkle_info.append(
+            {
+                "url": item.attrib.get("url", ""),
+                "version": encl_vers,
+                "shortVersionString": encl_shortvers,
+            }
+        )
 
-    if sparkle_provides_version is True:
+    # Remove items with unusable URLs.
+    sparkle_nones = (None, "", "null", "n/a", "none")
+    sparkle_info = [x for x in sparkle_info if x["url"].lower() not in sparkle_nones]
+
+    # Determine which item is "latest", preferring version, then shortVersionString,
+    # then as a last resort, the URL itself.
+    vers_key_order = ("version", "shortVersionString", "url")
+    for key in vers_key_order:
+        try:
+            latest_info = max(sparkle_info, key=lambda x: APLooseVersion(x[key]))
+            break
+        except AttributeError:
+            continue
+
+    if sparkle_provides_version:
         robo_print("The Sparkle feed provides a version number", LogLevel.VERBOSE, 4)
+        for key in ("version", "shortVersionString"):
+            robo_print(
+                "The latest %s is %s" % (key, latest_info[key]), LogLevel.VERBOSE, 4
+            )
     else:
         robo_print(
-            "The Sparkle feed does not provide a version number", LogLevel.VERBOSE, 4
+            "The Sparkle feed does not provide a version number",
+            LogLevel.VERBOSE,
+            4,
         )
     facts["sparkle_provides_version"] = sparkle_provides_version
-    if latest_version not in ("", None):
-        robo_print("The latest version is %s" % latest_version, LogLevel.VERBOSE, 4)
-    if latest_url not in ("", None):
-        facts = inspect_download_url(latest_url, args, facts)
 
-    # If Sparkle feed is hosted on GitHub or SourceForge, we can gather
+    # Pass latest URL to download URL inspection function.
+    facts = inspect_download_url(latest_info["url"], args, facts)
+
+    # If Sparkle feed is hosted on GitHub, SourceForge, or BitBucket, we can gather
     # more information.
     if "github.com" in checked_url or "githubusercontent.com" in checked_url:
         if "github_repo" not in facts:
@@ -1931,5 +1952,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     if "sourceforge.net" in checked_url:
         if "sourceforge_id" not in facts:
             facts = inspect_sourceforge_url(checked_url, args, facts)
+    if "bitbucket.org" in checked_url:
+        if "bitbucket_url" not in facts:
+            facts = inspect_bitbucket_url(checked_url, args, facts)
 
     return facts
