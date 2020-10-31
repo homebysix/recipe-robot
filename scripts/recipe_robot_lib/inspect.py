@@ -922,7 +922,7 @@ def inspect_disk_image(input_path, args, facts):
                 cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
                 if not os.path.exists(cached_app_path):
                     try:
-                        shutil.copytree(attached_app_path, cached_app_path)
+                        shutil.copytree(attached_app_path, cached_app_path,True)
                     except shutil.Error:
                         pass
                 # Unmount attached volume when done.
