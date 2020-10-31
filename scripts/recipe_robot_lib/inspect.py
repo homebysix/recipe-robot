@@ -402,6 +402,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         codesign_reqs = ""
         codesign_authorities = []
         developer = ""
+        team_id = ""
         codesign_version = ""
         robo_print("Gathering code signature information...", LogLevel.VERBOSE)
         cmd = '/usr/bin/codesign --display --verbose=2 -r- "{}"'.format(input_path)
@@ -414,21 +415,16 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
                     codesign_reqs = line[len(reqs_marker) :]
             # From stderr:
             authority_marker = "Authority="
-            dev_markers = (
-                "Authority=Developer ID Application: ",
-                "Authority=Mac Developer: ",
-                "Authority=Apple Development: ",
-            )
+            dev_r = r"Authority=.+: (?P<dev>.+) \((?P<team>.+)\)"
             vers_marker = "Sealed Resources version="
-            # The info we need is in stderr.
             for line in err.splitlines():
                 if line.startswith(authority_marker):
                     codesign_authorities.append(line[len(authority_marker) :])
-                for dev_marker in dev_markers:
-                    if line.startswith(dev_marker) and not developer:
-                        if " (" in line:
-                            line = line.split(" (")[0]
-                        developer = line[len(dev_marker) :]
+                if not developer:
+                    dev_m = re.match(dev_r, line)
+                    if dev_m:
+                        developer = dev_m.groupdict()["dev"]
+                        team_id = dev_m.groupdict()["team"]
                 if line.startswith(vers_marker):
                     codesign_version = line[len(vers_marker) : len(vers_marker) + 1]
                     if codesign_version == "1":
@@ -471,6 +467,8 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         if developer not in ("", None):
             robo_print("Developer: {}".format(developer), LogLevel.VERBOSE, 4)
             facts["developer"] = developer
+        if team_id not in ("", None):
+            robo_print("Team ID: {}".format(team_id), LogLevel.VERBOSE, 4)
 
     return facts
 
