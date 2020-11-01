@@ -6,6 +6,7 @@
 //
 
 #include "Recipe RobotTests-Shared.xcconfig"
+#include "Pods/Target Support Files/Pods-Recipe RobotTests/Pods-Recipe RobotTests.release.xcconfig"
 
 //********************************************//
 //* Currently no build settings in this file *//
