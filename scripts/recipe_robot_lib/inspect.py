@@ -537,7 +537,7 @@ def get_download_link_from_xattr(input_path, args, facts):
                 LogLevel.VERBOSE,
                 4,
             )
-    except KeyError:
+    except (KeyError, OSError):
         robo_print(
             "Unable to derive a download URL from file metadata.", LogLevel.WARNING
         )
