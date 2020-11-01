@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file. This projec
 - Fixed an issue that could cause a disk to fill up with recursive links. (#158)
 - Caught an error that resulted from neglecting to cast certain lists before writing to recipe plist.
 - Better handle download file inputs that are lacking `kMDItemWhereFroms` extended attributes.
+- Worked around an issue preventing real-time script output from being displayed in the app by shelling out to `echo` while running in app mode. (#169, #170)
 
 ### Removed
 - Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.
