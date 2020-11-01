@@ -135,7 +135,7 @@ def parse_headers(raw_headers, url=""):
     return header
 
 
-def execute_curl(curl_cmd, text=True):
+def execute_curl(curl_cmd, text=True, capture_output=True):
     """Execute curl command.
 
     Return stdout, stderr and return code.
@@ -145,7 +145,7 @@ def execute_curl(curl_cmd, text=True):
             curl_cmd,
             shell=False,
             bufsize=1,
-            capture_output=True,
+            capture_output=capture_output,
             check=True,
             text=text,
         )
@@ -154,9 +154,11 @@ def execute_curl(curl_cmd, text=True):
     return result.stdout, result.stderr, result.returncode
 
 
-def download_with_curl(curl_cmd, text=True):
+def download_with_curl(curl_cmd, text=True, capture_output=True):
     """Launch curl, return its output, and handle failures."""
-    proc_stdout, proc_stderr, retcode = execute_curl(curl_cmd, text)
+    proc_stdout, proc_stderr, retcode = execute_curl(
+        curl_cmd, text=text, capture_output=capture_output
+    )
     robo_print(f"Curl command: {curl_cmd}", LogLevel.DEBUG, 4)
     if retcode:  # Non-zero exit code from curl => problem with download
         curl_err = parse_curl_error(proc_stderr)
@@ -168,17 +170,21 @@ def download(url, headers=None, text=False):
     """Download content with default curl options."""
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
-    curl_cmd.append(url)
-    output = download_with_curl(curl_cmd, text)
+    curl_cmd.extend(["--url", url])
+    output = download_with_curl(curl_cmd, text=text)
     return output
 
 
-def download_to_file(url, filename, headers=None):
+def download_to_file(url, filename, headers=None, app_mode=False):
     """Download content to a file with default curl options."""
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
-    curl_cmd.extend(["--output", filename, url])
-    download_with_curl(curl_cmd, text=False)
+    # Disable silent mode in order to display download progress bar.
+    if not app_mode:
+        curl_cmd.remove("--silent")
+        curl_cmd.append("--progress-bar")
+    curl_cmd.extend(["--output", filename, "--url", url])
+    download_with_curl(curl_cmd, text=False, capture_output=False)
     if os.path.exists(filename):
         return filename
     raise RoboError(f"{filename} was not written!")
@@ -188,7 +194,7 @@ def get_headers(url, headers=None):
     """Get a URL's HTTP headers, parse them, and return them."""
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
-    curl_cmd.extend(["--head", url])
+    curl_cmd.extend(["--head", "--url", url])
     out, err, retcode = execute_curl(curl_cmd, text=True)
     parsed_headers = parse_headers(out, url=url)
     return parsed_headers, retcode

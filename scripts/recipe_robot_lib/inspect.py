@@ -1124,7 +1124,10 @@ def inspect_download_url(input_path, args, facts):
 
     # Write the downloaded file to the cache folder.
     _ = curler.download_to_file(
-        checked_url, os.path.join(CACHE_DIR, filename), headers=headers
+        checked_url,
+        os.path.join(CACHE_DIR, filename),
+        headers=headers,
+        app_mode=facts["args"].app_mode,
     )
     robo_print(
         "Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4
