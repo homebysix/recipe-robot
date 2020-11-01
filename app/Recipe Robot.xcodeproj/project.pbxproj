@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F064D8F174CA75534C4AC58 /* Pods_Recipe_RobotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD755D87B3D1915D85EE29DC /* Pods_Recipe_RobotTests.framework */; };
 		8B42AC841B5C5BEC0058A814 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */; };
 		8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B42AC851B5C5BEC0058A814 /* Images.xcassets */; };
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
@@ -34,6 +35,7 @@
 		BEDA880E1BE536E500DBC59B /* AHHelpPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = BEDA880D1BE536E500DBC59B /* AHHelpPopover.m */; };
 		BEE6A1B91BB88A080050653A /* CustomSegues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE6A1B81BB88A080050653A /* CustomSegues.swift */; };
 		BEEFDD231BF7DC2400C99DFC /* Filepathable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEEFDD221BF7DC2400C99DFC /* Filepathable.swift */; };
+		D59A30FBA661FF2A6BC9FF0A /* Pods_Recipe_Robot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEAA551E8346C7FCE2AE79F /* Pods_Recipe_Robot.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +49,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0A6295999CD200667F11D207 /* Pods-Recipe Robot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Recipe Robot.debug.xcconfig"; path = "Target Support Files/Pods-Recipe Robot/Pods-Recipe Robot.debug.xcconfig"; sourceTree = "<group>"; };
+		16B8D760AD374CC0F288E88E /* Pods-Recipe RobotTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Recipe RobotTests.release.xcconfig"; path = "Target Support Files/Pods-Recipe RobotTests/Pods-Recipe RobotTests.release.xcconfig"; sourceTree = "<group>"; };
+		3DF3B4808AB21F2BDD81A9CA /* Pods-Recipe RobotTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Recipe RobotTests.debug.xcconfig"; path = "Target Support Files/Pods-Recipe RobotTests/Pods-Recipe RobotTests.debug.xcconfig"; sourceTree = "<group>"; };
 		8B42AC7E1B5C5BEC0058A814 /* Recipe Robot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Recipe Robot.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B42AC821B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -57,6 +62,8 @@
 		8B8F78D21BF3D5DB008F2440 /* Feed Me Drop Zone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Feed Me Drop Zone.png"; sourceTree = "<group>"; };
 		8BC7598E1BE413190074040F /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = Credits.rtf; path = "Recipe Robot/Credits.rtf"; sourceTree = SOURCE_ROOT; };
 		8BD5A1CC1BCB6E3F00D16D0A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../scripts; sourceTree = "<group>"; };
+		9FC6A947254EAF0200EAAFCB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		AEEAA551E8346C7FCE2AE79F /* Pods_Recipe_Robot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Recipe_Robot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE007DB91BE93CFE00E31479 /* RecipeType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeType.swift; sourceTree = "<group>"; };
 		BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_128x128.png; path = Images.xcassets/AppIcon.appiconset/icon_128x128.png; sourceTree = "<group>"; };
 		BE328F171BDC0DFD00EAF2E5 /* NotificationListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationListener.swift; sourceTree = "<group>"; };
@@ -88,6 +95,8 @@
 		D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe RobotTests-Release.xcconfig"; path = "xcconfig/Recipe RobotTests-Release.xcconfig"; sourceTree = SOURCE_ROOT; };
 		D541641F220E96EC00A886AF /* Project-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Shared.xcconfig"; path = "xcconfig/Project-Shared.xcconfig"; sourceTree = SOURCE_ROOT; };
 		D5416420220E96EC00A886AF /* Project-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Debug.xcconfig"; path = "xcconfig/Project-Debug.xcconfig"; sourceTree = SOURCE_ROOT; };
+		DD755D87B3D1915D85EE29DC /* Pods_Recipe_RobotTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Recipe_RobotTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FB7444568BB1AD9126CA9C8C /* Pods-Recipe Robot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Recipe Robot.release.xcconfig"; path = "Target Support Files/Pods-Recipe Robot/Pods-Recipe Robot.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D59A30FBA661FF2A6BC9FF0A /* Pods_Recipe_Robot.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,12 +112,34 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F064D8F174CA75534C4AC58 /* Pods_Recipe_RobotTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		53933A62E0F010E3E5140B7B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0A6295999CD200667F11D207 /* Pods-Recipe Robot.debug.xcconfig */,
+				FB7444568BB1AD9126CA9C8C /* Pods-Recipe Robot.release.xcconfig */,
+				3DF3B4808AB21F2BDD81A9CA /* Pods-Recipe RobotTests.debug.xcconfig */,
+				16B8D760AD374CC0F288E88E /* Pods-Recipe RobotTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		6242C82AE9A11BEF4D5D7E2F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9FC6A947254EAF0200EAAFCB /* Security.framework */,
+				AEEAA551E8346C7FCE2AE79F /* Pods_Recipe_Robot.framework */,
+				DD755D87B3D1915D85EE29DC /* Pods_Recipe_RobotTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		8B42AC751B5C5BEC0058A814 = {
 			isa = PBXGroup;
 			children = (
@@ -116,6 +148,8 @@
 				8B42AC801B5C5BEC0058A814 /* Recipe Robot */,
 				8B42AC911B5C5BEC0058A814 /* Recipe RobotTests */,
 				8B42AC7F1B5C5BEC0058A814 /* Products */,
+				53933A62E0F010E3E5140B7B /* Pods */,
+				6242C82AE9A11BEF4D5D7E2F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -211,10 +245,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B42AC981B5C5BEC0058A814 /* Build configuration list for PBXNativeTarget "Recipe Robot" */;
 			buildPhases = (
+				52BDDDDBB9C86B33E4444448 /* [CP] Check Pods Manifest.lock */,
 				8B42AC7A1B5C5BEC0058A814 /* Sources */,
 				8B42AC7B1B5C5BEC0058A814 /* Frameworks */,
 				8B42AC7C1B5C5BEC0058A814 /* Resources */,
 				8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */,
+				183DA0F53677CABD06CA60B7 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -229,6 +265,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B42AC9B1B5C5BEC0058A814 /* Build configuration list for PBXNativeTarget "Recipe RobotTests" */;
 			buildPhases = (
+				733705AFEF7771C5C4E645F3 /* [CP] Check Pods Manifest.lock */,
 				8B42AC8A1B5C5BEC0058A814 /* Sources */,
 				8B42AC8B1B5C5BEC0058A814 /* Frameworks */,
 				8B42AC8C1B5C5BEC0058A814 /* Resources */,
@@ -309,6 +346,70 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		183DA0F53677CABD06CA60B7 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Recipe Robot/Pods-Recipe Robot-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/LetsMove/LetsMove.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LetsMove.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Recipe Robot/Pods-Recipe Robot-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		52BDDDDBB9C86B33E4444448 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Recipe Robot-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		733705AFEF7771C5C4E645F3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Recipe RobotTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

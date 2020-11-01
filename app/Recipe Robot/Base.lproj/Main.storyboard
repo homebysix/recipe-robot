@@ -12,11 +12,11 @@
                 <application id="hnw-xV-0zn" sceneMemberID="viewController">
                     <menu key="mainMenu" title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
                         <items>
-                            <menuItem title="RecipeRobot" id="1Xt-HY-uBw">
+                            <menuItem title="Recipe Robot" id="1Xt-HY-uBw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="RecipeRobot" systemMenu="apple" id="uQy-DD-JDr">
+                                <menu key="submenu" title="Recipe Robot" systemMenu="apple" id="uQy-DD-JDr">
                                     <items>
-                                        <menuItem title="About RecipeRobot" id="5kV-Vb-QxS">
+                                        <menuItem title="About Recipe Robot" id="5kV-Vb-QxS">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="orderFrontStandardAboutPanel:" target="Ady-hI-5gd" id="Exp-CZ-Vem"/>
@@ -28,13 +28,19 @@
                                                 <segue destination="ESu-qZ-Dbn" kind="show" id="55O-go-axt"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Check for Updates..." id="LxA-78-jbh">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="checkForUpdates:" target="wux-fD-zQC" id="JFh-nG-DpK"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                                         <menuItem title="Services" id="NMo-om-nkz">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
-                                        <menuItem title="Hide RecipeRobot" keyEquivalent="h" id="Olw-nP-bQN">
+                                        <menuItem title="Hide Recipe Robot" keyEquivalent="h" id="Olw-nP-bQN">
                                             <connections>
                                                 <action selector="hide:" target="Ady-hI-5gd" id="PnN-Uc-m68"/>
                                             </connections>
@@ -52,7 +58,7 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                                        <menuItem title="Quit RecipeRobot" keyEquivalent="q" id="4sb-4s-VLi">
+                                        <menuItem title="Quit Recipe Robot" keyEquivalent="q" id="4sb-4s-VLi">
                                             <connections>
                                                 <action selector="terminate:" target="Ady-hI-5gd" id="Te7-pn-YzF"/>
                                             </connections>
@@ -148,6 +154,7 @@
                 </application>
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Recipe_Robot" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <customObject id="wux-fD-zQC" customClass="SUUpdater"/>
             </objects>
             <point key="canvasLocation" x="109" y="-101"/>
         </scene>
@@ -207,7 +214,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Ignore existing recipes for this run only" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="zO6-wJ-Rb7">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="palette"/>
+                                    <font key="font" metaFont="message" size="11"/>
                                 </buttonCell>
                                 <connections>
                                     <binding destination="56H-yK-n2G" name="value" keyPath="values.FollowOfficialJSSRecipesFormat" id="MnX-7M-dV7">
@@ -222,7 +229,7 @@
                                 <rect key="frame" x="177" y="64" width="296" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingHead" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="QJy-gY-tAg">
-                                    <font key="font" metaFont="palette"/>
+                                    <font key="font" metaFont="message" size="11"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -246,7 +253,7 @@
                                 <rect key="frame" x="48" y="63" width="125" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Or paste a URL here:" id="c74-37-7j6">
-                                    <font key="font" metaFont="palette"/>
+                                    <font key="font" metaFont="message" size="11"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -256,7 +263,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Do It!" bezelStyle="rounded" alignment="center" controlSize="small" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2dF-1f-sJL">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="palette"/>
+                                    <font key="font" metaFont="message" size="11"/>
                                     <string key="keyEquivalent" base64-UTF8="YES">
 DQ
 </string>

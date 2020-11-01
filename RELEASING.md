@@ -19,8 +19,8 @@
 
 1. Build a new version of the Recipe Robot app:
 
-        /usr/bin/xcodebuild -project ./app/Recipe\ Robot.xcodeproj -alltargets clean
-        /usr/bin/xcodebuild -project ./app/Recipe\ Robot.xcodeproj -alltargets build
+        /usr/bin/xcodebuild clean -workspace ./app/Recipe\ Robot.xcworkspace -scheme "Recipe Robot - Release"
+        /usr/bin/xcodebuild build -workspace ./app/Recipe\ Robot.xcworkspace -scheme "Recipe Robot - Release" OBJROOT=$(pwd)/app/build SYMROOT=$(pwd)/app/build
 
 1. Build a release disk image:
 
@@ -28,5 +28,7 @@
         open ./app/build/Release/
 
 1. Create new release on GitHub. Add notes from change log. Attach built disk image.
+
+1. TODO: Update Sparkle appcast using `gh-pages` branch.
 
 1. Announce to [autopkg](https://macadmins.slack.com/archives/C056155B4) and other relevant channels, if desired.

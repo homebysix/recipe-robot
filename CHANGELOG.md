@@ -9,6 +9,8 @@ All notable changes to this project will be documented in this file. This projec
 - Full Python 3 support, which makes Recipe Robot compatible with (and require) AutoPkg 2. Big thanks to [@sheagcraig](https://github.com/sheagcraig) for fixing a particularly sticky bug involving string encoding. (#156, #160, #163)
 - As part of Python 3 transition, rewrote significant portions of Recipe Robot to use `curl` instead of Python's urllib. This adds flexibility and mimics AutoPkg's behavior, but may result in changes in behavior from Recipe Robot 1.x.
 - New disk image build tool and layout.
+- Recipe Robot app now automatically updates itself using Sparkle. (#143)
+- App now prompts to be moved to /Applications upon launch, if not already located there.
 - The `recipe-robot` script now supports the creation of "jss-upload" type recipes, which imports a package into Jamf Pro but does not create any policies or groups. (#153)
 - Recipe Robot now does more thorough pre-checking of URLs: attempts to use HTTPS instead of HTTP when possible, and tries to add a widely used user-agent if a 403 error is encountered.
 - Added CodeQL scanning to GitHub repo.
@@ -21,7 +23,7 @@ All notable changes to this project will be documented in this file. This projec
 - Recipe Robot script `--configure` option now treats pressing Return the same as pressing "S" to save the list of preferred recipe types, to align with the behavior of other configuration options.
 - Various minor adjustments to continue preparing for Python 3 compatibility.
 - Cleaned up Swift codebase using `swiftlint`.
-- More robust Sparkle feed processing. (#173)
+- More robust Sparkle feed processing. (#150, #173)
 
 ### Fixed
 - Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.
