@@ -62,6 +62,7 @@
 		8B8F78D21BF3D5DB008F2440 /* Feed Me Drop Zone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Feed Me Drop Zone.png"; sourceTree = "<group>"; };
 		8BC7598E1BE413190074040F /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = Credits.rtf; path = "Recipe Robot/Credits.rtf"; sourceTree = SOURCE_ROOT; };
 		8BD5A1CC1BCB6E3F00D16D0A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../scripts; sourceTree = "<group>"; };
+		9FC6A947254EAF0200EAAFCB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		AEEAA551E8346C7FCE2AE79F /* Pods_Recipe_Robot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Recipe_Robot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE007DB91BE93CFE00E31479 /* RecipeType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeType.swift; sourceTree = "<group>"; };
 		BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_128x128.png; path = Images.xcassets/AppIcon.appiconset/icon_128x128.png; sourceTree = "<group>"; };
@@ -126,13 +127,13 @@
 				3DF3B4808AB21F2BDD81A9CA /* Pods-Recipe RobotTests.debug.xcconfig */,
 				16B8D760AD374CC0F288E88E /* Pods-Recipe RobotTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
 		6242C82AE9A11BEF4D5D7E2F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9FC6A947254EAF0200EAAFCB /* Security.framework */,
 				AEEAA551E8346C7FCE2AE79F /* Pods_Recipe_Robot.framework */,
 				DD755D87B3D1915D85EE29DC /* Pods_Recipe_RobotTests.framework */,
 			);
@@ -352,10 +353,12 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Recipe Robot/Pods-Recipe Robot-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/LetsMove/LetsMove.framework",
 				"${PODS_ROOT}/Sparkle/Sparkle.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LetsMove.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

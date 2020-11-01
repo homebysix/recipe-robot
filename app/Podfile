@@ -7,6 +7,7 @@ target 'Recipe Robot' do
 
   # Pods for Recipe Robot
   pod 'Sparkle'
+  pod 'LetsMove'
 
   target 'Recipe RobotTests' do
     inherit! :search_paths
