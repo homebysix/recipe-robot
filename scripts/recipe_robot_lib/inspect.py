@@ -450,7 +450,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
                 LogLevel.VERBOSE,
                 4,
             )
-            facts["codesign_authorities"] = codesign_authorities
+            facts["codesign_authorities"] = list(codesign_authorities)
             facts["codesign_input_filename"] = os.path.basename(input_path)
             # Check for overly loose requirements.
             # https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
@@ -1517,7 +1517,7 @@ def inspect_pkg(input_path, args, facts):
                     LogLevel.VERBOSE,
                     4,
                 )
-                facts["codesign_authorities"] = codesign_authorities
+                facts["codesign_authorities"] = list(codesign_authorities)
                 facts["codesign_input_filename"] = os.path.basename(input_path)
             else:
                 robo_print(

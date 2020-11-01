@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file. This projec
 - Fixed a bug that occurred when checking for existing recipes using AutoPkg 2. (#171)
 - Resolved a first-run issue with reading empty preference values.
 - Fixed an issue that could cause a disk to fill up with recursive links. (#158)
+- Caught an error that resulted from neglecting to cast certain lists before writing to recipe plist.
 
 ### Removed
 - Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.
