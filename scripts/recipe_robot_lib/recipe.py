@@ -30,6 +30,7 @@ from __future__ import absolute_import
 import plistlib
 
 from recipe_robot_lib import processor
+from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.roboabc import RoboDict, RoboList
 from recipe_robot_lib.tools import (
     LogLevel,
@@ -108,8 +109,15 @@ class Recipe(RoboDict):
 
     def write(self, path):
         """Write the recipe to disk."""
-        with open(path, "wb") as openfile:
-            plistlib.dump(self["keys"], openfile)
+        try:
+            with open(path, "wb") as openfile:
+                plistlib.dump(self["keys"], openfile)
+        except TypeError as err:
+            raise RoboError(
+                "Unable to write recipe due to unexpected data type.\n"
+                "plistlib error: %s\n"
+                "Recipe contents: %s\n" % (err, self["keys"])
+            )
 
     def set_description(self, description):
         """Save a description that explains what this recipe does."""
