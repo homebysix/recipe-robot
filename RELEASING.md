@@ -7,6 +7,11 @@
 
 ## Steps
 
+1. Update frameworks with Carthage:
+
+        cd ./app
+        carthage update --platform macOS
+
 1. Ensure both the `MARKETING_VERSION` variables in __app/Recipe Robot.xcodeproj/project.pbxproj__ have been updated.
 
 1. Ensure the version in __scripts/recipe_robot_lib/tools.py__ has been updated.
@@ -19,13 +24,13 @@
 
 1. Build a new version of the Recipe Robot app:
 
-        /usr/bin/xcodebuild clean -workspace ./app/Recipe\ Robot.xcworkspace -scheme "Recipe Robot - Release"
-        /usr/bin/xcodebuild build -workspace ./app/Recipe\ Robot.xcworkspace -scheme "Recipe Robot - Release" OBJROOT=$(pwd)/app/build SYMROOT=$(pwd)/app/build
+        /usr/bin/xcodebuild clean -workspace "Recipe Robot.xcworkspace" -scheme "Recipe Robot - Release"
+        /usr/bin/xcodebuild build -workspace "Recipe Robot.xcworkspace" -scheme "Recipe Robot - Release" OBJROOT=$(pwd)/build SYMROOT=$(pwd)/build
 
 1. Build a release disk image:
 
-        dropdmg --config-name "Recipe Robot" --destination ./app/build/ ./app/build/Release/Recipe\ Robot.app
-        open ./app/build/Release/
+        dropdmg --config-name "Recipe Robot" --destination build/ "build/Release/Recipe Robot.app"
+        open build/
 
 1. Create new release on GitHub. Add notes from change log. Attach built disk image.
 
