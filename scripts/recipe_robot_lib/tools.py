@@ -31,12 +31,12 @@ import os
 import plistlib
 import re
 import shlex
+import subprocess
 import sys
 import timeit
 from datetime import datetime
 from functools import wraps
 from random import choice as random_choice
-from subprocess import PIPE, Popen
 from urllib.parse import quote_plus
 
 # pylint: disable=no-name-in-module
@@ -335,11 +335,23 @@ def get_exitcode_stdout_stderr(cmd, stdin="", text=True):
     robo_print("Shell command: %s" % cmd, LogLevel.DEBUG, 4)
     try:
         # First try to return text output.
-        proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE, text=text)
+        proc = subprocess.Popen(
+            shlex.split(cmd),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=text,
+        )
         out, err = proc.communicate(stdin)
     except UnicodeDecodeError:
         # If that fails, force bytes output.
-        proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE, text=False)
+        proc = subprocess.Popen(
+            shlex.split(cmd),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,
+        )
         out, err = proc.communicate(stdin)
     exitcode = proc.returncode
 
