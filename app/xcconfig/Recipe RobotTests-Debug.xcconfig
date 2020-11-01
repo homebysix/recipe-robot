@@ -6,7 +6,5 @@
 //
 
 #include "Recipe RobotTests-Shared.xcconfig"
-#include "Pods/Target Support Files/Pods-Recipe RobotTests/Pods-Recipe RobotTests.debug.xcconfig"
-
 
 GCC_PREPROCESSOR_DEFINITIONS = DEBUG=1 $(inherited)
