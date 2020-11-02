@@ -237,6 +237,7 @@
 				8B42AC7C1B5C5BEC0058A814 /* Resources */,
 				8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */,
 				9F578138254F797800B9F2D8 /* Embed Frameworks */,
+				9F603905254F7CFC009BBF58 /* Run Script: Warn about outdated Carthage frameworks */,
 			);
 			buildRules = (
 			);
@@ -344,6 +345,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Update build number with number of git commits if in release mode\n\n[[ ${CONFIGURATION} != \"Release\" ]] && exit 0\n\nbuildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n";
+		};
+		9F603905254F7CFC009BBF58 /* Run Script: Warn about outdated Carthage frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script: Warn about outdated Carthage frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage outdated --xcode-warnings 2>/dev/null\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
