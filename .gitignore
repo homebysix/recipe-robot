@@ -24,6 +24,9 @@ mailcore2/unittest/data
 # CocoaPods
 Pods/
 
+# Carthage
+Carthage/
+
 # Compiled Python scripts
 *.pyc
 
