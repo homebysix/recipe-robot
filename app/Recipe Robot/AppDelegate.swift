@@ -18,9 +18,14 @@
 
 import Cocoa
 import AppKit
+// import AppMover
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
+
+    // func applicationWillFinishLaunching(aNotification: NSNotification) {
+    //     AppMover.moveIfNecessary()
+    // }
 
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
