@@ -30,6 +30,8 @@
 1. Build a release disk image:
 
         dropdmg --config-name "Recipe Robot" --destination build/ "build/Release/Recipe Robot.app"
+        autoload zmv
+        zmv -v 'build/Recipe Robot (*).dmg' 'build/RecipeRobot-$1.dmg'
         open build/
 
 1. Create new release on GitHub. Add notes from change log. Attach built disk image.
