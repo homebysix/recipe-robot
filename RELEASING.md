@@ -29,6 +29,7 @@
 
 1. Build a release disk image:
 
+        rm -fv build/RecipeRobot*.dmg
         dropdmg --config-name "Recipe Robot" --destination build/ "build/Release/Recipe Robot.app"
         autoload zmv
         zmv -v 'build/Recipe Robot (*).dmg' 'build/RecipeRobot-$1.dmg'
