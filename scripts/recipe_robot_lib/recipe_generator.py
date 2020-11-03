@@ -17,11 +17,10 @@
 # limitations under the License.
 
 
-"""
-recipe_generator.py
+"""recipe_generator.py.
 
-This module of Recipe Robot uses the facts collected by the main script to
-create autopkg recipes for the specified app.
+This module of Recipe Robot uses the facts collected by the main script
+to create autopkg recipes for the specified app.
 """
 
 
@@ -477,6 +476,9 @@ def get_code_signature_verifier(input_path, facts):
 
 
 def needs_versioner(facts):
+    """Return True if we need to add a Versioner processor, based on available
+    facts, or False otherwise."""
+
     download_format = facts["download_format"]
     sparkle_version = facts.get("sparkle_provides_version", False)
     format_needs_versioner = any(
@@ -744,7 +746,8 @@ def generate_munki_recipe(facts, prefs, recipe):
 
 
 def get_pkgdirs(path):
-    """Given a destination path, create the dictionary used for PkgRootCreator."""
+    """Given a destination path, create the dictionary used for
+    PkgRootCreator."""
     path_parts = os.path.split(path.lstrip("/"))
     pkgdirs = {}
     for index, dir in enumerate(path_parts):
@@ -1670,7 +1673,7 @@ def warn_about_appstoreapp_pyasn(facts):
 
 
 def main():
-    """Do nothing"""
+    """Do nothing."""
     pass
 
 
