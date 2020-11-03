@@ -292,7 +292,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/homebysix/recipe-robot/compare/v1.2.1...v2.0.0
 [1.2.1]: https://github.com/homebysix/recipe-robot/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/homebysix/recipe-robot/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/homebysix/recipe-robot/compare/v1.1.1...v1.1.2
