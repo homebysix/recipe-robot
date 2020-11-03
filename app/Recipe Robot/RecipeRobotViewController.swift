@@ -19,7 +19,7 @@
 import Cocoa
 import AudioToolbox
 import Quartz
-import Sparkle
+//import Sparkle
 
 //let sound = NSSound(named: "Glass")
 var sound: NSSound?
@@ -459,31 +459,31 @@ class ProcessingViewController: RecipeRobotViewController {
 }
 
 // MARK: - Sparkle Updates View Controller
-class VersionDisplayViewController: NSViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-    }
-
-    override var representedObject: Any? {
-        didSet {
-            // Update the view, if already loaded.
-        }
-    }
-    @IBAction func checkForUpdates(_ sender: Any) {
-        let updater = SUUpdater.shared()
-        updater?.checkForUpdates(self)
-    }
-}
-
-extension VersionDisplayViewController {
-    static func freshController() -> VersionDisplayViewController {
-        let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-        let identifier = NSStoryboard.SceneIdentifier("VersionDisplayViewController")
-        guard let viewcontroller = storyboard.instantiateController(withIdentifier: identifier) as? VersionDisplayViewController else {
-            fatalError("Failed to find view controller - Check Main.storyboard")
-        }
-        return viewcontroller
-    }
-}
+//class VersionDisplayViewController: NSViewController {
+//
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//        // Do any additional setup after loading the view.
+//    }
+//
+//    override var representedObject: Any? {
+//        didSet {
+//            // Update the view, if already loaded.
+//        }
+//    }
+//    @IBAction func checkForUpdates(_ sender: Any) {
+//        let updater = SUUpdater.shared()
+//        updater?.checkForUpdates(self)
+//    }
+//}
+//
+//extension VersionDisplayViewController {
+//    static func freshController() -> VersionDisplayViewController {
+//        let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
+//        let identifier = NSStoryboard.SceneIdentifier("VersionDisplayViewController")
+//        guard let viewcontroller = storyboard.instantiateController(withIdentifier: identifier) as? VersionDisplayViewController else {
+//            fatalError("Failed to find view controller - Check Main.storyboard")
+//        }
+//        return viewcontroller
+//    }
+//}

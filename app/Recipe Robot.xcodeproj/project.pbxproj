@@ -12,8 +12,6 @@
 		8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B42AC941B5C5BEC0058A814 /* Recipe_RobotTests.swift */; };
 		8B8F78D31BF3D5DB008F2440 /* Feed Me Drop Zone.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B8F78D21BF3D5DB008F2440 /* Feed Me Drop Zone.png */; };
 		8BC7598F1BE413190074040F /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7598E1BE413190074040F /* Credits.rtf */; };
-		9F578136254F797800B9F2D8 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F578135254F797800B9F2D8 /* Sparkle.framework */; };
-		9F578137254F797800B9F2D8 /* Sparkle.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9F578135254F797800B9F2D8 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BE007DBA1BE93CFE00E31479 /* RecipeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE007DB91BE93CFE00E31479 /* RecipeType.swift */; };
 		BE09DAAE1BBA1C03007F8FF4 /* icon_128x128.png in Resources */ = {isa = PBXBuildFile; fileRef = BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */; };
 		BE1A41CF1BB4C374008173FB /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = BE6F6BA21B800E270082011D /* scripts */; };
@@ -55,7 +53,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				9F578137254F797800B9F2D8 /* Sparkle.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -73,7 +70,6 @@
 		8B8F78D21BF3D5DB008F2440 /* Feed Me Drop Zone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Feed Me Drop Zone.png"; sourceTree = "<group>"; };
 		8BC7598E1BE413190074040F /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = Credits.rtf; path = "Recipe Robot/Credits.rtf"; sourceTree = SOURCE_ROOT; };
 		8BD5A1CC1BCB6E3F00D16D0A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../scripts; sourceTree = "<group>"; };
-		9F578135254F797800B9F2D8 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Carthage/Build/Mac/Sparkle.framework; sourceTree = "<group>"; };
 		BE007DB91BE93CFE00E31479 /* RecipeType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeType.swift; sourceTree = "<group>"; };
 		BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_128x128.png; path = Images.xcassets/AppIcon.appiconset/icon_128x128.png; sourceTree = "<group>"; };
 		BE328F171BDC0DFD00EAF2E5 /* NotificationListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationListener.swift; sourceTree = "<group>"; };
@@ -109,7 +105,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9F578136254F797800B9F2D8 /* Sparkle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,7 +121,6 @@
 		6242C82AE9A11BEF4D5D7E2F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9F578135254F797800B9F2D8 /* Sparkle.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
