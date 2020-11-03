@@ -1,3 +1,6 @@
+# macOS
+*.DS_Store
+
 # Xcode
 build/
 *.pbxuser
@@ -18,14 +21,24 @@ DerivedData
 mailcore2/unittest/data
 *.orig
 
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/
+
 # Compiled Python scripts
 *.pyc
 
 # Rope project directory
 .ropeproject
 
+# Things not ready to share
 TODO.md
 .idea
 
-*.DS_Store
+# Debris from testing
 scripts/.noseids
+
+# Virtual environment
+venv/

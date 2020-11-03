@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ but also robo_prints the message as well.
 
 # pylint: disable=no-name-in-module
 from __future__ import absolute_import
+
 from Foundation import NSDistributedNotificationCenter, NSNotificationDeliverImmediately
 
 from .roboabc import RoboDict, RoboList
@@ -40,22 +41,12 @@ from .tools import LogLevel, robo_print
 
 # pylint: enable=no-name-in-module
 
-# Remap basestring in Python 3
-# Credit: https://github.com/munki/munki/blob/ff6248daafa527def0fd109e0c72c69ca179702c
-# /code/client/munkilib/wrappers.py#L121-L125
-try:
-    _ = basestring
-except NameError:
-    basestring = str  # pylint: disable=W0622
-
 # pylint: disable=too-few-public-methods
 class NotificationMixin(object):
     """Adds a send_notification method to Notifying classes."""
 
     def send_notification(self, message):
         """Send an NSNotification to our stored center."""
-        if isinstance(message, unicode):
-            message = message.encode("utf-8")
         userInfo = {"message": message}  # pylint: disable=invalid-name
         self.notification_center.postNotificationName_object_userInfo_options_(
             "com.elliotjordan.recipe-robot.dnc.%s" % self.message_type,
@@ -82,16 +73,18 @@ class Facts(RoboDict):
         super(Facts, self).__init__()
         self._dict.update(
             {
+                "complete": NotifyingList("complete"),
                 "errors": NoisyNotifyingList("errors"),
+                "icons": NotifyingList("icons"),
+                "information": NoisyNotifyingList("information"),
+                "recipes": NotifyingList("recipes"),
                 "reminders": NoisyNotifyingList("reminders"),
                 "warnings": NoisyNotifyingList("warnings"),
-                "recipes": NotifyingList("recipes"),
-                "icons": NotifyingList("icons"),
             }
         )
 
     def __setitem__(self, key, val):
-        if isinstance(val, basestring):
+        if isinstance(val, str):
             val = NotifyingString(self.default_suffix, val)
         elif isinstance(val, list):
             val = NotifyingList(self.default_suffix, val)
@@ -154,7 +147,7 @@ class NotifyingString(NotificationMixin, str):
             message_type: String name appended to message identifier.
             text: Optional string to use to fill the instance.
         """
-        instance = super(NotifyingString, cls).__new__(cls, text.encode("utf-8"))
+        instance = super(NotifyingString, cls).__new__(cls, text)
         instance.message_type = message_type
         return instance
 
@@ -170,7 +163,7 @@ class NotifyingString(NotificationMixin, str):
         # that allows messages to be sent between applications.
         self.notification_center = NSDistributedNotificationCenter.defaultCenter()
         self.send_notification(text)
-        super(NotifyingString, self).__init__(self, text)
+        super(NotifyingString, self).__init__()
 
     # pylint: enable=unused-argument
 

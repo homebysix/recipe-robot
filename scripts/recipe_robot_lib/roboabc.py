@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ RoboList:
 
 
 from __future__ import absolute_import
-from collections import MutableMapping, MutableSequence
+
+from collections.abc import MutableMapping, MutableSequence
 
 
 class RoboDict(MutableMapping):
@@ -64,9 +65,9 @@ class RoboDict(MutableMapping):
 
 
 class RoboList(MutableSequence):
-    """Base dictionary class for defining special methods and inits.
+    """Base list class for defining special methods and inits.
 
-    Doesn't do anything different from dict, other than allow easy
+    Doesn't do anything different from list, other than allow easy
     overriding for subclasses.
     """
 

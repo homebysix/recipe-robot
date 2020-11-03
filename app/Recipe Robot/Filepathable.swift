@@ -2,7 +2,7 @@
 //  Filepathable.swift
 //
 //  Recipe Robot
-//  Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -39,12 +39,12 @@ extension Filepathable {
 
     var isDirectory: Bool {
         var isDir: ObjCBool = false
-        let fileExists = FileManager.default.fileExists(atPath:self.path, isDirectory:&isDir)
+        let fileExists = FileManager.default.fileExists(atPath: self.path, isDirectory: &isDir)
         return fileExists && isDir.boolValue
     }
 
     var isExecutable: Bool {
-        return FileManager.default.isExecutableFile(atPath:self.path)
+        return FileManager.default.isExecutableFile(atPath: self.path)
     }
 }
 
@@ -63,8 +63,7 @@ extension NSTextField: FilepathValidator {
 
         var attrs: [NSAttributedString.Key: Any]?
         let placeholderStringLength = cell.placeholderAttributedString?.string.count ?? 0
-        if placeholderStringLength > 0
-        {
+        if placeholderStringLength > 0 {
             attrs = cell.placeholderAttributedString!.attributes(at: 0, effectiveRange: nil)
         } else if cell.attributedStringValue.string.count > 0 {
             attrs = cell.attributedStringValue.attributes(at: 0, effectiveRange: nil)

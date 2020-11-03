@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ recipe_robot_lib
 
 
 from __future__ import absolute_import
-from .recipe_generator import generate_recipes
 
 # TODO (Shea): We can import stuff better here to cut down on length of calls.
 from . import tools
+from .recipe_generator import generate_recipes

@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [2.0.0] - 2020-11-03
+
+### Added
+- Full Python 3 support, which makes Recipe Robot compatible with (and require) AutoPkg 2. Big thanks to [@sheagcraig](https://github.com/sheagcraig) for fixing a particularly sticky bug involving string encoding. (#156, #160, #163)
+- As part of Python 3 transition, rewrote significant portions of Recipe Robot to use `curl` instead of Python's urllib. This adds flexibility and mimics AutoPkg's behavior, but may result in changes in behavior from Recipe Robot 1.x.
+- New disk image build tool and layout.
+- The `recipe-robot` script now supports the creation of "jss-upload" type recipes, which imports a package into Jamf Pro but does not create any policies or groups. (#153)
+- Recipe Robot now does more thorough pre-checking of URLs: attempts to use HTTPS instead of HTTP when possible, and tries to add a widely used user-agent if a 403 error is encountered.
+- Added CodeQL scanning to GitHub repo.
+- Added Sparkle shortVersionString to verbose output. (#173)
+- Added code signature team identifier verbose output. (#174)
+
+### Changed
+- Recipe Robot no longer assigns AutoPkg input variables for `DOWNLOAD_URL`, `SPARKLE_FEED_URL`, `GITHUB_REPO`, and `BUNDLE_ID`. Instead, it hard-codes these values into the appropriate processor arguments. [@jazzace](https://github.com/jazzace) nicely summarizes the benefit of this change [here](https://youtu.be/BI10WWrgG2A?t=2620).
+- Added detail to the `--configure` option that clarifies that following the official "jss-recipes" style format is unnecessary unless you're contributing to [jss-recipes](https://www.github.com/autopkg/jss-recipes).
+- Recipe Robot script `--configure` option now treats pressing Return the same as pressing "S" to save the list of preferred recipe types, to align with the behavior of other configuration options.
+- Various minor adjustments to continue preparing for Python 3 compatibility.
+- Cleaned up Swift codebase using `swiftlint`.
+- More robust Sparkle feed processing. (#150, #173)
+
+### Fixed
+- Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.
+- Updated regular expression used to grab app descriptions from MacUpdate.
+- Fixed an issue that would cause certain GitHub URLs to be parsed incorrectly.
+- Fixed a bug that occurred when checking for existing recipes using AutoPkg 2. (#171)
+- Resolved a first-run issue with reading empty preference values.
+- Fixed an issue that could cause a disk to fill up with recursive links. (#158)
+- Caught an error that resulted from neglecting to cast certain lists before writing to recipe plist.
+- Better handle download file inputs that are lacking `kMDItemWhereFroms` extended attributes.
+- Worked around an issue preventing real-time script output from being displayed in the app by shelling out to `echo` while running in app mode. (#169, #170)
+
+### Removed
+- Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.
+- Temporarily removed 403 error detection (usually due to rate-limiting) for BitBucket, GitHub, and SourceForge API calls.
+- Removed all calls to FoundationPlist in support of Python 3 transition. (Left FoundationPlist itself included in source, but will remove in a future release.)
+
+### Known Issues
+- On macOS 10.14 (and possibly earlier) an incorrect "certificate has expired" warning may appear in the output. (#165)
+- The "jss-upload" type is not addressable yet in the Recipe Robot app, only in the script.
+- Because Recipe Robot is now using plistlib instead of FoundationPlist, it's likely that some non-standard developer plist files may not successfully parse. This is because plistlib is stricter than FoundationPlist, and the same issue applies to AutoPkg itself (see [autopkg#618](https://github.com/autopkg/autopkg/issues/618) for an example).
+
+
 ## [1.2.1] - 2019-12-21
 
 ### Fixed
@@ -250,7 +292,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/homebysix/recipe-robot/compare/v1.2.1...v2.0.0
 [1.2.1]: https://github.com/homebysix/recipe-robot/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/homebysix/recipe-robot/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/homebysix/recipe-robot/compare/v1.1.1...v1.1.2

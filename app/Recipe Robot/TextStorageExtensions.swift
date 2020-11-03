@@ -2,7 +2,7 @@
 //  TextStorageExtensions.swift
 //
 //  Recipe Robot
-//  Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 import Cocoa
 
 extension NSTextStorage {
-    func appendString(string: String, color: NSColor){
+    func appendString(string: String, color: NSColor) {
 
         var attrs = [NSAttributedString.Key: Any]()
         let idx = self.string.count

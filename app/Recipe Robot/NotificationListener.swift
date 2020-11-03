@@ -2,7 +2,7 @@
 //  Notifications.swift
 //
 //  Recipe Robot
-//  Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 
 import Cocoa
 
-
 enum NoteType: Int {
     case Info, Error, Reminders, Warnings, Recipes, Icons, Complete
 
@@ -33,13 +32,13 @@ enum NoteType: Int {
 
     var key: String {
         switch self {
-        case .Info: return "information"
+        case .Complete: return "complete"
         case .Error: return "errors"
+        case .Icons: return "icons"
+        case .Info: return "information"
+        case .Recipes: return "recipes"
         case .Reminders: return "reminders"
         case .Warnings: return "warnings"
-        case .Recipes: return "recipes"
-        case .Icons: return "icons"
-        case .Complete: return "complete"
         }
     }
 
@@ -65,10 +64,10 @@ enum NoteType: Int {
         }
     }
 
-    static var cases: [NoteType]{
+    static var cases: [NoteType] {
         var all = [NoteType]()
         var idx = 0
-        while let noteType = NoteType(rawValue: idx){
+        while let noteType = NoteType(rawValue: idx) {
             all.append(noteType)
             idx += 1
         }
@@ -77,10 +76,10 @@ enum NoteType: Int {
 }
 
 class NotificationListener: NSObject {
-    var notificationHandler: ((_ name: NoteType, _ info: [String:AnyObject]) -> (Void))?
+    var notificationHandler: ((_ name: NoteType, _ info: [String: AnyObject]) -> Void)?
     private let center = DistributedNotificationCenter.default()
 
-    override init(){
+    override init() {
         super.init()
 
         for n in NoteType.cases {
@@ -103,7 +102,7 @@ class NotificationListener: NSObject {
         DistributedNotificationCenter.default().removeObserver(self)
     }
 
-    @objc func noticed(_ note: NSNotification){
+    @objc func noticed(_ note: NSNotification) {
         if let handler = notificationHandler {
             if let noteType = NoteType.fromName(name: note.name),
                let dict = note.userInfo as? [String: AnyObject] {

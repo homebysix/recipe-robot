@@ -46,6 +46,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		9F578138254F797800B9F2D8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		8B42AC7E1B5C5BEC0058A814 /* Recipe Robot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Recipe Robot.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B42AC821B5C5BEC0058A814 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -82,12 +95,9 @@
 		D5416418220E96EC00A886AF /* Recipe RobotTests-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe RobotTests-Debug.xcconfig"; path = "xcconfig/Recipe RobotTests-Debug.xcconfig"; sourceTree = SOURCE_ROOT; };
 		D5416419220E96EC00A886AF /* Recipe RobotTests-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe RobotTests-Shared.xcconfig"; path = "xcconfig/Recipe RobotTests-Shared.xcconfig"; sourceTree = SOURCE_ROOT; };
 		D541641A220E96EC00A886AF /* Recipe Robot-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe Robot-Shared.xcconfig"; path = "xcconfig/Recipe Robot-Shared.xcconfig"; sourceTree = SOURCE_ROOT; };
-		D541641B220E96EC00A886AF /* Project-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Release.xcconfig"; path = "xcconfig/Project-Release.xcconfig"; sourceTree = SOURCE_ROOT; };
 		D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe Robot-Debug.xcconfig"; path = "xcconfig/Recipe Robot-Debug.xcconfig"; sourceTree = SOURCE_ROOT; };
 		D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe Robot-Release.xcconfig"; path = "xcconfig/Recipe Robot-Release.xcconfig"; sourceTree = SOURCE_ROOT; };
 		D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Recipe RobotTests-Release.xcconfig"; path = "xcconfig/Recipe RobotTests-Release.xcconfig"; sourceTree = SOURCE_ROOT; };
-		D541641F220E96EC00A886AF /* Project-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Shared.xcconfig"; path = "xcconfig/Project-Shared.xcconfig"; sourceTree = SOURCE_ROOT; };
-		D5416420220E96EC00A886AF /* Project-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Debug.xcconfig"; path = "xcconfig/Project-Debug.xcconfig"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +118,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6242C82AE9A11BEF4D5D7E2F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		8B42AC751B5C5BEC0058A814 = {
 			isa = PBXGroup;
 			children = (
@@ -116,6 +133,7 @@
 				8B42AC801B5C5BEC0058A814 /* Recipe Robot */,
 				8B42AC911B5C5BEC0058A814 /* Recipe RobotTests */,
 				8B42AC7F1B5C5BEC0058A814 /* Products */,
+				6242C82AE9A11BEF4D5D7E2F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -190,9 +208,6 @@
 		D5416417220E96CE00A886AF /* xcconfig */ = {
 			isa = PBXGroup;
 			children = (
-				D5416420220E96EC00A886AF /* Project-Debug.xcconfig */,
-				D541641B220E96EC00A886AF /* Project-Release.xcconfig */,
-				D541641F220E96EC00A886AF /* Project-Shared.xcconfig */,
 				D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */,
 				D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */,
 				D541641A220E96EC00A886AF /* Recipe Robot-Shared.xcconfig */,
@@ -215,6 +230,8 @@
 				8B42AC7B1B5C5BEC0058A814 /* Frameworks */,
 				8B42AC7C1B5C5BEC0058A814 /* Resources */,
 				8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */,
+				9F578138254F797800B9F2D8 /* Embed Frameworks */,
+				9F603905254F7CFC009BBF58 /* Run Script: Warn about outdated Carthage frameworks */,
 			);
 			buildRules = (
 			);
@@ -323,6 +340,24 @@
 			shellPath = /bin/sh;
 			shellScript = "# Update build number with number of git commits if in release mode\n\n[[ ${CONFIGURATION} != \"Release\" ]] && exit 0\n\nbuildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n";
 		};
+		9F603905254F7CFC009BBF58 /* Run Script: Warn about outdated Carthage frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script: Warn about outdated Carthage frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage outdated --xcode-warnings 2>/dev/null\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -384,7 +419,6 @@
 /* Begin XCBuildConfiguration section */
 		8B42AC961B5C5BEC0058A814 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D5416420220E96EC00A886AF /* Project-Debug.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -393,7 +427,6 @@
 		};
 		8B42AC971B5C5BEC0058A814 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D541641B220E96EC00A886AF /* Project-Release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -406,7 +439,12 @@
 			baseConfigurationReference = D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_PROJECT_VERSION = 1038;
-				MARKETING_VERSION = 1.2.1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
 				SWIFT_VERSION = 5.0;
 			};
@@ -417,7 +455,12 @@
 			baseConfigurationReference = D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */;
 			buildSettings = {
 				CURRENT_PROJECT_VERSION = 1038;
-				MARKETING_VERSION = 1.2.1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
 				SWIFT_VERSION = 5.0;
 			};

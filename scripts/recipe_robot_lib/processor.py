@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,15 +29,16 @@ AutoPkg autopkglib.
 
 
 from __future__ import absolute_import
+
 import sys
 
-from .tools import robo_print
+from .tools import robo_print, LogLevel
 
 sys.path.append("/Library/AutoPkg")
 try:
     import autopkglib
 except ImportError:
-    robo_print("AutoPkg must be installed!")
+    robo_print("AutoPkg must be installed!", LogLevel.ERROR)
     sys.exit(1)
 
 

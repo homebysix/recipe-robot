@@ -2,7 +2,7 @@
 //  ChainableTextControl.swift
 //
 //  Recipe Robot
-//  Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 import Foundation
 import ObjectiveC
 
-typealias completionClosureType = () -> (Void)
+typealias completionClosureType = () -> Void
 
 protocol ChainableTextControl {
-    func stringChanged(changed: @escaping ((ChainableTextControl) -> (Void))) -> ChainableTextControl
+    func stringChanged(changed: @escaping ((ChainableTextControl) -> Void)) -> ChainableTextControl
     func editingEnded(ended: @escaping completionClosureType) -> Self
     func editingStarted(began: @escaping completionClosureType) -> Self
 
@@ -32,7 +32,7 @@ protocol ChainableTextControl {
 /// Closure wrapper used to hold properties in NSObject extensions.
 private class ObservationClosure {
     var beginEditingClosure: completionClosureType?
-    var changeClosure: ((NSTextField) -> (Void))?
+    var changeClosure: ((NSTextField) -> Void)?
     var endEditingClosure: completionClosureType?
 }
 
@@ -58,7 +58,7 @@ extension NSTextField: NSTextFieldDelegate, ChainableTextControl {
         return self
     }
 
-    func stringChanged(changed: @escaping ((ChainableTextControl) -> (Void))) -> ChainableTextControl {
+    func stringChanged(changed: @escaping ((ChainableTextControl) -> Void)) -> ChainableTextControl {
         editingObservationalClosure.changeClosure = changed
         return self
     }

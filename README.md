@@ -33,7 +33,7 @@ This two-pronged approach allows AutoPkg novices to easily create recipes that f
 
 The native Recipe Robot app requires macOS 10.13 or higher, but the Python script should work on previous versions of macOS.
 
-You also need [AutoPkg](https://github.com/autopkg/autopkg/releases/latest) 1.0.0 or later installed.
+You also need [AutoPkg](https://github.com/autopkg/autopkg/releases/latest) 2.0.2 or later installed, which includes the version of Python 3 Recipe Robot depends on.
 
 
 ## Mac App Usage
@@ -163,6 +163,10 @@ Each time Recipe Robot produces a batch of recipes for you, I suggest you check 
 
 If you provide Recipe Robot with the path to an app that came from the Mac App Store, it will create an override for use with Nick McSpadden's [AppStoreApp recipes](https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe). Please see the details in his README for requirements necessary to use these overrides.
 
+### JSS Recipes
+
+If all you need to do is to build a JSS recipe that uses an existing pkg recipe as its parent, you may want to check out [JSSRecipeCreator](https://github.com/jssimporter/JSSRecipeCreator), which can build both conventional (\*.jss.recipe) and "package only" (\*.jss-upload.recipe) type recipes. Recipe Robot is not designed to create child recipes for existing parent recipes, although [with some tweaking](https://youtu.be/5VKDzY8bBxI?t=2829) you can certainly use it that way.
+
 
 ## Troubleshooting
 
@@ -176,8 +180,6 @@ If you provide Recipe Robot with the path to an app that came from the Mac App S
 - Run again with `--verbose` when errors occur, and you'll usually see why. It's often because Recipe Robot couldn't determine how to download the app.
 
 - If you get Python exceptions while using Recipe Robot, I invite you to [create an issue on GitHub](https://github.com/homebysix/recipe-robot/issues/new) so I can track the problem. Include full traceback plus whatever input (URL, path, etc) you provided when you ran Recipe Robot.
-
-- Due to reasons I'm still learning about, Recipe Robot (and AutoPkg) don't work with certain kinds of SSL. If you see `SSLV3_ALERT_HANDSHAKE_FAILURE` in the traceback message, see the first troubleshooting point above. If none of those steps work, you might be out of luck.
 
 
 ## Feedback

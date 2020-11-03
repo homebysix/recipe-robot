@@ -2,7 +2,7 @@
 //  FeedMeDropImageView.swift
 //
 //  Recipe Robot
-//  Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,25 +18,25 @@
 
 import Cocoa
 
-// MARK: -- Dragging  --
+// MARK: - - Dragging - -
 class FeedMeDropImageView: NSImageView {
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         guard let controller = sender.draggingDestinationWindow?.contentViewController as? FeedMeViewController else {
-            print ("failed coercing contentViewController to FeedMeViewController")
+            print("failed coercing contentViewController to FeedMeViewController")
             return true
         }
         guard let files = sender.draggingPasteboard.propertyList(forType: NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")) as? NSArray else {
-            print ("failed coercing NSFilenamesPboardType to NSArray")
+            print("failed coercing NSFilenamesPboardType to NSArray")
             return true
         }
         guard let file = files.firstObject as? String else {
-            print ("failed coercing files.firstObject to String")
+            print("failed coercing files.firstObject to String")
             return true
         }
 
         controller.task.appOrRecipe = file
-        controller.performSegue(withIdentifier:"FeedMeSegue", sender: self)
+        controller.performSegue(withIdentifier: "FeedMeSegue", sender: self)
 
         return true
     }
@@ -49,7 +49,7 @@ class FeedMeDropImageView: NSImageView {
         // All done.
     }
 
-    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation  {
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         return NSDragOperation.copy
     }
 
@@ -57,7 +57,7 @@ class FeedMeDropImageView: NSImageView {
     }
 }
 
-//// MARK: -- Pasting  --
+// MARK: - - Pasting - -
 //extension FeedMeDropImageView {
 //    @IBAction func paste(sender: AnyObject){
 //        let pasteboard = NSPasteboard.generalPasteboard()

@@ -2,7 +2,7 @@
 //  RecipeRobotTask.swift
 //
 //  Recipe Robot
-//  Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,34 +18,30 @@
 
 import Cocoa
 
-
-
 class RecipeRobotTask: Task {
 
     // Task Overrides
     override var executable: String {
-        return "/usr/bin/python"
+        return Bundle.main.path(forResource: "scripts/recipe-robot", ofType: nil)!
     }
 
     override var args: [String]? {
         get {
             var args = [String]()
 
-            if let recipeRobotPy = Bundle.main.path(forResource: "scripts/recipe-robot", ofType: nil){
+            args.append(contentsOf: ["--verbose", "--app-mode"])
 
-                args.append(contentsOf:[recipeRobotPy, "--verbose", "--app-mode"])
-
-                // Honor the ignoreExisting of the instance first
-                // If that's unset apply the setting from defaults.
-                if let ignore = self.ignoreExisting {
-                    if ignore {
-                        args.append("--ignore-existing")
-                    }
-                } else if Defaults.sharedInstance.ignoreExisting {
+            // Honor the ignoreExisting of the instance first
+            // If that's unset apply the setting from defaults.
+            if let ignore = self.ignoreExisting {
+                if ignore {
                     args.append("--ignore-existing")
                 }
-                args.append(self.appOrRecipe)
+            } else if Defaults.sharedInstance.ignoreExisting {
+                args.append("--ignore-existing")
             }
+            args.append(contentsOf: ["--", self.appOrRecipe])
+
             return args
         }
         set {}
@@ -65,7 +61,7 @@ class RecipeRobotTask: Task {
 
     var appIcon: NSImage? {
         if let dict = appBundle?.infoDictionary {
-            var iconName: String? = nil
+            var iconName: String?
 
             if let name = dict["CFBundleIconFile"] as? String {
                 iconName = name
@@ -75,8 +71,8 @@ class RecipeRobotTask: Task {
                     iconName = name
             }
 
-            if let iconName = iconName, let iconFile = appBundle?.pathForImageResource(iconName){
-                if let image = NSImage(contentsOfFile: iconFile){
+            if let iconName = iconName, let iconFile = appBundle?.pathForImageResource(iconName) {
+                if let image = NSImage(contentsOfFile: iconFile) {
                     return image
                 }
             }
@@ -90,7 +86,7 @@ class RecipeRobotTask: Task {
 
     // var recipeTypes = []
     var output: String = "~/Library/AutoPkg/Recipe Robot Output/"
-    var includeExisting : Bool = false
+    var includeExisting: Bool = false
 
     private class func taskError(string: String, exitCode: Int32) -> NSError {
         print(string)

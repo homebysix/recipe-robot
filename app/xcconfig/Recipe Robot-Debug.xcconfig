@@ -7,7 +7,6 @@
 
 #include "Recipe Robot-Shared.xcconfig"
 
-
 // Swift Optimization Level
 //
 // * *None:* Compile without any optimization. [-Onone]

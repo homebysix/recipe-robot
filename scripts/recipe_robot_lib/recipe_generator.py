@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ create autopkg recipes for the specified app.
 # pylint: disable=no-member
 
 from __future__ import absolute_import
+
 import os
 
 from . import processor
@@ -214,7 +215,7 @@ def get_generation_func(facts, prefs, recipe):
     if recipe["type"] not in prefs["RecipeTypes"]:
         return None
 
-    func_name = ["generate", recipe["type"], "recipe"]
+    func_name = ["generate", recipe["type"].replace("-", "_"), "recipe"]
 
     if recipe["type"] in ("munki", "pkg") and facts.is_from_app_store():
         func_name.insert(1, "app_store")
@@ -251,9 +252,8 @@ def generate_download_recipe(facts, prefs, recipe):
 
     # TODO (Shea): Extract method(s) to get_source_processor()
     if "sparkle_feed" in facts:
-        keys["Input"]["SPARKLE_FEED_URL"] = facts["sparkle_feed"]
         sparkle_processor = processor.SparkleUpdateInfoProvider(
-            appcast_url="%SPARKLE_FEED_URL%"
+            appcast_url=facts["sparkle_feed"]
         )
 
         if "user-agent" in facts:
@@ -265,15 +265,14 @@ def generate_download_recipe(facts, prefs, recipe):
 
     # TODO (Shea): Extract method(s) to get_source_processor()
     elif "github_repo" in facts:
-        keys["Input"]["GITHUB_REPO"] = facts["github_repo"]
         if facts.get("use_asset_regex", False):
             gh_release_info_provider = processor.GitHubReleasesInfoProvider(
                 asset_regex=".*\\.%s$" % facts["download_format"],
-                github_repo="%GITHUB_REPO%",
+                github_repo=facts["github_repo"],
             )
         else:
             gh_release_info_provider = processor.GitHubReleasesInfoProvider(
-                github_repo="%GITHUB_REPO%"
+                github_repo=facts["github_repo"]
             )
         recipe.append_processor(gh_release_info_provider)
 
@@ -336,8 +335,7 @@ def generate_download_recipe(facts, prefs, recipe):
                         "to your download recipe."
                     )
         else:
-            keys["Input"]["DOWNLOAD_URL"] = facts["download_url"]
-            url_downloader.url = "%DOWNLOAD_URL%"
+            url_downloader.url = facts["download_url"]
             url_downloader.filename = "%NAME%.{}".format(facts["download_format"])
 
     if "user-agent" in facts:
@@ -373,8 +371,8 @@ def generate_download_recipe(facts, prefs, recipe):
             input_path = "%pathname%"
         else:
             facts["warnings"].append(
-                "CodeSignatureVerifier cannot be created! "
-                "The download format is not recognized"
+                "CodeSignatureVerifier cannot be created. "
+                "The download format is not recognized."
             )
             input_path = None
 
@@ -414,21 +412,27 @@ def generate_download_recipe(facts, prefs, recipe):
                     pkgpayloadunpacker.pkg_payload_path = "%found_filename%"
                 else:
                     # Skip FileFinder and specify the filename of the package.
-                    pkgpayloadunpacker.pkg_payload_path = "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
-                        facts["pkg_filename"]
+                    pkgpayloadunpacker.pkg_payload_path = (
+                        "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
+                            facts["pkg_filename"]
+                        )
                     )
 
                 recipe.append_processor(pkgpayloadunpacker)
 
-                versioner.input_plist_path = "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
-                    facts["app_relpath_from_payload"]
+                versioner.input_plist_path = (
+                    "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
+                        facts["app_relpath_from_payload"]
+                    )
                 )
             else:
                 if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-                    versioner.input_plist_path = "%pathname%/{}{}.{}/Contents/Info.plist".format(
-                        facts.get("relative_path", ""),
-                        facts.get("app_file", facts[bundle_name_key]),
-                        bundle_type,
+                    versioner.input_plist_path = (
+                        "%pathname%/{}{}.{}/Contents/Info.plist".format(
+                            facts.get("relative_path", ""),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        )
                     )
                 else:
                     versioner.input_plist_path = (
@@ -815,11 +819,8 @@ def generate_pkg_recipe(facts, prefs, recipe):
 
     recipe.set_parent_from(prefs, facts, "download")
 
-    # Save bundle identifier.
     # TODO: Try to make AppPkgCreator work with exclamation points in app names. Example:
     # 'https://s3.amazonaws.com/shirtpocket/SuperDuper/SuperDuper!.dmg'
-    keys["Input"]["BUNDLE_ID"] = facts["bundle_id"]
-
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         # TODO: if "pkg" in facts["inspections"] then use PkgCopier.
         if bundle_type == "app":
@@ -881,7 +882,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                                     "user": "root",
                                 }
                             ],
-                            "id": "%BUNDLE_ID%",
+                            "id": facts["bundle_id"],
                             "options": "purge_ds_store",
                             "pkgname": "%NAME%-%version%",
                             "pkgroot": "%pkgroot%",
@@ -965,7 +966,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                                     "user": "root",
                                 }
                             ],
-                            "id": "%BUNDLE_ID%",
+                            "id": facts["bundle_id"],
                             "options": "purge_ds_store",
                             "pkgname": "%NAME%-%version%",
                             "pkgroot": "%pkgroot%",
@@ -1179,6 +1180,61 @@ def generate_jss_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "I don't have enough information to create a PNG icon for this app."
         )
+
+    # Put fully constructed JSSImporter arguments into the process list.
+    recipe.append_processor(
+        {"Processor": "JSSImporter", "Arguments": jssimporter_arguments}
+    )
+
+    return recipe
+
+
+def generate_jss_upload_recipe(facts, prefs, recipe):
+    """Generate an upload-only JSS recipe on passed recipe dict.
+
+    Args:
+        facts: A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs: The dictionary containing a key/value pair for each
+            preference.
+        recipe: The recipe to operate on. This recipe will be mutated
+            by this function!
+    """
+    # TODO: Possibly combine with generate_jss_upload_recipe() to handle multiple
+    # "varietals" of the same recipe type?
+    keys = recipe["keys"]
+    _, bundle_name_key = get_bundle_name_info(facts)
+    # Can't make this recipe without a bundle identifier.
+    if "bundle_id" not in facts:
+        facts["warnings"].append(
+            "Skipping %s recipe, because I wasn't able to determine the "
+            "bundle identifier of this app. You may want to actually download "
+            "the app and try again, using the .app file itself as input."
+            % recipe["type"]
+        )
+        return
+
+    robo_print("Generating %s recipe..." % recipe["type"])
+
+    if prefs.get("FollowOfficialJSSRecipesFormat", False) is True:
+        clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
+        keys["Identifier"] = "com.github.jss-recipes.jss-upload.%s" % clean_name
+
+    recipe.set_description(
+        "Downloads the latest version of %s and uploads the package "
+        "to your JSS." % facts[bundle_name_key]
+    )
+
+    recipe.set_parent_from(prefs, facts, "pkg")
+
+    keys["Input"]["CATEGORY"] = "Productivity"
+    facts["reminders"].append(
+        "Remember to manually set the category in the jss-upload recipe. I've set "
+        'it to "Productivity" by default.'
+    )
+
+    jssimporter_arguments = {"prod_name": "%NAME%", "category": "%CATEGORY%"}
 
     # Put fully constructed JSSImporter arguments into the process list.
     recipe.append_processor(
@@ -1485,8 +1541,8 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     """
 
     robo_print(
-        "Sorry, I don't know how to make a BigFix recipe yet. I'm a "
-        "fast learner, though. Stay tuned.",
+        "Sorry, I don't know how to make a BigFix recipe yet. If you do, "
+        "tell me how with a pull request!",
         LogLevel.WARNING,
     )
     # print(facts)

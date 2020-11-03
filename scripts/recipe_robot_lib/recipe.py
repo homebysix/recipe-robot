@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,11 @@ Recipes: Container class for Recipe objects.
 
 
 from __future__ import absolute_import
+
+import plistlib
+
 from recipe_robot_lib import processor
+from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.roboabc import RoboDict, RoboList
 from recipe_robot_lib.tools import (
     LogLevel,
@@ -34,13 +38,6 @@ from recipe_robot_lib.tools import (
     get_bundle_name_info,
     robo_print,
 )
-
-try:
-    from recipe_robot_lib import FoundationPlist
-except ImportError:
-    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
-    import plistlib as FoundationPlist
-
 
 # fmt: off
 RECIPE_TYPES = (
@@ -57,6 +54,10 @@ RECIPE_TYPES = (
         "type": "jss",
         "desc": "Imports into Jamf Pro and creates necessary groups, policies, "
                 "etc.",
+    }, {
+        "type": "jss-upload",
+        "desc": "Imports package only into Jamf Pro. Does not create policies "
+                "or groups.",
     }, {
         "type": "ds",
         "desc": "Imports into your DeployStudio Packages folder."
@@ -108,7 +109,15 @@ class Recipe(RoboDict):
 
     def write(self, path):
         """Write the recipe to disk."""
-        FoundationPlist.writePlist(self["keys"], path)
+        try:
+            with open(path, "wb") as openfile:
+                plistlib.dump(self["keys"], openfile)
+        except TypeError as err:
+            raise RoboError(
+                "Unable to write recipe due to unexpected data type.\n"
+                "plistlib error: %s\n"
+                "Recipe contents: %s\n" % (err, self["keys"])
+            )
 
     def set_description(self, description):
         """Save a description that explains what this recipe does."""

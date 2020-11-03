@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,38 +28,36 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 from __future__ import absolute_import, print_function
 
 import os
+import plistlib
 import re
 import shlex
+import subprocess
 import sys
 import timeit
 from datetime import datetime
 from functools import wraps
 from random import choice as random_choice
-from subprocess import PIPE, Popen
-from urllib import quote_plus
+from urllib.parse import quote_plus
 
 # pylint: disable=no-name-in-module
-from Foundation import NSUserDefaults
-
-# pylint: enable=no-name-in-module
+from Foundation import (
+    CFPreferencesAppSynchronize,
+    CFPreferencesCopyAppValue,
+    CFPreferencesCopyKeyList,
+    CFPreferencesSetAppValue,
+    kCFPreferencesAnyHost,
+    kCFPreferencesCurrentUser,
+)
 
 from .exceptions import RoboError
 
-
-# TODO(Elliot): Can we use the one at /Library/AutoPkg/FoundationPlist instead?
-# Or not use it at all (i.e. use the preferences system correctly). (#16)
-try:
-    from recipe_robot_lib import FoundationPlist
-except ImportError:
-    robo_print("Importing plistlib as FoundationPlist", LogLevel.WARNING)
-    import plistlib as FoundationPlist
+# pylint: enable=no-name-in-module
 
 
-__version__ = "1.2.1"
+__version__ = "2.0.0"
 ENDC = "\033[0m"
-PREFS_FILE = os.path.expanduser(
-    "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
-)
+BUNDLE_ID = "com.elliotjordan.recipe-robot"
+PREFS_FILE = os.path.expanduser("~/Library/Preferences/%s.plist" % BUNDLE_ID)
 
 # Build the list of download formats we know about.
 SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
@@ -77,12 +75,29 @@ SUPPORTED_BUNDLE_TYPES = {
     "plugin": "/Library/Internet Plug-Ins",
 }
 
+# Known Recipe Robot preference keys. All other keys will be removed from
+# the com.elliotjordan.recipe-robot.plist preference file.
+PREFERENCE_KEYS = (
+    "DSPackagesPath",
+    "FollowOfficialJSSRecipesFormat",
+    "IgnoreExisting",
+    "Initialized",  # Used by the RR app to show/hide config sheet on first launch.
+    "LastRecipeRobotVersion",
+    "RecipeCreateCount",
+    "RecipeCreateLocation",
+    "RecipeIdentifierPrefix",
+    "RecipeTypes",
+    "StripDeveloperSuffixes",
+)
+
 # Global variables.
 CACHE_DIR = os.path.join(
     os.path.expanduser("~/Library/Caches/Recipe Robot"),
     datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"),
 )
 color_setting = False
+
+GITHUB_DOMAINS = ("github.com", "githubusercontent.com", "github.io")
 
 
 class LogLevel(object):
@@ -168,10 +183,28 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
             and (OutputMode.verbose_mode or OutputMode.debug_mode)
         )
     ):
-        if log_level in (LogLevel.ERROR, LogLevel.WARNING):
+        if os.environ.get("NSUnbufferedIO") == "YES":
+            # Shell out to enable realtime output in Recipe Robot app.
+            subprocess.run(["echo", line], check=False)
+        elif log_level in (LogLevel.ERROR, LogLevel.WARNING):
             print(line, file=sys.stderr)
         else:
             print(line)
+
+
+def get_github_token():
+    """Return AutoPkg GitHub token, if file exists."""
+    # TODO: Also check for GITHUB_TOKEN preference.
+    github_token_file = os.path.expanduser("~/.autopkg_gh_token")
+    if os.path.isfile(github_token_file):
+        try:
+            with open(github_token_file, "r") as tokenfile:
+                return tokenfile.read().strip()
+        except IOError:
+            facts["warnings"].append(
+                "Couldn't read GitHub token file at {}.".format(github_token_file)
+            )
+    return None
 
 
 def strip_dev_suffix(dev):
@@ -291,7 +324,7 @@ def extract_app_icon(facts, png_path):
             )
 
 
-def get_exitcode_stdout_stderr(cmd, stdin=""):
+def get_exitcode_stdout_stderr(cmd, stdin="", text=True):
     """Execute the external command and get its exitcode, stdout and stderr.
 
     Args:
@@ -302,14 +335,27 @@ def get_exitcode_stdout_stderr(cmd, stdin=""):
         out: String from standard output.
         err: String from standard error.
     """
-    if "|" in cmd:
-        raise RoboError(
-            "Piped commands are deprecated. Please report this issue:\n"
-            "    https://github.com/homebysix/recipe-robot/issues/new\n"
-            "Command: {}".format(cmd)
+    robo_print("Shell command: %s" % cmd, LogLevel.DEBUG, 4)
+    try:
+        # First try to return text output.
+        proc = subprocess.Popen(
+            shlex.split(cmd),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=text,
         )
-    proc = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    out, err = proc.communicate(stdin)
+        out, err = proc.communicate(stdin)
+    except UnicodeDecodeError:
+        # If that fails, force bytes output.
+        proc = subprocess.Popen(
+            shlex.split(cmd),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,
+        )
+        out, err = proc.communicate(stdin)
     exitcode = proc.returncode
 
     return exitcode, out, err
@@ -343,7 +389,7 @@ def print_death_text():
                                      ||
                                    _/  \_
     """
-    robo_print(death_text, LogLevel.ERROR)
+    robo_print(death_text)
 
 
 def reset_term_colors():
@@ -352,23 +398,33 @@ def reset_term_colors():
 
 
 def write_report(report, report_file):
-    FoundationPlist.writePlist(report, report_file)
+    with open(report_file, "wb") as openfile:
+        plistlib.dump(report, openfile)
 
 
 def get_user_defaults():
-    defaults = NSUserDefaults.alloc().initWithSuiteName_(
-        "com.elliotjordan.recipe-robot"
-    )
-    default_dict = defaults.dictionaryRepresentation()
-    return default_dict if len(default_dict) else None
+    prefs_dict = {
+        key: CFPreferencesCopyAppValue(key, BUNDLE_ID) for key in PREFERENCE_KEYS
+    }
+    return prefs_dict
 
 
 def save_user_defaults(prefs):
-    defaults = NSUserDefaults.alloc().initWithSuiteName_(
-        "com.elliotjordan.recipe-robot"
+    # Clean up non Recipe Robot related keys that were accidentally collected from the
+    # global preferences by prior versions of Recipe Robot.
+    cfprefs_keylist = CFPreferencesCopyKeyList(
+        BUNDLE_ID, kCFPreferencesCurrentUser, kCFPreferencesAnyHost
     )
-    for key, value in prefs.iteritems():
-        defaults.setValue_forKey_(value, key)
+    if cfprefs_keylist:
+        external_keys = [x for x in cfprefs_keylist if x not in PREFERENCE_KEYS]
+        for ext_key in external_keys:
+            CFPreferencesSetAppValue(ext_key, None, BUNDLE_ID)
+
+    # Save latest values for all Recipe Robot keys.
+    for key in PREFERENCE_KEYS:
+        if prefs.get(key):
+            CFPreferencesSetAppValue(key, prefs[key], BUNDLE_ID)
+    CFPreferencesAppSynchronize(BUNDLE_ID)
 
 
 def any_item_in_string(items, test_string):
@@ -417,39 +473,33 @@ def create_existing_recipe_list(facts):
             cmd = "/usr/local/bin/autopkg search --path-only %s" % this_search
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         out = out.split("\n")
-        if exitcode == 0:
-            # Set to False by default. If found, set True.
-            is_existing = False
-            # For each recipe type, see if it exists in the search results.
-            for recipe in recipes:
-                recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
-                for line in out:
-                    if line.lower().startswith(recipe_name.lower()):
-                        # An existing recipe was found.
-                        if is_existing is False:
-                            robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
-                            is_existing = True
-                            recipe["existing"] = True
-                        robo_print(recipe_name, LogLevel.LOG, 8)
-                        break
-            if is_existing is True:
-                raise RoboError(
-                    "Sorry, AutoPkg recipes already exist for this app, and "
-                    "I can't blend new recipes with existing recipes.\n\nHere "
-                    "are my suggestions:\n\t- See if one of the above recipes "
-                    "meets your needs, either as-is or using an override."
-                    "\n\t- Write your own recipe using one of the above as "
-                    "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
-                    "the creation of a new child recipe, as seen here:\n\t  "
-                    "https://youtu.be/5VKDzY8bBxI?t=2829"
-                )
-            else:
-                robo_print("No results", LogLevel.VERBOSE, 4)
-        else:
+        # Set to False by default. If found, set True.
+        is_existing = False
+        # For each recipe type, see if it exists in the search results.
+        for recipe in recipes:
+            recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
+            for line in out:
+                if line.lower().startswith(recipe_name.lower()):
+                    # An existing recipe was found.
+                    if is_existing is False:
+                        robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
+                        is_existing = True
+                        recipe["existing"] = True
+                    robo_print(recipe_name, LogLevel.LOG, 8)
+                    break
+        if is_existing is True:
             raise RoboError(
-                "I encountered this error while checking for "
-                "existing recipes: {}".format(err)
+                "Sorry, AutoPkg recipes already exist for this app, and "
+                "I can't blend new recipes with existing recipes.\n\nHere "
+                "are my suggestions:\n\t- See if one of the above recipes "
+                "meets your needs, either as-is or using an override."
+                "\n\t- Write your own recipe using one of the above as "
+                "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
+                "the creation of a new child recipe, as seen here:\n\t  "
+                "https://youtu.be/5VKDzY8bBxI?t=2829"
             )
+        else:
+            robo_print("No results", LogLevel.VERBOSE, 4)
 
 
 def congratulate(prefs, first_timer):

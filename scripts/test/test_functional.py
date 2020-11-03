@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 # This Python file uses the following encoding: utf-8
 
 # Recipe Robot
-# Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,17 +27,18 @@ character. We will use "Robby the Robot" for ours.
 """
 
 
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
+
 import os
+import plistlib
 import shutil
 import subprocess
 from random import shuffle
 
-# pylint: disable=unused-wildcard-import, wildcard-import
+import yaml
 from nose.tools import *
-from recipe_robot_lib import FoundationPlist
-from .sample_data import SAMPLE_DATA
+
+from recipe_robot_lib.tools import strip_dev_suffix
 
 # pylint: enable=unused-wildcard-import, wildcard-import
 
@@ -50,7 +51,7 @@ from .sample_data import SAMPLE_DATA
 RECIPE_TYPES = ("download", "pkg", "munki", "install", "jss")
 
 
-def robot_runner(input_path, app, dev):
+def robot_runner(input_path):
     """For given input, run Recipe Robot and return the output recipes as dicts."""
 
     retcode = subprocess.call(
@@ -105,20 +106,27 @@ def test():
     """Functional tests"""
 
     # Read preferences.
-    prefs = FoundationPlist.readPlist(
-        os.path.expanduser("~/Library/Preferences/com.elliotjordan.recipe-robot.plist")
-    )
+    prefs_path = "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
+    with open(os.path.expanduser(prefs_path), "rb") as openfile:
+        prefs = plistlib.load(openfile)
 
-    shuffle(SAMPLE_DATA)
-    for app in SAMPLE_DATA:
+    # Read and randomize sample data.
+    with open("test/sample_data.yaml", "rb") as openfile:
+        sample_data = yaml.load(openfile, Loader=yaml.FullLoader)
+    shuffle(sample_data)
+
+    # Iterate through sample data, generating a recipe for each input.
+    for app in sample_data:
+
+        if prefs.get("StripDeveloperSuffixes") is True:
+            app["developer"] = strip_dev_suffix(app["developer"])
 
         # Remove output folder, if it exists.
         destination = get_output_path(prefs, app["app_name"], app["developer"])
         clean_folder(destination)
 
-        yield robot_runner, app["input_path"], app["app_name"], app["developer"]
+        yield robot_runner, app["input_path"]
 
-        recipes = {}
         for recipe_type in RECIPE_TYPES:
             recipe_path = get_output_path(
                 prefs, app["app_name"], app["developer"], recipe_type=recipe_type

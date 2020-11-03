@@ -2,13 +2,13 @@
 //  RecipeType.swift
 //
 //  Recipe Robot
-//  Copyright 2015-2019 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 
 import Foundation
 
 enum RecipeType: Int {
-    case Download, Munki, Pkg, Install, JSS, LANrev, SCCM, DS, Filewave, BigFix
+    case Download, Munki, Pkg, Install, JSS, JSSUpload, LANrev, SCCM, DS, Filewave, BigFix
 
     var value: String {
         switch self {
@@ -17,6 +17,7 @@ enum RecipeType: Int {
         case .Pkg: return "pkg"
         case .Install: return "install"
         case .JSS: return "jss"
+        case .JSSUpload: return "jss-upload"
         case .LANrev: return "lanrev"
         case .SCCM: return "sccm"
         case .DS: return "ds"
@@ -31,7 +32,7 @@ enum RecipeType: Int {
         case .Munki, .Pkg, .Install, .Filewave, .BigFix:
             // Requires Download
             types = types.union([.Download])
-        case .JSS, .LANrev, .SCCM, .DS:
+        case .JSS, .JSSUpload, .LANrev, .SCCM, .DS:
             // Requires Package (inherits Download)
             types = types.union([.Pkg])
         default:
@@ -52,10 +53,10 @@ enum RecipeType: Int {
         return self.cases.map({ return $0.value })
     }
 
-    static var cases:[RecipeType] {
+    static var cases: [RecipeType] {
         var cases = [RecipeType]()
         var idx = 0
-        while let type = RecipeType(rawValue: idx){
+        while let type = RecipeType(rawValue: idx) {
             cases.append(type)
             idx += 1
         }
