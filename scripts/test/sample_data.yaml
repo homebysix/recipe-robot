@@ -98,7 +98,7 @@
 - app_name: Evernote
   bundle_id: com.evernote.Evernote
   developer: Evernote
-  input_path: /Applications/Evernote.app
+  input_path: https://update.evernote.com/public/ENMacSMD/EvernoteMacUpdate.xml
 
 # Sparkle feed, app in zip
 - app_name: Evernote
@@ -272,11 +272,6 @@
   bundle_id: com.activecollab.activecollab-desktop
   developer: A51 D.O.O.
   input_path: https://accounts.activecollab.com/api/v2/desktop-apps/activecollab/releases/darwin/download
-
-- app_name: SugarSync
-  bundle_id: com.SugarSync.SugarSync
-  developer: SugarSync
-  input_path: https://www.sugarsync.com/downloads/InstallSugarSync.dmg
 
 - app_name: Kite
   bundle_id: com.kite.Kite
@@ -483,11 +478,6 @@
   developer: Tunabelly Software
   input_path: https://www.tunabellysoftware.com/resources/sparkle/silentstart.xml
 
-- app_name: TogglDesktop
-  bundle_id: com.toggl.toggldesktop.TogglDesktop
-  developer: Apprise
-  input_path: https://assets.toggl.com/installers/darwin_stable_appcast.xml
-
 - app_name: Digital Sentry
   bundle_id: com.koingosw.DigitalSentry
   developer: Koingo Software
@@ -512,11 +502,6 @@
   bundle_id: com.soma-zone.Ammonite
   developer: Robby Pahlig
   input_path: https://somazonecom.ipage.com/soma-zone.com/Ammonite/a/appcast.xml
-
-- app_name: CleanMyMac 2
-  bundle_id: com.macpaw.CleanMyMac2
-  developer: MacPaw
-  input_path: https://updates.devmate.com/com.macpaw.CleanMyMac2.xml
 
 - app_name: DEVONthink Pro
   bundle_id: com.devon-technologies.thinkpro2
@@ -967,7 +952,7 @@
 - app_name: Karabiner
   bundle_id: org.pqrs.Karabiner
   developer: Fumihiko Takayama
-  input_path: https://pqrs.org/osx/karabiner/files/appcast.xml
+  input_path: https://github.com/pqrs-org/Karabiner-Elements/releases/download/v13.1.0/Karabiner-Elements-13.1.0.dmg
 
 - app_name: Vienna
   bundle_id: uk.co.opencommunity.vienna2

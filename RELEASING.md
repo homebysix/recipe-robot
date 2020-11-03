@@ -4,6 +4,7 @@
 
 - [DropDMG](https://c-command.com/dropdmg/), with a configuration called "Recipe Robot" that has the proper layout and settings
 - Xcode and command line tools
+- Carthage (install using `brew install carthage`)
 
 ## Steps
 
