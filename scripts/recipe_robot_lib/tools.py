@@ -185,7 +185,7 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
     ):
         if os.environ.get("NSUnbufferedIO") == "YES":
             # Shell out to enable realtime output in Recipe Robot app.
-            subprocess.run(["echo", line])
+            subprocess.run(["echo", line], check=False)
         elif log_level in (LogLevel.ERROR, LogLevel.WARNING):
             print(line, file=sys.stderr)
         else:
