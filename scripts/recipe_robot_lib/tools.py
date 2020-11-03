@@ -70,9 +70,10 @@ ALL_SUPPORTED_FORMATS = (
 # Build the list of bundle types we support, and their destinations. ("app" should be listed first.)
 SUPPORTED_BUNDLE_TYPES = {
     "app": "/Applications",
+    "plugin": "/Library/Internet Plug-Ins",
     "prefpane": "/Library/PreferencePanes",
     "qlgenerator": "/Library/QuickLook",
-    "plugin": "/Library/Internet Plug-Ins",
+    "saver": "/Library/Screen Savers",
 }
 
 # Known Recipe Robot preference keys. All other keys will be removed from

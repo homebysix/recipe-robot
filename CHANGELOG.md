@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This projec
 - As part of Python 3 transition, rewrote significant portions of Recipe Robot to use `curl` instead of Python's urllib. This adds flexibility and mimics AutoPkg's behavior, but may result in changes in behavior from Recipe Robot 1.x.
 - New disk image build tool and layout.
 - The `recipe-robot` script now supports the creation of "jss-upload" type recipes, which imports a package into Jamf Pro but does not create any policies or groups. (#153)
+- Now able to build recipes for macOS screen saver (.saver) bundles.
 - Recipe Robot now does more thorough pre-checking of URLs: attempts to use HTTPS instead of HTTP when possible, and tries to add a widely used user-agent if a 403 error is encountered.
 - Added CodeQL scanning to GitHub repo.
 - Added Sparkle shortVersionString to verbose output. (#173)
