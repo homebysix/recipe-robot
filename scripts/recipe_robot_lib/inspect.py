@@ -1520,7 +1520,7 @@ def inspect_pkg(input_path, args, facts):
                     LogLevel.VERBOSE,
                     4,
                 )
-                facts["codesign_authorities"] = list(codesign_authorities)
+                facts["codesign_authorities"] = codesign_authorities
                 facts["codesign_input_filename"] = os.path.basename(input_path)
             else:
                 robo_print(
