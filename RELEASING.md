@@ -37,6 +37,11 @@
 
 1. Create new release on GitHub. Add notes from change log. Attach built disk image.
 
-1. TODO: Update Sparkle appcast using `gh-pages` branch.
+1. Trigger a GitHub Pages build, which updates the Sparkle feed ([using @huangyq23's method detailed here](https://www.yiqiu.me/2015/11/19/sparkle-update-on-github/)):
+
+        git checkout gh-pages
+        git commit --allow-empty -m "Trigger gh-pages build"
+        git push
+        git checkout master
 
 1. Announce to [autopkg](https://macadmins.slack.com/archives/C056155B4) and other relevant channels, if desired.
