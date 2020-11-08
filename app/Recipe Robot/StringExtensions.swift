@@ -37,7 +37,7 @@ extension String {
         return self.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 
-    /// Timmed whitespace
+    /// Trimmed whitespace
     public var trimmed: String {
         return self.trimmingCharacters(in: CharacterSet.whitespaces)
     }
