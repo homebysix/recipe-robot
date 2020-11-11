@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Fixed
 - Fixed a bug that would fail recipe generation if a `expected_authority_names` list is used for `CodeSignatureVerifier`.
 - Resolved an uncaught exception resulting from the `RecipeIdentifierPrefix` or `RecipeCreateLocation` preferences being unset. (#179)
+- Corrected minimum system version back to 10.13. (#180)
 
 
 ## [2.0.0] - 2020-11-03
