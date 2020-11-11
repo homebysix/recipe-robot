@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+### Added
+- Unit tests for `curl` related functions that will help detect and prevent release of bugs.
+
 ### Fixed
 - Fixed a bug that would fail recipe generation if a `expected_authority_names` list is used for `CodeSignatureVerifier`.
 - Resolved an uncaught exception resulting from the `RecipeIdentifierPrefix` or `RecipeCreateLocation` preferences being unset. (#179)
