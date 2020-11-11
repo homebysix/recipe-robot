@@ -268,11 +268,20 @@ def init_prefs(facts):
     Returns:
         prefs: A fully populated preference dictionary.
     """
+
     args = facts["args"]
     recipes = facts["recipes"]
+
+    # The preference keys that are minimally required for a basic run.
+    required_pref_keys = (
+        "RecipeCreateLocation",
+        "RecipeIdentifierPrefix",
+        "RecipeTypes",
+    )
+
     # If prefs file exists, try to read from it.
     prefs = get_user_defaults()
-    if prefs and prefs.get("RecipeTypes"):
+    if prefs and all((prefs.get(x) for x in required_pref_keys)):
         for recipe in recipes:
             # Load preferred recipe types.
             recipe["preferred"] = recipe["type"] in prefs["RecipeTypes"]
@@ -289,7 +298,8 @@ def init_prefs(facts):
         )
 
     else:
-        # The prefs file doesn't exist.
+        # The prefs file doesn't exist or is missing required keys.
+        # TODO: Rebuild only the missing keys, retaining the ones that already exist.
         message = "No prefs file found. Building new preferences..."
         facts["warnings"].append(message)
         prefs = build_prefs({}, facts)
