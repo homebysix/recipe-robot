@@ -225,32 +225,64 @@ class TestCurler(object):
         }
         assert_equal(expected, actual)
 
-    # def test_download_with_curl(self):
-    #     """Verify we can use curl to download a URL, handling failures."""
-    #     actual = curler.download_with_curl(curl_cmd, text=True, capture_output=True)
-    #     expected = 'Foo'
-    #     assert_equal(expected, actual)
-    #
-    # def test_download(self):
-    #     """Verify we can use curl to download a URL with default options."""
-    #     actual = curler.download(url, headers=None, text=False)
-    #     expected = 'Foo'
-    #     assert_equal(expected, actual)
-    #
-    # def test_download_to_file(self):
-    #     """Verify we can use curl to download a URL to a file."""
-    #     actual = curler.download_to_file(url, filename, headers=None, app_mode=False)
-    #     expected = 'Foo'
-    #     assert_equal(expected, actual)
-    #
-    # def test_get_headers(self):
-    #     """Verify we can get a URL's HTTP headers, parse them, and return them."""
-    #     actual = curler.get_headers(url, headers=None)
-    #     expected = 'Foo'
-    #     assert_equal(expected, actual)
-    #
-    # def test_check_url(self):
-    #     """Verify we can test a URL's headers, and switch to HTTPS if available."""
-    #     actual = curler.check_url(url, headers=None)
-    #     expected = 'Foo'
-    #     assert_equal(expected, actual)
+    def test_download_with_curl(self):
+        """Verify we can use curl to download a URL, handling failures."""
+        response = curler.download_with_curl(
+            [
+                self.curl_path,
+                "--silent",
+                "--url",
+                "https://jsonplaceholder.typicode.com/todos/1",
+            ],
+        )
+        actual = json.loads(response)
+        expected = {
+            "completed": False,
+            "id": 1,
+            "title": "delectus aut autem",
+            "userId": 1,
+        }
+        assert_equal(expected, actual)
+
+    def test_download(self):
+        """Verify we can use curl to download a URL with default options."""
+        url = "https://jsonplaceholder.typicode.com/todos/1"
+        response = curler.download(url)
+        actual = json.loads(response)
+        expected = {
+            "completed": False,
+            "id": 1,
+            "title": "delectus aut autem",
+            "userId": 1,
+        }
+        assert_equal(expected, actual)
+
+    def test_download_to_file(self):
+        """Verify we can use curl to download a URL to a file."""
+        url = "https://jsonplaceholder.typicode.com/todos/1"
+        filepath = "/private/tmp/test_download_to_file"
+        curler.download_to_file(url, filepath, app_mode=True)
+        with open(filepath, "r") as openfile:
+            actual = json.loads(openfile.read())
+        expected = {
+            "completed": False,
+            "id": 1,
+            "title": "delectus aut autem",
+            "userId": 1,
+        }
+        assert_equal(expected, actual)
+
+    def test_get_headers(self):
+        """Verify we can get a URL's HTTP headers, parse them, and return them."""
+        headers, retcode = curler.get_headers("https://www.example.com")
+        assert_equal(retcode, 0)
+        assert_equal(headers.get("content-type"), "text/html; charset=UTF-8")
+        assert_equal(headers.get("http_result_code"), "200")
+
+    def test_check_url(self):
+        """Verify we can test a URL's headers, and switch to HTTPS if available."""
+        url, headers, _ = curler.check_url("http://www.example.com")
+        expected = "https://www.example.com"
+        assert_equal(expected, url)
+        assert_equal(headers.get("content-type"), "text/html; charset=UTF-8")
+        assert_equal(headers.get("http_result_code"), "200")
