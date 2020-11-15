@@ -89,6 +89,10 @@ PREFERENCE_KEYS = (
     "RecipeIdentifierPrefix",
     "RecipeTypes",
     "StripDeveloperSuffixes",
+    "SUEnableAutomaticChecks",
+    "SUHasLaunchedBefore",
+    "SULastCheckTime",
+    "SUSendProfileInfo",
 )
 
 # Global variables.
