@@ -4,8 +4,12 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+Nothing yet.
+
+## [2.1.0] - 2020-11-14
+
 ### Added
-- Recipe Robot is now codesigned with a shiny new developer certificate!
+- Recipe Robot is now codesigned with a shiny new developer certificate and notarized!
 - Unit tests for `curl` related functions that will help detect and prevent release of bugs.
 
 ### Fixed
