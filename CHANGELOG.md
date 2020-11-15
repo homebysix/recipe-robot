@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This projec
 ## Unreleased
 
 ### Added
+- Recipe Robot is now codesigned with a shiny new developer certificate!
 - Unit tests for `curl` related functions that will help detect and prevent release of bugs.
 
 ### Fixed

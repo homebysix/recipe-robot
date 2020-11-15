@@ -70,6 +70,7 @@
 		8B8F78D21BF3D5DB008F2440 /* Feed Me Drop Zone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Feed Me Drop Zone.png"; sourceTree = "<group>"; };
 		8BC7598E1BE413190074040F /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = Credits.rtf; path = "Recipe Robot/Credits.rtf"; sourceTree = SOURCE_ROOT; };
 		8BD5A1CC1BCB6E3F00D16D0A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../scripts; sourceTree = "<group>"; };
+		9F2C3B992560BFC3001460D1 /* Recipe Robot.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Recipe Robot.entitlements"; sourceTree = "<group>"; };
 		BE007DB91BE93CFE00E31479 /* RecipeType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeType.swift; sourceTree = "<group>"; };
 		BE09DAAD1BBA1C03007F8FF4 /* icon_128x128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_128x128.png; path = Images.xcassets/AppIcon.appiconset/icon_128x128.png; sourceTree = "<group>"; };
 		BE328F171BDC0DFD00EAF2E5 /* NotificationListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationListener.swift; sourceTree = "<group>"; };
@@ -149,6 +150,7 @@
 		8B42AC801B5C5BEC0058A814 /* Recipe Robot */ = {
 			isa = PBXGroup;
 			children = (
+				9F2C3B992560BFC3001460D1 /* Recipe Robot.entitlements */,
 				BE34C8351B7EC5DF00E0822E /* Main.storyboard */,
 				8B42AC831B5C5BEC0058A814 /* AppDelegate.swift */,
 				BE34C8331B7EC5D400E0822E /* RecipeRobotViewController.swift */,
@@ -273,7 +275,9 @@
 				TargetAttributes = {
 					8B42AC7D1B5C5BEC0058A814 = {
 						CreatedOnToolsVersion = 6.3.2;
+						DevelopmentTeam = 32SVX952DB;
 						LastSwiftMigration = 1020;
+						ProvisioningStyle = Automatic;
 					};
 					8B42AC8D1B5C5BEC0058A814 = {
 						CreatedOnToolsVersion = 6.3.2;
@@ -438,7 +442,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Recipe Robot/Recipe Robot.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1038;
+				DEVELOPMENT_TEAM = 32SVX952DB;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
@@ -447,6 +456,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 2.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -455,7 +465,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Recipe Robot/Recipe Robot.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1038;
+				DEVELOPMENT_TEAM = 32SVX952DB;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
@@ -464,6 +479,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 2.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
