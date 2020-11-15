@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+Nothing yet.
+
+## [2.1.0] - 2020-11-14
+
+### Added
+- Recipe Robot is now codesigned with a shiny new developer certificate and notarized!
+- Unit tests for `curl` related functions that will help detect and prevent release of bugs.
+
+### Fixed
+- Fixed a bug that would fail recipe generation if a `expected_authority_names` list is used for `CodeSignatureVerifier`.
+- Resolved an uncaught exception resulting from the `RecipeIdentifierPrefix` or `RecipeCreateLocation` preferences being unset. (#179)
+- Corrected minimum system version back to 10.13. (#180)
+
 
 ## [2.0.0] - 2020-11-03
 

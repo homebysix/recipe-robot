@@ -470,7 +470,7 @@ def get_code_signature_verifier(input_path, facts):
     codesigverifier.input_path = input_path
     if facts.get("codesign_reqs"):
         codesigverifier.requirement = facts["codesign_reqs"]
-    elif len(facts["codesign_authorities"] > 0):
+    elif len(facts["codesign_authorities"]) > 0:
         codesigverifier.expected_authority_names = list(facts["codesign_authorities"])
     return codesigverifier
 

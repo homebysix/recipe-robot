@@ -23,10 +23,7 @@
 
 1. Run Recipe Robot unit tests and fix any errors. (See __scripts/test/README.md__ for detailed steps.)
 
-1. Build a new version of the Recipe Robot app:
-
-        /usr/bin/xcodebuild clean -workspace "Recipe Robot.xcworkspace" -scheme "Recipe Robot - Release"
-        /usr/bin/xcodebuild build -workspace "Recipe Robot.xcworkspace" -scheme "Recipe Robot - Release" OBJROOT=$(pwd)/build SYMROOT=$(pwd)/build
+1. (TEMPORARY) Use Xcode to build an archive of the signed app, upload to Apple for notarization, and export the notarized app to __build/Release/Recipe Robot.app__.
 
 1. Build a release disk image:
 
