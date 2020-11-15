@@ -43,3 +43,11 @@
         git checkout master
 
 1. Announce to [autopkg](https://macadmins.slack.com/archives/C056155B4) and other relevant channels, if desired.
+
+1. Create new `dev` branch.
+
+1. Bump versions for development:
+
+    - `MARKETING_VERSION` variables in __app/Recipe Robot.xcodeproj/project.pbxproj__
+
+    - Version in __scripts/recipe_robot_lib/tools.py__
