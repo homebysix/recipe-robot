@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
-Nothing yet.
+### Added
+- Recipe Robot now incorporates [Sparkle](https://sparkle-project.org) for keeping itself up to date. (#143)
+
 
 ## [2.1.0] - 2020-11-14
 
