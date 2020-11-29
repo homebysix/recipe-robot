@@ -56,7 +56,7 @@ def robot_runner(input_path):
         ["./recipe-robot", "--ignore-existing", "--verbose", input_path], check=False
     )
     assert_equal(
-        proc.retcode,
+        proc.returncode,
         0,
         "{}: Recipe Robot returned nonzero return code.".format(input_path),
     )
@@ -69,7 +69,9 @@ def autopkg_runner(recipe_path):
         ["/usr/local/bin/autopkg", "run", recipe_path, "--quiet"], check=False
     )
     assert_equal(
-        proc.retcode, 0, "{}: AutoPkg returned nonzero return code.".format(recipe_path)
+        proc.returncode,
+        0,
+        "{}: AutoPkg returned nonzero return code.".format(recipe_path),
     )
 
 
