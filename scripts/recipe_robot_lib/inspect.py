@@ -403,41 +403,54 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         codesign_authorities = []
         developer = ""
         team_id = ""
-        codesign_version = ""
         robo_print("Gathering code signature information...", LogLevel.VERBOSE)
         cmd = '/usr/bin/codesign --display --verbose=2 -r- "{}"'.format(input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
+
             # From stdout:
             reqs_marker = "designated => "
             for line in out.splitlines():
                 if line.startswith(reqs_marker):
                     codesign_reqs = line[len(reqs_marker) :]
+
             # From stderr:
-            authority_marker = "Authority="
-            dev_r = r"Authority=.+: (?P<dev>.+) \((?P<team>.+)\)"
-            vers_marker = "Sealed Resources version="
-            for line in err.splitlines():
-                if line.startswith(authority_marker):
-                    codesign_authorities.append(line[len(authority_marker) :])
-                if not developer:
-                    dev_m = re.match(dev_r, line)
-                    if dev_m:
-                        developer = dev_m.groupdict()["dev"]
-                        team_id = dev_m.groupdict()["team"]
-                if line.startswith(vers_marker):
-                    codesign_version = line[len(vers_marker) : len(vers_marker) + 1]
-                    if codesign_version == "1":
-                        facts["warnings"].append(
-                            "This {} uses an obsolete code signature.".format(
-                                bundle_type
-                            )
-                        )
-                        # Clear code signature markers, treat app as
-                        # unsigned.
-                        codesign_reqs = ""
-                        codesign_authorities = []
-                        break
+            # Capture all code signing authorities.
+            authorities_r = r"Authority=(.+)"
+            authorities_m = re.findall(authorities_r, err)
+            if authorities_m:
+                codesign_authorities = authorities_m
+
+            # Capture both developer and team identifier.
+            dev_team_r = r"Authority=.+: (?P<dev>.+) \((?P<team>[0-9A-Z]{10})\)"
+            dev_team_m = re.search(dev_team_r, err)
+            if dev_team_m:
+                developer = dev_team_m.group("dev")
+                team_id = dev_team_m.group("team")
+
+            if not developer:
+                # Try to capture developer only.
+                dev_r = r"Authority=.+: (?P<dev>.+)"
+                dev_m = re.search(dev_r, err)
+                if dev_m:
+                    developer = dev_m.group("dev")
+
+            if not team_id:
+                # Try to capture team identifier only.
+                team_r = r"TeamIdentifier=(?P<team>[0-9A-Z]{10})"
+                team_m = re.search(team_r, err)
+                if team_m:
+                    team_id = team_m.group("team")
+
+            # Check for obsolete code signature version.
+            if "Sealed Resources version=1" in err:
+                facts["warnings"].append(
+                    "This {} uses an obsolete code signature.".format(bundle_type)
+                )
+                # Clear code signature markers, treat app as unsigned.
+                codesign_reqs = ""
+                codesign_authorities = []
+
         if codesign_reqs == "" and len(codesign_authorities) == 0:
             robo_print("This {} is not signed".format(bundle_type), LogLevel.VERBOSE, 4)
         else:
