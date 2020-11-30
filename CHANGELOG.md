@@ -6,7 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Added
 - Recipe Robot now incorporates [Sparkle](https://sparkle-project.org) for keeping itself up to date. (#143)
+- The app is now built as a universal binary (however no testing on Macs with Apple Silicon has been done yet).
 
+### Fixed
+- Improved code signing authorities parsing, which should allow Recipe Robot to capture developer names and team identifiers in some situations where it would not previously.
 
 ## [2.1.0] - 2020-11-14
 
