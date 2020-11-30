@@ -704,11 +704,6 @@
   developer: Xuepeng Zhang
   input_path: https://www.ireador.com/downloads/PDFKit.dmg
 
-- app_name: SnapNDrag
-  bundle_id: null
-  developer: SnapNDrag
-  input_path: https://yellowmug.com/snapndrag/appcast.xml
-
 - app_name: VirtualC64
   bundle_id: de.dirkwhoffmann.VirtualC64
   developer: VirtualC64
