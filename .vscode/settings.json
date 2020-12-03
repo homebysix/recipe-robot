@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "/usr/local/bin/managed_python3",
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true
+}
