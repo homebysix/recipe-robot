@@ -290,7 +290,6 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
     # Attempt to determine how to download this app.
     if bundle_type == "app" and "sparkle_feed" not in facts:
         sparkle_feed = ""
-        download_format = ""
         robo_print("Checking for a Sparkle feed...", LogLevel.VERBOSE)
         if "SUFeedURL" in info_plist:
             sparkle_feed = info_plist["SUFeedURL"]
@@ -1409,7 +1408,7 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
     except OSError as err:
         facts["warnings"].append("Could not remove %s: %s" % (payload_archive, err))
 
-    for dirpath, dirnames, filenames in os.walk(payload_dir):
+    for dirpath, dirnames, _ in os.walk(payload_dir):
         for dirname in dirnames:
             if dirname.startswith("."):
                 dirnames.remove(dirname)
@@ -1649,7 +1648,6 @@ def inspect_pkg(input_path, args, facts):
                     facts["blocking_applications"].append(app)
 
         # Determine which app, if any, to process further.
-        payload_dir = os.path.join(CACHE_DIR, "payload")
         if len(found_apps) == 0:
             facts["warnings"].append("No apps found in payload.")
         elif len(found_apps) == 1:
