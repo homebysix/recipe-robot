@@ -1889,6 +1889,22 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             "the same problem."
         )
 
+    # If checked URL looks like a file download, inspect that instead.
+    # Note: This list is not comprehensive, and may need to expand over time.
+    download_types = (
+        "application/zip",
+        "application/x-bzip2",
+        "application/x-apple-diskimage",
+        "application/vnd.apple.installer+xml",
+    )
+    if head.get("content-type") in download_types:
+        robo_print(
+            "Server responded with a file download (type: %s). "
+            "Processing as download URL instead..." % head["content-type"]
+        )
+        facts["inspections"].remove("sparkle_feed_url")
+        return inspect_download_url(checked_url, args, facts)
+
     if checked_url.startswith("http:"):
         facts["warnings"].append(
             "This Sparkle feed is not using HTTPS. I recommend contacting "
