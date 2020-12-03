@@ -121,13 +121,7 @@ def parse_headers(raw_headers, url=""):
             parse_ftp_header(line, header)
         elif line == "":
             # we got an empty line; end of headers (or curl exited)
-            if header.get("http_result_code") in (
-                "301",
-                "302",
-                "303",
-                "307",
-                "308",
-            ):
+            if header.get("http_result_code") in ("301", "302", "303", "307", "308",):
                 # redirect, so more headers are coming.
                 # Throw away the headers we've received so far
                 header["http_redirected"] = header.get("location", None)
@@ -230,9 +224,7 @@ def check_url(url, headers=None):
         head, retcode = get_headers(url, headers=headers)
         if int(head.get("http_result_code")) < 400:
             robo_print(
-                "Using Safari user-agent.",
-                LogLevel.VERBOSE,
-                4,
+                "Using Safari user-agent.", LogLevel.VERBOSE, 4,
             )
             return url, head, headers["user-agent"]
 
