@@ -16,15 +16,16 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-import Cocoa
 import AppKit
+import Cocoa
+
 //import AppMover
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-//        AppMover.moveIfNecessary()
+        // AppMover.moveIfNecessary()
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {
@@ -36,7 +37,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction func openHelpURL(sender: AnyObject) {
-        guard let url = URL(string: "https://github.com/homebysix/recipe-robot/blob/master/README.md") else {
+        guard
+            let url = URL(string: "https://github.com/homebysix/recipe-robot/blob/master/README.md")
+        else {
             print("failed URL conversion")
             return
         }

@@ -54,7 +54,8 @@ class Defaults: NSObject {
     var recipeCreateLocation: String? {
         get {
             guard let recipeCreateLocation = defaults.string(forKey: "RecipeCreateLocation") else {
-                self.recipeCreateLocation = "\(NSHomeDirectory())/Library/AutoPkg/Recipe Robot Output"
+                self.recipeCreateLocation =
+                    "\(NSHomeDirectory())/Library/AutoPkg/Recipe Robot Output"
                 return self.recipeCreateLocation
             }
             return recipeCreateLocation

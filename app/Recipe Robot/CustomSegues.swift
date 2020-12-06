@@ -16,8 +16,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-import Cocoa
 import AppKit
+import Cocoa
 import QuartzCore
 
 class ReplaceSegue: NSStoryboardSegue {
@@ -42,7 +42,7 @@ class PushSegue: NSStoryboardSegue {
             print("error coercing destinationController to ViewController")
             return
         }
-        sourceViewController.present( destinationViewController, animator: PushTransitionAnimator())
+        sourceViewController.present(destinationViewController, animator: PushTransitionAnimator())
     }
 }
 
@@ -62,61 +62,85 @@ class FadeSegue: NSStoryboardSegue {
 }
 
 class FadeTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
-    func animatePresentation(of toViewController: NSViewController, from fromViewController: NSViewController) {
+    func animatePresentation(
+        of toViewController: NSViewController, from fromViewController: NSViewController
+    ) {
         if let tvc = toViewController as? RecipeRobotViewController,
-            let fvc = fromViewController as? RecipeRobotViewController {
+            let fvc = fromViewController as? RecipeRobotViewController
+        {
             tvc.view.wantsLayer = true
             tvc.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
             tvc.view.alphaValue = 0
             fvc.view.addSubview(tvc.view)
             tvc.view.frame = fvc.view.frame
-            NSAnimationContext.runAnimationGroup({ context in
-                context.duration = 2
-                tvc.view.animator().alphaValue = 1
-                }, completionHandler: {
-            })
+            NSAnimationContext.runAnimationGroup(
+                { context in
+                    context.duration = 2
+                    tvc.view.animator().alphaValue = 1
+                },
+                completionHandler: {
+                })
         }
 
     }
 
-    func animateDismissal(of viewController: NSViewController, from fromViewController: NSViewController) {
+    func animateDismissal(
+        of viewController: NSViewController, from fromViewController: NSViewController
+    ) {
         viewController.view.wantsLayer = true
         viewController.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
 
-        NSAnimationContext.runAnimationGroup({ (context) -> Void in
-            context.duration = 0.5
-            viewController.view.animator().alphaValue = 0
-            }, completionHandler: {
+        NSAnimationContext.runAnimationGroup(
+            { (context) -> Void in
+                context.duration = 0.5
+                viewController.view.animator().alphaValue = 0
+            },
+            completionHandler: {
                 viewController.view.removeFromSuperview()
-        })
+            })
     }
 }
 
 class PushTransitionAnimator: NSObject, NSViewControllerPresentationAnimator {
-    func animatePresentation(of viewController: NSViewController, from fromViewController: NSViewController) {
-        viewController.view.frame = NSRect(x: NSWidth(fromViewController.view.frame), y: 0, width: NSWidth(fromViewController.view.frame), height: NSHeight(fromViewController.view.frame))
+    func animatePresentation(
+        of viewController: NSViewController, from fromViewController: NSViewController
+    ) {
+        viewController.view.frame = NSRect(
+            x: NSWidth(fromViewController.view.frame), y: 0,
+            width: NSWidth(fromViewController.view.frame),
+            height: NSHeight(fromViewController.view.frame))
 
-        viewController.view.autoresizingMask = [NSView.AutoresizingMask.width, NSView.AutoresizingMask.height]
+        viewController.view.autoresizingMask = [
+            NSView.AutoresizingMask.width, NSView.AutoresizingMask.height,
+        ]
 
         fromViewController.view.addSubview(viewController.view)
         let dRect = fromViewController.view.frame
 
-        NSAnimationContext.runAnimationGroup({ (context) -> Void in
-            context.duration = 0.5
-            context.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-            viewController.view.animator().frame = dRect
-            }, completionHandler: { () -> Void in
-        })
+        NSAnimationContext.runAnimationGroup(
+            { (context) -> Void in
+                context.duration = 0.5
+                context.timingFunction = CAMediaTimingFunction(
+                    name: CAMediaTimingFunctionName.easeOut)
+                viewController.view.animator().frame = dRect
+            },
+            completionHandler: { () -> Void in
+            })
     }
 
-    func animateDismissal(of viewController: NSViewController, from fromViewController: NSViewController) {
+    func animateDismissal(
+        of viewController: NSViewController, from fromViewController: NSViewController
+    ) {
         let dRect = fromViewController.view.frame
-        NSAnimationContext.runAnimationGroup({ (context) -> Void in
-            context.duration = 0.5
-            context.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeIn)
-            viewController.view.animator().frame = dRect
-            }, completionHandler: { () -> Void in
+        NSAnimationContext.runAnimationGroup(
+            { (context) -> Void in
+                context.duration = 0.5
+                context.timingFunction = CAMediaTimingFunction(
+                    name: CAMediaTimingFunctionName.easeIn)
+                viewController.view.animator().frame = dRect
+            },
+            completionHandler: { () -> Void in
                 viewController.view.removeFromSuperview()
-        })
+            })
     }
 }

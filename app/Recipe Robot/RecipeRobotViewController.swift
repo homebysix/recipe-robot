@@ -16,8 +16,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-import Cocoa
 import AudioToolbox
+import Cocoa
 import Quartz
 import Sparkle
 
@@ -44,23 +44,24 @@ class RecipeRobotViewController: NSViewController {
 
     override var representedObject: Any? {
         didSet {
-        // Update the view, if already loaded.
+            // Update the view, if already loaded.
         }
     }
 
     override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
         if let source = segue.sourceController as? RecipeRobotViewController,
-            let dest = segue.destinationController as? RecipeRobotViewController {
-                // Here we pass off the task object during the seague transition.
-                // So in the future make sure to call super.prepareForSegue() on any
-                // additional viewControllers.
+            let dest = segue.destinationController as? RecipeRobotViewController
+        {
+            // Here we pass off the task object during the seague transition.
+            // So in the future make sure to call super.prepareForSegue() on any
+            // additional viewControllers.
 
-                if let dest = dest as? ProcessingViewController {
-                    dest.task = source.task
-                    dest.processRecipes()
-                } else if let dest = dest as? FeedMeViewController {
-                    dest.task = RecipeRobotTask()
-                }
+            if let dest = dest as? ProcessingViewController {
+                dest.task = source.task
+                dest.processRecipes()
+            } else if let dest = dest as? FeedMeViewController {
+                dest.task = RecipeRobotTask()
+            }
         }
     }
 }
@@ -87,16 +88,19 @@ class FeedMeViewController: RecipeRobotViewController {
         ignoreButton.target = self
         ignoreButton.action = #selector(FeedMeViewController.changeIgnoreState(sender:))
 
-        eventMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.flagsChanged) { [weak self](event) -> NSEvent? in
+        eventMonitor = NSEvent.addLocalMonitorForEvents(
+            matching: NSEvent.EventTypeMask.flagsChanged
+        ) { [weak self] (event) -> NSEvent? in
             if let _self = self {
                 if _self.ignoreButton.state == NSControl.StateValue.on {
                     _self.ignoreButton.isHidden = false
                 } else {
-                    _self.ignoreButton.isHidden = (event.modifierFlags.rawValue & NSEvent.ModifierFlags.option.rawValue) == 0
+                    _self.ignoreButton.isHidden =
+                        (event.modifierFlags.rawValue & NSEvent.ModifierFlags.option.rawValue) == 0
                 }
             }
             return event
-            }
+        }
         super.viewDidLoad()
     }
 
@@ -155,7 +159,8 @@ class PreferenceViewController: RecipeRobotViewController {
         self.scrollView.backgroundColor = NSColor.clear
         self.scrollView.focusRingType = NSFocusRingType.none
 
-        self.recipeFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(sender:))
+        self.recipeFolderPathButton.action = #selector(
+            PreferenceViewController.chooseFilePath(sender:))
         self.recipeFolderPathButton.target = self
         self.dsFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(sender:))
         self.dsFolderPathButton.target = self
@@ -201,9 +206,8 @@ class PreferenceViewController: RecipeRobotViewController {
     }
 
     @IBAction func close(sender: AnyObject) {
-        if enabledRecipeTypes.contains(RecipeType.DS.value) &&
-            !dsTextField.markAsValidDirectory() {
-                // pass
+        if enabledRecipeTypes.contains(RecipeType.DS.value) && !dsTextField.markAsValidDirectory() {
+            // pass
         } else {
             self.dismiss(sender)
             self.view.window?.close()
@@ -270,17 +274,26 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
         return RecipeType.values.count
     }
 
-    func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
-        return (enabledRecipeTypes.contains(RecipeType.values[row])) ? NSControl.StateValue.on : NSControl.StateValue.off
+    func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int)
+        -> Any?
+    {
+        return (enabledRecipeTypes.contains(RecipeType.values[row]))
+            ? NSControl.StateValue.on : NSControl.StateValue.off
     }
 
-    func tableView(_ tableView: NSTableView, willDisplayCell cell: Any, for tableColumn: NSTableColumn?, row: Int) {
+    func tableView(
+        _ tableView: NSTableView, willDisplayCell cell: Any, for tableColumn: NSTableColumn?,
+        row: Int
+    ) {
         if let cell = cell as? NSButtonCell {
             cell.title = RecipeType.values[row]
         }
     }
 
-    func tableView(_ tableView: NSTableView, setObjectValue object: Any?, for tableColumn: NSTableColumn?, row: Int) {
+    func tableView(
+        _ tableView: NSTableView, setObjectValue object: Any?, for tableColumn: NSTableColumn?,
+        row: Int
+    ) {
 
         guard let value = object as? Int else {
             return
@@ -303,7 +316,7 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
             enabledRecipeTypes = enabledRecipeTypes.union(type.requiredTypeValues)
         } else if value == NSControl.StateValue.off.rawValue {
             if enabledRecipeTypes.count > 0 {
-                guard  enabledRecipeTypes.contains(type.value) else {
+                guard enabledRecipeTypes.contains(type.value) else {
                     return
                 }
                 enabledRecipeTypes.remove(type.value)
@@ -364,11 +377,13 @@ class ProcessingViewController: RecipeRobotViewController {
     }
 
     override func viewWillAppear() {
-        let buttons = [recipeIndicator,
-                       reminderIndicator,
-                       iconIndicator,
-                       warningIndicator,
-                       errorIndicator]
+        let buttons = [
+            recipeIndicator,
+            reminderIndicator,
+            iconIndicator,
+            warningIndicator,
+            errorIndicator,
+        ]
 
         for b in buttons {
             b?.target = self
@@ -430,13 +445,13 @@ class ProcessingViewController: RecipeRobotViewController {
 
         _ = task.stdout {
             message in
-                showProgress(progress: message)
+            showProgress(progress: message)
         }.stderr {
             message in
-                showProgress(progress: message)
+            showProgress(progress: message)
         }.completed {
             error in
-                completed(error: error)
+            completed(error: error)
         }.cancelled {
             print("Task cancelled")
         }.run()
@@ -461,29 +476,32 @@ class ProcessingViewController: RecipeRobotViewController {
 // MARK: - Sparkle Updates View Controller
 class VersionDisplayViewController: NSViewController {
 
-   override func viewDidLoad() {
-       super.viewDidLoad()
-       // Do any additional setup after loading the view.
-   }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view.
+    }
 
-   override var representedObject: Any? {
-       didSet {
-           // Update the view, if already loaded.
-       }
-   }
-   @IBAction func checkForUpdates(_ sender: Any) {
-       let updater = SUUpdater.shared()
-       updater?.checkForUpdates(self)
-   }
+    override var representedObject: Any? {
+        didSet {
+            // Update the view, if already loaded.
+        }
+    }
+    @IBAction func checkForUpdates(_ sender: Any) {
+        let updater = SUUpdater.shared()
+        updater?.checkForUpdates(self)
+    }
 }
 
 extension VersionDisplayViewController {
-   static func freshController() -> VersionDisplayViewController {
-       let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-       let identifier = NSStoryboard.SceneIdentifier("VersionDisplayViewController")
-       guard let viewcontroller = storyboard.instantiateController(withIdentifier: identifier) as? VersionDisplayViewController else {
-           fatalError("Failed to find view controller - Check Main.storyboard")
-       }
-       return viewcontroller
-   }
+    static func freshController() -> VersionDisplayViewController {
+        let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
+        let identifier = NSStoryboard.SceneIdentifier("VersionDisplayViewController")
+        guard
+            let viewcontroller = storyboard.instantiateController(withIdentifier: identifier)
+                as? VersionDisplayViewController
+        else {
+            fatalError("Failed to find view controller - Check Main.storyboard")
+        }
+        return viewcontroller
+    }
 }

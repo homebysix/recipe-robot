@@ -20,20 +20,20 @@
 import Foundation
 import ObjectiveC
 
-typealias completionClosureType = () -> Void
+typealias CompletionClosureType = () -> Void
 
 protocol ChainableTextControl {
     func stringChanged(changed: @escaping ((ChainableTextControl) -> Void)) -> ChainableTextControl
-    func editingEnded(ended: @escaping completionClosureType) -> Self
-    func editingStarted(began: @escaping completionClosureType) -> Self
+    func editingEnded(ended: @escaping CompletionClosureType) -> Self
+    func editingStarted(began: @escaping CompletionClosureType) -> Self
 
 }
 
 /// Closure wrapper used to hold properties in NSObject extensions.
 private class ObservationClosure {
-    var beginEditingClosure: completionClosureType?
+    var beginEditingClosure: CompletionClosureType?
     var changeClosure: ((NSTextField) -> Void)?
-    var endEditingClosure: completionClosureType?
+    var endEditingClosure: CompletionClosureType?
 }
 
 private var closureWrapperAssociationKey: UInt8 = 0
@@ -42,9 +42,13 @@ extension NSTextField: NSTextFieldDelegate, ChainableTextControl {
 
     private var editingObservationalClosure: ObservationClosure {
         delegate = self
-        guard let closure = objc_getAssociatedObject(self, &closureWrapperAssociationKey) as? ObservationClosure else {
+        guard
+            let closure = objc_getAssociatedObject(self, &closureWrapperAssociationKey)
+                as? ObservationClosure
+        else {
             let closure = ObservationClosure()
-            objc_setAssociatedObject(self,
+            objc_setAssociatedObject(
+                self,
                 &closureWrapperAssociationKey,
                 closure,
                 .OBJC_ASSOCIATION_RETAIN)
@@ -53,17 +57,18 @@ extension NSTextField: NSTextFieldDelegate, ChainableTextControl {
         return closure
     }
 
-    func editingStarted(began: @escaping completionClosureType) -> Self {
+    func editingStarted(began: @escaping CompletionClosureType) -> Self {
         editingObservationalClosure.beginEditingClosure = began
         return self
     }
 
-    func stringChanged(changed: @escaping ((ChainableTextControl) -> Void)) -> ChainableTextControl {
+    func stringChanged(changed: @escaping ((ChainableTextControl) -> Void)) -> ChainableTextControl
+    {
         editingObservationalClosure.changeClosure = changed
         return self
     }
 
-    func editingEnded(ended: @escaping completionClosureType) -> Self {
+    func editingEnded(ended: @escaping CompletionClosureType) -> Self {
         editingObservationalClosure.endEditingClosure = ended
         return self
     }
