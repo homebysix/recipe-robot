@@ -402,11 +402,6 @@ def reset_term_colors():
     sys.stdout.write(ENDC)
 
 
-def write_report(report, report_file):
-    with open(report_file, "wb") as openfile:
-        plistlib.dump(report, openfile)
-
-
 def get_user_defaults():
     prefs_dict = {
         key: CFPreferencesCopyAppValue(key, BUNDLE_ID) for key in PREFERENCE_KEYS
