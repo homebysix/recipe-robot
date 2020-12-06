@@ -70,10 +70,12 @@ def process_input_path(facts):
     """Determine which functions to call based on type of input path.
 
     Args:
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
+
+    Raises:
+        RoboError: Standard exception raised when Recipe Robot cannot proceed.
     """
     args = facts["args"]
     # If --config was specified without an input path, stop here.
@@ -162,22 +164,23 @@ def process_input_path(facts):
 
 
 def inspect_app(input_path, args, facts, bundle_type="app"):
-    """Process an app
-
-    Gather information required to create a recipe.
+    """Process an app, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
-            to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        input_path (str): Path to the app on disk.
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        bundle_type: Type or file extension of the bundle we're inspecting.
-            Typically "app" but we also support "prefpane" and others.
+        bundle_type (str, optional): Type of bundle we are inspecting
+            (e.g. "app", "saver", "prefpane"). Defaults to "app".
+
+    Raises:
+        RoboError: Standard exception raised when Recipe Robot cannot proceed.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this app yet.
     if bundle_type in facts["inspections"]:
@@ -487,7 +490,14 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
 
 def html_decode(the_string):
     """Given a string, change HTML escaped characters (&gt;) to regular
-    characters (>)."""
+    characters (>).
+
+    Args:
+        the_string (str): String to decode.
+
+    Returns:
+        str: Decoded string.
+    """
     html_chars = (
         ("'", "&#39;"),
         ('"', "&quot;"),
@@ -504,11 +514,11 @@ def get_app_description(app_name):
     """Use an app's name to generate a description.
 
     Args:
-        app_name: The name of the app that we need to describe.
+        app_name (str): The name of the app that we need to describe.
 
     Returns:
-        description: A string containing a description of the app.
-        source: A string containing the source of the description.
+        str: A string containing a description of the app.
+        str: A string containing the source of the description.
     """
     desc_sources = [
         {
@@ -536,6 +546,14 @@ def get_app_description(app_name):
 def get_download_link_from_xattr(input_path, args, facts):
     """Attempts to derive download URL from the extended attribute (xattr)
     metadata.
+
+    Args:
+        input_path (str): The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
     """
     try:
         where_froms_string = xattr.getxattr(
@@ -556,20 +574,19 @@ def get_download_link_from_xattr(input_path, args, facts):
 
 
 def inspect_archive(input_path, args, facts):
-    """Process an archive
-
-    Gather information required to create a recipe.
+    """Process an archive, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "archive" in facts["inspections"]:
@@ -693,8 +710,17 @@ def inspect_archive(input_path, args, facts):
 
 
 def find_supported_release(release_array, download_url_key):
-    """Given an array of releases, find releases in supported formats."""
+    """Given an array of releases, find releases in supported formats.
 
+    Args:
+        release_array ([dict]): List of dicts with release information from an
+            API (e.g. GitHub).
+        download_url_key (str): The key used to store each release's download URL.
+
+    Returns:
+        string: The expected file format of the download URL.
+        string: The download URL.
+    """
     download_format = None
     download_url = None
 
@@ -709,20 +735,19 @@ def find_supported_release(release_array, download_url_key):
 
 
 def inspect_bitbucket_url(input_path, args, facts):
-    """Process a BitBucket URL
-
-    Gather information required to create a recipe.
+    """Process a BitBucket URL, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this BitBucket URL yet.
     if "bitbucket_url" in facts["inspections"]:
@@ -839,20 +864,19 @@ def inspect_bitbucket_url(input_path, args, facts):
 
 
 def inspect_disk_image(input_path, args, facts):
-    """Process an image
-
-    Gather information required to create a recipe.
+    """Process a disk image, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "disk_image" in facts["inspections"]:
@@ -976,20 +1000,19 @@ def inspect_disk_image(input_path, args, facts):
 
 
 def inspect_download_url(input_path, args, facts):
-    """Process a direct download URL
-
-    Gather information required to create a recipe.
+    """Process a download URL, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # We never skip download URL inspection, even if we've already
     # inspected a download URL during this run. This handles rare
@@ -1225,20 +1248,19 @@ def inspect_download_url(input_path, args, facts):
 
 
 def inspect_github_url(input_path, args, facts):
-    """Process a GitHub URL
-
-    Gather information required to create a recipe.
+    """Process a GitHub URL, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this GitHub URL yet.
     if "github_url" in facts["inspections"]:
@@ -1395,7 +1417,19 @@ def inspect_github_url(input_path, args, facts):
 
 def get_apps_from_payload(payload_archive, facts, payload_id=0):
     """Given a path to a package payload, this function expands the payload
-    and returns the paths to the apps."""
+    and returns the paths to the apps.
+
+    Args:
+        payload_archive (str): Path to the payload archive.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        payload_id (int, optional): Index of the payload ID to get apps from,
+            if there are multiple payloads. Defaults to 0.
+
+    Returns:
+        [str]: List of paths to apps found in the payload.
+    """
     payload_apps = []
     payload_dir = os.path.join(CACHE_DIR, "payload%s" % payload_id)
     os.mkdir(payload_dir)
@@ -1423,7 +1457,15 @@ def get_most_likely_app(app_list):
     """Takes an array of dicts, each with a 'path' key that points to a
     potential app to be evaluated. Uses various criteria to make an educated
     guess about which app is the "real" app, and returns the index of the
-    winner. If no winner can be determined, returns None."""
+    winner. If no winner can be determined, returns None.
+
+    Args:
+        app_list ([dict]): List of dictionaries with app information,
+            including path.
+
+    Returns:
+        int or None: Index of the selected app, or None if no app was selected.
+    """
 
     # Criteria 1: If only one app has a Sparkle feed, choose that one.
     has_sparkle = []
@@ -1469,20 +1511,20 @@ def get_most_likely_app(app_list):
 
 
 def inspect_pkg(input_path, args, facts):
-    """Process a package
-
-    Gather information required to create a recipe.
+    """Process an installer package, gathering information required to create
+    AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "pkg" in facts["inspections"]:
@@ -1692,20 +1734,20 @@ def inspect_pkg(input_path, args, facts):
 
 
 def inspect_sourceforge_url(input_path, args, facts):
-    """Process a SourceForge URL
-
-    Gather information required to create a recipe.
+    """Process a SourceForge URL, gathering information required to create
+    AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this SourceForge URL yet.
     if "sourceforge_url" in facts["inspections"]:
@@ -1839,20 +1881,20 @@ def inspect_sourceforge_url(input_path, args, facts):
 
 
 def inspect_sparkle_feed_url(input_path, args, facts):
-    """Process a Sparkle feed URL
-
-    Gather information required to create a recipe.
+    """Process a Sparkle feed URL, gathering information required to create
+    AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this Sparkle feed yet.
     if "sparkle_feed_url" in facts["inspections"]:

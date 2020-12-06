@@ -59,9 +59,14 @@ def generate_recipes(facts, prefs):
     """Generate the selected types of recipes.
 
     Args:
-        facts: A continually-updated dictionary containing all the information
-            we know so far about the app associated with the input path.
-        prefs: The dictionary containing a key/value pair for each preference.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+
+    Raises:
+        RoboError: Standard exception raised when Recipe Robot cannot proceed.
     """
     recipes = facts["recipes"]
     # A bundle name key like "app_name" or "prefpane_name" is required, because
@@ -121,7 +126,18 @@ def generate_recipes(facts, prefs):
 
 
 def raise_if_recipes_cannot_be_generated(facts, preferred):
-    """Raise a RoboError if recipes cannot be generated."""
+    """Raise a RoboError if recipes cannot be generated.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        preferred ([str]): List of strings representing our preferred recipe
+            types. If none are provided, we cannot produce recipes.
+
+    Raises:
+        RoboError: Standard exception raised when Recipe Robot cannot proceed.
+    """
     # No recipe types are preferred.
     if not preferred:
         raise RoboError("Sorry, no recipes available to generate.")
@@ -146,7 +162,15 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
 
 
 def required_repo_reminder(repo_name, repo_url, facts):
-    """Print a reminder if a required repo is not already added."""
+    """Print a reminder if a required repo is not already added.
+
+    Args:
+        repo_name (str): Name of repo to issue reminder to add.
+        repo_url (str): URL to the repo, to use with `autopkg repo-add`.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+    """
     cmd = "/usr/local/bin/autopkg repo-list"
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if not any(
@@ -161,7 +185,17 @@ def required_repo_reminder(repo_name, repo_url, facts):
 
 
 def build_recipes(facts, preferred, prefs):
-    """Create a recipe for each preferred type we know about."""
+    """Create a recipe for each preferred type we know about.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        preferred ([str]): List of strings representing our preferred recipe
+            types. If none are provided, we cannot produce recipes.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+    """
     recipe_dest_dir = facts["recipe_dest_dir"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     for recipe in preferred:
@@ -210,7 +244,20 @@ def build_recipes(facts, preferred, prefs):
 
 
 def get_generation_func(facts, prefs, recipe):
-    """Return the correct generation function based on type."""
+    """Return the correct generation function based on type.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): Object representing the recipe being generated.
+
+    Returns:
+        str: String representing the function that is used to generate this
+            recipe type.
+    """
     if recipe["type"] not in prefs["RecipeTypes"]:
         return None
 
@@ -226,14 +273,19 @@ def get_generation_func(facts, prefs, recipe):
 
 
 def generate_download_recipe(facts, prefs, recipe):
-    """Generate a download recipe on passed recipe dict.
+    """Generate a download recipe based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
     keys = recipe["keys"]
@@ -443,7 +495,15 @@ def generate_download_recipe(facts, prefs, recipe):
 
 
 def warn_about_app_store_generation(facts, recipe_type):
-    """Can't make this recipe if the app is from the App Store."""
+    """Issue warning if we can't make this recipe due to it being from the Mac
+    App Store.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        recipe_type (str): String representing the type of this recipe.
+    """
     facts["warnings"].append(
         "Skipping %s recipe, because this app was downloaded from the "
         "App Store." % recipe_type
@@ -451,7 +511,19 @@ def warn_about_app_store_generation(facts, recipe_type):
 
 
 def get_code_signature_verifier(input_path, facts):
-    """Build a CodeSignatureVerifier.
+    """Build a CodeSignatureVerifier processor.
+
+    Args:
+        input_path (str): Path to signed code.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+
+    Returns:
+        CodeSignatureVerifier: An object representing the CodeSignatureVerifier
+            processor.
+    """
+    """
 
     Args:
         input_path (str): Path to signed code.
@@ -470,8 +542,17 @@ def get_code_signature_verifier(input_path, facts):
 
 
 def needs_versioner(facts):
-    """Return True if we need to add a Versioner processor, based on available
-    facts, or False otherwise."""
+    """Determine whether we need to add a Versioner processor, based on available
+    facts.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+
+    Returns:
+        bool: True if a Versioner processor is needed, False otherwise.
+    """
 
     download_format = facts["download_format"]
     sparkle_version = facts.get("sparkle_provides_version", False)
@@ -483,16 +564,19 @@ def needs_versioner(facts):
 
 
 def generate_app_store_munki_recipe(facts, prefs, recipe):
-    """Generate a munki recipe on passed recipe dict.
-
-    This function is for Mac App Store apps.
+    """Generate an munki recipe for an App Store app on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -529,18 +613,19 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
 
 
 def generate_munki_recipe(facts, prefs, recipe):
-    """Generate a munki recipe on passed recipe dict.
-
-    This function is for non Mac App Store apps.
+    """Generate a munki recipe for a non-App Store app on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
@@ -741,7 +826,14 @@ def generate_munki_recipe(facts, prefs, recipe):
 
 def get_pkgdirs(path):
     """Given a destination path, create the dictionary used for
-    PkgRootCreator."""
+    PkgRootCreator.
+
+    Args:
+        path (str): Path to the package installer destination.
+
+    Returns:
+        dict: Dictionary of subdirectory paths and file modes used by PkgRootCreator.
+    """
     path_parts = os.path.split(path.lstrip("/"))
     pkgdirs = {}
     for index, dir in enumerate(path_parts):
@@ -750,16 +842,19 @@ def get_pkgdirs(path):
 
 
 def generate_app_store_pkg_recipe(facts, prefs, recipe):
-    """Generate a pkg recipe on passed recipe dict.
-
-    This function is for Mac App Store apps.
+    """Generate a pkg recipe for an App Store app on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     robo_print("Generating %s recipe..." % recipe["type"])
@@ -779,18 +874,19 @@ def generate_app_store_pkg_recipe(facts, prefs, recipe):
 
 
 def generate_pkg_recipe(facts, prefs, recipe):
-    """Generate a pkg recipe on passed recipe dict.
-
-    This function is for non Mac App Store apps.
+    """Generate a pkg recipe for a non-App Store app based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
@@ -983,16 +1079,19 @@ def generate_pkg_recipe(facts, prefs, recipe):
 
 
 def generate_install_recipe(facts, prefs, recipe):
-    """Generate an install recipe on passed recipe dict.
+    """Generate an install recipe based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
@@ -1080,16 +1179,19 @@ def generate_install_recipe(facts, prefs, recipe):
 
 
 def generate_jss_recipe(facts, prefs, recipe):
-    """Generate a JSS recipe on passed recipe dict.
+    """Generate a jss recipe based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
@@ -1187,16 +1289,19 @@ def generate_jss_recipe(facts, prefs, recipe):
 
 
 def generate_jss_upload_recipe(facts, prefs, recipe):
-    """Generate an upload-only JSS recipe on passed recipe dict.
+    """Generate an upload-only jss recipe based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     # TODO: Possibly combine with generate_jss_upload_recipe() to handle multiple
     # "varietals" of the same recipe type?
@@ -1242,16 +1347,19 @@ def generate_jss_upload_recipe(facts, prefs, recipe):
 
 
 def generate_lanrev_recipe(facts, prefs, recipe):
-    """Generate a LANrev recipe on passed recipe dict.
+    """Generate a lanrev recipe based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
@@ -1300,16 +1408,20 @@ def generate_lanrev_recipe(facts, prefs, recipe):
 
 
 def generate_sccm_recipe(facts, prefs, recipe):
-    """Generate an SCCM recipe on passed recipe dict.
+    """Generate a sccm (Microsoft Endpoint Configuration Manager) recipe
+    based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
@@ -1355,16 +1467,19 @@ def generate_sccm_recipe(facts, prefs, recipe):
 
 
 def generate_filewave_recipe(facts, prefs, recipe):
-    """Generate a FileWave recipe on passed recipe dict.
+    """Generate a filewave recipe based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
@@ -1465,16 +1580,19 @@ def generate_filewave_recipe(facts, prefs, recipe):
 
 
 def generate_ds_recipe(facts, prefs, recipe):
-    """Generate a DeployStudio recipe on passed recipe dict.
+    """Generate a ds (DeployStudio) recipe based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
@@ -1525,16 +1643,19 @@ def generate_ds_recipe(facts, prefs, recipe):
 
 # TODO: Not completed, does not function yet
 def generate_bigfix_recipe(facts, prefs, recipe):
-    """Generate a BigFix recipe on passed recipe dict.
+    """Generate a bigfix (IBM BigFix) recipe based on passed recipe dict.
 
     Args:
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        prefs: The dictionary containing a key/value pair for each
-            preference.
-        recipe: The recipe to operate on. This recipe will be mutated
-            by this function!
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
     """
 
     robo_print(
@@ -1656,7 +1777,9 @@ def warn_about_appstoreapp_pyasn(facts):
     """Print warning reminding user of dependencies for AppStoreApp overrides.
 
     Args:
-        facts: Facts object with required key: "reminders".
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path. The "reminders" key is required for this function.
     """
     facts["reminders"].append(
         "I've created at least one AppStoreApp override for you. Be sure to "

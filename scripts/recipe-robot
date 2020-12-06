@@ -145,7 +145,9 @@ def setup(facts):
     """Parse args, set state for recipe generation, and setup cache.
 
     Args:
-        facts: A Facts object.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
     """
     # Parse command line arguments.
     argparser = build_argument_parser()
@@ -172,7 +174,7 @@ def build_argument_parser():
     """Build and return the argument parser for Recipe Robot.
 
     Returns:
-        Parser object.
+        ArgumentParser: Parser object used for storing command line arguments.
     """
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -232,7 +234,13 @@ def build_argument_parser():
 
 
 def configure_from_args(facts):
-    """Perform validation and reporting on args."""
+    """Perform validation and reporting on args.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+    """
     args = facts["args"]
     # If --ignore-existing was specified, print a warning.
     if args.ignore_existing is True:
@@ -260,15 +268,14 @@ def init_prefs(facts):
         3. If preferences plist does exist, use it.
 
     Args:
-        facts: The Facts object with required keys:
-            args
-            warnings
-            recipes
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        prefs: A fully populated preference dictionary.
+        dict: The dictionary containing a key/value pair for Recipe Robot
+            preferences.
     """
-
     args = facts["args"]
     recipes = facts["recipes"]
 
@@ -317,15 +324,15 @@ def build_prefs(prefs, facts):
     """Prompt user for preferences, then save them back to the plist.
 
     Args:
-        prefs: The preference dictionary, passed from init_prefs().
-        facts: Facts object with required keys:
-            recipes: The list of known recipe types, created by
-                init_recipes().
-            warnings: List for storing any warnings.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
 
     Returns:
-        prefs: The preference dictionary, newly populated from user
-            input.
+        prefs: The dictionary containing a key/value pair for Recipe Robot
+            preferences.
     """
     recipes = facts["recipes"]
     # Start recipe count at zero, if no value already exists.
@@ -344,9 +351,9 @@ def set_recipe_preferences(prefs, recipes):
     """Set "preferred" status of each recipe type.
 
     Args:
-        prefs: The preference dictionary, passed from init_prefs().
-        recipes: The list of known recipe types, created by
-            init_recipes().
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipes ([Recipe]): The list of recipe types known to Recipe Robot.
     """
     affirmatives = ("y", "yes", "true", "ok", "yep", "sure")
 
@@ -400,7 +407,8 @@ def get_recipe_identifier_prefix(prefs):
     """Prompt for and save recipe identifier prefix.
 
     Args:
-        prefs: The preference dictionary, passed from init_prefs().
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
     """
     if "RecipeIdentifierPrefix" not in prefs:
         default_username = pwd.getpwuid(os.getuid())[0]
@@ -422,7 +430,8 @@ def get_recipe_creation_location(prefs):
     """Prompt for recipe creation location.
 
     Args:
-        prefs: The preference dictionary, passed from init_prefs().
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
     """
     if "RecipeCreateLocation" not in prefs:
         prefs["RecipeCreateLocation"] = os.path.expanduser(
@@ -439,9 +448,9 @@ def get_preferred_recipe_types(prefs, recipes):
     """Prompt to set recipe types on/off as desired.
 
     Args:
-        prefs: The preference dictionary, passed from init_prefs().
-        recipes: The list of known recipe types, created by
-            init_recipes().
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipes ([Recipe]): The list of recipe types known to Recipe Robot.
     """
     prefs["RecipeTypes"] = []
     robo_print("\nPreferred recipe types")
@@ -516,10 +525,11 @@ def get_preferred_recipe_types(prefs, recipes):
 
 
 def debug_dump(items):
-    """Dump all the variables we know about to output.
+    """Print all the variables we know about to output.
 
     Args:
-        items: A dict of dicts of all the things to dump to output.
+        items ({dict}): A dictionary of dictionaries, containing all the items
+            we will be reporting in the debug output.
     """
     for key in items.keys():
         robo_print(

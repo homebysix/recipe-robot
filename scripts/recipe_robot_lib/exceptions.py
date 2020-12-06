@@ -30,7 +30,14 @@ import traceback
 
 
 class RoboException(Exception):
-    """Base recipe-robot exception."""
+    """Base recipe-robot exception.
+
+    Args:
+        Exception (Exception): Python error superclass.
+
+    Attributes:
+        error (str): Reason for the exception.
+    """
 
     def __init__(self, message, error=None):
         """Add message and kwargs to exception.
@@ -56,6 +63,11 @@ class RoboException(Exception):
 
 
 class RoboError(RoboException):
-    """Something happened which means we can't continue."""
+    """Recipe Robot throws a RoboError exception when something happened that
+    prevents us from continuing.
+
+    Args:
+        RoboException (Exception): Superclass - see above.
+    """
 
     pass

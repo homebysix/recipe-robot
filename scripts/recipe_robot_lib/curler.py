@@ -39,14 +39,23 @@ def prepare_curl_cmd():
 
 
 def add_curl_headers(curl_cmd, headers):
-    """Add headers to curl_cmd."""
+    """Add headers to curl_cmd.
+
+    Args:
+        curl_cmd (str): List of strings representing curl command.
+        headers (dict): Keys/values that will be added as headers.
+    """
     if headers:
         for header, value in headers.items():
             curl_cmd.extend(["--header", f"{header}: {value}"])
 
 
 def clear_header(header):
-    """Clear header dictionary."""
+    """Clear header dictionary.
+
+    Args:
+        header (dict): Dictionary of header keys and values.
+    """
     # Save redirect URL before clear
     http_redirected = header.get("http_redirected", None)
     header.clear()
@@ -57,7 +66,12 @@ def clear_header(header):
 
 
 def parse_http_protocol(line, header):
-    """Parse first HTTP header line."""
+    """Parse first HTTP header line to determine HTTP result code and description.
+
+    Args:
+        line (str): First header line retrieved from curl.
+        header (dict): Dictionary of response header keys and values.
+    """
     try:
         header["http_result_code"] = line.split(None, 2)[1]
         header["http_result_description"] = line.split(None, 2)[2]
@@ -66,7 +80,12 @@ def parse_http_protocol(line, header):
 
 
 def parse_http_header(line, header):
-    """Parse single HTTP header line."""
+    """Parse single HTTP header line.
+
+    Args:
+        line (str): A single line from the curl HTTP headers.
+        header (dict): Dictionary of response header keys and values.
+    """
     part = line.split(None, 1)
     fieldname = part[0].rstrip(":").lower()
     try:
@@ -76,7 +95,14 @@ def parse_http_header(line, header):
 
 
 def parse_curl_error(proc_stderr):
-    """Report curl failure."""
+    """Report curl failure.
+
+    Args:
+        proc_stderr (str): Stderr returned from curl command.
+
+    Returns:
+        str: Reason for curl failure.
+    """
     curl_err = ""
     if isinstance(proc_stderr, bytes):
         proc_stderr = proc_stderr.decode("utf-8")
@@ -90,7 +116,12 @@ def parse_curl_error(proc_stderr):
 
 
 def parse_ftp_header(line, header):
-    """Parse single FTP header line."""
+    """Parse single FTP header line.
+
+    Args:
+        line (str): A single line from the curl FTP headers.
+        header (dict): Dictionary of response header keys and values.
+    """
     part = line.split(None, 1)
     responsecode = part[0]
     if responsecode == "213":
@@ -109,7 +140,16 @@ def parse_ftp_header(line, header):
 
 
 def parse_headers(raw_headers, url=""):
-    """Parse headers from curl."""
+    """Parse headers from curl.
+
+    Args:
+        raw_headers (string): Multiple lines of headers from curl output.
+        url (str, optional): URL to be specified for parsing FTP headers.
+            Defaults to "".
+
+    Returns:
+        dict: Dictionary of response header keys and values.
+    """
     header = {}
     clear_header(header)
     for line in raw_headers.splitlines():
@@ -132,7 +172,15 @@ def parse_headers(raw_headers, url=""):
 def execute_curl(curl_cmd, text=True, capture_output=True):
     """Execute curl command.
 
-    Return stdout, stderr and return code.
+    Args:
+        curl_cmd (list): List of strings representing curl command
+        text (bool, optional): If True, return text string instead of bytes.
+            Defaults to True.
+        capture_output (bool, optional): If True, capture command output
+            instead of printing to stdout. Defaults to True.
+
+    Returns:
+        tuple: Tuple (stdout, stderr, returncode) from curl command result.
     """
     try:
         result = subprocess.run(
@@ -149,7 +197,18 @@ def execute_curl(curl_cmd, text=True, capture_output=True):
 
 
 def download_with_curl(curl_cmd, text=True, capture_output=True):
-    """Launch curl, return its output, and handle failures."""
+    """Launch curl, return its output, and handle failures.
+
+    Args:
+        curl_cmd (list): List of strings representing curl command
+        text (bool, optional): If True, return text string instead of bytes.
+            Defaults to True.
+        capture_output (bool, optional): If True, capture command output
+            instead of printing to stdout. Defaults to True.
+
+    Returns:
+        str: Stdout from curl command.
+    """
     proc_stdout, proc_stderr, retcode = execute_curl(
         curl_cmd, text=text, capture_output=capture_output
     )
@@ -161,7 +220,18 @@ def download_with_curl(curl_cmd, text=True, capture_output=True):
 
 
 def download(url, headers=None, text=False):
-    """Download content with default curl options."""
+    """Download content with default curl options.
+
+    Args:
+        url (str): URL to download.
+        headers (dict, optional): Keys/values to add as headers in HTTP request.
+            Defaults to None.
+        text (bool, optional): If True, return text string instead of bytes.
+            Defaults to True.
+
+    Returns:
+        str: Contents of the file at the specified URL.
+    """
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
     curl_cmd.extend(["--url", url])
@@ -170,7 +240,23 @@ def download(url, headers=None, text=False):
 
 
 def download_to_file(url, filename, headers=None, app_mode=False):
-    """Download content to a file with default curl options."""
+    """Download content to a file with default curl options.
+
+    Args:
+        url (str): URL to download.
+        filename (string): Name of the output file to download to.
+        headers (dict, optional): Keys/values to add as headers in HTTP request.
+            Defaults to None.
+        app_mode (bool, optional): If True, skip progress display or other
+            output that would make the script output appear jumbled when
+            running within the Recipe Robot app. Defaults to False.
+
+    Raises:
+        RoboError: Standard Recipe Robot error if a problem occurs.
+
+    Returns:
+        str: Filename the URL was downloaded to.
+    """
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
     # Disable silent mode in order to display download progress bar.
@@ -185,7 +271,17 @@ def download_to_file(url, filename, headers=None, app_mode=False):
 
 
 def get_headers(url, headers=None):
-    """Get a URL's HTTP headers, parse them, and return them."""
+    """Get a URL's HTTP headers, parse them, and return them.
+
+    Args:
+        url (str): URL to get HTTP response headers from.
+        headers (dict, optional): Header key/values to be added to HTTP request.
+            Defaults to None.
+
+    Returns:
+        tuple: Tuple (dict, int) consisting of dictionary of parsed respose headers
+            and the curl return code.
+    """
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
     curl_cmd.extend(["--head", "--url", url])
@@ -195,8 +291,19 @@ def get_headers(url, headers=None):
 
 
 def check_url(url, headers=None):
-    """Test a URL's headers, and switch to HTTPS if available."""
+    """Test a URL's headers, and switch to HTTPS if available.
 
+    Args:
+        url (str): The URL to check for HTTPS and get response headers from.
+        headers (dict, optional): Header key/values to be added to HTTP request.
+            Defaults to None.
+
+    Returns:
+        tuple: Tuple (string, dict, None) consisting of the checked URL
+            (which may be an HTTPS equivalent to the provided HTTP URL), a
+            dictionary of the header response from the URL, and a placeholder
+            None value.
+    """
     # Switch to HTTPS if possible.
     if url.startswith("http:"):
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)

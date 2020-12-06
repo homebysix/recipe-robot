@@ -83,10 +83,15 @@ RECIPE_TYPES = (
 
 
 class Recipe(RoboDict):
-    """An AutoPkg Recipe."""
+    """A dictionary-like representation of an AutoPkg Recipe."""
 
     def __init__(self, recipe_type, description):
-        """Build a recipe dictionary."""
+        """Build a recipe dictionary.
+
+        Args:
+            recipe_type (str): Type of recipe (e.g. download, pkg, munki, jss).
+            description (str): Description of what the recipe does.
+        """
         super(Recipe, self).__init__()
         default_enabled = ("download", "pkg")
         preferred = True if recipe_type in default_enabled else False
@@ -108,7 +113,14 @@ class Recipe(RoboDict):
         }
 
     def write(self, path):
-        """Write the recipe to disk."""
+        """Write the recipe to disk.
+
+        Args:
+            path (str): Path to which the AutoPkg recipe will be written.
+
+        Raises:
+            RoboError: Standard exception raised when Recipe Robot cannot proceed.
+        """
         try:
             with open(path, "wb") as openfile:
                 plistlib.dump(self["keys"], openfile)
@@ -120,15 +132,34 @@ class Recipe(RoboDict):
             )
 
     def set_description(self, description):
-        """Save a description that explains what this recipe does."""
+        """Save a description that explains what this recipe does.
+
+        Args:
+            description (str): Description of what the recipe does.
+        """
         self["keys"]["Description"] = description
 
     def set_parent(self, parent):
-        """Set the parent recipe key to parent."""
+        """Set the parent recipe key to parent.
+
+        Args:
+            parent (str): Reverse-domain identifier of the parent recipe. (The
+                parent recipe must have also been produced by Recipe Robot in
+                the same run as this recipe.)
+        """
         self["keys"]["ParentRecipe"] = parent.replace(" ", "")
 
     def set_parent_from(self, prefs, facts, recipe_type):
-        """Set parent recipe based on prefs, facts, and a type."""
+        """Set parent recipe based on prefs, facts, and a type.
+
+        Args:
+            prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+                preferences.
+            facts (RoboDict): A continually-updated dictionary containing all the
+                information we know so far about the app associated with the
+                input path.
+            recipe_type (str): Type of recipe (e.g. download, pkg, munki, jss).
+        """
         _, bundle_name_key = get_bundle_name_info(facts)
         elements = (
             prefs["RecipeIdentifierPrefix"],
@@ -144,7 +175,7 @@ class Recipe(RoboDict):
 
 
 class Recipes(RoboList):
-    """A List-like object of Recipe objects."""
+    """A list-like object of Recipe objects."""
 
     def __init__(self):
         """Store information related to each supported recipe type."""
