@@ -1664,12 +1664,3 @@ def warn_about_appstoreapp_pyasn(facts):
         "already. More information:\n"
         "https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe"
     )
-
-
-def main():
-    """Do nothing."""
-    pass
-
-
-if __name__ == "__main__":
-    main()
