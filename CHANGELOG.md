@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file. This projec
 ### Fixed
 - Improved code signing authorities parsing, which should allow Recipe Robot to capture developer names and team identifiers in some situations where it would not previously.
 
+### Removed
+- Removed FoundationPlist since Recipe Robot no longer depends on it.
+
 ## [2.1.0] - 2020-11-14
 
 ### Added
