@@ -38,8 +38,8 @@
   developer: Google
   input_path: https://dl.google.com/chat/latest/InstallHangoutsChat.dmg
 
- # Path to app with Sparkle feed
- # Requires app to be installed
+# Path to app with Sparkle feed
+# Requires app to be installed
 - app_name: AutoPkgr
   bundle_id: com.lindegroup.AutoPkgr
   developer: The Linde Group Computer Support
@@ -108,1228 +108,1228 @@
 
 # Other collected test cases...
 
-- app_name: Open in Atom
-  bundle_id: com.apple.ScriptEditor.id.Open-in-Atom
-  developer: Chris Dzombak
-  input_path: https://github.com/cdzombak/finder-atom
-
-- app_name: iStumbler
-  bundle_id: net.istumbler
-  developer: Alf Watt
-  input_path: https://istumbler.net/feeds/appcast.rss
-
-- app_name: Polymail
-  bundle_id: ctrlla.Polymail
-  developer: CTRL LA
-  input_path: https://sparkle-updater.polymail.io/cast.xml
-
-- app_name: Grammarly
-  bundle_id: com.grammarly.DesktopEditor
-  developer: Grammarly
-  input_path: https://download-editor.grammarly.com/osx/Grammarly.dmg
-
-- app_name: Code Cookbook for Swift
-  bundle_id: uk.co.insili.Code-Cookbook-for-Swift
-  developer: Ioannis Zafeiropoulos
-  input_path: https://s3.amazonaws.com/iswift/codecookbook.xml
-
-- app_name: Flashlight
-  bundle_id: com.nateparrott.Flashlight
-  developer: James Parrott
-  input_path: https://raw.githubusercontent.com/nate-parrott/flashlight/master/Appcast.xml
-
-- app_name: Tower
-  bundle_id: com.fournova.Tower3
-  developer: fournova Software
-  input_path: https://www.git-tower.com/download
-
-- app_name: DEVONthink
-  bundle_id: com.devon-technologies.think2
-  developer: DEVONtechnologies
-  input_path: http://www.devon-technologies.com/Sparkle/DEVONthink2.xml
-
-- app_name: Tenor GIF Keyboard for Mac
-  bundle_id: com.riffsy.GIF-for-Mac
-  developer: Tenor
-  input_path: https://media.tenor.co/mac/gif_for_mac_appcast.xml
-
-- app_name: iZip
-  bundle_id: com.codeius.izip
-  developer: iBoostUp
-  input_path: https://www.izip.com/updates
-
-- app_name: Anvil
-  bundle_id: com.riot.Anvil
-  developer: S Schofield
-  input_path: https://sparkler.herokuapp.com/apps/3/updates.xml
-
-- app_name: PANTONE Color Manager
-  bundle_id: com.xrite.pantonecolormanager
-  developer: X-Rite
-  input_path: https://pcm.pantone.com/pantonecolormanager/mac/feed/pcm_feed.xml
-
-- app_name: Mou
-  bundle_id: com.mouapp.Mou
-  developer: Chen Luo
-  input_path: http://mouapp.com/up/updates.xml
-
-- app_name: Display Maestro
-  bundle_id: com.koingosw.DisplayMaestro
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fdisplaymaestro%2Fdownload%2Fdisplaymaestro.dmg
-
-- app_name: RB App Checker Lite
-  bundle_id: net.brockerhoff.RB.RB-App-Checker-Lite
-  developer: Rainer Brockerhoff
-  input_path: https://brockerhoff.net/RB/AppCheckerLite/RBACL.zip
-
-- app_name: Name Mangler
-  bundle_id: com.manytricks.Name Mangler
-  developer: Mangler
-  input_path: https://manytricks.com/namemangler/appcast.xml
-
-- app_name: Numi
-  bundle_id: com.dmitrynikolaev.numi
-  developer: DMITRY NIKOLAEV
-  input_path: https://updates.devmate.com/com.dmitrynikolaev.numi.xml
-
-- app_name: SelfControl
-  bundle_id: org.eyebeam.SelfControl
-  developer: Charlie Stigler
-  input_path: https://selfcontrolapp.com/SelfControlAppcast.xml
-
-- app_name: TextBar
-  bundle_id: com.RichSomerfield.TextBar
-  developer: Rich Somerfield
-  input_path: https://raw.githubusercontent.com/richie5um/richie5um.github.io/master/apps/textbar/sparkle_textbar.xml
-
-- app_name: Tickets
-  bundle_id: com.irradiatedsoftware.Tickets
-  developer: Irradiated Software
-  input_path: https://www.irradiatedsoftware.com/updates/profiles/tickets.php
-
-- app_name: SwitchUp
-  bundle_id: com.irradiatedsoftware.SwitchUp
-  developer: Irradiated Software
-  input_path: https://www.irradiatedsoftware.com/updates/profiles/switchup.php
-
-- app_name: Resilio Sync
-  bundle_id: com.resilio.Sync
-  developer: Resilio
-  input_path: https://download-cdn.getsync.com/stable/osx/Resilio-Sync.dmg
-
-- app_name: Scherlokk
-  bundle_id: com.naarak.Scherlokk
-  developer: Grzegorz Staszczyk
-  input_path: https://naarakstudio.com/download/Scherlokk.dmg
-
-- app_name: Noise Machine
-  bundle_id: net.publicspace.dist.noisemachine
-  developer: Frank Reiff
-  input_path: http://www.publicspace.net/app/nm.xml
-
-- app_name: Gas Mask
-  bundle_id: ee.clockwise.gmask
-  developer: Mask
-  input_path: http://gmask.clockwise.ee/check_update/
-
-- app_name: Font Finagler
-  bundle_id: com.markdouma.FontFinagler
-  developer: Finagler
-  input_path: http://www.markdouma.com/fontfinagler/version.xml
-
-- app_name: Whiskey
-  bundle_id: com.nothingmagical.whiskey
-  developer: Sam Soffes
-  input_path: http://usewhiskey.com/latest
-
-- app_name: Smaller
-  bundle_id: com.smallerapp.Smaller
-  developer: Chen Luo
-  input_path: http://25.io/smaller/up/updates.xml
-
-- app_name: Cisdem BetterUnarchiver
-  bundle_id: com.enolsoft.powerunarchiver
-  developer: Enolsoft
-  input_path: https://www.cisdem.com/download/cisdem-betterunarchiver.dmg
-
-- app_name: Monodraw
-  bundle_id: com.helftone.monodraw
-  developer: Helftone
-  input_path: https://updates.helftone.com/monodraw/appcast-beta.xml
-
-- app_name: AppBolish
-  bundle_id: com.koingosw.appbolish
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fappbolish%2Fdownload%2Fappbolish.dmg
-
-- app_name: iMazing
-  bundle_id: com.DigiDNA.iMazingMac
-  developer: DigiDNA
-  input_path: https://updates.devmate.com/com.DigiDNA.iMazingMac.xml
+- app_name: Acorn
+  bundle_id: com.flyingmeat.Acorn6
+  developer: Flying Meat
+  input_path: https://flyingmeat.com/download/Acorn.zip
 
 - app_name: ActiveCollab
   bundle_id: com.activecollab.activecollab-desktop
   developer: A51 D.O.O.
   input_path: https://accounts.activecollab.com/api/v2/desktop-apps/activecollab/releases/darwin/download
 
-- app_name: Kite
-  bundle_id: com.kite.Kite
-  developer: MANHATTAN ENGINEERING
-  input_path: https://release.kite.com/appcast.xml
-
-- app_name: FolderBrander
-  bundle_id: com.yellowmug.FolderBrander
-  developer: Jay Teo
-  input_path: https://www.yellowmug.com/download/FolderBrander.dmg
-
-- app_name: Marked 2
-  bundle_id: com.brettterpstra.marked2
-  developer: Brett Terpstra
-  input_path: https://updates.marked2app.com/marked.xml
-
-- app_name: S.M.A.R.T. Monitoring Tools
-  bundle_id: com.smartmontools.pkg
-  developer: Tools
-  input_path: https://sourceforge.net/projects/smartmontools/
-
-- app_name: NetNewsWire
-  bundle_id: com.blackpixel.netnewswire
-  developer: Black Pixel
-  input_path: https://updates.blackpixel.com/updates?app=nnw
-
-- app_name: Open-With Manager
-  bundle_id: com.manytricks.Open-With Manager
-  developer: Manager
-  input_path: https://manytricks.com/download/openwithmanager
-
-- app_name: Piezo
-  bundle_id: com.rogueamoeba.Piezo
-  developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/piezo/download/Piezo.zip
-
-- app_name: TapeDeck
-  bundle_id: com.supermegaultragroovy.tapedeck
-  developer: SuperMegaUltraGroovy
-  input_path: http://tapedeckapp.com/download/appcast-1.0.xml
-
-- app_name: Keymo
-  bundle_id: com.manytricks.Keymo
-  developer: Keymo
-  input_path: https://manytricks.com/keymou/appcast/?version=1
-
-- app_name: HoudahSpot
-  bundle_id: com.houdah.HoudahSpot
-  developer: Houdah Software
-  input_path: https://www.houdah.com/houdahSpot/updates/cast4.xml
-
-- app_name: SuperDuper
-  bundle_id: com.blacey.SuperDuper!
-  developer: Bruce Lacey
-  input_path: https://s3.amazonaws.com/shirtpocket/SuperDuper/SuperDuper!.dmg
-
-- app_name: AppZapper
-  bundle_id: com.appzapper.AppZapper
-  developer: AppZapper
-  input_path: https://www.appzapper.com/az2appcast.xml
-
-- app_name: Evernote
-  bundle_id: com.evernote.Evernote
-  developer: Evernote
-  input_path: https://update.evernote.com/public/ENMacSMD/EvernoteMacUpdate.xml
-
-- app_name: App Reviews
-  bundle_id: com.cocmoc.appreviews
-  developer: Knut Inge Grosland
-  input_path: https://github.com/knutigro/AppReviews
-
-- app_name: The Hit List
-  bundle_id: com.potionfactory.TheHitList
-  developer: Karelia Software
-  input_path: https://launch.karelia.com/appcast.php?product=9&amp;appname=The+Hit+List
-
-- app_name: Scrivener
-  bundle_id: com.literatureandlatte.scrivener3
-  developer: Literature & Latte
-  input_path: https://www.literatureandlatte.com/downloads/scrivener-3.xml
-
-- app_name: Boom 2
-  bundle_id: com.globaldelight.Boom2
-  developer: Global Delight Technologies
-  input_path: https://updates.devmate.com/com.globaldelight.Boom2.xml
-
-- app_name: Fission
-  bundle_id: com.rogueamoeba.Fission
-  developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/fission/download/Fission.zip
-
-- app_name: PowerPhotos
-  bundle_id: com.fatcatsoftware.PowerPhotos
-  developer: Fat Cat Software
-  input_path: https://www.fatcatsoftware.com/powerphotos/PowerPhotos.zip
-
-- app_name: xScope
-  bundle_id: com.iconfactory.xScope
-  developer: The Iconfactory
-  input_path: https://iconfactory.com/appcasts/xScope/appcast.xml
-
-- app_name: Hocus Focus
-  bundle_id: com.uglyapps.HocusFocus
-  developer: Nial Giacomelli
-  input_path: https://hocusfoc.us/updates.xml
-
-- app_name: RightFont
-  bundle_id: com.marklyapp.RightFont
-  developer: LIYI CHENG
-  input_path: https://rightfontapp.com/update/appcast.xml
-
-- app_name: BackupLoupe
-  bundle_id: com.soma-zone.BackupLoupe
-  developer: Robby Pahlig
-  input_path: https://somazonecom.ipage.com/soma-zone.com/BackupLoupe/a/appcast_update.xml
-
-- app_name: LaunchControl
-  bundle_id: com.soma-zone.LaunchControl
-  developer: Robby Pahlig
-  input_path: https://somazonecom.ipage.com/soma-zone.com/LaunchControl/a/appcast_update.xml
-
-- app_name: ProfitTrain
-  bundle_id: com.clickablebliss.ProfitTrain
-  developer: ProfitTrain
-  input_path: https://razorant.com/profittrain/profileInfo
-
-- app_name: Merlin Project
-  bundle_id: net.projectwizards.merlinproject
-  developer: ProjectWizards
-  input_path: https://www.projectwizards.net/downloads/MerlinProject.zip
-
-- app_name: NightOwl
-  bundle_id: com.fuekiin.NightOwl
-  developer: Benjamin Kramser
-  input_path: https://nightowl.kramser.xyz/files/NightOwl.dmg
-
-- app_name: Clarify
-  bundle_id: com.bluemangolearningsystems.clarify-osx
-  developer: Blue Mango Learning Systems
-  input_path: http://files.clarify-it.com/v2/updaters/release/appcast.xml
-
-- app_name: Capo
-  bundle_id: com.supermegaultragroovy.capo3.mac
-  developer: SuperMegaUltraGroovy
-  input_path: http://capoapp.com/download.php?v=latest
-
-- app_name: HandsFree 2
-  bundle_id: com.tunabelly.handsfree2
-  developer: Tunabelly Software
-  input_path: https://www.tunabellysoftware.com/resources/sparkle/handsfree2.xml
-
-- app_name: Librarian Pro
-  bundle_id: com.koingosw.LibrarianPro
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Flibrarianpro%2Fdownload%2Flibrarianpro.dmg
-
-- app_name: Flinto
-  bundle_id: com.flinto.Flinto
-  developer: Flinto
-  input_path: https://www.flinto.com/download_latest
-
-- app_name: miXscope
-  bundle_id: com.edhsw.miXscope
-  developer: miXscope
-  input_path: http://www.edhsw.com/mixscope/miXscope.dmg
-
-- app_name: ShareMouse
-  bundle_id: com.bartelsmedia.ShareMouse
-  developer: Bartels Media
-  input_path: http://www.keyboard-and-mouse-sharing.com/ShareMouseSetup.dmg
-
-- app_name: EasyFrame
-  bundle_id: com.yellowmug.EasyFrame
-  developer: Jay Teo
-  input_path: https://www.yellowmug.com/download/EasyFrame.dmg
-
-- app_name: Project Canvas
-  bundle_id: com.koingosw.ProjectCanvas
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fprojectcanvas%2Fdownload%2Fprojectcanvas.dmg
-
-- app_name: FilePane
-  bundle_id: com.mymixapps.FilePane
-  developer: Sergii Iamkovyi
-  input_path: https://updates.devmate.com/com.mymixapps.FilePane.xml
-
-- app_name: iSwift
-  bundle_id: uk.co.insili.iSwift
-  developer: Ioannis Zafeiropoulos
-  input_path: https://s3.amazonaws.com/iswift/iswift.xml
-
-- app_name: Better Window Manager
-  bundle_id: com.gngrwzrd.paddle.BetterWindowManager
-  developer: Aaron Smith
-  input_path: https://www.gngrwzrd.com/betterwindowmanager-appcast.xml
-
-- app_name: FoldingText
-  bundle_id: com.foldingtext.paddle.FoldingText
-  developer: Jesse Grosjean
-  input_path: https://s3.amazonaws.com/foldingtext/FoldingText.dmg
-
-- app_name: Silent Start
-  bundle_id: com.tunabellysoftware.silentstart
-  developer: Tunabelly Software
-  input_path: https://www.tunabellysoftware.com/resources/sparkle/silentstart.xml
-
-- app_name: Digital Sentry
-  bundle_id: com.koingosw.DigitalSentry
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fdigitalsentry%2Fdownload%2Fdigitalsentry.dmg
-
-- app_name: DEVONagent
-  bundle_id: com.devon-technologies.agent
-  developer: DEVONtechnologies
-  input_path: http://www.devon-technologies.com/Sparkle/DEVONagent.xml
-
-- app_name: Changes
-  bundle_id: com.bitbq.Changes
-  developer: BitBQ
-  input_path: https://bitbq_changes.s3.amazonaws.com/changes-production.xml
-
-- app_name: Airfoil
-  bundle_id: com.rogueamoeba.Airfoil
-  developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/airfoil/download/Airfoil.zip
-
-- app_name: Ammonite
-  bundle_id: com.soma-zone.Ammonite
-  developer: Robby Pahlig
-  input_path: https://somazonecom.ipage.com/soma-zone.com/Ammonite/a/appcast.xml
-
-- app_name: DEVONthink Pro
-  bundle_id: com.devon-technologies.thinkpro2
-  developer: DEVONtechnologies
-  input_path: http://www.devon-technologies.com/Sparkle/DEVONthinkPro2.xml
-
-- app_name: Metabase
-  bundle_id: com.metabase.Metabase
-  developer: Metabase
-  input_path: https://s3.amazonaws.com/downloads.metabase.com/appcast.xml
-
-- app_name: Vox
-  bundle_id: com.coppertino.Vox
-  developer: Coppertino
-  input_path: https://updates.devmate.com/com.coppertino.Vox.xml
-
-- app_name: Focus
-  bundle_id: BradJasper.focus
-  developer: Bradley Jasper
-  input_path: https://heyfocus.com/appcast.xml
-
-- app_name: HyperDock
-  bundle_id: de.bahoom.HyperDock.prefpane
-  developer: Christian  Baumgart
-  input_path: https://bahoom.com/hyperdock/download
-
-- app_name: StretchLink
-  bundle_id: com.brettterpstra.stretchlink
-  developer: Brett Terpstra
-  input_path: http://abyss.designheresy.com/stretchlink/stretchlink.xml
-
-- app_name: Skim
-  bundle_id: net.sourceforge.skim-app.skim
-  developer: Skim
-  input_path: https://skim-app.sourceforge.io/skim.xml
-
-- app_name: Chat
-  bundle_id: com.perma.chat
-  developer: Christian Owens
-  input_path: https://updates.devmate.com/com.perma.chat.xml
-
-- app_name: PlistEdit Pro
-  bundle_id: com.fatcatsoftware.pledpro
-  developer: Fat Cat Software
-  input_path: https://www.fatcatsoftware.com/plisteditpro/PlistEditPro.zip
-
-- app_name: Displaperture
-  bundle_id: com.manytricks.Displaperture
-  developer: Many Tricks
-  input_path: https://manytricks.com/download/displaperture
-
-- app_name: FileChute
-  bundle_id: com.yellowmug.FileChute
-  developer: Jay Teo
-  input_path: http://yellowmug.com/filechute/appcast-1011.xml
-
-- app_name: Mountain
-  bundle_id: de.appgineers.Mountain
-  developer: Jan Linxweiler
-  input_path: https://appgineers.de/mountain/files/mountaincast.xml
-
-- app_name: YemuZip
-  bundle_id: com.yellowmug.YemuZip
-  developer: Jay Teo
-  input_path: http://yellowmug.com/yemuzip/appcast.xml
-
-- app_name: RB App Quarantine
-  bundle_id: net.brockerhoff.RB.RB-App-Quarantine
-  developer: Rainer Brockerhoff
-  input_path: https://brockerhoff.net/RB/AppQuarantine/RBAQ.zip
-
-- app_name: Time Sink
-  bundle_id: com.manytricks.TimeSink
-  developer: Sink
-  input_path: https://manytricks.com/timesink/appcast.xml
-
-- app_name: MunkiAdmin
-  bundle_id: com.hjuutilainen.MunkiAdmin
-  developer: Hannes Juutilainen
-  input_path: https://github.com/hjuutilainen/munkiadmin/releases
-
-- app_name: SizzlingKeys
-  bundle_id: com.yellowmug.SizzlingKeys
-  developer: Jay Teo
-  input_path: https://www.yellowmug.com/download/SizzlingKeys.dmg
-
-- app_name: Desktop Curtain
-  bundle_id: com.manytricks.DesktopCurtain
-  developer: Curtain
-  input_path: https://manytricks.com/desktopcurtain/appcast.xml
-
-- app_name: Monolingual
-  bundle_id: com.github.IngmarStein.Monolingual
-  developer: Ingmar Stein
-  input_path: https://ingmarstein.github.io/Monolingual/appcast.xml
-
-- app_name: ForkLift
-  bundle_id: com.binarynights.ForkLift-3
-  developer: BinaryNights
-  input_path: https://updates.binarynights.com/ForkLift3/update.xml
-
-- app_name: Espresso
-  bundle_id: co.warewolf.Espresso
-  developer: Warewolf
-  input_path: https://espressoapp.com/updates/appcast.xml
-
-- app_name: Folio
-  bundle_id: co.ysberg.Folio
-  developer: Hanno ter Hoor
-  input_path: https://s3.amazonaws.com/folioformac.com/folioupdates.xml.rss
-
-- app_name: Radi
-  bundle_id: fi.lacquer.Radi
-  developer: Lacquer
-  input_path: https://radiapp.com/Radi.zip
-
-- app_name: CocoaTADS
-  bundle_id: com.charlessoft.CocoaTads
-  developer: CocoaTADS
-  input_path: https://www.charlessoft.com/CocoaTADS.zip
-
-- app_name: NibUnlocker
-  bundle_id: com.charlessoft.nibunlocker
-  developer: NibUnlocker
-  input_path: https://www.charlessoft.com/NibUnlocker.zip
-
-- app_name: Tableau Reader
-  bundle_id: com.tableausoftware.tableaureader
-  developer: Tableau Software
-  input_path: https://www.tableau.com/downloads/reader/mac
-
-- app_name: Tembo
-  bundle_id: com.houdah.Tembo2
-  developer: Houdah Software
-  input_path: https://www.houdah.com/tembo/updates/cast2.xml
-
-- app_name: Leech
-  bundle_id: com.manytricks.Leech
-  developer: Leech
-  input_path: https://manytricks.com/leech/appcast.xml
-
-- app_name: Quip
-  bundle_id: com.quip.Desktop
-  developer: Quip
-  input_path: https://quip-clients.com/macosx_5.4.47.dmg
-
-- app_name: FontNuke
-  bundle_id: com.jamapi.fontnuke
-  developer: FontNuke
-  input_path: https://www.jamapi.com/fontnuke/fontnuke-update-appcast.xml
-
-- app_name: RoboPostman
-  bundle_id: com.koingosw.RoboPostman
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Frobopostman%2Fdownload%2Frobopostman.dmg
-
-- app_name: Sandvox
-  bundle_id: com.karelia.Sandvox
-  developer: Karelia Software
-  input_path: https://www.karelia.com/files/8/Sandvox.zip
-
-- app_name: Tags
-  bundle_id: com.gravityapps.Tags
-  developer: Tags
-  input_path: http://www.caseapps.com/downloads/updates/tags/tags2-update.xml
-
-- app_name: Waltr
-  bundle_id: com.softorino.Waltr
-  developer: Dmytro Makukha
-  input_path: https://updates.devmate.com/com.softorino.Waltr.xml
-
-- app_name: iTerm2
-  bundle_id: com.googlecode.iterm2
-  developer:
-  - GEORGE NACHMAN
-  input_path: https://iterm2.com/appcasts/final.xml
-
-- app_name: MockSmtp
-  bundle_id: com.xilinus.MockSmtp
-  developer: MockSmtp
-  input_path: http://www.mocksmtpapp.com/MockSmtp.zip
-
-- app_name: MDS
-  bundle_id: com.twocanoes.MacDeployStick
-  developer: Twocanoes Software, Inc.
-  input_path: https://www.twocanoes.com/macdeploystick/updates/macdeploystick-software-updates.xml
-
-- app_name: Nicecast
-  bundle_id: com.rogueamoeba.Nicecast
-  developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/nicecast/download/Nicecast.zip
-
-- app_name: Skala Preview
-  bundle_id: com.bjango.skalapreview
-  developer: Marc Edwards
-  input_path: https://download.bjango.com/skalapreview/
-
-- app_name: PDFKit
-  bundle_id: com.ireador.PDFKit
-  developer: Xuepeng Zhang
-  input_path: https://www.ireador.com/downloads/PDFKit.dmg
-
-- app_name: VirtualC64
-  bundle_id: de.dirkwhoffmann.VirtualC64
-  developer: VirtualC64
-  input_path: http://dirkwhoffmann.de/virtualc64/VirtualC64Appcast.xml
-
-- app_name: App Wrapper 3
-  bundle_id: com.ohanaware.appWrapper3
-  developer: Ohanaware Co
-  input_path: https://www.ohanaware.com/appwrapper/appWrapper3.zip
-
-- app_name: AirRadar
-  bundle_id: com.koingosw.AirRadar
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fairradar%2Fdownload%2Fairradar.dmg
-
-- app_name: Scapple
-  bundle_id: com.literatureandlatte.scapple
-  developer: Literature & Latte
-  input_path: https://www.literatureandlatte.com/downloads/scapple/scapple.xml
-
-- app_name: NameChanger
-  bundle_id: com.mrrsoftware.NameChanger
-  developer: NameChanger
-  input_path: https://mrrsoftware.com/Downloads/NameChanger/Updates/NameChangerSoftwareUpdates.xml
-
-- app_name: EVE
-  bundle_id: com.togo.hotkeyEVE
-  developer: EVE
-  input_path: https://s3.amazonaws.com/hotkeyeve/hotkeyEVEappcast.xml
-
-- app_name: EasyCrop
-  bundle_id: null
-  developer: EasyCrop
-  input_path: https://yellowmug.com/easycrop/appcast.xml
-
-- app_name: Goofy
-  bundle_id: cc.buechele.Goofy
-  developer: Daniel Buechele
-  input_path: https://raw.githubusercontent.com/danielbuechele/goofy/master/update_feed.xml
-
-- app_name: uBar
-  bundle_id: ca.brawer.uBar
-  developer: Brawer Canada
-  input_path: https://brawersoftware.com/appcasts/feeds/ubar/ubar3.xml
-
-- app_name: Skala Color Installer
-  bundle_id: com.bjango.Skala-Color-Installer
-  developer: Marc Edwards
-  input_path: https://download.bjango.com/skalacolor/
-
-- app_name: Folder Tidy
-  bundle_id: com.tunabellysoftware.cleanmydesktop
-  developer: Tunabelly Software
-  input_path: https://www.tunabellysoftware.com/resources/sparkle/foldertidy.xml
-
-- app_name: RecordIt
-  bundle_id: us.freshout.RecordIt
-  developer: Navid Safabakhsh
-  input_path: https://rink.hockeyapp.net/api/2/apps/5fcda0b48f1dcf0c938b289b9ab57790
-
-- app_name: iClip
-  bundle_id: com.irradiatedsoftware.iClip
-  developer: Irradiated Software
-  input_path: https://www.irradiatedsoftware.com/updates/profiles/iclip.php
-
-- app_name: MacPilot
-  bundle_id: com.koingosw.MacPilot
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fmacpilot%2Fdownload%2Fmacpilot.dmg
-
-- app_name: VirtualHostX
-  bundle_id: com.clickontyler.VirtualHostX
-  developer: Tyler Hall
-  input_path: http://shine.clickontyler.com/appcast.php?id=38
-
-- app_name: Mariner Write
-  bundle_id: com.marinersoftware.write
-  developer: Mariner Software
-  input_path: https://www.marinersoftware.com/sparkle/MarinerWrite/marinerwrite.xml
-
-- app_name: MacJournal
-  bundle_id: com.DanSchimpf.MacJournal
-  developer: Mariner Software
-  input_path: https://danschimpf.com/appcasts/MacJournal6.appcast
-
-- app_name: AutoPkgr
-  bundle_id: com.lindegroup.AutoPkgr
-  developer: The Linde Group Computer Support Inc
-  input_path: https://raw.githubusercontent.com/lindegroup/autopkgr/appcast/appcast.xml
-
-- app_name: ZAAPI
-  bundle_id: null
-  developer: Zoom Video Communications
-  input_path: https://zoom.us/client/latest/ZoomRooms.pkg
-
-- app_name: BetterTouchTool
-  bundle_id: com.hegenberg.BetterTouchTool
-  developer: Andreas Hegenberg
-  input_path: https://updates.bettertouchtool.net/appcast.xml
-
-- app_name: Usher
-  bundle_id: com.manytricks.Usher
-  developer: Usher
-  input_path: https://manytricks.com/usher/appcast.xml
-
-- app_name: DEVONagent Express
-  bundle_id: com.devon-technologies.agentexpress
-  developer: DEVONtechnologies
-  input_path: http://www.devon-technologies.com/Sparkle/DEVONagentExpress.xml
-
-- app_name: TG Pro
-  bundle_id: com.tunabellysoftware.tgpro
-  developer: Tunabelly Software
-  input_path: https://www.tunabellysoftware.com/resources/sparkle/tgpro/profileInfo.php
-
-- app_name: CleanMyMac 3
-  bundle_id: com.macpaw.CleanMyMac3
-  developer: MacPaw
-  input_path: https://updates.devmate.com/com.macpaw.CleanMyMac3.xml
-
-- app_name: TimeMachineEditor
-  bundle_id: null
-  developer: Thomas CLEMENT
-  input_path: http://timesoftware.free.fr/timemachineeditor/TimeMachineEditor.pkg
-
-- app_name: Plug
-  bundle_id: com.plug.Plug2
-  developer: Alex Marchant
-  input_path: https://www.plugformac.com/updates/plug2/sparklecast.xml
-
-- app_name: Disk Diet
-  bundle_id: com.tunabellysoftware.diskdiet
-  developer: Tunabelly Software
-  input_path: https://www.tunabellysoftware.com/resources/sparkle/diskdiet.xml
-
-- app_name: Tangerine!
-  bundle_id: com.potionfactory.Tangerine
-  developer: Potion Factory
-  input_path: https://launch.karelia.com/appcast.php?product=13
-
-- app_name: MacGourmet
-  bundle_id: com.marinersoftware.MacGourmet
-  developer: Mariner Software
-  input_path: https://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml
-
-- app_name: HoudahGeo
-  bundle_id: com.houdah.HoudahGeo
-  developer: HoudahGeo
-  input_path: https://www.houdah.com/houdahGeo/updates4/cast4.php
-
-- app_name: AirDroid
-  bundle_id: com.sandstudio.airdroid
-  developer: Sand Studio
-  input_path: https://srv3.airdroid.com/p20/web/getbinaryredirect?type=dmg&amp;channel=&amp;version=
-
-- app_name: Sparkle
-  bundle_id: eu.riverdesign.sparkle
-  developer: River
-  input_path: https://sparkleapp.com/update/Sparkle.zip
-
-- app_name: VimR
-  bundle_id: com.qvacua.VimR
-  developer: Tae Won Ha
-  input_path: http://vimr.org/appcast.xml
-
-- app_name: Cocktail
-  bundle_id: com.maintain.cocktail.elcapitan
-  developer: Kristofer Szymanski
-  input_path: https://www.maintain.se/downloads/sparkle/elcapitan/elcapitan.xml
-
-- app_name: Resolutionator
-  bundle_id: com.manytricks.Resolutionator
-  developer: Many Tricks
-  input_path: https://manytricks.com/resolutionator/appcast.xml
-
-- app_name: TunnelBear
-  bundle_id: com.tunnelbear.mac.TunnelBear
-  developer: TunnelBear
-  input_path: https://s3.amazonaws.com/tunnelbear/downloads/mac/appcast.xml
-
-- app_name: Moom
-  bundle_id: com.manytricks.Moom
-  developer: Moom
-  input_path: https://manytricks.com/moom/appcast.xml
-
-- app_name: WhatSize
-  bundle_id: com.id-design.whatsize
-  developer: ID-DESIGN
-  input_path: https://whatsizemac.com/software/whatsize6/whatsize.dmg
-
-- app_name: Persona
-  bundle_id: com.marinersoftware.persona
-  developer: Mariner Software
-  input_path: https://www.marinersoftware.com/sparkle/persona/persona.xml
-
-- app_name: Data Guardian
-  bundle_id: com.koingosw.DataGuardian
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fdataguardian%2Fdownload%2Fdataguardian.dmg
-
-- app_name: Key Codes
-  bundle_id: com.manytricks.KeyCodes
-  developer: Codes
-  input_path: https://manytricks.com/keycodes/appcast.xml
-
-- app_name: Paparazzi!
-  bundle_id: org.derailer.Paparazzi
-  developer: Nate Weaver
-  input_path: https://derailer.org/paparazzi/appcast/
-
-- app_name: Pingendo
-  bundle_id: com.pingendo.editor
-  developer: Pingendo
-  input_path: https://github.com/Pingendo/pingendo
-
-- app_name: Gemini 2
-  bundle_id: com.macpaw.site.Gemini2
-  developer: MacPaw
-  input_path: https://updates.devmate.com/com.macpaw.site.Gemini2.xml
-
-- app_name: DEVONsphere Express
-  bundle_id: com.devon-technologies.sphereexpress
-  developer: DEVONtechnologies
-  input_path: http://www.devon-technologies.com/Sparkle/DEVONsphereExpress.xml
-
-- app_name: Acorn
-  bundle_id: com.flyingmeat.Acorn6
-  developer: Flying Meat
-  input_path: https://flyingmeat.com/download/Acorn.zip
-
-- app_name: Hider 2 Trial
-  bundle_id: com.macpaw.trial.Hider2
-  developer: MacPaw
-  input_path: https://updates.devmate.com/com.macpaw.site.Hider2.xml
-
-- app_name: TMNotifier
-  bundle_id: com.everythingisgray.TMNotifier
-  developer: James Barclay
-  input_path: https://tmnotifier.com/appcast.xml
-
-- app_name: Karabiner
-  bundle_id: org.pqrs.Karabiner
-  developer: Fumihiko Takayama
-  input_path: https://github.com/pqrs-org/Karabiner-Elements/releases/download/v13.1.0/Karabiner-Elements-13.1.0.dmg
-
-- app_name: Vienna
-  bundle_id: uk.co.opencommunity.vienna2
-  developer: Barijaona Ramaholimihaso
-  input_path: https://viennarss.github.io/sparkle-files/changelog.xml
-
-- app_name: Fork
-  bundle_id: com.DanPristupov.Fork
-  developer: Danil Pristupov
-  input_path: https://git-fork.com/update/feed.xml
-
-- app_name: Install Hazel
-  bundle_id: com.noodlesoft.Install-Hazel
-  developer: Noodlesoft
-  input_path: https://www.noodlesoft.com/Products/Hazel/download
-
-- app_name: Sofa Control
-  bundle_id: com.gravityapps.SofaControl
-  developer: Control
-  input_path: http://www.caseapps.com/downloads/sofacontrol-update.xml
-
-- app_name: ColorSnapper2
-  bundle_id: com.koolesache.ColorSnapper2
-  developer: Alexander Danmayer
-  input_path: https://s3.amazonaws.com/cs2-appcast/appcast.xml
-
-- app_name: Contexts
-  bundle_id: com.contextsformac.Contexts
-  developer: Usman Khalid
-  input_path: https://contexts.co/appcasts/stable.xml
-
 - app_name: Adapter
   bundle_id: com.macroplant.adapter
   developer: Macroplant
   input_path: https://www.macroplant.com/latest-binaries/adapter-mac.dmg
-
-- app_name: Alarm Clock Pro
-  bundle_id: com.koingosw.alarmclockpro
-  developer: Koingo Software
-  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Falarmclockpro%2Fdownload%2Falarmclockpro.dmg
-
-- app_name: MacTerm
-  bundle_id: net.macterm.MacTerm
-  developer: Kevin Grant
-  input_path: https://www.macterm.net/updates/macterm-latest.dmg
-
-- app_name: Bookends
-  bundle_id: com.sonnysoftware.bookends
-  developer: Sonny Software
-  input_path: https://www.sonnysoftware.com/Bookends.dmg
-
-- app_name: iPhoto Library Manager
-  bundle_id: com.fatcatsoftware.iPhotoLibraryManager
-  developer: Fat Cat Software
-  input_path: https://www.fatcatsoftware.com/iplm/iPhotoLibraryManager.zip
-
-- app_name: Emailchemy
-  bundle_id: com.install4j.6029-5726-8846-0121.357
-  developer: Weird Kid Software
-  input_path: https://s3.amazonaws.com/wksdownload/Emailchemy-Mac.dmg
-
-- app_name: Audio Hijack
-  bundle_id: com.rogueamoeba.audiohijack3
-  developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/audiohijack/download/AudioHijack.zip
-
-- app_name: EasyBatchPhoto
-  bundle_id: com.yellowmug.EasyBatchPhoto
-  developer: Jay Teo
-  input_path: https://www.yellowmug.com/download/EasyBatchPhoto.dmg
-
-- app_name: Deep Dreamer
-  bundle_id: com.realmacsoftware.deepdreamer
-  developer: Realmac Software
-  input_path: https://updates.devmate.com/com.realmacsoftware.deepdreamer.xml
-
-- app_name: Proximity
-  bundle_id: com.cisco.experimental.Proximity
-  developer: Cisco
-  input_path: https://proximity.cisco.com/mac/Proximity.dmg
-
-- app_name: Briefs
-  bundle_id: com.martiancraft.Briefs
-  developer: Briefs LC
-  input_path: https://giveabrief.s3.amazonaws.com/briefsAppCast.xml
-
-- app_name: PowerTunes
-  bundle_id: com.fatcatsoftware.PowerTunes
-  developer: Fat Cat Software
-  input_path: https://www.fatcatsoftware.com/powertunes/PowerTunes.zip
-
-- app_name: coconutBattery
-  bundle_id: com.coconut-flavour.coconutBattery
-  developer: Christoph Sinai
-  input_path: https://coconut-flavour.com/updates/coconutBattery.xml
-
-- app_name: TimeTracker
-  bundle_id: com.charlessoft.TimeTracker
-  developer: Charles Srstka
-  input_path: https://www.charlessoft.com/TimeTracker.zip
-
-- app_name: Butler
-  bundle_id: com.manytricks.Butler
-  developer: Butler
-  input_path: https://manytricks.com/butler/butlercast.xml
-
-- app_name: ScreenFlow
-  bundle_id: net.telestream.screenflow5
-  developer: Telestream LLC
-  input_path: https://www.telestream.net/updater/screenflow/appcast.xml
-
-- app_name: Station
-  bundle_id: org.efounders.BrowserX
-  developer: eFounders
-  input_path: https://dl.getstation.com/download/osx
-
-- app_name: Docker
-  bundle_id: com.docker.docker
-  developer: Docker Inc
-  input_path: https://download.docker.com/mac/stable/appcast.xml
-
-- app_name: Geekbench 4
-  bundle_id: com.primatelabs.Geekbench4
-  developer: Primate Labs Inc.
-  input_path: https://www.primatelabs.com/appcast/geekbench4.xml
-
-- app_name: Platypus
-  bundle_id: org.sveinbjorn.Platypus
-  developer: Sveinbjorn Thordarson
-  input_path: https://sveinbjorn.org/files/appcasts/PlatypusAppcast.xml
-
-- app_name: Duo Device Health
-  bundle_id: com.duosecurity.duo-device-health
-  developer: Duo Security, Inc.
-  input_path: https://dl.duosecurity.com/DuoDeviceHealth-appcast-macos-latest.xml
-
-- app_name: HyperSwitch
-  bundle_id: com.bahoom.HyperSwitch
-  developer: Christian  Baumgart
-  input_path: https://bahoom.com/hyperswitch/appcast.xml
-
-- app_name: Reflector 3
-  bundle_id: com.squirrels.Reflector-2
-  developer: Squirrels LLC
-  input_path: https://updates.airsquirrels.com/Reflector3/Mac/Reflector3.xml
-
-- app_name: Rocket
-  bundle_id: net.matthewpalmer.Rocket
-  developer: Matthew Palmer
-  input_path: https://dl.devmate.com/net.matthewpalmer.Rocket/Rocket.dmg
-
-- app_name: Airtool
-  bundle_id: com.adriangranados.Airtool
-  developer: Adrian Granados-Murillo
-  input_path: https://www.adriangranados.com/appcasts/airtoolcast.xml
-
-- app_name: Console
-  bundle_id: com.xs-labs.Console
-  developer: Jean-David Gadina
-  input_path: https://github.com/macmade/Console
-
-- app_name: Nomadesk
-  bundle_id: com.NomaDesk
-  developer: NomaDesk
-  input_path: https://secure.nomadesk.com/download/?os=macosx
-
-- app_name: WWDC
-  bundle_id: br.com.guilhermerambo.WWDC
-  developer: GUILHERME RAMBO
-  input_path: https://github.com/insidegui/WWDC/raw/master/Releases/appcast_v5.xml
-
-- app_name: MasergyCommunicator
-  bundle_id: ''
-  developer: BroadSoft
-  input_path: https://www.masergy.com/support-file/masergy-communicator-mac-dmg
-
-- app_name: Spring Tool Suite
-  bundle_id: org.springsource.sts.ide
-  developer: Pivotal
-  input_path: https://download.springsource.com/release/STS4/4.1.2.RELEASE/dist/e4.10/spring-tool-suite-4-4.1.2.RELEASE-e4.10.0-macosx.cocoa.x86_64.dmg
-
-- app_name: NetSpot
-  bundle_id: com.etwok.netspotwifi
-  developer: Etwok, LLC
-  input_path: https://www.netspotapp.com/updates/netspot2-appcast.xml
-
-- app_name: WiFi Explorer
-  bundle_id: com.adriangranados.wifiexplorer
-  developer: Adrian Granados-Murillo
-  input_path: https://www.adriangranados.com/appcasts/wifiexplorercast.xml
-
-- app_name: TypeIt4Me
-  bundle_id: com.typeit4me.TypeIt4MeMenu
-  developer: Riccardo Ettore
-  input_path: http://ettoresoftware.com/download/TypeIt4MeAppcast.xml
-
-- app_name: Angry IP Scanner
-  bundle_id: net.azib.ipscan
-  developer: Anton Keks
-  input_path: https://github.com/angryziber/ipscan
-
-- app_name: Typinator
-  bundle_id: com.macility.typinator2
-  developer: Ergonis Software GmbH
-  input_path: http://www.ergonis.com/downloads/typinator-install.dmg
-
-- app_name: SCAP Workbench
-  bundle_id: org.open-scap.scap-workbench
-  developer: ''
-  input_path: https://github.com/OpenSCAP/scap-workbench
-
-- app_name: Solstice
-  bundle_id: com.mersive.solstice.client
-  developer: Solstice
-  input_path: https://www.mersive.com/download/
-
-- app_name: Shiori
-  bundle_id: com.aki-null.Shiori
-  developer: Akihiro Noguchi
-  input_path: https://aki-null.net/shiori/appcast.xml
-
-- app_name: Silverback
-  bundle_id: uk.co.clearleft.SilverbackMac
-  developer: Clearleft Ltd.
-  input_path: https://dl.devmate.com/uk.co.clearleft.SilverbackMac/Silverback.zip
-
-- app_name: Mountain Duck
-  bundle_id: io.mountainduck
-  developer: David Kocher
-  input_path: https://version.mountainduck.io/changelog.rss
-
-- app_name: Manuscripts
-  bundle_id: com.manuscripts.Manuscripts
-  developer: Manuscripts.app Limited
-  input_path: https://updates.manuscriptsapp.com/apps/manuscripts/beta/appcast.xml
-
-- app_name: Loopback
-  bundle_id: com.rogueamoeba.Loopback
-  developer: Rogue Amoeba Software, Inc.
-  input_path: https://rogueamoeba.com/loopback/download/Loopback.zip
-
-- app_name: Hammerspoon
-  bundle_id: org.hammerspoon.Hammerspoon
-  developer: Chris jones
-  input_path: https://raw.githubusercontent.com/Hammerspoon/hammerspoon/master/appcast.xml
-
-- app_name: KeepingYouAwake
-  bundle_id: info.marcel-dierkes.KeepingYouAwake
-  developer: Marcel Dierkes
-  input_path: https://newmarcel.github.io/KeepingYouAwake/appcast.xml
-
-- app_name: uTorrent
-  bundle_id: com.bittorrent.uTorrent
-  developer: BitTorrent, Inc
-  input_path: http://download.ap.bittorrent.com/track/stable/endpoint/utmac/os/osx
-
-- app_name: Kitematic
-  bundle_id: com.electron.kitematic
-  developer: Docker
-  input_path: https://github.com/docker/kitematic
-
-- app_name: Webex Teams
-  bundle_id: Cisco-Systems.Spark
-  developer: Webex Teams
-  input_path: http://www.webex.com/downloads/WebexTeams.dmg
-
-- app_name: Tomahawk
-  bundle_id: org.tomahawk-player.Tomahawk
-  developer: Tomahawk
-  input_path: http://download.tomahawk-player.org/sparkle/update.php
-
-- app_name: AdobeLogCollectorTool
-  bundle_id: com.Adobe.Installers.AdobeLogCollectorTool
-  developer: AdobeLogCollectorTool
-  input_path: http://download.adobe.com/pub/adobe/SupportTools/LogCollector/mac/LogCollectorTool.dmg
-
-- app_name: Ring
-  bundle_id: com.ring.mac
-  developer: Bot Home Automation
-  input_path: https://ring-mac-app-assets.s3.amazonaws.com/production/ring-appcast.xml
 
 - app_name: AdobeCreativeCloudCleanerTool
   bundle_id: com.Adobe.Installers.AdobeCreativeCloudCleanerTool
   developer: AdobeCreativeCloudCleanerTool
   input_path: https://download.adobe.com/pub/adobe/SupportTools/Cleaner/mac/AdobeCreativeCloudCleanerTool.dmg
 
-- app_name: FramerX
-  bundle_id: com.framer.x
-  developer: Framer BV
-  input_path: https://dl.devmate.com/com.framer.x/FramerX.zip
-
-- app_name: Principle
-  bundle_id: com.danielhooper.principle
-  developer: Daniel Hooper
-  input_path: http://principleformac.com/update2.xml
-
-- app_name: iOSConsole
-  bundle_id: com.lemonjar.iosconsole
-  developer: Lemonjar
-  input_path: https://updates.lemonjar.com/iosconsole.xml
+- app_name: AdobeLogCollectorTool
+  bundle_id: com.Adobe.Installers.AdobeLogCollectorTool
+  developer: AdobeLogCollectorTool
+  input_path: http://download.adobe.com/pub/adobe/SupportTools/LogCollector/mac/LogCollectorTool.dmg
 
 - app_name: Aerial
   bundle_id: com.JohnCoates.Aerial
   developer: John Coates
   input_path: https://github.com/JohnCoates/Aerial
 
-- app_name: ParseHub
-  bundle_id: org.mozilla.parsehub
-  developer: ParseHub
-  input_path: https://www.parsehub.com/static/client/parsehub.dmg
+- app_name: AirDroid
+  bundle_id: com.sandstudio.airdroid
+  developer: Sand Studio
+  input_path: https://srv3.airdroid.com/p20/web/getbinaryredirect?type=dmg&amp;channel=&amp;version=
+
+- app_name: Airfoil
+  bundle_id: com.rogueamoeba.Airfoil
+  developer: Rogue Amoeba Software
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/airfoil/download/Airfoil.zip
+
+- app_name: AirRadar
+  bundle_id: com.koingosw.AirRadar
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fairradar%2Fdownload%2Fairradar.dmg
+
+- app_name: Airtool
+  bundle_id: com.adriangranados.Airtool
+  developer: Adrian Granados-Murillo
+  input_path: https://www.adriangranados.com/appcasts/airtoolcast.xml
+
+- app_name: Alarm Clock Pro
+  bundle_id: com.koingosw.alarmclockpro
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Falarmclockpro%2Fdownload%2Falarmclockpro.dmg
 
 - app_name: Amazon Drive
   bundle_id: com.amazon.clouddrive.mac
   developer: Amazon Drive
   input_path: https://d29x207vrinatv.cloudfront.net/mac/AmazonDriveApp.zip
 
-- app_name: Quitter
-  bundle_id: com.marcoarment.quitter
-  developer: Full City, LLC
-  input_path: https://marco.org/appcasts/quitter.xml
+- app_name: Ammonite
+  bundle_id: com.soma-zone.Ammonite
+  developer: Robby Pahlig
+  input_path: https://somazonecom.ipage.com/soma-zone.com/Ammonite/a/appcast.xml
 
-- app_name: Pathology
-  bundle_id: com.celestialteapot.direct.Pathology
-  developer: Todd Ditchendorf
-  input_path: http://celestialteapot.com/pathology/appcast/pathology.rss
+- app_name: Angry IP Scanner
+  bundle_id: net.azib.ipscan
+  developer: Anton Keks
+  input_path: https://github.com/angryziber/ipscan
 
-- app_name: Xmplify
-  bundle_id: au.com.moso.Xmplify
-  developer: MOSO Corporation
-  input_path: http://xmplifyapp.com/appcast.xml
+- app_name: Anvil
+  bundle_id: com.riot.Anvil
+  developer: S Schofield
+  input_path: https://sparkler.herokuapp.com/apps/3/updates.xml
 
-- app_name: Pathological
-  bundle_id: com.celestialteapot.Pathological
-  developer: Todd Ditchendorf
-  input_path: http://celestialteapot.com/pathological/appcast/pathological.rss
+- app_name: App Reviews
+  bundle_id: com.cocmoc.appreviews
+  developer: Knut Inge Grosland
+  input_path: https://github.com/knutigro/AppReviews
 
-- app_name: GoogleAppEngineLauncher
-  bundle_id: com.google.GoogleAppEngineLauncher
-  developer: Google
-  input_path: https://storage.googleapis.com/appengine-sdks/featured/GoogleAppEngineLauncher-
+- app_name: App Wrapper 3
+  bundle_id: com.ohanaware.appWrapper3
+  developer: Ohanaware Co
+  input_path: https://www.ohanaware.com/appwrapper/appWrapper3.zip
 
-- app_name: iCloud Control
-  bundle_id: com.robbertbrandsma.iCloudControl
-  developer: Robbert Brandsma
-  input_path: https://github.com/Obbut/iCloud-Control
+- app_name: AppBolish
+  bundle_id: com.koingosw.appbolish
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fappbolish%2Fdownload%2Fappbolish.dmg
 
-- app_name: YakYak
-  bundle_id: com.github.yakyak
-  developer: ''
-  input_path: https://github.com/yakyak/yakyak
+- app_name: AppZapper
+  bundle_id: com.appzapper.AppZapper
+  developer: AppZapper
+  input_path: https://www.appzapper.com/az2appcast.xml
 
-- app_name: Paw
-  bundle_id: com.luckymarmot.Paw
-  developer: Micha Mazaheri
-  input_path: https://luckymarmot.com/paw/download
+- app_name: Audio Hijack
+  bundle_id: com.rogueamoeba.audiohijack3
+  developer: Rogue Amoeba Software
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/audiohijack/download/AudioHijack.zip
 
-- app_name: WakeOnMac
-  bundle_id: com.doogul.WakeOnMac
-  developer: Doug Brown
-  input_path: https://software.doogul.com/wom/wom.dmg
+- app_name: AutoPkgr
+  bundle_id: com.lindegroup.AutoPkgr
+  developer: The Linde Group Computer Support Inc
+  input_path: https://raw.githubusercontent.com/lindegroup/autopkgr/appcast/appcast.xml
 
-- app_name: TileMill
-  bundle_id: com.mapbox.tilemill
-  developer: Development Seed
-  input_path: https://tilemill-project.github.io/tilemill/
+- app_name: BackupLoupe
+  bundle_id: com.soma-zone.BackupLoupe
+  developer: Robby Pahlig
+  input_path: https://somazonecom.ipage.com/soma-zone.com/BackupLoupe/a/appcast_update.xml
 
-- app_name: Dropzone 3
-  bundle_id: com.aptonic.Dropzone3
-  developer: Aptonic Limited
-  input_path: https://aptonic.com/sparkle/updates.xml
+- app_name: Better Window Manager
+  bundle_id: com.gngrwzrd.paddle.BetterWindowManager
+  developer: Aaron Smith
+  input_path: https://www.gngrwzrd.com/betterwindowmanager-appcast.xml
+
+- app_name: BetterTouchTool
+  bundle_id: com.hegenberg.BetterTouchTool
+  developer: Andreas Hegenberg
+  input_path: https://updates.bettertouchtool.net/appcast.xml
 
 - app_name: BlueJeans
   bundle_id: com.bluejeansnet.Blue
   developer: BlueJeans
   input_path: https://swdl.bluejeans.com/desktop-app/mac/ga.appcast.xml
 
-- app_name: Hermes
-  bundle_id: com.alexcrichton.Hermes
-  developer: ''
-  input_path: https://hermesapp.org/versions.xml
+- app_name: Bookends
+  bundle_id: com.sonnysoftware.bookends
+  developer: Sonny Software
+  input_path: https://www.sonnysoftware.com/Bookends.dmg
+
+- app_name: Boom 2
+  bundle_id: com.globaldelight.Boom2
+  developer: Global Delight Technologies
+  input_path: https://updates.devmate.com/com.globaldelight.Boom2.xml
+
+- app_name: Briefs
+  bundle_id: com.martiancraft.Briefs
+  developer: Briefs LC
+  input_path: https://giveabrief.s3.amazonaws.com/briefsAppCast.xml
+
+- app_name: Butler
+  bundle_id: com.manytricks.Butler
+  developer: Butler
+  input_path: https://manytricks.com/butler/butlercast.xml
+
+- app_name: Capo
+  bundle_id: com.supermegaultragroovy.capo3.mac
+  developer: SuperMegaUltraGroovy
+  input_path: http://capoapp.com/download.php?v=latest
+
+- app_name: Changes
+  bundle_id: com.bitbq.Changes
+  developer: BitBQ
+  input_path: https://bitbq_changes.s3.amazonaws.com/changes-production.xml
+
+- app_name: Chat
+  bundle_id: com.perma.chat
+  developer: Christian Owens
+  input_path: https://updates.devmate.com/com.perma.chat.xml
+
+- app_name: Cisdem BetterUnarchiver
+  bundle_id: com.enolsoft.powerunarchiver
+  developer: Enolsoft
+  input_path: https://www.cisdem.com/download/cisdem-betterunarchiver.dmg
+
+- app_name: Clarify
+  bundle_id: com.bluemangolearningsystems.clarify-osx
+  developer: Blue Mango Learning Systems
+  input_path: http://files.clarify-it.com/v2/updaters/release/appcast.xml
+
+- app_name: CleanMyMac 3
+  bundle_id: com.macpaw.CleanMyMac3
+  developer: MacPaw
+  input_path: https://updates.devmate.com/com.macpaw.CleanMyMac3.xml
+
+- app_name: Cocktail
+  bundle_id: com.maintain.cocktail.elcapitan
+  developer: Kristofer Szymanski
+  input_path: https://www.maintain.se/downloads/sparkle/elcapitan/elcapitan.xml
+
+- app_name: CocoaTADS
+  bundle_id: com.charlessoft.CocoaTads
+  developer: CocoaTADS
+  input_path: https://www.charlessoft.com/CocoaTADS.zip
+
+- app_name: coconutBattery
+  bundle_id: com.coconut-flavour.coconutBattery
+  developer: Christoph Sinai
+  input_path: https://coconut-flavour.com/updates/coconutBattery.xml
+
+- app_name: Code Cookbook for Swift
+  bundle_id: uk.co.insili.Code-Cookbook-for-Swift
+  developer: Ioannis Zafeiropoulos
+  input_path: https://s3.amazonaws.com/iswift/codecookbook.xml
+
+- app_name: ColorSnapper2
+  bundle_id: com.koolesache.ColorSnapper2
+  developer: Alexander Danmayer
+  input_path: https://s3.amazonaws.com/cs2-appcast/appcast.xml
+
+- app_name: Console
+  bundle_id: com.xs-labs.Console
+  developer: Jean-David Gadina
+  input_path: https://github.com/macmade/Console
+
+- app_name: Contexts
+  bundle_id: com.contextsformac.Contexts
+  developer: Usman Khalid
+  input_path: https://contexts.co/appcasts/stable.xml
+
+- app_name: Data Guardian
+  bundle_id: com.koingosw.DataGuardian
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fdataguardian%2Fdownload%2Fdataguardian.dmg
+
+- app_name: Deep Dreamer
+  bundle_id: com.realmacsoftware.deepdreamer
+  developer: Realmac Software
+  input_path: https://updates.devmate.com/com.realmacsoftware.deepdreamer.xml
+
+- app_name: Desktop Curtain
+  bundle_id: com.manytricks.DesktopCurtain
+  developer: Curtain
+  input_path: https://manytricks.com/desktopcurtain/appcast.xml
+
+- app_name: DEVONagent
+  bundle_id: com.devon-technologies.agent
+  developer: DEVONtechnologies
+  input_path: http://www.devon-technologies.com/Sparkle/DEVONagent.xml
+
+- app_name: DEVONagent Express
+  bundle_id: com.devon-technologies.agentexpress
+  developer: DEVONtechnologies
+  input_path: http://www.devon-technologies.com/Sparkle/DEVONagentExpress.xml
+
+- app_name: DEVONsphere Express
+  bundle_id: com.devon-technologies.sphereexpress
+  developer: DEVONtechnologies
+  input_path: http://www.devon-technologies.com/Sparkle/DEVONsphereExpress.xml
+
+- app_name: DEVONthink
+  bundle_id: com.devon-technologies.think2
+  developer: DEVONtechnologies
+  input_path: http://www.devon-technologies.com/Sparkle/DEVONthink2.xml
+
+- app_name: DEVONthink Pro
+  bundle_id: com.devon-technologies.thinkpro2
+  developer: DEVONtechnologies
+  input_path: http://www.devon-technologies.com/Sparkle/DEVONthinkPro2.xml
+
+- app_name: Digital Sentry
+  bundle_id: com.koingosw.DigitalSentry
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fdigitalsentry%2Fdownload%2Fdigitalsentry.dmg
+
+- app_name: Disk Diet
+  bundle_id: com.tunabellysoftware.diskdiet
+  developer: Tunabelly Software
+  input_path: https://www.tunabellysoftware.com/resources/sparkle/diskdiet.xml
+
+- app_name: Displaperture
+  bundle_id: com.manytricks.Displaperture
+  developer: Many Tricks
+  input_path: https://manytricks.com/download/displaperture
+
+- app_name: Display Maestro
+  bundle_id: com.koingosw.DisplayMaestro
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fdisplaymaestro%2Fdownload%2Fdisplaymaestro.dmg
+
+- app_name: Docker
+  bundle_id: com.docker.docker
+  developer: Docker Inc
+  input_path: https://download.docker.com/mac/stable/appcast.xml
+
+- app_name: Dropzone 3
+  bundle_id: com.aptonic.Dropzone3
+  developer: Aptonic Limited
+  input_path: https://aptonic.com/sparkle/updates.xml
+
+- app_name: Duo Device Health
+  bundle_id: com.duosecurity.duo-device-health
+  developer: Duo Security, Inc.
+  input_path: https://dl.duosecurity.com/DuoDeviceHealth-appcast-macos-latest.xml
+
+- app_name: EasyBatchPhoto
+  bundle_id: com.yellowmug.EasyBatchPhoto
+  developer: Jay Teo
+  input_path: https://www.yellowmug.com/download/EasyBatchPhoto.dmg
+
+- app_name: EasyCrop
+  bundle_id: null
+  developer: EasyCrop
+  input_path: https://yellowmug.com/easycrop/appcast.xml
+
+- app_name: EasyFrame
+  bundle_id: com.yellowmug.EasyFrame
+  developer: Jay Teo
+  input_path: https://www.yellowmug.com/download/EasyFrame.dmg
+
+- app_name: Emailchemy
+  bundle_id: com.install4j.6029-5726-8846-0121.357
+  developer: Weird Kid Software
+  input_path: https://s3.amazonaws.com/wksdownload/Emailchemy-Mac.dmg
+
+- app_name: Espresso
+  bundle_id: co.warewolf.Espresso
+  developer: Warewolf
+  input_path: https://espressoapp.com/updates/appcast.xml
+
+- app_name: EVE
+  bundle_id: com.togo.hotkeyEVE
+  developer: EVE
+  input_path: https://s3.amazonaws.com/hotkeyeve/hotkeyEVEappcast.xml
+
+- app_name: Evernote
+  bundle_id: com.evernote.Evernote
+  developer: Evernote
+  input_path: https://update.evernote.com/public/ENMacSMD/EvernoteMacUpdate.xml
+
+- app_name: FileChute
+  bundle_id: com.yellowmug.FileChute
+  developer: Jay Teo
+  input_path: http://yellowmug.com/filechute/appcast-1011.xml
+
+- app_name: FilePane
+  bundle_id: com.mymixapps.FilePane
+  developer: Sergii Iamkovyi
+  input_path: https://updates.devmate.com/com.mymixapps.FilePane.xml
 
 - app_name: Findings
   bundle_id: com.findings.Findings
   developer: Findings Software
   input_path: http://downloads.findingsapp.com/appcast.xml
+
+- app_name: Fission
+  bundle_id: com.rogueamoeba.Fission
+  developer: Rogue Amoeba Software
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/fission/download/Fission.zip
+
+- app_name: Flashlight
+  bundle_id: com.nateparrott.Flashlight
+  developer: James Parrott
+  input_path: https://raw.githubusercontent.com/nate-parrott/flashlight/master/Appcast.xml
+
+- app_name: Flinto
+  bundle_id: com.flinto.Flinto
+  developer: Flinto
+  input_path: https://www.flinto.com/download_latest
+
+- app_name: Focus
+  bundle_id: BradJasper.focus
+  developer: Bradley Jasper
+  input_path: https://heyfocus.com/appcast.xml
+
+- app_name: Folder Tidy
+  bundle_id: com.tunabellysoftware.cleanmydesktop
+  developer: Tunabelly Software
+  input_path: https://www.tunabellysoftware.com/resources/sparkle/foldertidy.xml
+
+- app_name: FolderBrander
+  bundle_id: com.yellowmug.FolderBrander
+  developer: Jay Teo
+  input_path: https://www.yellowmug.com/download/FolderBrander.dmg
+
+- app_name: FoldingText
+  bundle_id: com.foldingtext.paddle.FoldingText
+  developer: Jesse Grosjean
+  input_path: https://s3.amazonaws.com/foldingtext/FoldingText.dmg
+
+- app_name: Folio
+  bundle_id: co.ysberg.Folio
+  developer: Hanno ter Hoor
+  input_path: https://s3.amazonaws.com/folioformac.com/folioupdates.xml.rss
+
+- app_name: Font Finagler
+  bundle_id: com.markdouma.FontFinagler
+  developer: Finagler
+  input_path: http://www.markdouma.com/fontfinagler/version.xml
+
+- app_name: FontNuke
+  bundle_id: com.jamapi.fontnuke
+  developer: FontNuke
+  input_path: https://www.jamapi.com/fontnuke/fontnuke-update-appcast.xml
+
+- app_name: Fork
+  bundle_id: com.DanPristupov.Fork
+  developer: Danil Pristupov
+  input_path: https://git-fork.com/update/feed.xml
+
+- app_name: ForkLift
+  bundle_id: com.binarynights.ForkLift-3
+  developer: BinaryNights
+  input_path: https://updates.binarynights.com/ForkLift3/update.xml
+
+- app_name: FramerX
+  bundle_id: com.framer.x
+  developer: Framer BV
+  input_path: https://dl.devmate.com/com.framer.x/FramerX.zip
+
+- app_name: Gas Mask
+  bundle_id: ee.clockwise.gmask
+  developer: Mask
+  input_path: http://gmask.clockwise.ee/check_update/
+
+- app_name: Geekbench 4
+  bundle_id: com.primatelabs.Geekbench4
+  developer: Primate Labs Inc.
+  input_path: https://www.primatelabs.com/appcast/geekbench4.xml
+
+- app_name: Gemini 2
+  bundle_id: com.macpaw.site.Gemini2
+  developer: MacPaw
+  input_path: https://updates.devmate.com/com.macpaw.site.Gemini2.xml
+
+- app_name: Goofy
+  bundle_id: cc.buechele.Goofy
+  developer: Daniel Buechele
+  input_path: https://raw.githubusercontent.com/danielbuechele/goofy/master/update_feed.xml
+
+- app_name: GoogleAppEngineLauncher
+  bundle_id: com.google.GoogleAppEngineLauncher
+  developer: Google
+  input_path: https://storage.googleapis.com/appengine-sdks/featured/GoogleAppEngineLauncher-
+
+- app_name: Grammarly
+  bundle_id: com.grammarly.DesktopEditor
+  developer: Grammarly
+  input_path: https://download-editor.grammarly.com/osx/Grammarly.dmg
+
+- app_name: Hammerspoon
+  bundle_id: org.hammerspoon.Hammerspoon
+  developer: Chris jones
+  input_path: https://raw.githubusercontent.com/Hammerspoon/hammerspoon/master/appcast.xml
+
+- app_name: HandsFree 2
+  bundle_id: com.tunabelly.handsfree2
+  developer: Tunabelly Software
+  input_path: https://www.tunabellysoftware.com/resources/sparkle/handsfree2.xml
+
+- app_name: Hermes
+  bundle_id: com.alexcrichton.Hermes
+  developer: ""
+  input_path: https://hermesapp.org/versions.xml
+
+- app_name: Hider 2 Trial
+  bundle_id: com.macpaw.trial.Hider2
+  developer: MacPaw
+  input_path: https://updates.devmate.com/com.macpaw.site.Hider2.xml
+
+- app_name: Hocus Focus
+  bundle_id: com.uglyapps.HocusFocus
+  developer: Nial Giacomelli
+  input_path: https://hocusfoc.us/updates.xml
+
+- app_name: HoudahGeo
+  bundle_id: com.houdah.HoudahGeo
+  developer: HoudahGeo
+  input_path: https://www.houdah.com/houdahGeo/updates4/cast4.php
+
+- app_name: HoudahSpot
+  bundle_id: com.houdah.HoudahSpot
+  developer: Houdah Software
+  input_path: https://www.houdah.com/houdahSpot/updates/cast4.xml
+
+- app_name: HyperDock
+  bundle_id: de.bahoom.HyperDock.prefpane
+  developer: Christian  Baumgart
+  input_path: https://bahoom.com/hyperdock/download
+
+- app_name: HyperSwitch
+  bundle_id: com.bahoom.HyperSwitch
+  developer: Christian  Baumgart
+  input_path: https://bahoom.com/hyperswitch/appcast.xml
+
+- app_name: iClip
+  bundle_id: com.irradiatedsoftware.iClip
+  developer: Irradiated Software
+  input_path: https://www.irradiatedsoftware.com/updates/profiles/iclip.php
+
+- app_name: iCloud Control
+  bundle_id: com.robbertbrandsma.iCloudControl
+  developer: Robbert Brandsma
+  input_path: https://github.com/Obbut/iCloud-Control
+
+- app_name: iMazing
+  bundle_id: com.DigiDNA.iMazingMac
+  developer: DigiDNA
+  input_path: https://updates.devmate.com/com.DigiDNA.iMazingMac.xml
+
+- app_name: Install Hazel
+  bundle_id: com.noodlesoft.Install-Hazel
+  developer: Noodlesoft
+  input_path: https://www.noodlesoft.com/Products/Hazel/download
+
+- app_name: iOSConsole
+  bundle_id: com.lemonjar.iosconsole
+  developer: Lemonjar
+  input_path: https://updates.lemonjar.com/iosconsole.xml
+
+- app_name: iPhoto Library Manager
+  bundle_id: com.fatcatsoftware.iPhotoLibraryManager
+  developer: Fat Cat Software
+  input_path: https://www.fatcatsoftware.com/iplm/iPhotoLibraryManager.zip
+
+- app_name: iStumbler
+  bundle_id: net.istumbler
+  developer: Alf Watt
+  input_path: https://istumbler.net/feeds/appcast.rss
+
+- app_name: iSwift
+  bundle_id: uk.co.insili.iSwift
+  developer: Ioannis Zafeiropoulos
+  input_path: https://s3.amazonaws.com/iswift/iswift.xml
+
+- app_name: iTerm2
+  bundle_id: com.googlecode.iterm2
+  developer:
+    - GEORGE NACHMAN
+  input_path: https://iterm2.com/appcasts/final.xml
+
+- app_name: iZip
+  bundle_id: com.codeius.izip
+  developer: iBoostUp
+  input_path: https://www.izip.com/updates
+
+- app_name: Karabiner
+  bundle_id: org.pqrs.Karabiner
+  developer: Fumihiko Takayama
+  input_path: https://github.com/pqrs-org/Karabiner-Elements/releases/download/v13.1.0/Karabiner-Elements-13.1.0.dmg
+
+- app_name: KeepingYouAwake
+  bundle_id: info.marcel-dierkes.KeepingYouAwake
+  developer: Marcel Dierkes
+  input_path: https://newmarcel.github.io/KeepingYouAwake/appcast.xml
+
+- app_name: Key Codes
+  bundle_id: com.manytricks.KeyCodes
+  developer: Codes
+  input_path: https://manytricks.com/keycodes/appcast.xml
+
+- app_name: Keymo
+  bundle_id: com.manytricks.Keymo
+  developer: Keymo
+  input_path: https://manytricks.com/keymou/appcast/?version=1
+
+- app_name: Kite
+  bundle_id: com.kite.Kite
+  developer: MANHATTAN ENGINEERING
+  input_path: https://release.kite.com/appcast.xml
+
+- app_name: Kitematic
+  bundle_id: com.electron.kitematic
+  developer: Docker
+  input_path: https://github.com/docker/kitematic
+
+- app_name: LaunchControl
+  bundle_id: com.soma-zone.LaunchControl
+  developer: Robby Pahlig
+  input_path: https://somazonecom.ipage.com/soma-zone.com/LaunchControl/a/appcast_update.xml
+
+- app_name: Leech
+  bundle_id: com.manytricks.Leech
+  developer: Leech
+  input_path: https://manytricks.com/leech/appcast.xml
+
+- app_name: Librarian Pro
+  bundle_id: com.koingosw.LibrarianPro
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Flibrarianpro%2Fdownload%2Flibrarianpro.dmg
+
+- app_name: Loopback
+  bundle_id: com.rogueamoeba.Loopback
+  developer: Rogue Amoeba Software, Inc.
+  input_path: https://rogueamoeba.com/loopback/download/Loopback.zip
+
+- app_name: MacGourmet
+  bundle_id: com.marinersoftware.MacGourmet
+  developer: Mariner Software
+  input_path: https://www.marinersoftware.com/sparkle/MacGourmet4/macgourmet4.xml
+
+- app_name: MacJournal
+  bundle_id: com.DanSchimpf.MacJournal
+  developer: Mariner Software
+  input_path: https://danschimpf.com/appcasts/MacJournal6.appcast
+
+- app_name: MacPilot
+  bundle_id: com.koingosw.MacPilot
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fmacpilot%2Fdownload%2Fmacpilot.dmg
+
+- app_name: MacTerm
+  bundle_id: net.macterm.MacTerm
+  developer: Kevin Grant
+  input_path: https://www.macterm.net/updates/macterm-latest.dmg
+
+- app_name: Manuscripts
+  bundle_id: com.manuscripts.Manuscripts
+  developer: Manuscripts.app Limited
+  input_path: https://updates.manuscriptsapp.com/apps/manuscripts/beta/appcast.xml
+
+- app_name: Mariner Write
+  bundle_id: com.marinersoftware.write
+  developer: Mariner Software
+  input_path: https://www.marinersoftware.com/sparkle/MarinerWrite/marinerwrite.xml
+
+- app_name: Marked 2
+  bundle_id: com.brettterpstra.marked2
+  developer: Brett Terpstra
+  input_path: https://updates.marked2app.com/marked.xml
+
+- app_name: MasergyCommunicator
+  bundle_id: ""
+  developer: BroadSoft
+  input_path: https://www.masergy.com/support-file/masergy-communicator-mac-dmg
+
+- app_name: MDS
+  bundle_id: com.twocanoes.MacDeployStick
+  developer: Twocanoes Software, Inc.
+  input_path: https://www.twocanoes.com/macdeploystick/updates/macdeploystick-software-updates.xml
+
+- app_name: Merlin Project
+  bundle_id: net.projectwizards.merlinproject
+  developer: ProjectWizards
+  input_path: https://www.projectwizards.net/downloads/MerlinProject.zip
+
+- app_name: Metabase
+  bundle_id: com.metabase.Metabase
+  developer: Metabase
+  input_path: https://s3.amazonaws.com/downloads.metabase.com/appcast.xml
+
+- app_name: miXscope
+  bundle_id: com.edhsw.miXscope
+  developer: miXscope
+  input_path: http://www.edhsw.com/mixscope/miXscope.dmg
+
+- app_name: MockSmtp
+  bundle_id: com.xilinus.MockSmtp
+  developer: MockSmtp
+  input_path: http://www.mocksmtpapp.com/MockSmtp.zip
+
+- app_name: Monodraw
+  bundle_id: com.helftone.monodraw
+  developer: Helftone
+  input_path: https://updates.helftone.com/monodraw/appcast-beta.xml
+
+- app_name: Monolingual
+  bundle_id: com.github.IngmarStein.Monolingual
+  developer: Ingmar Stein
+  input_path: https://ingmarstein.github.io/Monolingual/appcast.xml
+
+- app_name: Moom
+  bundle_id: com.manytricks.Moom
+  developer: Moom
+  input_path: https://manytricks.com/moom/appcast.xml
+
+- app_name: Mou
+  bundle_id: com.mouapp.Mou
+  developer: Chen Luo
+  input_path: http://mouapp.com/up/updates.xml
+
+- app_name: Mountain
+  bundle_id: de.appgineers.Mountain
+  developer: Jan Linxweiler
+  input_path: https://appgineers.de/mountain/files/mountaincast.xml
+
+- app_name: Mountain Duck
+  bundle_id: io.mountainduck
+  developer: David Kocher
+  input_path: https://version.mountainduck.io/changelog.rss
+
+- app_name: MunkiAdmin
+  bundle_id: com.hjuutilainen.MunkiAdmin
+  developer: Hannes Juutilainen
+  input_path: https://github.com/hjuutilainen/munkiadmin/releases
+
+- app_name: Name Mangler
+  bundle_id: com.manytricks.Name Mangler
+  developer: Mangler
+  input_path: https://manytricks.com/namemangler/appcast.xml
+
+- app_name: NameChanger
+  bundle_id: com.mrrsoftware.NameChanger
+  developer: NameChanger
+  input_path: https://mrrsoftware.com/Downloads/NameChanger/Updates/NameChangerSoftwareUpdates.xml
+
+- app_name: NetNewsWire
+  bundle_id: com.blackpixel.netnewswire
+  developer: Black Pixel
+  input_path: https://updates.blackpixel.com/updates?app=nnw
+
+- app_name: NetSpot
+  bundle_id: com.etwok.netspotwifi
+  developer: Etwok, LLC
+  input_path: https://www.netspotapp.com/updates/netspot2-appcast.xml
+
+- app_name: NibUnlocker
+  bundle_id: com.charlessoft.nibunlocker
+  developer: NibUnlocker
+  input_path: https://www.charlessoft.com/NibUnlocker.zip
+
+- app_name: Nicecast
+  bundle_id: com.rogueamoeba.Nicecast
+  developer: Rogue Amoeba Software
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/nicecast/download/Nicecast.zip
+
+- app_name: NightOwl
+  bundle_id: com.fuekiin.NightOwl
+  developer: Benjamin Kramser
+  input_path: https://nightowl.kramser.xyz/files/NightOwl.dmg
+
+- app_name: Noise Machine
+  bundle_id: net.publicspace.dist.noisemachine
+  developer: Frank Reiff
+  input_path: http://www.publicspace.net/app/nm.xml
+
+- app_name: Nomadesk
+  bundle_id: com.NomaDesk
+  developer: NomaDesk
+  input_path: https://secure.nomadesk.com/download/?os=macosx
+
+- app_name: Numi
+  bundle_id: com.dmitrynikolaev.numi
+  developer: DMITRY NIKOLAEV
+  input_path: https://updates.devmate.com/com.dmitrynikolaev.numi.xml
+
+- app_name: Open in Atom
+  bundle_id: com.apple.ScriptEditor.id.Open-in-Atom
+  developer: Chris Dzombak
+  input_path: https://github.com/cdzombak/finder-atom
+
+- app_name: Open-With Manager
+  bundle_id: com.manytricks.Open-With Manager
+  developer: Manager
+  input_path: https://manytricks.com/download/openwithmanager
+
+- app_name: PANTONE Color Manager
+  bundle_id: com.xrite.pantonecolormanager
+  developer: X-Rite
+  input_path: https://pcm.pantone.com/pantonecolormanager/mac/feed/pcm_feed.xml
+
+- app_name: Paparazzi!
+  bundle_id: org.derailer.Paparazzi
+  developer: Nate Weaver
+  input_path: https://derailer.org/paparazzi/appcast/
+
+- app_name: ParseHub
+  bundle_id: org.mozilla.parsehub
+  developer: ParseHub
+  input_path: https://www.parsehub.com/static/client/parsehub.dmg
+
+- app_name: Pathological
+  bundle_id: com.celestialteapot.Pathological
+  developer: Todd Ditchendorf
+  input_path: http://celestialteapot.com/pathological/appcast/pathological.rss
+
+- app_name: Pathology
+  bundle_id: com.celestialteapot.direct.Pathology
+  developer: Todd Ditchendorf
+  input_path: http://celestialteapot.com/pathology/appcast/pathology.rss
+
+- app_name: Paw
+  bundle_id: com.luckymarmot.Paw
+  developer: Micha Mazaheri
+  input_path: https://luckymarmot.com/paw/download
+
+- app_name: PDFKit
+  bundle_id: com.ireador.PDFKit
+  developer: Xuepeng Zhang
+  input_path: https://www.ireador.com/downloads/PDFKit.dmg
+
+- app_name: Persona
+  bundle_id: com.marinersoftware.persona
+  developer: Mariner Software
+  input_path: https://www.marinersoftware.com/sparkle/persona/persona.xml
+
+- app_name: Piezo
+  bundle_id: com.rogueamoeba.Piezo
+  developer: Rogue Amoeba Software
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/piezo/download/Piezo.zip
+
+- app_name: Pingendo
+  bundle_id: com.pingendo.editor
+  developer: Pingendo
+  input_path: https://github.com/Pingendo/pingendo
+
+- app_name: Platypus
+  bundle_id: org.sveinbjorn.Platypus
+  developer: Sveinbjorn Thordarson
+  input_path: https://sveinbjorn.org/files/appcasts/PlatypusAppcast.xml
+
+- app_name: PlistEdit Pro
+  bundle_id: com.fatcatsoftware.pledpro
+  developer: Fat Cat Software
+  input_path: https://www.fatcatsoftware.com/plisteditpro/PlistEditPro.zip
+
+- app_name: Plug
+  bundle_id: com.plug.Plug2
+  developer: Alex Marchant
+  input_path: https://www.plugformac.com/updates/plug2/sparklecast.xml
+
+- app_name: Polymail
+  bundle_id: ctrlla.Polymail
+  developer: CTRL LA
+  input_path: https://sparkle-updater.polymail.io/cast.xml
+
+- app_name: PowerPhotos
+  bundle_id: com.fatcatsoftware.PowerPhotos
+  developer: Fat Cat Software
+  input_path: https://www.fatcatsoftware.com/powerphotos/PowerPhotos.zip
+
+- app_name: PowerTunes
+  bundle_id: com.fatcatsoftware.PowerTunes
+  developer: Fat Cat Software
+  input_path: https://www.fatcatsoftware.com/powertunes/PowerTunes.zip
+
+- app_name: Principle
+  bundle_id: com.danielhooper.principle
+  developer: Daniel Hooper
+  input_path: http://principleformac.com/update2.xml
+
+- app_name: ProfitTrain
+  bundle_id: com.clickablebliss.ProfitTrain
+  developer: ProfitTrain
+  input_path: https://razorant.com/profittrain/profileInfo
+
+- app_name: Project Canvas
+  bundle_id: com.koingosw.ProjectCanvas
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Fprojectcanvas%2Fdownload%2Fprojectcanvas.dmg
+
+- app_name: Proximity
+  bundle_id: com.cisco.experimental.Proximity
+  developer: Cisco
+  input_path: https://proximity.cisco.com/mac/Proximity.dmg
+
+- app_name: Quip
+  bundle_id: com.quip.Desktop
+  developer: Quip
+  input_path: https://quip-clients.com/macosx_5.4.47.dmg
+
+- app_name: Quitter
+  bundle_id: com.marcoarment.quitter
+  developer: Full City, LLC
+  input_path: https://marco.org/appcasts/quitter.xml
+
+- app_name: Radi
+  bundle_id: fi.lacquer.Radi
+  developer: Lacquer
+  input_path: https://radiapp.com/Radi.zip
+
+- app_name: RB App Checker Lite
+  bundle_id: net.brockerhoff.RB.RB-App-Checker-Lite
+  developer: Rainer Brockerhoff
+  input_path: https://brockerhoff.net/RB/AppCheckerLite/RBACL.zip
+
+- app_name: RB App Quarantine
+  bundle_id: net.brockerhoff.RB.RB-App-Quarantine
+  developer: Rainer Brockerhoff
+  input_path: https://brockerhoff.net/RB/AppQuarantine/RBAQ.zip
+
+- app_name: RecordIt
+  bundle_id: us.freshout.RecordIt
+  developer: Navid Safabakhsh
+  input_path: https://rink.hockeyapp.net/api/2/apps/5fcda0b48f1dcf0c938b289b9ab57790
+
+- app_name: Reflector 3
+  bundle_id: com.squirrels.Reflector-2
+  developer: Squirrels LLC
+  input_path: https://updates.airsquirrels.com/Reflector3/Mac/Reflector3.xml
+
+- app_name: Resilio Sync
+  bundle_id: com.resilio.Sync
+  developer: Resilio
+  input_path: https://download-cdn.getsync.com/stable/osx/Resilio-Sync.dmg
+
+- app_name: Resolutionator
+  bundle_id: com.manytricks.Resolutionator
+  developer: Many Tricks
+  input_path: https://manytricks.com/resolutionator/appcast.xml
+
+- app_name: RightFont
+  bundle_id: com.marklyapp.RightFont
+  developer: LIYI CHENG
+  input_path: https://rightfontapp.com/update/appcast.xml
+
+- app_name: Ring
+  bundle_id: com.ring.mac
+  developer: Bot Home Automation
+  input_path: https://ring-mac-app-assets.s3.amazonaws.com/production/ring-appcast.xml
+
+- app_name: RoboPostman
+  bundle_id: com.koingosw.RoboPostman
+  developer: Koingo Software
+  input_path: https://www.koingosw.com/products/getmirrorfile.php?path=%2Fproducts%2Frobopostman%2Fdownload%2Frobopostman.dmg
+
+- app_name: Rocket
+  bundle_id: net.matthewpalmer.Rocket
+  developer: Matthew Palmer
+  input_path: https://dl.devmate.com/net.matthewpalmer.Rocket/Rocket.dmg
+
+- app_name: S.M.A.R.T. Monitoring Tools
+  bundle_id: com.smartmontools.pkg
+  developer: Tools
+  input_path: https://sourceforge.net/projects/smartmontools/
+
+- app_name: Sandvox
+  bundle_id: com.karelia.Sandvox
+  developer: Karelia Software
+  input_path: https://www.karelia.com/files/8/Sandvox.zip
+
+- app_name: SCAP Workbench
+  bundle_id: org.open-scap.scap-workbench
+  developer: ""
+  input_path: https://github.com/OpenSCAP/scap-workbench
+
+- app_name: Scapple
+  bundle_id: com.literatureandlatte.scapple
+  developer: Literature & Latte
+  input_path: https://www.literatureandlatte.com/downloads/scapple/scapple.xml
+
+- app_name: Scherlokk
+  bundle_id: com.naarak.Scherlokk
+  developer: Grzegorz Staszczyk
+  input_path: https://naarakstudio.com/download/Scherlokk.dmg
+
+- app_name: ScreenFlow
+  bundle_id: net.telestream.screenflow5
+  developer: Telestream LLC
+  input_path: https://www.telestream.net/updater/screenflow/appcast.xml
+
+- app_name: Scrivener
+  bundle_id: com.literatureandlatte.scrivener3
+  developer: Literature & Latte
+  input_path: https://www.literatureandlatte.com/downloads/scrivener-3.xml
+
+- app_name: SelfControl
+  bundle_id: org.eyebeam.SelfControl
+  developer: Charlie Stigler
+  input_path: https://selfcontrolapp.com/SelfControlAppcast.xml
+
+- app_name: ShareMouse
+  bundle_id: com.bartelsmedia.ShareMouse
+  developer: Bartels Media
+  input_path: http://www.keyboard-and-mouse-sharing.com/ShareMouseSetup.dmg
+
+- app_name: Shiori
+  bundle_id: com.aki-null.Shiori
+  developer: Akihiro Noguchi
+  input_path: https://aki-null.net/shiori/appcast.xml
+
+- app_name: Silent Start
+  bundle_id: com.tunabellysoftware.silentstart
+  developer: Tunabelly Software
+  input_path: https://www.tunabellysoftware.com/resources/sparkle/silentstart.xml
+
+- app_name: Silverback
+  bundle_id: uk.co.clearleft.SilverbackMac
+  developer: Clearleft Ltd.
+  input_path: https://dl.devmate.com/uk.co.clearleft.SilverbackMac/Silverback.zip
+
+- app_name: SizzlingKeys
+  bundle_id: com.yellowmug.SizzlingKeys
+  developer: Jay Teo
+  input_path: https://www.yellowmug.com/download/SizzlingKeys.dmg
+
+- app_name: Skala Color Installer
+  bundle_id: com.bjango.Skala-Color-Installer
+  developer: Marc Edwards
+  input_path: https://download.bjango.com/skalacolor/
+
+- app_name: Skala Preview
+  bundle_id: com.bjango.skalapreview
+  developer: Marc Edwards
+  input_path: https://download.bjango.com/skalapreview/
+
+- app_name: Skim
+  bundle_id: net.sourceforge.skim-app.skim
+  developer: Skim
+  input_path: https://skim-app.sourceforge.io/skim.xml
+
+- app_name: Smaller
+  bundle_id: com.smallerapp.Smaller
+  developer: Chen Luo
+  input_path: http://25.io/smaller/up/updates.xml
+
+- app_name: Sofa Control
+  bundle_id: com.gravityapps.SofaControl
+  developer: Control
+  input_path: http://www.caseapps.com/downloads/sofacontrol-update.xml
+
+- app_name: Solstice
+  bundle_id: com.mersive.solstice.client
+  developer: Solstice
+  input_path: https://www.mersive.com/download/
+
+- app_name: Sparkle
+  bundle_id: eu.riverdesign.sparkle
+  developer: River
+  input_path: https://sparkleapp.com/update/Sparkle.zip
+
+- app_name: Spring Tool Suite
+  bundle_id: org.springsource.sts.ide
+  developer: Pivotal
+  input_path: https://download.springsource.com/release/STS4/4.1.2.RELEASE/dist/e4.10/spring-tool-suite-4-4.1.2.RELEASE-e4.10.0-macosx.cocoa.x86_64.dmg
+
+- app_name: Station
+  bundle_id: org.efounders.BrowserX
+  developer: eFounders
+  input_path: https://dl.getstation.com/download/osx
+
+- app_name: StretchLink
+  bundle_id: com.brettterpstra.stretchlink
+  developer: Brett Terpstra
+  input_path: http://abyss.designheresy.com/stretchlink/stretchlink.xml
+
+- app_name: SuperDuper
+  bundle_id: com.blacey.SuperDuper!
+  developer: Bruce Lacey
+  input_path: https://s3.amazonaws.com/shirtpocket/SuperDuper/SuperDuper!.dmg
+
+- app_name: SwitchUp
+  bundle_id: com.irradiatedsoftware.SwitchUp
+  developer: Irradiated Software
+  input_path: https://www.irradiatedsoftware.com/updates/profiles/switchup.php
+
+- app_name: Tableau Reader
+  bundle_id: com.tableausoftware.tableaureader
+  developer: Tableau Software
+  input_path: https://www.tableau.com/downloads/reader/mac
+
+- app_name: Tags
+  bundle_id: com.gravityapps.Tags
+  developer: Tags
+  input_path: http://www.caseapps.com/downloads/updates/tags/tags2-update.xml
+
+- app_name: Tangerine!
+  bundle_id: com.potionfactory.Tangerine
+  developer: Potion Factory
+  input_path: https://launch.karelia.com/appcast.php?product=13
+
+- app_name: TapeDeck
+  bundle_id: com.supermegaultragroovy.tapedeck
+  developer: SuperMegaUltraGroovy
+  input_path: http://tapedeckapp.com/download/appcast-1.0.xml
+
+- app_name: Tembo
+  bundle_id: com.houdah.Tembo2
+  developer: Houdah Software
+  input_path: https://www.houdah.com/tembo/updates/cast2.xml
+
+- app_name: Tenor GIF Keyboard for Mac
+  bundle_id: com.riffsy.GIF-for-Mac
+  developer: Tenor
+  input_path: https://media.tenor.co/mac/gif_for_mac_appcast.xml
+
+- app_name: TextBar
+  bundle_id: com.RichSomerfield.TextBar
+  developer: Rich Somerfield
+  input_path: https://raw.githubusercontent.com/richie5um/richie5um.github.io/master/apps/textbar/sparkle_textbar.xml
+
+- app_name: TG Pro
+  bundle_id: com.tunabellysoftware.tgpro
+  developer: Tunabelly Software
+  input_path: https://www.tunabellysoftware.com/resources/sparkle/tgpro/profileInfo.php
+
+- app_name: The Hit List
+  bundle_id: com.potionfactory.TheHitList
+  developer: Karelia Software
+  input_path: https://launch.karelia.com/appcast.php?product=9&amp;appname=The+Hit+List
+
+- app_name: Tickets
+  bundle_id: com.irradiatedsoftware.Tickets
+  developer: Irradiated Software
+  input_path: https://www.irradiatedsoftware.com/updates/profiles/tickets.php
+
+- app_name: TileMill
+  bundle_id: com.mapbox.tilemill
+  developer: Development Seed
+  input_path: https://tilemill-project.github.io/tilemill/
+
+- app_name: Time Sink
+  bundle_id: com.manytricks.TimeSink
+  developer: Sink
+  input_path: https://manytricks.com/timesink/appcast.xml
+
+- app_name: TimeMachineEditor
+  bundle_id: null
+  developer: Thomas CLEMENT
+  input_path: http://timesoftware.free.fr/timemachineeditor/TimeMachineEditor.pkg
+
+- app_name: TimeTracker
+  bundle_id: com.charlessoft.TimeTracker
+  developer: Charles Srstka
+  input_path: https://www.charlessoft.com/TimeTracker.zip
+
+- app_name: TMNotifier
+  bundle_id: com.everythingisgray.TMNotifier
+  developer: James Barclay
+  input_path: https://tmnotifier.com/appcast.xml
+
+- app_name: Tomahawk
+  bundle_id: org.tomahawk-player.Tomahawk
+  developer: Tomahawk
+  input_path: http://download.tomahawk-player.org/sparkle/update.php
+
+- app_name: Tower
+  bundle_id: com.fournova.Tower3
+  developer: fournova Software
+  input_path: https://www.git-tower.com/download
+
+- app_name: TunnelBear
+  bundle_id: com.tunnelbear.mac.TunnelBear
+  developer: TunnelBear
+  input_path: https://s3.amazonaws.com/tunnelbear/downloads/mac/appcast.xml
+
+- app_name: TypeIt4Me
+  bundle_id: com.typeit4me.TypeIt4MeMenu
+  developer: Riccardo Ettore
+  input_path: http://ettoresoftware.com/download/TypeIt4MeAppcast.xml
+
+- app_name: Typinator
+  bundle_id: com.macility.typinator2
+  developer: Ergonis Software GmbH
+  input_path: http://www.ergonis.com/downloads/typinator-install.dmg
+
+- app_name: uBar
+  bundle_id: ca.brawer.uBar
+  developer: Brawer Canada
+  input_path: https://brawersoftware.com/appcasts/feeds/ubar/ubar3.xml
+
+- app_name: Usher
+  bundle_id: com.manytricks.Usher
+  developer: Usher
+  input_path: https://manytricks.com/usher/appcast.xml
+
+- app_name: uTorrent
+  bundle_id: com.bittorrent.uTorrent
+  developer: BitTorrent, Inc
+  input_path: http://download.ap.bittorrent.com/track/stable/endpoint/utmac/os/osx
+
+- app_name: Vienna
+  bundle_id: uk.co.opencommunity.vienna2
+  developer: Barijaona Ramaholimihaso
+  input_path: https://viennarss.github.io/sparkle-files/changelog.xml
+
+- app_name: VimR
+  bundle_id: com.qvacua.VimR
+  developer: Tae Won Ha
+  input_path: http://vimr.org/appcast.xml
+
+- app_name: VirtualC64
+  bundle_id: de.dirkwhoffmann.VirtualC64
+  developer: VirtualC64
+  input_path: http://dirkwhoffmann.de/virtualc64/VirtualC64Appcast.xml
+
+- app_name: VirtualHostX
+  bundle_id: com.clickontyler.VirtualHostX
+  developer: Tyler Hall
+  input_path: http://shine.clickontyler.com/appcast.php?id=38
+
+- app_name: Vox
+  bundle_id: com.coppertino.Vox
+  developer: Coppertino
+  input_path: https://updates.devmate.com/com.coppertino.Vox.xml
+
+- app_name: WakeOnMac
+  bundle_id: com.doogul.WakeOnMac
+  developer: Doug Brown
+  input_path: https://software.doogul.com/wom/wom.dmg
+
+- app_name: Waltr
+  bundle_id: com.softorino.Waltr
+  developer: Dmytro Makukha
+  input_path: https://updates.devmate.com/com.softorino.Waltr.xml
+
+- app_name: Webex Teams
+  bundle_id: Cisco-Systems.Spark
+  developer: Webex Teams
+  input_path: http://www.webex.com/downloads/WebexTeams.dmg
+
+- app_name: WhatSize
+  bundle_id: com.id-design.whatsize
+  developer: ID-DESIGN
+  input_path: https://whatsizemac.com/software/whatsize6/whatsize.dmg
+
+- app_name: Whiskey
+  bundle_id: com.nothingmagical.whiskey
+  developer: Sam Soffes
+  input_path: http://usewhiskey.com/latest
+
+- app_name: WiFi Explorer
+  bundle_id: com.adriangranados.wifiexplorer
+  developer: Adrian Granados-Murillo
+  input_path: https://www.adriangranados.com/appcasts/wifiexplorercast.xml
+
+- app_name: WWDC
+  bundle_id: br.com.guilhermerambo.WWDC
+  developer: GUILHERME RAMBO
+  input_path: https://github.com/insidegui/WWDC/raw/master/Releases/appcast_v5.xml
+
+- app_name: Xmplify
+  bundle_id: au.com.moso.Xmplify
+  developer: MOSO Corporation
+  input_path: http://xmplifyapp.com/appcast.xml
+
+- app_name: xScope
+  bundle_id: com.iconfactory.xScope
+  developer: The Iconfactory
+  input_path: https://iconfactory.com/appcasts/xScope/appcast.xml
+
+- app_name: YakYak
+  bundle_id: com.github.yakyak
+  developer: ""
+  input_path: https://github.com/yakyak/yakyak
+
+- app_name: YemuZip
+  bundle_id: com.yellowmug.YemuZip
+  developer: Jay Teo
+  input_path: http://yellowmug.com/yemuzip/appcast.xml
+
+- app_name: ZAAPI
+  bundle_id: null
+  developer: Zoom Video Communications
+  input_path: https://zoom.us/client/latest/ZoomRooms.pkg
