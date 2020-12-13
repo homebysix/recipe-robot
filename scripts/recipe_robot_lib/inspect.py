@@ -1187,8 +1187,8 @@ def inspect_download_url(input_path, args, facts):
 
     # Just in case the "download" was actually an XML response.
     with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
-        file_head = download_file.read(150).lower()
-    if file_head[:6] == b"<?xml ":
+        file_head = download_file.read(256).lower()
+    if file_head.startswith(b"<?xml"):
         if b"xmlns:sparkle" in file_head:
             robo_print(
                 "Surprise! This download is actually a Sparkle feed.",
