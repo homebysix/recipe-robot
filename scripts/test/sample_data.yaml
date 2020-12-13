@@ -136,11 +136,6 @@
   developer: Rogue Amoeba Software
   input_path: https://d2oxtzozd38ts8.cloudfront.net/airfoil/download/Airfoil.zip
 
-- app_name: Airtame
-  bundle_id: com.airtame.airtame-application
-  developer: AIRTAME APS
-  input_path: http://downloads-cdn.airtame.com/application/ga/osx_x64/releases/airtame-application-3.1.1.dmg
-
 - app_name: Airtool
   bundle_id: com.adriangranados.Airtool
   developer: Adrian Granados-Murillo
@@ -1040,11 +1035,6 @@
   bundle_id: com.searchwaresolutions.PrintWindow
   developer: Scott Crick
   input_path: http://printwindowapp.com/software/printwindow.dmg
-
-- app_name: PritunlClient
-  bundle_id: com.pritunl.pkg.Pritunl
-  developer: Zachary Huff
-  input_path: https://github.com/pritunl/pritunl-client
 
 - app_name: ProfitTrain
   bundle_id: com.clickablebliss.ProfitTrain
