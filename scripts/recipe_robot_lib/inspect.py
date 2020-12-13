@@ -1507,7 +1507,10 @@ def get_most_likely_app(app_list):
         this_size = 0
         for dirpath, _, filenames in os.walk(candidate["path"]):
             for filename in filenames:
-                this_size += os.path.getsize(os.path.join(dirpath, filename))
+                try:
+                    this_size += os.path.getsize(os.path.join(dirpath, filename))
+                except FileNotFoundError as err:
+                    pass
         if this_size > largest_size:
             largest_size = this_size
             largest_index = index

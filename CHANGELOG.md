@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - Improved code signing authorities parsing, which should allow Recipe Robot to capture developer names and team identifiers in some situations where it would not previously.
 - Fixed a bug that would prevent using Sparkle URLs hosted on updates.devmate.com as input.
+- Gracefully handle missing file errors during pkg inspection.
 
 ### Removed
 
