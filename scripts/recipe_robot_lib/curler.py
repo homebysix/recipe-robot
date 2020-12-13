@@ -314,7 +314,7 @@ def check_url(url, headers=None):
 
     # Switch to HTTPS if possible.
     if url.startswith("http:"):
-        robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
+        robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE, 4)
         head, retcode = get_headers("https" + url[4:], headers=headers)
         if retcode == 0 and int(head.get("http_result_code")) < 400:
             url = "https" + url[4:]
