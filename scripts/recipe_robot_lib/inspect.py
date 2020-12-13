@@ -1249,19 +1249,19 @@ def inspect_download_url(input_path, args, facts):
             "is. I'll try guessing, but this could cause problems later."
         )
 
-    robo_print("Trying file as a disk image...", LogLevel.VERBOSE, 4)
+    robo_print("Trying file as a disk image...", LogLevel.VERBOSE)
     facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
     if "disk_image" in facts["inspections"]:
         facts["download_format"] = "dmg"
         return facts
 
-    robo_print("Trying file as an archive...", LogLevel.VERBOSE, 4)
+    robo_print("Trying file as an archive...", LogLevel.VERBOSE)
     facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
     if "archive" in facts["inspections"]:
         facts["download_format"] = "zip"
         return facts
 
-    robo_print("Trying file as an installer...", LogLevel.VERBOSE, 4)
+    robo_print("Trying file as an installer...", LogLevel.VERBOSE)
     facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
     if "pkg" in facts["inspections"]:
         facts["download_format"] = "pkg"
