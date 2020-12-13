@@ -707,6 +707,8 @@ def inspect_archive(input_path, args, facts):
         "succeeded.)" % input_path,
         LogLevel.DEBUG,
     )
+    # Remove inspection from facts, since we weren't successful.
+    facts["inspections"].remove("archive")
     return facts
 
 
@@ -996,6 +998,8 @@ def inspect_disk_image(input_path, args, facts):
             "archive succeeds.)" % (input_path, err),
             LogLevel.DEBUG,
         )
+        # Remove inspection from facts, since we weren't successful.
+        facts["inspections"].remove("disk_image")
 
     return facts
 
