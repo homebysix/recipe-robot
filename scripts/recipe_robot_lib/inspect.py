@@ -1141,11 +1141,11 @@ def inspect_download_url(input_path, args, facts):
     # download URLs and use URLTextSearcher.
     if "content-type" in head:
         content_type = head["content-type"]
+        robo_print("Download content-type is %s" % content_type, LogLevel.VERBOSE, 4)
         if not content_type.startswith(("binary/", "application/", "file/")):
             facts["warnings"].append(
-                "This download's Content-Type ({}) is unusual for a download.".format(
-                    content_type
-                )
+                "This download's content-type (%s) is unusual "
+                "for a download." % content_type
             )
 
     # Get the actual filename from the server, if it exists.
