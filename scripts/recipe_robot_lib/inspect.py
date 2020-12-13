@@ -1208,14 +1208,6 @@ def inspect_download_url(input_path, args, facts):
     if "download_format" in facts and "app" in facts["inspections"]:
         return facts
 
-    robo_print(
-        "Download format is unknown, so we're going to try mounting it as a disk image "
-        "first, then unarchiving it. This may produce errors, but will hopefully "
-        "result in a success.",
-        LogLevel.DEBUG,
-    )
-    robo_print("Opening downloaded file...", LogLevel.VERBOSE)
-
     # If the file is a webpage (e.g. 404 message), warn the user now.
     with open(os.path.join(CACHE_DIR, filename), "rb") as download:
         if b"html" in download.read(30).lower():
@@ -1224,33 +1216,53 @@ def inspect_download_url(input_path, args, facts):
                 "Looks like a webpage was downloaded instead."
             )
 
-    # Open the disk image (or test to see whether the download is one).
-    if (
-        facts.get("download_format", "") == "" or download_format == ""
-    ) or download_format in SUPPORTED_IMAGE_FORMATS:
-        facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    # If we know what format the downloaded file is, inspect it.
+    if download_format in SUPPORTED_IMAGE_FORMATS:
+        return inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    elif download_format in SUPPORTED_ARCHIVE_FORMATS:
+        return inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    elif download_format in SUPPORTED_INSTALL_FORMATS:
+        return inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
 
-    # Open the zip archive (or test to see whether the download is one).
-    if (
-        facts.get("download_format", "") == "" or download_format == ""
-    ) or download_format in SUPPORTED_ARCHIVE_FORMATS:
-        facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    # If download format is unknown, use content-type as a hint.
+    if head.get("content-type") in (
+        "application/zip",
+        "application/gzip",
+        "application/x-bzip",
+        "application/x-bzip2",
+    ):
+        facts["download_format"] = "zip"
+        robo_print("Content-type is zip", LogLevel.VERBOSE, 4)
+        return inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    elif head.get("content-type") == "application/vnd.apple.installer+xml":
+        facts["download_format"] = "pkg"
+        robo_print("Content-type is pkg", LogLevel.VERBOSE, 4)
+        return inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
 
-    # Inspect the installer (or test to see whether the download is
-    # one).
-    if download_format in SUPPORTED_INSTALL_FORMATS:
-
-        robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
-        facts["download_format"] = download_format
-
-        # Inspect the package.
-        facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
-
+    # If we still don't know the download format at this point, just guess.
+    # The inspect_disk_image(), inspect_archive(), and inspect_pkg() functions
+    # are designed to remove themselves from facts["inspections"] if their
+    # inspection is ultimately unsuccessful, so we can use that as a hint.
     if facts.get("download_format", "") == "":
         facts["warnings"].append(
-            "I've investigated pretty thoroughly, and I'm still not sure "
-            "what the download format is. This could cause problems later."
+            "At this point I'm still not sure what the download format "
+            "is. I'll try guessing, but this could cause problems later."
         )
+
+    robo_print("Trying file as a disk image...", LogLevel.VERBOSE, 4)
+    facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    if "disk_image" in facts["inspections"]:
+        facts["download_format"] = "dmg"
+
+    robo_print("Trying file as an archive...", LogLevel.VERBOSE, 4)
+    facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    if "archive" in facts["inspections"]:
+        facts["download_format"] = "zip"
+
+    robo_print("Trying file as an installer...", LogLevel.VERBOSE, 4)
+    facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
+    if "pkg" in facts["inspections"]:
+        facts["download_format"] = "pkg"
 
     return facts
 
