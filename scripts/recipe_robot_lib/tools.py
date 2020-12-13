@@ -96,12 +96,16 @@ PREFERENCE_KEYS = (
 )
 
 # Global variables.
+
+# Cache directory location.
 CACHE_DIR = os.path.join(
     os.path.expanduser("~/Library/Caches/Recipe Robot"),
     datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"),
 )
+
 color_setting = False
 
+# Domains associated with GitHub.
 GITHUB_DOMAINS = ("github.com", "githubusercontent.com", "github.io")
 
 # Domains that return HTTP 403 upon HEAD request.
