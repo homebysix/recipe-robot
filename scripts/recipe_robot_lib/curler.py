@@ -30,7 +30,13 @@ import subprocess
 from urllib.parse import urlparse
 
 from .exceptions import RoboError
-from .tools import GITHUB_DOMAINS, LogLevel, any_item_in_string, robo_print
+from .tools import (
+    GITHUB_DOMAINS,
+    KNOWN_403_ON_HEAD,
+    LogLevel,
+    any_item_in_string,
+    robo_print,
+)
 
 
 def prepare_curl_cmd():
@@ -324,16 +330,34 @@ def check_url(url, headers=None):
 
     # Try to mitigate errors.
     if http_result == 403:
-        headers["user-agent"] = (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) "
+
+        ua_safari = (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/605.1.15 (KHTML, like Gecko) "
-            "Version/13.0.5 Safari/605.1.15"
+            "Version/14.0.1 Safari/605.1.15"
         )
-        head, retcode = get_headers(url, headers=headers)
-        if int(head.get("http_result_code")) < 400:
-            robo_print(
-                "Using Safari user-agent.", LogLevel.VERBOSE, 4,
-            )
-            return url, head, headers["user-agent"]
+        ua_chrome = (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/87.0.4280.88 Safari/537.36"
+        )
+
+        # Devmate URLs require a user-agent and don't need a HEAD check first.
+        if "updates.devmate.com" in url:
+            return url, head, ua_safari
+
+        # Skip domains for which 403 is a known false positive on HEAD check.
+        if any((x in url for x in KNOWN_403_ON_HEAD)):
+            return url, head, None
+
+        # Try again with alternate user-agents.
+        for ua in (ua_safari, ua_chrome):
+            headers["user-agent"] = ua
+            head, retcode = get_headers(url, headers=headers)
+            if int(head.get("http_result_code")) < 400:
+                robo_print(
+                    "Using browser user-agent.", LogLevel.VERBOSE, 4,
+                )
+                return url, head, headers["user-agent"]
 
     return url, head, None

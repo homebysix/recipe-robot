@@ -104,6 +104,14 @@ color_setting = False
 
 GITHUB_DOMAINS = ("github.com", "githubusercontent.com", "github.io")
 
+# Domains that return HTTP 403 upon HEAD request.
+KNOWN_403_ON_HEAD = (
+    "bitbucket.org",
+    "github.com",
+    "hockeyapp.net",
+    "updates.devmate.com",
+)
+
 
 class LogLevel(object):
     """Correlate logging level of a message with designated colors for more
