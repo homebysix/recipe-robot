@@ -44,6 +44,7 @@ from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
     CACHE_DIR,
     GITHUB_DOMAINS,
+    KNOWN_403_ON_HEAD,
     SUPPORTED_ARCHIVE_FORMATS,
     SUPPORTED_BUNDLE_TYPES,
     SUPPORTED_IMAGE_FORMATS,
@@ -1098,10 +1099,9 @@ def inspect_download_url(input_path, args, facts):
     # Check to make sure URL is valid, and switch to HTTPS if possible.
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
-    known_403_on_head = ("bitbucket.org", "github.com", "hockeyapp.net")
     http_result_code = int(head.get("http_result_code"))
     if http_result_code >= 400:
-        if not any((x in checked_url for x in known_403_on_head)):
+        if not any((x in checked_url for x in KNOWN_403_ON_HEAD)):
             facts["warnings"].append(
                 "Error encountered during file download HEAD check. (%s)"
                 % int(head.get("http_result_code"))
