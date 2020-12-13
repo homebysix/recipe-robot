@@ -1253,11 +1253,13 @@ def inspect_download_url(input_path, args, facts):
     facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
     if "disk_image" in facts["inspections"]:
         facts["download_format"] = "dmg"
+        return facts
 
     robo_print("Trying file as an archive...", LogLevel.VERBOSE, 4)
     facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
     if "archive" in facts["inspections"]:
         facts["download_format"] = "zip"
+        return facts
 
     robo_print("Trying file as an installer...", LogLevel.VERBOSE, 4)
     facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
