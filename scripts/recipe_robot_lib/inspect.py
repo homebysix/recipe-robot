@@ -66,6 +66,19 @@ except ImportError:
 # Initialize token for GitHub authorizations, if it exists.
 GITHUB_TOKEN = get_github_token()
 
+# List of MIME types associated with file formats Recipe Robot can process.
+# Note: This list is not comprehensive, and may need to expand over time.
+DOWNLOAD_MIME_TYPES = {
+    "dmg": ("application/x-apple-diskimage",),
+    "zip": (
+        "application/gzip",
+        "application/x-bzip",
+        "application/x-bzip2",
+        "application/zip",
+    ),
+    "pkg": ("application/vnd.apple.installer+xml",),
+}
+
 
 def process_input_path(facts):
     """Determine which functions to call based on type of input path.
@@ -1225,24 +1238,24 @@ def inspect_download_url(input_path, args, facts):
         return inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
 
     # If download format is unknown, use content-type as a hint.
-    if head.get("content-type") in (
-        "application/zip",
-        "application/gzip",
-        "application/x-bzip",
-        "application/x-bzip2",
-    ):
+    if head.get("content-type") in DOWNLOAD_MIME_TYPES["dmg"]:
+        facts["download_format"] = "dmg"
+        robo_print("Download format is probably a dmg", LogLevel.VERBOSE, 4)
+        return inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    elif head.get("content-type") in DOWNLOAD_MIME_TYPES["zip"]:
         facts["download_format"] = "zip"
-        robo_print("Content-type is zip", LogLevel.VERBOSE, 4)
+        robo_print("Download format is probably an archive", LogLevel.VERBOSE, 4)
         return inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
-    elif head.get("content-type") == "application/vnd.apple.installer+xml":
+    elif head.get("content-type") in DOWNLOAD_MIME_TYPES["pkg"]:
         facts["download_format"] = "pkg"
-        robo_print("Content-type is pkg", LogLevel.VERBOSE, 4)
+        robo_print("Download format is probably a pkg", LogLevel.VERBOSE, 4)
         return inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
 
     # If we still don't know the download format at this point, just guess.
     # The inspect_disk_image(), inspect_archive(), and inspect_pkg() functions
     # are designed to remove themselves from facts["inspections"] if their
-    # inspection is ultimately unsuccessful, so we can use that as a hint.
+    # inspection is ultimately unsuccessful, so we can use the presence of
+    # an inspection as a hint.
     if facts.get("download_format", "") == "":
         facts["warnings"].append(
             "At this point I'm still not sure what the download format "
@@ -1962,13 +1975,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         )
 
     # If checked URL looks like a file download, inspect that instead.
-    # Note: This list is not comprehensive, and may need to expand over time.
-    download_types = (
-        "application/zip",
-        "application/x-bzip2",
-        "application/x-apple-diskimage",
-        "application/vnd.apple.installer+xml",
-    )
+    download_types = []
+    for fmt_types in DOWNLOAD_MIME_TYPES.values():
+        download_types.extend(fmt_types)
     if head.get("content-type") in download_types:
         robo_print(
             "Server responded with a file download (type: %s). "
