@@ -316,7 +316,10 @@ def check_url(url, headers=None):
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
         head, retcode = get_headers("https" + url[4:], headers=headers)
         if retcode == 0 and int(head.get("http_result_code")) < 400:
-            url = "https" + url[4:]
+            if head.get("http_redirected", "").startswith("https:"):
+                url = head["http_redirected"]
+            else:
+                url = "https" + url[4:]
             robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
             return url, head, None
         else:

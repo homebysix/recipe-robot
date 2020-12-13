@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Fixed
 
 - Improved code signing authorities parsing, which should allow Recipe Robot to capture developer names and team identifiers in some situations where it would not previously.
+- In addition to its existing techniques, Recipe Robot now considers `http_redirected` responses for HTTPS URL and download format detection.
 
 ### Removed
 
