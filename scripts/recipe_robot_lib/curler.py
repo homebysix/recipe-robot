@@ -311,12 +311,14 @@ def check_url(url, headers=None):
             dictionary of the header response from the URL, and a placeholder
             None value.
     """
+
     # Switch to HTTPS if possible.
     if url.startswith("http:"):
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE)
         head, retcode = get_headers("https" + url[4:], headers=headers)
         if retcode == 0 and int(head.get("http_result_code")) < 400:
-            if head.get("http_redirected", "").startswith("https:"):
+            http_redirected = head.get("http_redirected")
+            if http_redirected and http_redirected.startswith("https:"):
                 url = head["http_redirected"]
             else:
                 url = "https" + url[4:]
