@@ -283,7 +283,8 @@ def get_headers(url, headers=None):
             and the curl return code.
     """
     curl_cmd = prepare_curl_cmd()
-    add_curl_headers(curl_cmd, headers)
+    if headers:
+        add_curl_headers(curl_cmd, headers)
     curl_cmd.extend(["--head", "--url", url])
     out, err, retcode = execute_curl(curl_cmd, text=True)
     parsed_headers = parse_headers(out, url=url)
