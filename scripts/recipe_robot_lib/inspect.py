@@ -1168,20 +1168,21 @@ def inspect_download_url(input_path, args, facts):
         "Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4
     )
 
-    # Just in case the "download" was actually a Sparkle feed.
-    hidden_sparkle = False
+    # Just in case the "download" was actually an XML response.
     with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
-        if download_file.read(6).lower() == b"<?xml ":
+        file_head = download_file.read(150).lower()
+    if file_head[:6] == b"<?xml ":
+        if b"<error>" in file_head:
+            facts["warnings"].append("Received an XML error response.")
+        if b"xmlns:sparkle" in file_head:
             robo_print(
-                "Surprise! This download is actually a Sparkle feed",
+                "Surprise! This download is actually a Sparkle feed.",
                 LogLevel.VERBOSE,
                 4,
             )
-            hidden_sparkle = True
-    if hidden_sparkle is True:
-        os.remove(os.path.join(CACHE_DIR, filename))
-        facts = inspect_sparkle_feed_url(checked_url, args, facts)
-        return facts
+            os.remove(os.path.join(CACHE_DIR, filename))
+            facts = inspect_sparkle_feed_url(checked_url, args, facts)
+            return facts
 
     # Try to determine the type of file downloaded. (Overwrites any
     # previous download_type, because the download URL is the most
