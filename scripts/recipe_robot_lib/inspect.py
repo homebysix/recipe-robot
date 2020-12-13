@@ -1172,8 +1172,6 @@ def inspect_download_url(input_path, args, facts):
     with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
         file_head = download_file.read(150).lower()
     if file_head[:6] == b"<?xml ":
-        if b"<error>" in file_head:
-            facts["warnings"].append("Received an XML error response.")
         if b"xmlns:sparkle" in file_head:
             robo_print(
                 "Surprise! This download is actually a Sparkle feed.",
@@ -1183,6 +1181,11 @@ def inspect_download_url(input_path, args, facts):
             os.remove(os.path.join(CACHE_DIR, filename))
             facts = inspect_sparkle_feed_url(checked_url, args, facts)
             return facts
+        elif b"<error>" in file_head:
+            facts["warnings"].append(
+                "There's a good chance that the file failed to download. "
+                "Looks like an XML file was downloaded instead."
+            )
 
     # Try to determine the type of file downloaded. (Overwrites any
     # previous download_type, because the download URL is the most
