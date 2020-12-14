@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+Nothing yet.
+
+## [2.2.0] - 2020-12-13
+
 ### Added
 
 - Recipe Robot now incorporates [Sparkle](https://sparkle-project.org) for keeping itself up to date. (#143)
@@ -357,7 +361,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/homebysix/recipe-robot/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/homebysix/recipe-robot/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/homebysix/recipe-robot/compare/v1.2.1...v2.0.0
 [1.2.1]: https://github.com/homebysix/recipe-robot/compare/v1.2.0...v1.2.1
