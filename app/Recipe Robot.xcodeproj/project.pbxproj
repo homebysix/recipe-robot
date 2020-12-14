@@ -240,6 +240,7 @@
 				8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */,
 				9F578138254F797800B9F2D8 /* Embed Frameworks */,
 				9F603905254F7CFC009BBF58 /* Run Script: Warn about outdated Carthage frameworks */,
+				8B153E052586F22C006D6C41 /* Run Script: Sign Sparkle framework */,
 			);
 			buildRules = (
 			);
@@ -336,6 +337,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		8B153E052586F22C006D6C41 /* Run Script: Sign Sparkle framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script: Sign Sparkle framework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Sign Sparkle again to ensure compatibility with hardened runtime\ncodesign --verbose --force --deep -o runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/AutoUpdate.app\"\n";
+		};
 		8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
