@@ -45,8 +45,6 @@ from recipe_robot_lib.tools import strip_dev_suffix
 # TODO (Shea): Mock up an "app" for testing purposes.
 # TODO (Shea): Add arguments to only produce certain RecipeTypes. This will
 # allow us to narrow the tests down.
-# TODO (Elliot): Build tests for AppStoreApp recipes, which don't have download
-# recipe parents.
 
 RECIPE_TYPES = ("download", "pkg", "munki", "install", "jss")
 
@@ -54,20 +52,26 @@ RECIPE_TYPES = ("download", "pkg", "munki", "install", "jss")
 def robot_runner(input_path):
     """For given input, run Recipe Robot and return the output recipes as dicts."""
 
-    retcode = subprocess.call(
-        ["./recipe-robot", "--ignore-existing", "--verbose", input_path]
+    proc = subprocess.run(
+        ["./recipe-robot", "--ignore-existing", "--verbose", input_path], check=False
     )
     assert_equal(
-        retcode, 0, "{}: Recipe Robot returned nonzero return code.".format(input_path)
+        proc.returncode,
+        0,
+        "{}: Recipe Robot returned nonzero return code.".format(input_path),
     )
 
 
 def autopkg_runner(recipe_path):
     """For given recipe path, run AutoPkg and make sure the return code is zero."""
 
-    retcode = subprocess.call(["/usr/local/bin/autopkg", "run", recipe_path, "--quiet"])
+    proc = subprocess.run(
+        ["/usr/local/bin/autopkg", "run", recipe_path, "--quiet"], check=False
+    )
     assert_equal(
-        retcode, 0, "{}: AutoPkg returned nonzero return code.".format(recipe_path)
+        proc.returncode,
+        0,
+        "{}: AutoPkg returned nonzero return code.".format(recipe_path),
     )
 
 

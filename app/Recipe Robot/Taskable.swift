@@ -45,20 +45,22 @@ protocol ChainableTask: CancelableTask {
 
 extension Taskable where Self: InteractableTaskable {
     var expectedPrompts: [String] {
-        return [ "y/n: ", "Y/N: ", "Password: " ]
+        return ["y/n: ", "Y/N: ", "Password: "]
     }
 }
 
 struct ProcessAssociatedData {
     static var cancellationHandlerTable: [Int32: CancellationHandler] = [:]
     static func removeCancellationHandler(for process: Process) {
-          cancellationHandlerTable[process.processIdentifier] = nil
+        cancellationHandlerTable[process.processIdentifier] = nil
     }
-    static func registerCancellationHandler(for process: Process, cancellationHandler: @escaping CancellationHandler) {
-          cancellationHandlerTable[process.processIdentifier] = cancellationHandler
-   }
+    static func registerCancellationHandler(
+        for process: Process, cancellationHandler: @escaping CancellationHandler
+    ) {
+        cancellationHandlerTable[process.processIdentifier] = cancellationHandler
+    }
     static func cancellationHandler(for process: Process) -> CancellationHandler? {
-         return cancellationHandlerTable[process.processIdentifier]
+        return cancellationHandlerTable[process.processIdentifier]
     }
 }
 
@@ -73,10 +75,11 @@ extension Process: ChainableTask, CancelableTask {
         ProcessAssociatedData.registerCancellationHandler(for: self, cancellationHandler: handler)
         if terminationHandler == nil {
             // terminationHandler may also be set in the func completed() below, so we don't want to overwrite that.
-            terminationHandler = ({
-                _ in
-                ProcessAssociatedData.removeCancellationHandler(for: self)
-            })
+            terminationHandler =
+                ({
+                    _ in
+                    ProcessAssociatedData.removeCancellationHandler(for: self)
+                })
 
         }
         return self
@@ -94,42 +97,45 @@ extension Process: ChainableTask, CancelableTask {
 
     func stderr(message: @escaping (String) -> Void) -> ChainableTask {
         let standardErrPipe = Pipe()
-        standardErrPipe.fileHandleForReading.readabilityHandler = ({
-            fh in
-            let data = fh.availableData
-            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
-                return
-            }
-            message(decoded)
-        })
+        standardErrPipe.fileHandleForReading.readabilityHandler =
+            ({
+                fh in
+                let data = fh.availableData
+                guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
+                    return
+                }
+                message(decoded)
+            })
         standardError = standardErrPipe
         return self
     }
 
     func stdout(message: @escaping (String) -> Void) -> ChainableTask {
         let standardOutPipe = Pipe()
-        standardOutPipe.fileHandleForReading.readabilityHandler = ({
-            fh in
-            let data = fh.availableData
-            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
-                return
-            }
-            message(decoded)
-        })
+        standardOutPipe.fileHandleForReading.readabilityHandler =
+            ({
+                fh in
+                let data = fh.availableData
+                guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
+                    return
+                }
+                message(decoded)
+            })
         standardOutput = standardOutPipe
         return self
     }
 
     func completed(complete: @escaping (Error?) -> Void) -> ChainableTask {
-        terminationHandler = ({
-            aTask in
-            if  aTask.terminationStatus != 0 {
-                complete(nil)
-            } else {
-                complete(Task.ErrorEnum.NonZeroExit)
-            }
-            ProcessAssociatedData.removeCancellationHandler(for: self)
-        })
+        terminationHandler =
+            ({
+                aTask in
+                if aTask.terminationStatus != 0 {
+                    complete(nil)
+                } else {
+                    complete(Task.ErrorEnum.NonZeroExit)
+                }
+                ProcessAssociatedData.removeCancellationHandler(for: self)
+            })
         return self
     }
 
@@ -179,53 +185,57 @@ class Task: Taskable, CancelableTask {
 
     func stderr(message: @escaping (String) -> Void) -> ChainableTask {
         let stdErrorPipe = Pipe()
-        stdErrorPipe.fileHandleForReading.readabilityHandler = ({
-            fh in
-            let data = fh.availableData
-            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
-                print("Unable to decode stderr.")
-                return
-            }
-            DispatchQueue.main.async {
-                message(decoded)
-            }
-        })
+        stdErrorPipe.fileHandleForReading.readabilityHandler =
+            ({
+                fh in
+                let data = fh.availableData
+                guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
+                    print("Unable to decode stderr.")
+                    return
+                }
+                DispatchQueue.main.async {
+                    message(decoded)
+                }
+            })
         self.process.standardError = stdErrorPipe
         return self
     }
 
     func stdout(message: @escaping (String) -> Void) -> ChainableTask {
         let stdOutPipe = Pipe()
-        stdOutPipe.fileHandleForReading.readabilityHandler = ({
-            fh in
-            let data = fh.availableData
-            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
-                print("Unable to decode stdout.")
-                return
-            }
-            DispatchQueue.main.async {
-                message(decoded)
-            }
-        })
+        stdOutPipe.fileHandleForReading.readabilityHandler =
+            ({
+                fh in
+                let data = fh.availableData
+                guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
+                    print("Unable to decode stdout.")
+                    return
+                }
+                DispatchQueue.main.async {
+                    message(decoded)
+                }
+            })
         self.process.standardOutput = stdOutPipe
         return self
     }
 
     func completed(complete: @escaping (Error?) -> Void) -> ChainableTask {
-        process.terminationHandler = ({
-            aTask in
+        process.terminationHandler =
+            ({
+                aTask in
 
-            let error: Error? = ( aTask.terminationStatus == 0 ) ? nil : Task.ErrorEnum.NonZeroExit
-            DispatchQueue.main.async {
-                complete(error)
-            }
-            if let stdErrorPipe = aTask.standardError as? Pipe {
-                stdErrorPipe.fileHandleForReading.readabilityHandler = nil
-            }
-            if let stdOutPipe = aTask.standardOutput as? Pipe {
-                stdOutPipe.fileHandleForReading.readabilityHandler = nil
-            }
-        })
+                let error: Error? =
+                    (aTask.terminationStatus == 0) ? nil : Task.ErrorEnum.NonZeroExit
+                DispatchQueue.main.async {
+                    complete(error)
+                }
+                if let stdErrorPipe = aTask.standardError as? Pipe {
+                    stdErrorPipe.fileHandleForReading.readabilityHandler = nil
+                }
+                if let stdOutPipe = aTask.standardOutput as? Pipe {
+                    stdOutPipe.fileHandleForReading.readabilityHandler = nil
+                }
+            })
         return self
     }
 
@@ -275,10 +285,11 @@ class InteractiveTask: Task, InteractableTaskable {
     private var inHandler: ((String) -> (String)?)?
 
     func isInteractive(string: String) -> Bool {
-        return expectedPrompts.filter({
-            val in
-            return string.lowercased().hasSuffix(val.lowercased())
-        }).count > 0
+        return
+            expectedPrompts.filter({
+                val in
+                return string.lowercased().hasSuffix(val.lowercased())
+            }).count > 0
     }
 
     func stdin(message: @escaping (String) -> (String)?) -> Self {
@@ -288,37 +299,39 @@ class InteractiveTask: Task, InteractableTaskable {
 
     func stdout(message: @escaping (String) -> Void) -> Self {
         let standardOutPipe = Pipe()
-        standardOutPipe.fileHandleForReading.readabilityHandler = ({ [weak self]
-            fh in
-            guard let _self = self else {
-                return
-            }
-            let data = fh.availableData
-            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
-                return
-            }
-
-            if _self.isInteractive(string: decoded) {
-                guard let inputHandler = _self.inHandler else {
+        standardOutPipe.fileHandleForReading.readabilityHandler =
+            ({
+                [weak self]
+                fh in
+                guard let _self = self else {
                     return
                 }
-                guard let results = inputHandler(decoded) else {
+                let data = fh.availableData
+                guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
                     return
                 }
-                if results.isEmpty && _self.process.isRunning {
-                    guard let data = results.data(using: String.Encoding.utf8) else {
-                        return
-                    }
-                    guard let stdInputPipe = _self.process.standardInput as? Pipe else {
-                        return
-                    }
 
-                    stdInputPipe.fileHandleForWriting.write(data)
+                if _self.isInteractive(string: decoded) {
+                    guard let inputHandler = _self.inHandler else {
+                        return
+                    }
+                    guard let results = inputHandler(decoded) else {
+                        return
+                    }
+                    if results.isEmpty && _self.process.isRunning {
+                        guard let data = results.data(using: String.Encoding.utf8) else {
+                            return
+                        }
+                        guard let stdInputPipe = _self.process.standardInput as? Pipe else {
+                            return
+                        }
+
+                        stdInputPipe.fileHandleForWriting.write(data)
+                    }
+                } else {
+                    message(decoded)
                 }
-            } else {
-                message(decoded)
-            }
-        })
+            })
         self.process.standardOutput = standardOutPipe
         return self
     }

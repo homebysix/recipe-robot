@@ -47,7 +47,7 @@ extension String {
 private let BracketedColorDict = [
     "[ERROR]": Color.Red.ns,
     "[WARNING]": Color.Yellow.ns,
-    "[REMINDER]": Color.Green.ns
+    "[REMINDER]": Color.Green.ns,
 ]
 
 extension String {
@@ -61,7 +61,8 @@ extension String {
     }
 
     var bracketedColor: NSAttributedString {
-        return NSAttributedString(string: self,
-                                  attributes: [NSAttributedString.Key.foregroundColor: color])
+        return NSAttributedString(
+            string: self,
+            attributes: [NSAttributedString.Key.foregroundColor: color])
     }
 }

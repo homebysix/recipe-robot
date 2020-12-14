@@ -22,11 +22,17 @@ import Cocoa
 class FeedMeDropImageView: NSImageView {
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        guard let controller = sender.draggingDestinationWindow?.contentViewController as? FeedMeViewController else {
+        guard
+            let controller = sender.draggingDestinationWindow?.contentViewController
+                as? FeedMeViewController
+        else {
             print("failed coercing contentViewController to FeedMeViewController")
             return true
         }
-        guard let files = sender.draggingPasteboard.propertyList(forType: NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")) as? NSArray else {
+        guard
+            let files = sender.draggingPasteboard.propertyList(
+                forType: NSPasteboard.PasteboardType(rawValue: "NSFilenamesPboardType")) as? NSArray
+        else {
             print("failed coercing NSFilenamesPboardType to NSArray")
             return true
         }

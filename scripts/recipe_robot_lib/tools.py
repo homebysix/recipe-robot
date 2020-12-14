@@ -54,7 +54,7 @@ from .exceptions import RoboError
 # pylint: enable=no-name-in-module
 
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 ENDC = "\033[0m"
 BUNDLE_ID = "com.elliotjordan.recipe-robot"
 PREFS_FILE = os.path.expanduser("~/Library/Preferences/%s.plist" % BUNDLE_ID)
@@ -89,20 +89,37 @@ PREFERENCE_KEYS = (
     "RecipeIdentifierPrefix",
     "RecipeTypes",
     "StripDeveloperSuffixes",
+    "SUEnableAutomaticChecks",
+    "SUHasLaunchedBefore",
+    "SULastCheckTime",
+    "SUSendProfileInfo",
 )
 
 # Global variables.
+
+# Cache directory location.
 CACHE_DIR = os.path.join(
     os.path.expanduser("~/Library/Caches/Recipe Robot"),
     datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"),
 )
+
 color_setting = False
 
+# Domains associated with GitHub.
 GITHUB_DOMAINS = ("github.com", "githubusercontent.com", "github.io")
+
+# Domains that return HTTP 403 upon HEAD request.
+KNOWN_403_ON_HEAD = (
+    "bitbucket.org",
+    "github.com",
+    "hockeyapp.net",
+    "updates.devmate.com",
+)
 
 
 class LogLevel(object):
-    """Specify colors that are used in Terminal output."""
+    """Correlate logging level of a message with designated colors for more
+    readable output in Terminal."""
 
     DEBUG = ("\033[95m", "DEBUG")
     ERROR = ("\033[1;38;5;196m", "ERROR")
@@ -143,8 +160,12 @@ class OutputMode(object):
 def timed(func):
     """Decorator for timing a function.
 
-    Modifies func to return a tuple of:
-        (execution time, original func's return value)
+    Args:
+        func (func): Function to be timed.
+
+    Returns:
+        float: Number of seconds taken by function execution.
+        type varies: Original return value of the function.
     """
 
     @wraps(func)
@@ -163,8 +184,11 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
     debug output if debug_mode is True.
 
     Args:
-        log_level: LogLevel property for desired loglevel.
-        message: String to be printed to output.
+        message (str): Message to be printed to output.
+        log_level (LogLevel, optional): Object representing logging level,
+            which is used to colorize output in Terminal.
+        indent (int, optional): Indentation level, in number of spaces.
+            Defaults to 0.
     """
     color = log_level[0] if color_setting else ""
     indents = indent * " "
@@ -194,7 +218,11 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
 
 
 def get_github_token():
-    """Return AutoPkg GitHub token, if file exists."""
+    """Return AutoPkg GitHub token, if file exists.
+
+    Returns:
+        str or None: AutoPkg token contents, or None if no token file exists.
+    """
     # TODO: Also check for GITHUB_TOKEN preference.
     github_token_file = os.path.expanduser("~/.autopkg_gh_token")
     if os.path.isfile(github_token_file):
@@ -209,7 +237,14 @@ def get_github_token():
 
 
 def strip_dev_suffix(dev):
-    """Removes corporation suffix from developer names, if present."""
+    """Removes corporation suffix from developer names, if present.
+
+    Args:
+        dev (str): Name of app developer.
+
+    Returns:
+        str: Name of app developer with suffixes stripped.
+    """
     corp_suffixes = (
         "incorporated",
         "corporation",
@@ -245,6 +280,15 @@ def strip_dev_suffix(dev):
 def get_bundle_name_info(facts):
     """Returns the key used to store the bundle name. This is usually "app_name"
     but could be "prefpane_name". If both exist in facts, "app_name" wins.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+
+    Returns:
+        string or None: Bundle type (e.g. "app" or "prefpane").
+        string or None: Bundle name key (e.g. "app_name" or "prefpane_name")
     """
     if "app" in facts["inspections"]:
         bundle_type = "app"
@@ -257,7 +301,17 @@ def get_bundle_name_info(facts):
 
 
 def recipe_dirpath(app_name, dev, prefs):
-    """Returns a macOS-friendly path to use for recipes."""
+    """Returns a macOS-friendly path to use for recipes.
+
+    Args:
+        app_name (str): Name of the app.
+        dev (str): Name of the app developer.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+
+    Returns:
+        str: Path at which Recipe Robot will output recipes for this app.
+    """
     # Special characters that shouldn't be in macOS file/folder names.
     char_replacements = (("/", "-"), ("\\", "-"), (":", "-"), ("*", "-"), ("?", ""))
     for char in char_replacements:
@@ -282,7 +336,10 @@ def create_dest_dirs(path):
     be created too.
 
     Args:
-        path: The path to the directory that needs to be created.
+        path (str): Path to which recipes will be exported.
+
+    Raises:
+        RoboError: Standard exception raised when Recipe Robot cannot proceed.
     """
     dest_dir = os.path.expanduser(path)
     if not os.path.exists(dest_dir):
@@ -298,9 +355,10 @@ def extract_app_icon(facts, png_path):
     as of 2015-08-01.
 
     Args:
-        facts: Dictionary with key "icon_path", value: string path to
-            icon.
-        png_path: The path to the .png file we're creating.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path. The "icon_path" key is required for this function.
+        png_path (str): The path to the .png file we're creating.
     """
     icon_path = facts["icon_path"]
     png_path_absolute = os.path.expanduser(png_path)
@@ -329,12 +387,15 @@ def get_exitcode_stdout_stderr(cmd, stdin="", text=True):
     """Execute the external command and get its exitcode, stdout and stderr.
 
     Args:
-        cmd: The shell command to be executed.
+        cmd (str): Shell command to execute, to be split with shlex.split().
+        stdin (str, optional): Standard input. Defaults to "".
+        text (bool, optional): Return text string instead of bytes.
+            Defaults to True.
 
     Returns:
-        exitcode: Zero upon success. Non-zero upon error.
-        out: String from standard output.
-        err: String from standard error.
+        int: Exit code of command.
+        str: Standard output produced by the command.
+        str: Standard error produced by the command.
     """
     robo_print("Shell command: %s" % cmd, LogLevel.DEBUG, 4)
     try:
@@ -382,7 +443,7 @@ def print_welcome_text():
 
 
 def print_death_text():
-    """Print the text that appears when you RoboError out."""
+    """Print the text that appears when a RoboError is raised."""
     death_text = """
                                     _[]_
                                     [xx]
@@ -394,16 +455,17 @@ def print_death_text():
 
 
 def reset_term_colors():
-    """Ensure terminal colors are normal."""
+    """Reset terminal colors back to normal."""
     sys.stdout.write(ENDC)
 
 
-def write_report(report, report_file):
-    with open(report_file, "wb") as openfile:
-        plistlib.dump(report, openfile)
-
-
 def get_user_defaults():
+    """Get the user preferences for Recipe Robot.
+
+    Returns:
+        dict: The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+    """
     prefs_dict = {
         key: CFPreferencesCopyAppValue(key, BUNDLE_ID) for key in PREFERENCE_KEYS
     }
@@ -411,6 +473,12 @@ def get_user_defaults():
 
 
 def save_user_defaults(prefs):
+    """Write the user preferences for Recipe Robot back to disk.
+
+    Args:
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+    """
     # Clean up non Recipe Robot related keys that were accidentally collected from the
     # global preferences by prior versions of Recipe Robot.
     cfprefs_keylist = CFPreferencesCopyKeyList(
@@ -429,7 +497,15 @@ def save_user_defaults(prefs):
 
 
 def any_item_in_string(items, test_string):
-    """Return true if any item in items is in test_string"""
+    """Return true if any item in items is in test_string
+
+    Args:
+        items ([str]): List of strings to compare against test_string.
+        test_string (str): String to search for the items.
+
+    Returns:
+        bool: True if any item exists in test_string, False otherwise.
+    """
     return any([True for item in items if item in test_string])
 
 
@@ -437,10 +513,12 @@ def create_existing_recipe_list(facts):
     """Use autopkg search results to build existing recipe list.
 
     Args:
-        facts: The Facts instance containing all of our information.
-            Required keys:
-                app_name: The app's name.
-                recipes: The recipes to build.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path. The "app_name" and "recipes" keys are required.
+
+    Raises:
+        RoboError: Standard exception raised when Recipe Robot cannot proceed.
     """
     app_name = facts["app_name"]
     recipes = facts["recipes"]
@@ -507,8 +585,10 @@ def congratulate(prefs, first_timer):
     """Display a friendly congratulatory message upon creating recipes.
 
     Args:
-        prefs: A dictionary containing a key/value pair for each
-            preference.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        first_timer (bool): True if this is the first time the user has run
+            Recipe Robot.
     """
     congrats_msg = (
         "Amazing.",
@@ -548,4 +628,10 @@ def congratulate(prefs, first_timer):
 
 
 def robo_join(*args):
+    """Wrapper function that creates a path from string components, and then
+    converts the path to user-relative.
+
+    Returns:
+        str: Joined and user-relative file path.
+    """
     return os.path.expanduser(os.path.join(*args))

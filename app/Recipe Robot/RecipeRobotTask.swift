@@ -67,8 +67,9 @@ class RecipeRobotTask: Task {
                 iconName = name
             } else if let more = dict["CFBundleIcons"] as? [String: AnyObject],
                 let evenMore = more["CFBundlePrimaryIcon"] as? [String: AnyObject],
-                let array = evenMore["CFBundleIconFiles"] as? [String], let name = array.last {
-                    iconName = name
+                let array = evenMore["CFBundleIconFiles"] as? [String], let name = array.last
+            {
+                iconName = name
             }
 
             if let iconName = iconName, let iconFile = appBundle?.pathForImageResource(iconName) {
@@ -90,7 +91,9 @@ class RecipeRobotTask: Task {
 
     private class func taskError(string: String, exitCode: Int32) -> NSError {
         print(string)
-        let error = NSError(domain: "recipe-robot", code: Int(exitCode), userInfo: [NSLocalizedDescriptionKey: string])
+        let error = NSError(
+            domain: "recipe-robot", code: Int(exitCode),
+            userInfo: [NSLocalizedDescriptionKey: string])
         return error
     }
 

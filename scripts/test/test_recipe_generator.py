@@ -17,8 +17,7 @@
 # limitations under the License.
 
 
-"""
-test_recipe_generator.py
+"""test_recipe_generator.py.
 
 Unit tests for recipe_generator.
 """
@@ -42,7 +41,8 @@ class TestRecipeGenerator(object):
     """Tests for the recipe_generator functions."""
 
     def test_get_code_signature_verifier_reqs(self):
-        """Ensure processor is properly configured."""
+        """Ensure CodeSignatureVerifier processor codesign_reqs arg is properly
+        configured."""
         test_facts = facts.Facts()
         req = "TEST"
         test_facts["codesign_reqs"] = req
@@ -55,7 +55,8 @@ class TestRecipeGenerator(object):
         assert_is_none(codesigverifier.expected_authority_names)
 
     def test_get_code_signature_verifier_expect_auth(self):
-        """Ensure processor is properly configured."""
+        """Ensure CodeSignatureVerifier processor codesign_authorities arg is
+        properly configured."""
         test_facts = facts.Facts()
         req = ["TEST1", "TEST2"]
         test_facts["codesign_authorities"] = req
@@ -68,6 +69,7 @@ class TestRecipeGenerator(object):
         assert_sequence_equal(codesigverifier.expected_authority_names, req)
 
     def test_needs_versioner(self):
+        """Test result of needs_versioner() function."""
         for format in SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS:
             true_facts = {"download_format": format, "sparkle_provides_version": False}
             assert_true(recipe_generator.needs_versioner(true_facts))

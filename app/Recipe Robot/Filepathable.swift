@@ -59,7 +59,9 @@ extension NSTextField: FilepathValidator {
         textColor = valid ? NSColor.black : NSColor.red
 
         guard let cell = cell as? NSTextFieldCell else { return valid }
-        guard let string = cell.placeholderAttributedString?.string ?? cell.placeholderString else { return valid }
+        guard let string = cell.placeholderAttributedString?.string ?? cell.placeholderString else {
+            return valid
+        }
 
         var attrs: [NSAttributedString.Key: Any]?
         let placeholderStringLength = cell.placeholderAttributedString?.string.count ?? 0

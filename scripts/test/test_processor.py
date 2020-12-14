@@ -52,12 +52,16 @@ class TestProcessor(object):
         munki_importer = processor.MunkiImporter()
         expected_variables = (
             "additional_makepkginfo_options",
+            "extract_icon",
+            "force_munki_repo_lib",
             "force_munkiimport",
             "metadata_additions",
             "MUNKI_PKGINFO_FILE_EXTENSION",
+            "MUNKI_REPO_PLUGIN",
             "MUNKI_REPO",
             "munkiimport_appname",
             "munkiimport_pkgname",
+            "MUNKILIB_DIR",
             "pkg_path",
             "pkginfo",
             "repo_subdirectory",

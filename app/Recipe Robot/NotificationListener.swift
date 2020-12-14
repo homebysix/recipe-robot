@@ -83,7 +83,8 @@ class NotificationListener: NSObject {
         super.init()
 
         for n in NoteType.cases {
-            center.addObserver(self, selector: #selector(NotificationListener.noticed(_:)),
+            center.addObserver(
+                self, selector: #selector(NotificationListener.noticed(_:)),
                 name: n.name,
                 object: nil)
         }
@@ -92,7 +93,8 @@ class NotificationListener: NSObject {
     init(noteTypes: [NoteType]) {
         super.init()
         for n in noteTypes {
-            center.addObserver(self, selector: #selector(NotificationListener.noticed(_:)),
+            center.addObserver(
+                self, selector: #selector(NotificationListener.noticed(_:)),
                 name: n.name,
                 object: nil)
         }
@@ -105,8 +107,9 @@ class NotificationListener: NSObject {
     @objc func noticed(_ note: NSNotification) {
         if let handler = notificationHandler {
             if let noteType = NoteType.fromName(name: note.name),
-               let dict = note.userInfo as? [String: AnyObject] {
-                   handler(noteType, dict)
+                let dict = note.userInfo as? [String: AnyObject]
+            {
+                handler(noteType, dict)
             }
         }
     }

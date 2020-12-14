@@ -44,6 +44,7 @@ from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
     CACHE_DIR,
     GITHUB_DOMAINS,
+    KNOWN_403_ON_HEAD,
     SUPPORTED_ARCHIVE_FORMATS,
     SUPPORTED_BUNDLE_TYPES,
     SUPPORTED_IMAGE_FORMATS,
@@ -65,15 +66,30 @@ except ImportError:
 # Initialize token for GitHub authorizations, if it exists.
 GITHUB_TOKEN = get_github_token()
 
+# List of MIME types associated with file formats Recipe Robot can process.
+# Note: This list is not comprehensive, and may need to expand over time.
+DOWNLOAD_MIME_TYPES = {
+    "dmg": ("application/x-apple-diskimage",),
+    "zip": (
+        "application/gzip",
+        "application/x-bzip",
+        "application/x-bzip2",
+        "application/zip",
+    ),
+    "pkg": ("application/vnd.apple.installer+xml",),
+}
+
 
 def process_input_path(facts):
     """Determine which functions to call based on type of input path.
 
     Args:
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
+
+    Raises:
+        RoboError: Standard exception raised when Recipe Robot cannot proceed.
     """
     args = facts["args"]
     # If --config was specified without an input path, stop here.
@@ -162,22 +178,23 @@ def process_input_path(facts):
 
 
 def inspect_app(input_path, args, facts, bundle_type="app"):
-    """Process an app
-
-    Gather information required to create a recipe.
+    """Process an app, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
-            to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        input_path (str): Path to the app on disk.
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
-        bundle_type: Type or file extension of the bundle we're inspecting.
-            Typically "app" but we also support "prefpane" and others.
+        bundle_type (str, optional): Type of bundle we are inspecting
+            (e.g. "app", "saver", "prefpane"). Defaults to "app".
+
+    Raises:
+        RoboError: Standard exception raised when Recipe Robot cannot proceed.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this app yet.
     if bundle_type in facts["inspections"]:
@@ -290,7 +307,6 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
     # Attempt to determine how to download this app.
     if bundle_type == "app" and "sparkle_feed" not in facts:
         sparkle_feed = ""
-        download_format = ""
         robo_print("Checking for a Sparkle feed...", LogLevel.VERBOSE)
         if "SUFeedURL" in info_plist:
             sparkle_feed = info_plist["SUFeedURL"]
@@ -403,41 +419,54 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         codesign_authorities = []
         developer = ""
         team_id = ""
-        codesign_version = ""
         robo_print("Gathering code signature information...", LogLevel.VERBOSE)
         cmd = '/usr/bin/codesign --display --verbose=2 -r- "{}"'.format(input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
+
             # From stdout:
             reqs_marker = "designated => "
             for line in out.splitlines():
                 if line.startswith(reqs_marker):
                     codesign_reqs = line[len(reqs_marker) :]
+
             # From stderr:
-            authority_marker = "Authority="
-            dev_r = r"Authority=.+: (?P<dev>.+) \((?P<team>.+)\)"
-            vers_marker = "Sealed Resources version="
-            for line in err.splitlines():
-                if line.startswith(authority_marker):
-                    codesign_authorities.append(line[len(authority_marker) :])
-                if not developer:
-                    dev_m = re.match(dev_r, line)
-                    if dev_m:
-                        developer = dev_m.groupdict()["dev"]
-                        team_id = dev_m.groupdict()["team"]
-                if line.startswith(vers_marker):
-                    codesign_version = line[len(vers_marker) : len(vers_marker) + 1]
-                    if codesign_version == "1":
-                        facts["warnings"].append(
-                            "This {} uses an obsolete code signature.".format(
-                                bundle_type
-                            )
-                        )
-                        # Clear code signature markers, treat app as
-                        # unsigned.
-                        codesign_reqs = ""
-                        codesign_authorities = []
-                        break
+            # Capture all code signing authorities.
+            authorities_r = r"Authority=(.+)"
+            authorities_m = re.findall(authorities_r, err)
+            if authorities_m:
+                codesign_authorities = authorities_m
+
+            # Capture both developer and team identifier.
+            dev_team_r = r"Authority=.+: (?P<dev>.+) \((?P<team>[0-9A-Z]{10})\)"
+            dev_team_m = re.search(dev_team_r, err)
+            if dev_team_m:
+                developer = dev_team_m.group("dev")
+                team_id = dev_team_m.group("team")
+
+            if not developer:
+                # Try to capture developer only.
+                dev_r = r"Authority=.+: (?P<dev>.+)"
+                dev_m = re.search(dev_r, err)
+                if dev_m:
+                    developer = dev_m.group("dev")
+
+            if not team_id:
+                # Try to capture team identifier only.
+                team_r = r"TeamIdentifier=(?P<team>[0-9A-Z]{10})"
+                team_m = re.search(team_r, err)
+                if team_m:
+                    team_id = team_m.group("team")
+
+            # Check for obsolete code signature version.
+            if "Sealed Resources version=1" in err:
+                facts["warnings"].append(
+                    "This {} uses an obsolete code signature.".format(bundle_type)
+                )
+                # Clear code signature markers, treat app as unsigned.
+                codesign_reqs = ""
+                codesign_authorities = []
+
         if codesign_reqs == "" and len(codesign_authorities) == 0:
             robo_print("This {} is not signed".format(bundle_type), LogLevel.VERBOSE, 4)
         else:
@@ -475,7 +504,14 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
 
 def html_decode(the_string):
     """Given a string, change HTML escaped characters (&gt;) to regular
-    characters (>)."""
+    characters (>).
+
+    Args:
+        the_string (str): String to decode.
+
+    Returns:
+        str: Decoded string.
+    """
     html_chars = (
         ("'", "&#39;"),
         ('"', "&quot;"),
@@ -492,11 +528,11 @@ def get_app_description(app_name):
     """Use an app's name to generate a description.
 
     Args:
-        app_name: The name of the app that we need to describe.
+        app_name (str): The name of the app that we need to describe.
 
     Returns:
-        description: A string containing a description of the app.
-        source: A string containing the source of the description.
+        str: A string containing a description of the app.
+        str: A string containing the source of the description.
     """
     desc_sources = [
         {
@@ -524,6 +560,14 @@ def get_app_description(app_name):
 def get_download_link_from_xattr(input_path, args, facts):
     """Attempts to derive download URL from the extended attribute (xattr)
     metadata.
+
+    Args:
+        input_path (str): The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
     """
     try:
         where_froms_string = xattr.getxattr(
@@ -544,20 +588,19 @@ def get_download_link_from_xattr(input_path, args, facts):
 
 
 def inspect_archive(input_path, args, facts):
-    """Process an archive
-
-    Gather information required to create a recipe.
+    """Process an archive, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "archive" in facts["inspections"]:
@@ -677,12 +720,23 @@ def inspect_archive(input_path, args, facts):
         "succeeded.)" % input_path,
         LogLevel.DEBUG,
     )
+    # Remove inspection from facts, since we weren't successful.
+    facts["inspections"].remove("archive")
     return facts
 
 
 def find_supported_release(release_array, download_url_key):
-    """Given an array of releases, find releases in supported formats."""
+    """Given an array of releases, find releases in supported formats.
 
+    Args:
+        release_array ([dict]): List of dicts with release information from an
+            API (e.g. GitHub).
+        download_url_key (str): The key used to store each release's download URL.
+
+    Returns:
+        string: The expected file format of the download URL.
+        string: The download URL.
+    """
     download_format = None
     download_url = None
 
@@ -697,20 +751,19 @@ def find_supported_release(release_array, download_url_key):
 
 
 def inspect_bitbucket_url(input_path, args, facts):
-    """Process a BitBucket URL
-
-    Gather information required to create a recipe.
+    """Process a BitBucket URL, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this BitBucket URL yet.
     if "bitbucket_url" in facts["inspections"]:
@@ -827,20 +880,19 @@ def inspect_bitbucket_url(input_path, args, facts):
 
 
 def inspect_disk_image(input_path, args, facts):
-    """Process an image
-
-    Gather information required to create a recipe.
+    """Process a disk image, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "disk_image" in facts["inspections"]:
@@ -918,6 +970,7 @@ def inspect_disk_image(input_path, args, facts):
                 # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
                 attached_app_path = os.path.join(dmg_mount, this_file)
                 cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
+                robo_print("Copying %s into cache..." % this_file, LogLevel.VERBOSE, 4)
                 if not os.path.exists(cached_app_path):
                     try:
                         shutil.copytree(attached_app_path, cached_app_path, True)
@@ -934,6 +987,7 @@ def inspect_disk_image(input_path, args, facts):
                 # Copy bundle to cache folder.
                 attached_app_path = os.path.join(dmg_mount, this_file)
                 cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
+                robo_print("Copying %s into cache..." % this_file, LogLevel.VERBOSE, 4)
                 if not os.path.exists(cached_app_path):
                     try:
                         shutil.copytree(attached_app_path, cached_app_path)
@@ -959,25 +1013,26 @@ def inspect_disk_image(input_path, args, facts):
             "archive succeeds.)" % (input_path, err),
             LogLevel.DEBUG,
         )
+        # Remove inspection from facts, since we weren't successful.
+        facts["inspections"].remove("disk_image")
 
     return facts
 
 
 def inspect_download_url(input_path, args, facts):
-    """Process a direct download URL
-
-    Gather information required to create a recipe.
+    """Process a download URL, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # We never skip download URL inspection, even if we've already
     # inspected a download URL during this run. This handles rare
@@ -1063,10 +1118,9 @@ def inspect_download_url(input_path, args, facts):
     # Check to make sure URL is valid, and switch to HTTPS if possible.
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
-    known_403_on_head = ("bitbucket.org", "github.com", "hockeyapp.net")
     http_result_code = int(head.get("http_result_code"))
     if http_result_code >= 400:
-        if not any((x in checked_url for x in known_403_on_head)):
+        if not any((x in checked_url for x in KNOWN_403_ON_HEAD)):
             facts["warnings"].append(
                 "Error encountered during file download HEAD check. (%s)"
                 % int(head.get("http_result_code"))
@@ -1102,11 +1156,11 @@ def inspect_download_url(input_path, args, facts):
     # download URLs and use URLTextSearcher.
     if "content-type" in head:
         content_type = head["content-type"]
+        robo_print("Download content-type is %s" % content_type, LogLevel.VERBOSE, 4)
         if not content_type.startswith(("binary/", "application/", "file/")):
             facts["warnings"].append(
-                "This download's Content-Type ({}) is unusual for a download.".format(
-                    content_type
-                )
+                "This download's content-type (%s) is unusual "
+                "for a download." % content_type
             )
 
     # Get the actual filename from the server, if it exists.
@@ -1133,20 +1187,24 @@ def inspect_download_url(input_path, args, facts):
         "Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4
     )
 
-    # Just in case the "download" was actually a Sparkle feed.
-    hidden_sparkle = False
+    # Just in case the "download" was actually an XML response.
     with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
-        if download_file.read(6).lower() == b"<?xml ":
+        file_head = download_file.read(256).lower()
+    if file_head.startswith(b"<?xml"):
+        if b"xmlns:sparkle" in file_head:
             robo_print(
-                "Surprise! This download is actually a Sparkle feed",
+                "Surprise! This download is actually a Sparkle feed.",
                 LogLevel.VERBOSE,
                 4,
             )
-            hidden_sparkle = True
-    if hidden_sparkle is True:
-        os.remove(os.path.join(CACHE_DIR, filename))
-        facts = inspect_sparkle_feed_url(checked_url, args, facts)
-        return facts
+            os.remove(os.path.join(CACHE_DIR, filename))
+            facts = inspect_sparkle_feed_url(checked_url, args, facts)
+            return facts
+        elif b"<error>" in file_head:
+            facts["warnings"].append(
+                "There's a good chance that the file failed to download. "
+                "Looks like an XML file was downloaded instead."
+            )
 
     # Try to determine the type of file downloaded. (Overwrites any
     # previous download_type, because the download URL is the most
@@ -1165,14 +1223,6 @@ def inspect_download_url(input_path, args, facts):
     if "download_format" in facts and "app" in facts["inspections"]:
         return facts
 
-    robo_print(
-        "Download format is unknown, so we're going to try mounting it as a disk image "
-        "first, then unarchiving it. This may produce errors, but will hopefully "
-        "result in a success.",
-        LogLevel.DEBUG,
-    )
-    robo_print("Opening downloaded file...", LogLevel.VERBOSE)
-
     # If the file is a webpage (e.g. 404 message), warn the user now.
     with open(os.path.join(CACHE_DIR, filename), "rb") as download:
         if b"html" in download.read(30).lower():
@@ -1181,52 +1231,73 @@ def inspect_download_url(input_path, args, facts):
                 "Looks like a webpage was downloaded instead."
             )
 
-    # Open the disk image (or test to see whether the download is one).
-    if (
-        facts.get("download_format", "") == "" or download_format == ""
-    ) or download_format in SUPPORTED_IMAGE_FORMATS:
-        facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    # If we know what format the downloaded file is, inspect it.
+    if download_format in SUPPORTED_IMAGE_FORMATS:
+        return inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    elif download_format in SUPPORTED_ARCHIVE_FORMATS:
+        return inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    elif download_format in SUPPORTED_INSTALL_FORMATS:
+        return inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
 
-    # Open the zip archive (or test to see whether the download is one).
-    if (
-        facts.get("download_format", "") == "" or download_format == ""
-    ) or download_format in SUPPORTED_ARCHIVE_FORMATS:
-        facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    # If download format is unknown, use content-type as a hint.
+    if head.get("content-type") in DOWNLOAD_MIME_TYPES["dmg"]:
+        facts["download_format"] = "dmg"
+        robo_print("Download format is probably a dmg", LogLevel.VERBOSE, 4)
+        return inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    elif head.get("content-type") in DOWNLOAD_MIME_TYPES["zip"]:
+        facts["download_format"] = "zip"
+        robo_print("Download format is probably an archive", LogLevel.VERBOSE, 4)
+        return inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    elif head.get("content-type") in DOWNLOAD_MIME_TYPES["pkg"]:
+        facts["download_format"] = "pkg"
+        robo_print("Download format is probably a pkg", LogLevel.VERBOSE, 4)
+        return inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
 
-    # Inspect the installer (or test to see whether the download is
-    # one).
-    if download_format in SUPPORTED_INSTALL_FORMATS:
-
-        robo_print("Download format is %s" % download_format, LogLevel.VERBOSE, 4)
-        facts["download_format"] = download_format
-
-        # Inspect the package.
-        facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
-
+    # If we still don't know the download format at this point, just guess.
+    # The inspect_disk_image(), inspect_archive(), and inspect_pkg() functions
+    # are designed to remove themselves from facts["inspections"] if their
+    # inspection is ultimately unsuccessful, so we can use the presence of
+    # an inspection as a hint.
     if facts.get("download_format", "") == "":
         facts["warnings"].append(
-            "I've investigated pretty thoroughly, and I'm still not sure "
-            "what the download format is. This could cause problems later."
+            "At this point I'm still not sure what the download format "
+            "is. I'll try guessing, but this could cause problems later."
         )
+
+    robo_print("Trying file as a disk image...", LogLevel.VERBOSE)
+    facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    if "disk_image" in facts["inspections"]:
+        facts["download_format"] = "dmg"
+        return facts
+
+    robo_print("Trying file as an archive...", LogLevel.VERBOSE)
+    facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    if "archive" in facts["inspections"]:
+        facts["download_format"] = "zip"
+        return facts
+
+    robo_print("Trying file as an installer...", LogLevel.VERBOSE)
+    facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
+    if "pkg" in facts["inspections"]:
+        facts["download_format"] = "pkg"
 
     return facts
 
 
 def inspect_github_url(input_path, args, facts):
-    """Process a GitHub URL
-
-    Gather information required to create a recipe.
+    """Process a GitHub URL, gathering information required to create AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this GitHub URL yet.
     if "github_url" in facts["inspections"]:
@@ -1383,7 +1454,19 @@ def inspect_github_url(input_path, args, facts):
 
 def get_apps_from_payload(payload_archive, facts, payload_id=0):
     """Given a path to a package payload, this function expands the payload
-    and returns the paths to the apps."""
+    and returns the paths to the apps.
+
+    Args:
+        payload_archive (str): Path to the payload archive.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        payload_id (int, optional): Index of the payload ID to get apps from,
+            if there are multiple payloads. Defaults to 0.
+
+    Returns:
+        [str]: List of paths to apps found in the payload.
+    """
     payload_apps = []
     payload_dir = os.path.join(CACHE_DIR, "payload%s" % payload_id)
     os.mkdir(payload_dir)
@@ -1396,7 +1479,7 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
     except OSError as err:
         facts["warnings"].append("Could not remove %s: %s" % (payload_archive, err))
 
-    for dirpath, dirnames, filenames in os.walk(payload_dir):
+    for dirpath, dirnames, _ in os.walk(payload_dir):
         for dirname in dirnames:
             if dirname.startswith("."):
                 dirnames.remove(dirname)
@@ -1411,7 +1494,15 @@ def get_most_likely_app(app_list):
     """Takes an array of dicts, each with a 'path' key that points to a
     potential app to be evaluated. Uses various criteria to make an educated
     guess about which app is the "real" app, and returns the index of the
-    winner. If no winner can be determined, returns None."""
+    winner. If no winner can be determined, returns None.
+
+    Args:
+        app_list ([dict]): List of dictionaries with app information,
+            including path.
+
+    Returns:
+        int or None: Index of the selected app, or None if no app was selected.
+    """
 
     # Criteria 1: If only one app has a Sparkle feed, choose that one.
     has_sparkle = []
@@ -1449,7 +1540,10 @@ def get_most_likely_app(app_list):
         this_size = 0
         for dirpath, _, filenames in os.walk(candidate["path"]):
             for filename in filenames:
-                this_size += os.path.getsize(os.path.join(dirpath, filename))
+                try:
+                    this_size += os.path.getsize(os.path.join(dirpath, filename))
+                except FileNotFoundError as err:
+                    pass
         if this_size > largest_size:
             largest_size = this_size
             largest_index = index
@@ -1457,20 +1551,20 @@ def get_most_likely_app(app_list):
 
 
 def inspect_pkg(input_path, args, facts):
-    """Process a package
-
-    Gather information required to create a recipe.
+    """Process an installer package, gathering information required to create
+    AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this pkg yet.
     if "pkg" in facts["inspections"]:
@@ -1636,7 +1730,6 @@ def inspect_pkg(input_path, args, facts):
                     facts["blocking_applications"].append(app)
 
         # Determine which app, if any, to process further.
-        payload_dir = os.path.join(CACHE_DIR, "payload")
         if len(found_apps) == 0:
             facts["warnings"].append("No apps found in payload.")
         elif len(found_apps) == 1:
@@ -1681,20 +1774,20 @@ def inspect_pkg(input_path, args, facts):
 
 
 def inspect_sourceforge_url(input_path, args, facts):
-    """Process a SourceForge URL
-
-    Gather information required to create a recipe.
+    """Process a SourceForge URL, gathering information required to create
+    AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this SourceForge URL yet.
     if "sourceforge_url" in facts["inspections"]:
@@ -1798,8 +1891,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Get the latest download URL.
         download_url = ""
         robo_print(
-            "Determining download URL from SourceForge RSS feed...",
-            LogLevel.VERBOSE,
+            "Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE,
         )
         for item in doc.iterfind("channel/item"):
             # TODO(Elliot): The extra-info tag is not a reliable
@@ -1829,20 +1921,20 @@ def inspect_sourceforge_url(input_path, args, facts):
 
 
 def inspect_sparkle_feed_url(input_path, args, facts):
-    """Process a Sparkle feed URL
-
-    Gather information required to create a recipe.
+    """Process a Sparkle feed URL, gathering information required to create
+    AutoPkg recipes.
 
     Args:
-        input_path: The path or URL that Recipe Robot was asked to use
+        input_path (str): The path or URL that Recipe Robot was asked to use
             to create recipes.
-        args: The command line arguments.
-        facts: A continually-updated dictionary containing all the
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
             information we know so far about the app associated with the
             input path.
 
     Returns:
-        facts dictionary.
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
     """
     # Only proceed if we haven't inspected this Sparkle feed yet.
     if "sparkle_feed_url" in facts["inspections"]:
@@ -1862,9 +1954,14 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Check to make sure URL is valid, and switch to HTTPS if possible.
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
+    # Remove Sparkle feed if it's not usable.
     http_result_code = int(head.get("http_result_code"))
-    if http_result_code >= 400 and http_result_code != 405:
-        # Remove Sparkle feed if it's not usable.
+    if http_result_code == 403:
+        if not any((x in checked_url for x in KNOWN_403_ON_HEAD)):
+            # 403 errors are false positives for specific domains.
+            facts.pop("sparkle_feed", None)
+            return facts
+    elif http_result_code >= 400 and http_result_code != 405:
         # 405 errors are often false positives that don't prevent subsequent GET.
         facts.pop("sparkle_feed", None)
         return facts
@@ -1878,6 +1975,18 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             '"Can\'t open URL" error, it means AutoPkg encountered '
             "the same problem."
         )
+
+    # If checked URL looks like a file download, inspect that instead.
+    download_types = []
+    for fmt_types in DOWNLOAD_MIME_TYPES.values():
+        download_types.extend(fmt_types)
+    if head.get("content-type") in download_types:
+        robo_print(
+            "Server responded with a file download (type: %s). "
+            "Processing as download URL instead..." % head["content-type"]
+        )
+        facts["inspections"].remove("sparkle_feed_url")
+        return inspect_download_url(checked_url, args, facts)
 
     if checked_url.startswith("http:"):
         facts["warnings"].append(
@@ -1936,9 +2045,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             )
     else:
         robo_print(
-            "The Sparkle feed does not provide a version number",
-            LogLevel.VERBOSE,
-            4,
+            "The Sparkle feed does not provide a version number", LogLevel.VERBOSE, 4,
         )
     facts["sparkle_provides_version"] = sparkle_provides_version
 
