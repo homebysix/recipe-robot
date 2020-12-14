@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - Recipe Robot now incorporates [Sparkle](https://sparkle-project.org) for keeping itself up to date. (#143)
 - The app is now built as a universal binary (however no testing on Macs with Apple Silicon has been done yet).
+- Verbose output now includes HTTP content-type and copying from disk images.
 
 ### Fixed
 

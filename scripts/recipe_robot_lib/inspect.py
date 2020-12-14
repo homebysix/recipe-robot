@@ -970,6 +970,7 @@ def inspect_disk_image(input_path, args, facts):
                 # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
                 attached_app_path = os.path.join(dmg_mount, this_file)
                 cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
+                robo_print("Copying %s into cache..." % this_file, LogLevel.VERBOSE, 4)
                 if not os.path.exists(cached_app_path):
                     try:
                         shutil.copytree(attached_app_path, cached_app_path, True)
@@ -986,6 +987,7 @@ def inspect_disk_image(input_path, args, facts):
                 # Copy bundle to cache folder.
                 attached_app_path = os.path.join(dmg_mount, this_file)
                 cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
+                robo_print("Copying %s into cache..." % this_file, LogLevel.VERBOSE, 4)
                 if not os.path.exists(cached_app_path):
                     try:
                         shutil.copytree(attached_app_path, cached_app_path)
