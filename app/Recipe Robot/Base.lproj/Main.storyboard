@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15702"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17506"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -328,7 +328,6 @@ DQ
                                             <tableColumns>
                                                 <tableColumn width="237" minWidth="40" maxWidth="1000" id="uXh-be-zZG">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Prefered recipe format">
-                                                        <font key="font" metaFont="cellTitle"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
@@ -665,12 +664,12 @@ DQ
             <point key="canvasLocation" x="926" y="831"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="Feed Me Drop Zone" width="1000" height="360"/>
-        <image name="NSActionTemplate" width="14" height="14"/>
-    </resources>
     <inferredMetricsTieBreakers>
         <segue reference="55O-go-axt"/>
         <segue reference="Iwp-Z9-6lj"/>
     </inferredMetricsTieBreakers>
+    <resources>
+        <image name="Feed Me Drop Zone" width="1000" height="360"/>
+        <image name="NSActionTemplate" width="14" height="14"/>
+    </resources>
 </document>
