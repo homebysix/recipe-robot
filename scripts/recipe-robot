@@ -307,7 +307,7 @@ def init_prefs(facts):
     else:
         # The prefs file doesn't exist or is missing required keys.
         # TODO: Rebuild only the missing keys, retaining the ones that already exist.
-        message = "No prefs file found. Building new preferences..."
+        message = "Some required prefs not set. Building new preferences..."
         facts["warnings"].append(message)
         prefs = build_prefs({}, facts)
 
