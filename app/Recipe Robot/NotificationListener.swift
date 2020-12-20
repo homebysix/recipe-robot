@@ -1,5 +1,5 @@
 //
-//  Notifications.swift
+//  NotificationListener.swift
 //
 //  Recipe Robot
 //  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
