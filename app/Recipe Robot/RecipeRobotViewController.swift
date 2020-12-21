@@ -139,17 +139,12 @@ class PreferenceViewController: RecipeRobotViewController {
     // MARK: IBOutlets
     @IBOutlet var tableView: NSTableView!
     @IBOutlet var scrollView: NSScrollView!
-
     @IBOutlet var dsFolderPathButton: NSButton!
     @IBOutlet weak var dsLabel: NSTextField!
     @IBOutlet weak var dsTextField: NSTextField!
-
     @IBOutlet var recipeFolderPathButton: NSButton!
-
     @IBOutlet weak var recipeLocation: NSTextField!
-
     @IBOutlet weak var jssCheckBox: NSButton!
-
     private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? Set<String>()
 
     // MARK: Overrides
