@@ -304,15 +304,26 @@ def init_prefs(facts):
             int(recipe_create_count) if recipe_create_count else 0
         )
 
-    else:
+    elif not args.app_mode:
         # The prefs file doesn't exist or is missing required keys.
         # TODO: Rebuild only the missing keys, retaining the ones that already exist.
         message = "Some required prefs not set. Building new preferences..."
         facts["warnings"].append(message)
         prefs = build_prefs({}, facts)
 
+    else:
+        robo_print(
+            "Some required prefs not set.\n\nPlease open "
+            "Preferences and check your settings.",
+            LogLevel.ERROR,
+        )
+        sys.exit(1)
+
     # Record last version number.
     prefs["LastRecipeRobotVersion"] = __version__
+
+    # Indicate to the app that configuration is complete.
+    prefs["Initialized"] = True
 
     # Save preferences to disk for next time.
     save_user_defaults(prefs)
