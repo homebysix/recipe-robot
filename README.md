@@ -10,7 +10,7 @@ Recipe Robot is the easiest way to create new [AutoPkg](https://github.com/autop
 
 For helpful information on using Recipe Robot, including tutorials and troubleshooting information, see the [wiki](https://github.com/homebysix/recipe-robot/wiki).
 
-If you encounter a reproductible problem with Recipe Robot, I encourage you to open an [issue](https://github.com/homebysix/recipe-robot/issues) on GitHub.
+If you encounter a reproducible problem with Recipe Robot, I encourage you to open an [issue](https://github.com/homebysix/recipe-robot/issues) on GitHub.
 
 Enjoy!
 
