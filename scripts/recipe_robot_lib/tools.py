@@ -28,7 +28,6 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 from __future__ import absolute_import, print_function
 
 import os
-import plistlib
 import re
 import shlex
 import subprocess
@@ -231,9 +230,7 @@ def get_github_token():
             with open(github_token_file, "r") as tokenfile:
                 return tokenfile.read().strip()
         except IOError:
-            facts["warnings"].append(
-                "Couldn't read GitHub token file at {}.".format(github_token_file)
-            )
+            print("WARNING: Couldn't read GitHub token file at %s." % github_token_file)
     return None
 
 
@@ -431,11 +428,11 @@ def print_welcome_text():
                       -----------------------------------
                      |  Welcome to Recipe Robot v%s.  |
                       -----------------------------------
-                                \   _[]_
-                                 \  [oo]
+                                \\   _[]_
+                                 \\  [oo]
                                    d-||-b
                                      ||
-                                   _/  \_
+                                   _/  \\_
     """
         % __version__
     )
@@ -450,7 +447,7 @@ def print_death_text():
                                     [xx]
                                    q-||-p
                                      ||
-                                   _/  \_
+                                   _/  \\_
     """
     robo_print(death_text)
 

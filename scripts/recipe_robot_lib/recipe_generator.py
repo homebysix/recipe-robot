@@ -39,7 +39,6 @@ from .tools import (
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_INSTALL_FORMATS,
     LogLevel,
-    __version__,
     create_dest_dirs,
     create_existing_recipe_list,
     extract_app_icon,
@@ -294,7 +293,6 @@ def generate_download_recipe(facts, prefs, recipe):
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
 
     if facts.is_from_app_store():
@@ -460,7 +458,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 pkgpayloadunpacker.destination_path = "%RECIPE_CACHE_DIR%/payload"
                 pkgpayloadunpacker.purge_destination = True
 
-                if not "pkg_filename" in facts:
+                if "pkg_filename" not in facts:
                     # Use FileFinder to search for the package if the name is unknown.
                     filefinder = processor.FileFinder()
                     filefinder.pattern = "%RECIPE_CACHE_DIR%/unpack/*.pkg/Payload"
@@ -469,21 +467,27 @@ def generate_download_recipe(facts, prefs, recipe):
                     pkgpayloadunpacker.pkg_payload_path = "%found_filename%"
                 else:
                     # Skip FileFinder and specify the filename of the package.
-                    pkgpayloadunpacker.pkg_payload_path = "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
-                        facts["pkg_filename"]
+                    pkgpayloadunpacker.pkg_payload_path = (
+                        "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
+                            facts["pkg_filename"]
+                        )
                     )
 
                 recipe.append_processor(pkgpayloadunpacker)
 
-                versioner.input_plist_path = "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
-                    facts["app_relpath_from_payload"]
+                versioner.input_plist_path = (
+                    "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
+                        facts["app_relpath_from_payload"]
+                    )
                 )
             else:
                 if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-                    versioner.input_plist_path = "%pathname%/{}{}.{}/Contents/Info.plist".format(
-                        facts.get("relative_path", ""),
-                        facts.get("app_file", facts[bundle_name_key]),
-                        bundle_type,
+                    versioner.input_plist_path = (
+                        "%pathname%/{}{}.{}/Contents/Info.plist".format(
+                            facts.get("relative_path", ""),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        )
                     )
                 else:
                     versioner.input_plist_path = (
@@ -894,7 +898,6 @@ def generate_pkg_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # Can't make this recipe without a bundle identifier.
     # TODO(Elliot): Bundle id is also provided by AppDmgVersioner and some
@@ -1099,7 +1102,6 @@ def generate_install_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1367,7 +1369,6 @@ def generate_lanrev_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
@@ -1400,7 +1401,7 @@ def generate_lanrev_recipe(facts, prefs, recipe):
     recipe.append_processor(
         {
             "Processor": "com.github.jbaker10.LANrevImporter/LANrevImporter",
-            "SharedProcessorRepoURL": lanrevimporter_url,
+            "SharedProcessorRepoURL": "https://github.com/jbaker10",
             "Arguments": {
                 "dest_payload_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
                 "sdpackages_ampkgprops_path": "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
@@ -1429,7 +1430,6 @@ def generate_sccm_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
@@ -1461,7 +1461,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
     recipe.append_processor(
         {
             "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
-            "SharedProcessorRepoURL": cgerke_url,
+            "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
             "Arguments": {
                 "source_file": "%pkg_path%",
                 "destination_directory": "%RECIPE_CACHE_DIR%",
@@ -1487,7 +1487,6 @@ def generate_filewave_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
@@ -1678,7 +1677,6 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     # - https://github.com/autopkg/hansen-m-recipes/search?utf8=%E2%9C%93&q=win.download
     # And a BigFix recipe example:
     # - https://github.com/CLCMacTeam/AutoPkgBESEngine/blob/dd1603c3fc39c1b9530b49e2a08d3eb0bbeb19a1/Examples/TextWrangler.bigfix.recipe
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():

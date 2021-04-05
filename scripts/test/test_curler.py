@@ -25,11 +25,11 @@ Unit tests for curl-related functions.
 
 
 from __future__ import absolute_import
-import os
+
 import json
+import os
 
 from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
-
 from recipe_robot_lib import curler
 
 

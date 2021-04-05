@@ -27,16 +27,9 @@ from __future__ import absolute_import, print_function
 
 import os.path
 import subprocess
-from urllib.parse import urlparse
 
 from .exceptions import RoboError
-from .tools import (
-    GITHUB_DOMAINS,
-    KNOWN_403_ON_HEAD,
-    LogLevel,
-    any_item_in_string,
-    robo_print,
-)
+from .tools import KNOWN_403_ON_HEAD, LogLevel, robo_print
 
 
 def prepare_curl_cmd():
@@ -167,7 +160,13 @@ def parse_headers(raw_headers, url=""):
             parse_ftp_header(line, header)
         elif line == "":
             # we got an empty line; end of headers (or curl exited)
-            if header.get("http_result_code") in ("301", "302", "303", "307", "308",):
+            if header.get("http_result_code") in (
+                "301",
+                "302",
+                "303",
+                "307",
+                "308",
+            ):
                 # redirect, so more headers are coming.
                 # Throw away the headers we've received so far
                 header["http_redirected"] = header.get("location", None)
@@ -357,7 +356,9 @@ def check_url(url, headers=None):
             head, retcode = get_headers(url, headers=headers)
             if int(head.get("http_result_code")) < 400:
                 robo_print(
-                    "Using browser user-agent.", LogLevel.VERBOSE, 4,
+                    "Using browser user-agent.",
+                    LogLevel.VERBOSE,
+                    4,
                 )
                 return url, head, headers["user-agent"]
 

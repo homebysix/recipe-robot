@@ -27,7 +27,6 @@ Recipes: Container class for Recipe objects.
 
 from __future__ import absolute_import
 
-import json
 import plistlib
 
 import yaml
@@ -36,12 +35,7 @@ from recipe_robot_lib import processor
 from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.facts import NotifyingBool, NotifyingList, NotifyingString
 from recipe_robot_lib.roboabc import RoboDict, RoboList
-from recipe_robot_lib.tools import (
-    LogLevel,
-    __version__,
-    get_bundle_name_info,
-    robo_print,
-)
+from recipe_robot_lib.tools import __version__, get_bundle_name_info
 
 # fmt: off
 RECIPE_TYPES = (

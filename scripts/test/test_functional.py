@@ -37,7 +37,6 @@ from random import shuffle
 
 import yaml
 from nose.tools import *
-
 from recipe_robot_lib.tools import strip_dev_suffix
 
 # pylint: enable=unused-wildcard-import, wildcard-import

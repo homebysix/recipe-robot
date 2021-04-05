@@ -1476,8 +1476,8 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
         facts["warnings"].append("Ditto failed to expand payload.")
     try:
         os.unlink(payload_archive)
-    except OSError as err:
-        facts["warnings"].append("Could not remove %s: %s" % (payload_archive, err))
+    except OSError as e:
+        facts["warnings"].append("Could not remove %s: %s" % (payload_archive, e))
 
     for dirpath, dirnames, _ in os.walk(payload_dir):
         for dirname in dirnames:
@@ -1542,7 +1542,7 @@ def get_most_likely_app(app_list):
             for filename in filenames:
                 try:
                     this_size += os.path.getsize(os.path.join(dirpath, filename))
-                except FileNotFoundError as err:
+                except FileNotFoundError:
                     pass
         if this_size > largest_size:
             largest_size = this_size
@@ -1891,7 +1891,8 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Get the latest download URL.
         download_url = ""
         robo_print(
-            "Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE,
+            "Determining download URL from SourceForge RSS feed...",
+            LogLevel.VERBOSE,
         )
         for item in doc.iterfind("channel/item"):
             # TODO(Elliot): The extra-info tag is not a reliable
@@ -2045,7 +2046,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             )
     else:
         robo_print(
-            "The Sparkle feed does not provide a version number", LogLevel.VERBOSE, 4,
+            "The Sparkle feed does not provide a version number",
+            LogLevel.VERBOSE,
+            4,
         )
     facts["sparkle_provides_version"] = sparkle_provides_version
 
