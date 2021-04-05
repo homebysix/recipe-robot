@@ -86,6 +86,7 @@ PREFERENCE_KEYS = (
     "LastRecipeRobotVersion",
     "RecipeCreateCount",
     "RecipeCreateLocation",
+    "RecipeFormat",
     "RecipeIdentifierPrefix",
     "RecipeTypes",
     "StripDeveloperSuffixes",

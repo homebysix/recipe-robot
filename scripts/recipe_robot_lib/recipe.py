@@ -27,10 +27,14 @@ Recipes: Container class for Recipe objects.
 
 from __future__ import absolute_import
 
+import json
 import plistlib
 
+import yaml
+from Foundation import NSArray, NSDictionary, NSNumber
 from recipe_robot_lib import processor
 from recipe_robot_lib.exceptions import RoboError
+from recipe_robot_lib.facts import NotifyingBool, NotifyingList, NotifyingString
 from recipe_robot_lib.roboabc import RoboDict, RoboList
 from recipe_robot_lib.tools import (
     LogLevel,
@@ -112,7 +116,29 @@ class Recipe(RoboDict):
             "(https://github.com/homebysix/recipe-robot)" % __version__,
         }
 
-    def write(self, path):
+    def __deepconvert(self, object):
+        """Convert all contents of an ObjC object to Python primitives, which
+        is required in order to convert a recipe for yaml representation.
+
+        Adapted from AutoPkg: https://github.com/autopkg/autopkg/blob/1aff762d8ea658b3fca8ac693f3bf13e8baf8778/Code/autopkglib/__init__.py#L141
+        """
+        # TODO: Should this be handled by class __repr__ instead?
+        value = object
+        if isinstance(object, NotifyingBool):
+            value = bool(object)
+        elif isinstance(object, (NSNumber, float)):
+            value = int(object)
+        elif isinstance(object, NotifyingString):
+            value = str(object)
+        elif isinstance(object, (NotifyingList, NSArray, list)):
+            value = [self.__deepconvert(x) for x in object]
+        elif isinstance(object, (NSDictionary, dict)):
+            value = {k: self.__deepconvert(v) for k, v in object.items()}
+        else:
+            return object
+        return value
+
+    def write(self, path, fmt="plist"):
         """Write the recipe to disk.
 
         Args:
@@ -121,15 +147,39 @@ class Recipe(RoboDict):
         Raises:
             RoboError: Standard exception raised when Recipe Robot cannot proceed.
         """
-        try:
-            with open(path, "wb") as openfile:
-                plistlib.dump(self["keys"], openfile)
-        except TypeError as err:
-            raise RoboError(
-                "Unable to write recipe due to unexpected data type.\n"
-                "plistlib error: %s\n"
-                "Recipe contents: %s\n" % (err, self["keys"])
-            )
+        # Ensure all objects in the recipe are Python primitives.
+        recipe = self.__deepconvert(self["keys"])
+        if fmt == "yaml":
+            try:
+                with open(path, "wb") as openfile:
+                    yaml.dump(recipe, openfile, encoding="utf-8")
+            except Exception as err:
+                raise RoboError(
+                    "Unable to write yaml recipe due to unexpected data type.\n"
+                    "yaml error: %s\n"
+                    "Recipe contents: %s\n" % (err, recipe)
+                )
+        # In case AutoPkg ever supports json recipes.
+        # elif fmt == "json":
+        #     try:
+        #         with open(path, "wb") as openfile:
+        #             openfile.write(json.dumps(recipe, indent=4))
+        #     except Exception as err:
+        #         raise RoboError(
+        #             "Unable to write json recipe due to unexpected data type.\n"
+        #             "json error: %s\n"
+        #             "Recipe contents: %s\n" % (err, recipe)
+        #         )
+        else:
+            try:
+                with open(path, "wb") as openfile:
+                    plistlib.dump(recipe, openfile)
+            except Exception as err:
+                raise RoboError(
+                    "Unable to write plist recipe due to unexpected data type.\n"
+                    "plistlib error: %s\n"
+                    "Recipe contents: %s\n" % (err, recipe)
+                )
 
     def set_description(self, description):
         """Save a description that explains what this recipe does.

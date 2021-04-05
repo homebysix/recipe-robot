@@ -14,8 +14,9 @@ Also check Recipe Robot's config to make sure download, pkg, munki, and jss reci
 
 ```
 defaults write com.elliotjordan.recipe-robot RecipeIdentifierPrefix "com.github.foo"
-defaults write com.elliotjordan.recipe-robot RecipeCreateLocation "~/Library/AutoPkg/Recipe Robot Output"
+defaults write com.elliotjordan.recipe-robot RecipeCreateLocation "~/Library/AutoPkg/RecipeRobotTestOutput"
 defaults write com.elliotjordan.recipe-robot RecipeTypes -array "download" "pkg" "munki" "jss" "install"
+defaults write com.elliotjordan.recipe-robot RecipeFormat "plist"
 defaults write com.elliotjordan.recipe-robot StripDeveloperSuffixes -bool true
 defaults write com.elliotjordan.recipe-robot FollowOfficialJSSRecipesFormat -bool false
 ```

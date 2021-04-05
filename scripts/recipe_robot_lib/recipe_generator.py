@@ -234,11 +234,17 @@ def build_recipes(facts, preferred, prefs):
             recipe = generation_func(facts, prefs, recipe)
 
         if recipe:
-            dest_path = robo_join(recipe_dest_dir, recipe["filename"])
+            if prefs.get("RecipeFormat") not in ("plist", None):
+                dest_path = robo_join(
+                    recipe_dest_dir, recipe["filename"] + "." + prefs["RecipeFormat"]
+                )
+            else:
+                dest_path = robo_join(recipe_dest_dir, recipe["filename"])
             if not os.path.exists(dest_path):
                 count = prefs.get("RecipeCreateCount", 0)
                 prefs["RecipeCreateCount"] = count + 1
-            recipe.write(dest_path)
+
+            recipe.write(dest_path, prefs.get("RecipeFormat"))
             robo_print(dest_path, LogLevel.LOG, 4)
             facts["recipes"].append(dest_path)
 
