@@ -57,6 +57,10 @@ RECIPE_TYPES = (
         "desc": "Imports package only into Jamf Pro. Does not create policies "
                 "or groups.",
     }, {
+        "type": "jamf",
+        "desc": "Imports package only into Jamf Pro. Does not create policies "
+                "or groups.",
+    }, {
         "type": "ds",
         "desc": "Imports into your DeployStudio Packages folder."
     }, {

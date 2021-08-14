@@ -518,6 +518,7 @@ def get_preferred_recipe_types(prefs, recipes):
                 "install",
                 "jss",
                 "jss-upload",
+                "jamf",
                 "lanrev",
                 "ds",
                 "sccm",
@@ -529,7 +530,7 @@ def get_preferred_recipe_types(prefs, recipes):
                     if recipe["type"] == "download":
                         recipe["preferred"] = True
             # Automatically enable pkg recipe type if required.
-            requires_pkg = ("jss", "jss-upload", "lanrev", "ds", "sccm")
+            requires_pkg = ("jss", "jss-upload", "jamf", "lanrev", "ds", "sccm")
             if recipes[choice]["type"] in requires_pkg:
                 for recipe in recipes:
                     if recipe["type"] == "pkg":

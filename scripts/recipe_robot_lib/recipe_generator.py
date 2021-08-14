@@ -1311,7 +1311,7 @@ def generate_jss_upload_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    # TODO: Possibly combine with generate_jss_upload_recipe() to handle multiple
+    # TODO: Possibly combine with generate_jss_recipe() to handle multiple
     # "varietals" of the same recipe type?
     keys = recipe["keys"]
     _, bundle_name_key = get_bundle_name_info(facts)
@@ -1349,6 +1349,61 @@ def generate_jss_upload_recipe(facts, prefs, recipe):
     # Put fully constructed JSSImporter arguments into the process list.
     recipe.append_processor(
         {"Processor": "JSSImporter", "Arguments": jssimporter_arguments}
+    )
+
+    return recipe
+
+
+def generate_jamf_recipe(facts, prefs, recipe):
+    """Generate a JamfUpload type recipe that uploads a package to Jamf
+    based on passed recipe dict.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
+    """
+    keys = recipe["keys"]
+    _, bundle_name_key = get_bundle_name_info(facts)
+
+    robo_print("Generating %s recipe..." % recipe["type"])
+
+    recipe.set_description(
+        "Downloads the latest version of %s and uploads the package "
+        "to Jamf." % facts[bundle_name_key]
+    )
+
+    recipe.set_parent_from(prefs, facts, "pkg")
+
+    keys["Input"]["CATEGORY"] = "Productivity"
+    facts["reminders"].append(
+        "Remember to manually set the category in the jamf recipe. I've set "
+        'it to "Productivity" by default.'
+    )
+
+    jamf_upload_stub = "com.github.grahampugh.jamf-upload.processors"
+    jamfcategoryuploader_args = {"category_name": "%CATEGORY%"}
+    jamfpackageuploader_args = {"pkg_category": "%CATEGORY%"}
+
+    # Put fully constructed JSSImporter arguments into the process list.
+    recipe.append_processor(
+        {
+            "Processor": "%s/JamfCategoryUploader" % jamf_upload_stub,
+            "Arguments": jamfcategoryuploader_args,
+        }
+    )
+    recipe.append_processor(
+        {
+            "Processor": "%s/JamfPackageUploader" % jamf_upload_stub,
+            "Arguments": jamfpackageuploader_args,
+        }
     )
 
     return recipe
