@@ -204,7 +204,16 @@ def build_recipes(facts, preferred, prefs):
         keys["Input"]["NAME"] = facts[bundle_name_key]
 
         # Set the recipe filename (spaces are OK).
-        recipe["filename"] = "%s.%s.recipe" % (facts[bundle_name_key], recipe["type"])
+        if recipe["type"] == "jamf":
+            recipe["filename"] = "%s-pkg-upload.%s.recipe" % (
+                facts[bundle_name_key],
+                recipe["type"],
+            )
+        else:
+            recipe["filename"] = "%s.%s.recipe" % (
+                facts[bundle_name_key],
+                recipe["type"],
+            )
 
         # Set the recipe identifier.
         clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
