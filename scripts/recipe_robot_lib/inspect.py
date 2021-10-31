@@ -148,6 +148,9 @@ def process_input_path(facts):
     elif input_path.lower().startswith("ftp"):
         robo_print("Input path looks like a download URL.", LogLevel.VERBOSE)
         inspect_func = inspect_download_url
+    elif input_path.lower().startswith("file"):
+        robo_print("Input path looks like a local file URL.", LogLevel.VERBOSE)
+        inspect_func = inspect_download_url
     elif os.path.exists(input_path):
         if input_path.endswith(".app"):
             robo_print("Input path looks like an app.", LogLevel.VERBOSE)
