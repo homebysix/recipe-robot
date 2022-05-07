@@ -145,6 +145,9 @@ class Recipe(RoboDict):
         Raises:
             RoboError: Standard exception raised when Recipe Robot cannot proceed.
         """
+        # Ensure MinimumVersion is at least 2.3 to support yaml recipes.
+        self["keys"]["MinimumVersion"] = max("2.3", self["keys"]["MinimumVersion"])
+
         # Ensure all objects in the recipe are Python primitives.
         recipe = self.__deepconvert(self["keys"])
         if fmt == "yaml":
