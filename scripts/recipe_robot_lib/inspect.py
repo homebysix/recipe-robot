@@ -1482,6 +1482,20 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
     except OSError as e:
         facts["warnings"].append("Could not remove %s: %s" % (payload_archive, e))
 
+    """Check if the Payload was an app and rename accordingly"""
+    appInfoPath = os.path.join(payload_dir, "Contents", "Info.plist") 
+    if os.path.isfile(appInfoPath):
+        try:
+            with open(appInfoPath, "rb") as openfile:
+                info_plist = plistlib.load(openfile)
+        except (AttributeError, TypeError, ValueError):
+            pass
+        if ("CFBundleDisplayName" in info_plist):
+            robo_print("Payload is an App, move to .app", LogLevel.VERBOSE)
+            tempAppDir = os.path.join(CACHE_DIR,info_plist["CFBundleDisplayName"]+".app")
+            shutil.move(payload_dir,tempAppDir)
+            shutil.move(tempAppDir,os.path.join(payload_dir,info_plist["CFBundleDisplayName"]+".app"))
+
     for dirpath, dirnames, _ in os.walk(payload_dir):
         for dirname in dirnames:
             if dirname.startswith("."):
