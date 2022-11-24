@@ -315,7 +315,29 @@ def generate_download_recipe(facts, prefs, recipe):
     )
 
     # TODO (Shea): Extract method(s) to get_source_processor()
-    if "sparkle_feed" in facts:
+    if "barebones_product" in facts:
+        BarebonesURLProvider = processor.ProcessorFactory(
+            "com.github.autopkg.download.bbedit/BarebonesURLProvider",
+            ("product_name",),
+        )
+        bb_url_provider = BarebonesURLProvider(
+            product_name=facts["barebones_product"],
+        )
+        recipe.append_processor(bb_url_provider)
+        if not os.path.exists(
+            os.path.expanduser(
+                "~/Library/AutoPkg/RecipeRepos/com.github.autopkg."
+                "recipes/Barebones/BarebonesURLProvider.py"
+            )
+        ):
+            facts["reminders"].append(
+                "The download recipe I created uses the "
+                "BarebonesURLProvider processor, which is not in the "
+                "AutoPkg core. You'll need to add the appropriate repository "
+                "before running the recipe:\n"
+                "        autopkg repo-add recipes"
+            )
+    elif "sparkle_feed" in facts:
         sparkle_processor = processor.SparkleUpdateInfoProvider(
             appcast_url=facts["sparkle_feed"]
         )
