@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file. This projec
 - Now "jamf" recipes that leverage Graham Pugh's JamfPackageUploader processor can be created. This feature is limited to package-upload-only type recipes. (No creation of groups, policies, scripts, or other objects.)
 - Local `file://` URLs are now supported input paths (but be aware that these may not be desirable for providing ongoing updates via AutoPkg, unless you have automation updating the local file).
 - Recipe Robot better handles downloaded payloads that contain the contents of an app bundle, but lack the enclosing bundle itself. (Thanks to @andrewzierkel for #195)
+- New dedicated handler for Bare Bones update feeds, which are similar to Sparkle feeds but not the same. (#194)
 
 ## [2.2.0] - 2020-12-13
 

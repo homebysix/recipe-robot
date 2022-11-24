@@ -116,8 +116,12 @@ def process_input_path(facts):
             input_path.lower().endswith((".xml", ".rss", ".php"))
             or "appcast" in input_path.lower()
         ):
-            robo_print("Input path looks like a Sparkle feed.", LogLevel.VERBOSE)
-            inspect_func = inspect_sparkle_feed_url
+            if "versioncheck.barebones.com" in input_path:
+                robo_print("Input path looks like a Bare Bones feed.", LogLevel.VERBOSE)
+                inspect_func = inspect_barebones_feed_url
+            else:
+                robo_print("Input path looks like a Sparkle feed.", LogLevel.VERBOSE)
+                inspect_func = inspect_sparkle_feed_url
         elif any_item_in_string(GITHUB_DOMAINS, input_path.lower()):
             robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
             if "/download/" in input_path.lower():
@@ -312,7 +316,10 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         sparkle_feed = ""
         robo_print("Checking for a Sparkle feed...", LogLevel.VERBOSE)
         if "SUFeedURL" in info_plist:
-            sparkle_feed = info_plist["SUFeedURL"]
+            if "versioncheck.barebones.com" in info_plist["SUFeedURL"]:
+                facts = inspect_barebones_feed_url(info_plist["SUFeedURL"], args, facts)
+            else:
+                sparkle_feed = info_plist["SUFeedURL"]
         elif "SUOriginalFeedURL" in info_plist:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
         elif os.path.exists(
@@ -1947,6 +1954,77 @@ def inspect_sourceforge_url(input_path, args, facts):
                 'This SourceForge project is marked "private" and '
                 "recipes you generate may not work for others."
             )
+
+    return facts
+
+
+def inspect_barebones_feed_url(input_path, args, facts):
+    """Process a Bare Bones app software update feed, gathering information
+    required to create AutoPkg recipes.
+
+    Args:
+        input_path (str): The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+
+    Returns:
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
+    """
+    # Only proceed if we haven't inspected this feed yet.
+    # (Calling it a Sparkle feed because the key should be mutually exclusive.)
+    if "sparkle_feed_url" in facts["inspections"]:
+        return facts
+    facts["inspections"].append("sparkle_feed_url")
+
+    # Save the feed URL to the dictionary of facts.
+    robo_print("Bare Bones feed is: %s" % input_path, LogLevel.VERBOSE, 4)
+    facts["sparkle_feed"] = input_path
+
+    # Check to make sure URL is valid, and switch to HTTPS if possible.
+    checked_url, head, user_agent = curler.check_url(input_path)
+
+    # Remove feed if it's not usable.
+    http_result_code = int(head.get("http_result_code"))
+    if http_result_code >= 400:
+        facts.pop("sparkle_feed", None)
+        return facts
+
+    # Download and parse the feed.
+    try:
+        feed_info = plistlib.loads(curler.download(checked_url))
+        feed_entries = feed_info.get("SUFeedEntries")
+    except plistlib.InvalidFileException as err:
+        facts["warnings"].append(
+            "Error occurred while parsing Bare Bones feed (%s)" % err
+        )
+        facts.pop("sparkle_feed", None)
+        return facts
+
+    # Remove items with unusable URLs.
+    feed_entries = [x for x in feed_entries if x.get("SUFeedEntryUpdateURL")]
+    if not feed_entries:
+        facts["warnings"].append("There appear to be no feed entries for this app.")
+
+    # Determine which item is "latest".
+    vers_key_order = ("SUFeedEntryShortVersionString", "SUFeedEntryVersion")
+    for key in vers_key_order:
+        try:
+            latest_info = max(feed_entries, key=lambda x: APLooseVersion(x[key]))
+            break
+        except AttributeError:
+            continue
+
+    for key in ("SUFeedEntryShortVersionString", "SUFeedEntryVersion"):
+        robo_print("The latest %s is %s" % (key, latest_info[key]), LogLevel.VERBOSE, 4)
+
+    # Pass latest URL to download URL inspection function.
+    facts["sparkle_provides_version"] = True
+    facts["barebones_product"] = input_path.split("/")[-1].replace(".xml", "").lower()
+    facts = inspect_download_url(latest_info["SUFeedEntryUpdateURL"], args, facts)
 
     return facts
 
