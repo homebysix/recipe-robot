@@ -1490,7 +1490,7 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
         facts["warnings"].append("Could not remove %s: %s" % (payload_archive, e))
 
     """Check if the Payload was an app and rename accordingly"""
-    appInfoPath = os.path.join(payload_dir, "Contents", "Info.plist") 
+    appInfoPath = os.path.join(payload_dir, "Contents", "Info.plist")
     if os.path.isfile(appInfoPath):
         try:
             with open(appInfoPath, "rb") as openfile:
