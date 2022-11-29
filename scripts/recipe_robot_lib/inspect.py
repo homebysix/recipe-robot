@@ -1015,6 +1015,7 @@ def inspect_disk_image(input_path, args, facts):
                 break
             if this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
+                facts["pkg_in_dmg"] = this_file
                 break
     else:
         robo_print(

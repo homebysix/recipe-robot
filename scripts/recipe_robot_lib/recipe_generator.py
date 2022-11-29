@@ -955,8 +955,17 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # TODO: Try to make AppPkgCreator work with exclamation points in app names. Example:
     # 'https://s3.amazonaws.com/shirtpocket/SuperDuper/SuperDuper!.dmg'
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-        # TODO: if "pkg" in facts["inspections"] then use PkgCopier.
-        if bundle_type == "app":
+        if facts.get("pkg_in_dmg"):
+            recipe.append_processor(
+                {
+                    "Processor": "PkgCopier",
+                    "Arguments": {
+                        "source_pkg": "%pathname%/{}".format(facts["pkg_in_dmg"]),
+                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg",
+                    },
+                }
+            )
+        elif bundle_type == "app":
             if "relative_path" in facts:
                 recipe.append_processor(
                     {

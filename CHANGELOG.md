@@ -14,6 +14,10 @@ All notable changes to this project will be documented in this file. This projec
 - Recipe Robot better handles downloaded payloads that contain the contents of an app bundle, but lack the enclosing bundle itself. (Thanks to @andrewzierkel for #195)
 - New dedicated handler for Bare Bones update feeds, which are similar to Sparkle feeds but not the same. (#194)
 
+### Fixed
+
+- Better handling of disk images that contain packages. (#188)
+
 ## [2.2.0] - 2020-12-13
 
 ### Added
