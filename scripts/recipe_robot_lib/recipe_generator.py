@@ -198,7 +198,6 @@ def build_recipes(facts, preferred, prefs):
     recipe_dest_dir = facts["recipe_dest_dir"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     for recipe in preferred:
-
         keys = recipe["keys"]
 
         keys["Input"]["NAME"] = facts[bundle_name_key]
@@ -434,7 +433,6 @@ def generate_download_recipe(facts, prefs, recipe):
 
     # TODO (Shea): Refactor to get_codesigning and get_unarchiver funcs.
     if facts.get("codesign_reqs") or facts.get("codesign_authorities"):
-
         if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             unarchiver = processor.Unarchiver()
             unarchiver.archive_path = "%pathname%"

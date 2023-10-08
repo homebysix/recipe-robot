@@ -433,7 +433,6 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         cmd = '/usr/bin/codesign --display --verbose=2 -r- "{}"'.format(input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-
             # From stdout:
             reqs_marker = "designated => "
             for line in out.splitlines():
@@ -935,7 +934,6 @@ def inspect_disk_image(input_path, args, facts):
     else:
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-
         # Confirmed; the download was a disk image. Make a note of that.
         robo_print("Successfully mounted disk image", LogLevel.VERBOSE, 4)
         facts["download_format"] = "dmg"  # most common disk image format
@@ -1913,7 +1911,6 @@ def inspect_sourceforge_url(input_path, args, facts):
 
     # Get download format of latest release.
     if "download_url" not in facts:
-
         # Download the RSS feed and parse it.
         # Example: https://sourceforge.net/projects/grandperspectiv/rss
         # Example: https://sourceforge.net/projects/cord/rss

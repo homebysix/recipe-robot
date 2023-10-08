@@ -120,7 +120,6 @@ def test():
 
     # Iterate through sample data, generating a recipe for each input.
     for app in sample_data:
-
         if prefs.get("StripDeveloperSuffixes") is True:
             app["developer"] = strip_dev_suffix(app["developer"])
 

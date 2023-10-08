@@ -330,7 +330,6 @@ def check_url(url, headers=None):
 
     # Try to mitigate errors.
     if http_result == 403:
-
         ua_safari = (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/605.1.15 (KHTML, like Gecko) "
