@@ -144,7 +144,6 @@ class PreferenceViewController: RecipeRobotViewController {
     @IBOutlet weak var dsTextField: NSTextField!
     @IBOutlet var recipeFolderPathButton: NSButton!
     @IBOutlet weak var recipeLocation: NSTextField!
-    @IBOutlet weak var jssCheckBox: NSButton!
     private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? Set<String>()
 
     // MARK: Overrides
@@ -159,9 +158,6 @@ class PreferenceViewController: RecipeRobotViewController {
         self.recipeFolderPathButton.target = self
         self.dsFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(sender:))
         self.dsFolderPathButton.target = self
-
-        let jssHidden = !enabledRecipeTypes.contains(RecipeType.JSS.value)
-        jssCheckBox.isHidden = jssHidden
 
         let dsHidden = !enabledRecipeTypes.contains(RecipeType.DS.value)
         dsLabel.isHidden = dsHidden
@@ -297,8 +293,6 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
 
         let type = RecipeType.cases[row]
         switch type {
-        case .JSS:
-            jssCheckBox.isHidden = !enabled
         case .DS:
             dsLabel.isHidden = !enabled
             dsTextField.isHidden = !enabled

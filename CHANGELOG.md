@@ -18,6 +18,10 @@ All notable changes to this project will be documented in this file. This projec
 
 - Better handling of disk images that contain packages. (#188)
 
+### Removed
+
+- Removed support for generation of "jss" style recipes, which leverage the deprecated [Python-JSS](https://github.com/jssimporter/python-jss) module. Please [switch to JamfUploader type recipes](https://grahamrpugh.com/2022/02/16/jssimporter-jamf-pro-api-token-auth.html) instead.
+
 ## [2.2.0] - 2020-12-13
 
 ### Added

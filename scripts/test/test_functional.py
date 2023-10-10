@@ -45,7 +45,7 @@ from recipe_robot_lib.tools import strip_dev_suffix
 # TODO (Shea): Add arguments to only produce certain RecipeTypes. This will
 # allow us to narrow the tests down.
 
-RECIPE_TYPES = ("download", "pkg", "munki", "install", "jss")
+RECIPE_TYPES = ("download", "pkg", "munki", "install")
 
 
 def robot_runner(input_path):

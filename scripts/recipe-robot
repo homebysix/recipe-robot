@@ -387,22 +387,6 @@ def set_recipe_preferences(prefs, recipes):
                 if choice != "":
                     prefs["DSPackagesPath"] = str(choice).rstrip("/ ")
 
-            # If JSS recipes are among the preferred types,
-            # prompt for whether to follow "official" jss-recipes style.
-            if recipe["type"] == "jss":
-                if prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
-                    follow_jss_recipes_format = "N"
-                else:
-                    follow_jss_recipes_format = "Y"
-                robo_print(
-                    "\nFollow official jss-recipes style format? (Y/N)"
-                    "\nProbably unnecessary unless you are contributing "
-                    "\nto the jss-recipes repository. See details here: "
-                    "\nhttps://github.com/autopkg/jss-recipes#style-guide\n"
-                )
-                choice = input("[%s]: " % follow_jss_recipes_format)
-                prefs["FollowOfficialJSSRecipesFormat"] = choice.lower() in affirmatives
-
             # If Munki recipes are among the preferred types,
             # prompt for whether to strip developer suffixes like Inc and Ltd.
             if recipe["type"] == "munki":
@@ -516,8 +500,6 @@ def get_preferred_recipe_types(prefs, recipes):
                 "munki",
                 "pkg",
                 "install",
-                "jss",
-                "jss-upload",
                 "jamf",
                 "lanrev",
                 "ds",
@@ -530,7 +512,7 @@ def get_preferred_recipe_types(prefs, recipes):
                     if recipe["type"] == "download":
                         recipe["preferred"] = True
             # Automatically enable pkg recipe type if required.
-            requires_pkg = ("jss", "jss-upload", "jamf", "lanrev", "ds", "sccm")
+            requires_pkg = ("jamf", "lanrev", "ds", "sccm")
             if recipes[choice]["type"] in requires_pkg:
                 for recipe in recipes:
                     if recipe["type"] == "pkg":

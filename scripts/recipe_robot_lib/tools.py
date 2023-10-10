@@ -79,7 +79,6 @@ SUPPORTED_BUNDLE_TYPES = {
 # the com.elliotjordan.recipe-robot.plist preference file.
 PREFERENCE_KEYS = (
     "DSPackagesPath",
-    "FollowOfficialJSSRecipesFormat",
     "IgnoreExisting",
     "Initialized",  # Used by the RR app to show/hide config sheet on first launch.
     "LastRecipeRobotVersion",
@@ -315,7 +314,7 @@ def recipe_dirpath(app_name, dev, prefs):
     for char in char_replacements:
         app_name = app_name.replace(char[0], char[1])
     path_components = [prefs["RecipeCreateLocation"]]
-    if dev is not None and prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
+    if dev is not None:
         # TODO (Elliot): Put this in the preferences.
         if prefs.get("StripDeveloperSuffixes", False) is True:
             dev = strip_dev_suffix(dev)

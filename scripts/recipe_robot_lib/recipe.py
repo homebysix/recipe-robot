@@ -49,14 +49,6 @@ RECIPE_TYPES = (
         "type": "munki",
         "desc": "Imports into your Munki repository."
     }, {
-        "type": "jss",
-        "desc": "Imports into Jamf Pro and creates necessary groups, policies, "
-                "etc.",
-    }, {
-        "type": "jss-upload",
-        "desc": "Imports package only into Jamf Pro. Does not create policies "
-                "or groups.",
-    }, {
         "type": "jamf",
         "desc": "Imports package only into Jamf Pro. Does not create policies "
                 "or groups.",
@@ -91,7 +83,7 @@ class Recipe(RoboDict):
         """Build a recipe dictionary.
 
         Args:
-            recipe_type (str): Type of recipe (e.g. download, pkg, munki, jss).
+            recipe_type (str): Type of recipe (e.g. download, pkg, munki).
             description (str): Description of what the recipe does.
         """
         super(Recipe, self).__init__()
@@ -209,7 +201,7 @@ class Recipe(RoboDict):
             facts (RoboDict): A continually-updated dictionary containing all the
                 information we know so far about the app associated with the
                 input path.
-            recipe_type (str): Type of recipe (e.g. download, pkg, munki, jss).
+            recipe_type (str): Type of recipe (e.g. download, pkg, munki).
         """
         _, bundle_name_key = get_bundle_name_info(facts)
         elements = (
