@@ -1,5 +1,5 @@
 # Sparkle
-github "sparkle-project/Sparkle"
+binary "https://sparkle-project.org/Carthage/Sparkle.json"
 
 # AppMover (planned for future)
 # github "OskarGroth/AppMover" "master"
