@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - Better handling of disk images that contain packages. (#188)
 - Recipe Robot better handles downloaded payloads that contain the contents of an app bundle, but lack the enclosing bundle itself. (Thanks to @andrewzierkel for #195)
+- Prevented app window from expanding too much horizontally when processing extremely long filename or URL inputs.
 
 ### Changed
 

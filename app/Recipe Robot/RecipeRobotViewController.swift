@@ -385,7 +385,11 @@ class ProcessingViewController: RecipeRobotViewController {
             appIcon?.image = icon
         }
         if let name = task.appOrRecipeName {
-            titleLabel.stringValue = "Making \(name) recipes..."
+            if name.count < 50 {
+                titleLabel.stringValue = "Making \(name) recipes..."
+            } else {
+                titleLabel.stringValue = "Making recipes..."
+            }
         } else {
             titleLabel.stringValue = "Making recipes..."
         }
