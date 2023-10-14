@@ -28,11 +28,8 @@
                                                 <segue destination="ESu-qZ-Dbn" kind="show" id="55O-go-axt"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Check for Updates..." id="LxA-78-jbh">
+                                        <menuItem title="Check for Updates..." identifier="checkForUpdatesMenuItem" id="LxA-78-jbh">
                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="checkForUpdates:" target="wux-fD-zQC" id="tGv-rT-zgp"/>
-                                            </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                                         <menuItem title="Services" id="NMo-om-nkz">
@@ -152,7 +149,11 @@
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Recipe_Robot" customModuleProvider="target"/>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Recipe_Robot" customModuleProvider="target">
+                    <connections>
+                        <outlet property="checkForUpdatesMenuItem" destination="LxA-78-jbh" id="dZG-dN-cjD"/>
+                    </connections>
+                </customObject>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <customObject id="wux-fD-zQC" customClass="SUUpdater"/>
             </objects>
