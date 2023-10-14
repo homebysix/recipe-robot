@@ -405,11 +405,6 @@
   developer: 3ds
   input_path: http://www.draftsight.com/download-mac
 
-- app_name: Dropzone 3
-  bundle_id: com.aptonic.Dropzone3
-  developer: Aptonic
-  input_path: https://aptonic.com/sparkle/updates.xml
-
 - app_name: duet
   bundle_id: com.kairos.duet
   developer: Rahul Dewan
@@ -1185,11 +1180,6 @@
   developer: CaseApps
   input_path: http://www.caseapps.com/downloads/updates/tags/tags2-update.xml
 
-- app_name: Tangerine!
-  bundle_id: com.potionfactory.Tangerine
-  developer: Karelia Software
-  input_path: https://launch.karelia.com/appcast.php?product=13
-
 - app_name: TapeDeck
   bundle_id: com.supermegaultragroovy.tapedeck
   developer: SuperMegaUltraGroovy
@@ -1219,11 +1209,6 @@
   bundle_id: com.RichSomerfield.TextBar
   developer: Rich Somerfield
   input_path: https://raw.githubusercontent.com/richie5um/richie5um.github.io/master/apps/textbar/sparkle_textbar.xml
-
-- app_name: The Hit List
-  bundle_id: com.potionfactory.TheHitList
-  developer: Karelia Software
-  input_path: https://launch.karelia.com/appcast.php?product=9&appname=The+Hit+List
 
 - app_name: Thyme
   bundle_id: com.joaomoreno.Thyme
