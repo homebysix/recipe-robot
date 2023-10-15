@@ -34,7 +34,7 @@ import re
 import shutil
 import sys
 from distutils.version import StrictVersion
-from urllib.parse import urlparse
+from urllib.parse import quote_plus, urlparse
 from xml.etree import ElementTree
 
 import xattr
@@ -543,18 +543,32 @@ def get_app_description(app_name):
         str: A string containing a description of the app.
         str: A string containing the source of the description.
     """
+    # Inclusion of data sources in Recipe Robot does not consistute endorsement
+    # or recommendation. In fact, I recommend AGAINST downloading software from
+    # anywhere but the developer's own site. But these sites can be useful for
+    # centrally searching for app descriptions.
     desc_sources = [
         {
-            "name": "MacUpdate",
-            "pattern": r"=\"mu_card_line_info_description\">(?P<desc>.*?)</div>",
-            "url": "https://www.macupdate.com/find/mac/context=%s" % app_name,
+            "name": "MacUpdate.com",
+            "pattern": r"=\"mu_card_complex_line_info_description\">(?P<desc>.*?)</div>",
+            "url": "https://www.macupdate.com/find/mac/context=%s"
+            % quote_plus(app_name),
         },
         {
-            "name": "AlternativeTo",
-            "pattern": r"<div class=\"itemDesc( read-more-box)?\">\s+"
-            '<p class="text">(?P<desc>.*?)</p>',
-            "url": "https://alternativeto.net/browse/search"
-            "/?ignoreExactMatch=true&platform=mac&q=%s" % app_name,
+            "name": "Informer.com",
+            "pattern": r'<p class="prog_text">(?P<desc>.*?)</p>',
+            "url": "https://macdownload.informer.com/search/%s" % quote_plus(app_name),
+        },
+        {
+            "name": "Download.com",
+            "pattern": r'<div class="c-productCard_summary g-text-small g-color-\S+">(?P<desc>.*?)</div>',
+            "url": "https://download.cnet.com/s/%s/?platform=mac"
+            % quote_plus(app_name),
+        },
+        {
+            "name": "Softonic.com",
+            "pattern": r'<p class="app-info__description" data-meta="app-description">(?P<desc>.*?)</p>',
+            "url": "https://en.softonic.com/s/%s:mac" % quote_plus(app_name),
         },
     ]
     for source in desc_sources:

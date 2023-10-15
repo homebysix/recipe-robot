@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file. This projec
 - Redeveloped existing recipe detection using the automated AutoPkg [recipe index](https://github.com/autopkg/index). Recipe Robot will use this method until the `autopkg search` results become reliable again.
 - Local `file://` URLs are now supported input paths (but be aware that these may not be desirable for providing ongoing updates via AutoPkg, unless you have automation updating the local file).
 - New dedicated handler for Bare Bones update feeds, which are similar to Sparkle feeds but not the same. (#194)
+- Added three more app description sources, increasing the chance that Recipe Robot will pre-fill your Munki or Jamf recipes with useful descriptions for you to customize.
 
 ### Fixed
 
@@ -20,6 +21,7 @@ All notable changes to this project will be documented in this file. This projec
 - Recipe Robot better handles downloaded payloads that contain the contents of an app bundle, but lack the enclosing bundle itself. (Thanks to @andrewzierkel for #195)
 - Prevented app window from expanding too much horizontally when processing extremely long filename or URL inputs.
 - Fixed incorrect `[0m` that terminated script output in app.
+- Fixed MacUpdate description pattern matching.
 
 ### Changed
 
@@ -31,6 +33,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Removed
 
 - Removed support for generation of "jss" style recipes, which leverage the deprecated [Python-JSS](https://github.com/jssimporter/python-jss) module. Please [switch to JamfUploader type recipes](https://grahamrpugh.com/2022/02/16/jssimporter-jamf-pro-api-token-auth.html) instead.
+- Dropped AlternativeTo as a description source.
 
 ## [2.2.0] - 2020-12-13
 
