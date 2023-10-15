@@ -27,6 +27,7 @@ from __future__ import absolute_import, print_function
 
 import os.path
 import subprocess
+from urllib.parse import quote, unquote
 
 from .exceptions import RoboError
 from .tools import KNOWN_403_ON_HEAD, LogLevel, robo_print
@@ -264,6 +265,11 @@ def download_to_file(url, filename, headers=None, app_mode=False):
     """
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
+
+    # Quote URL if not already quoted. Curl will fail if path is unquoted, in some cases.
+    # https://github.com/homebysix/recipe-robot/issues/197
+    url = quote(url, safe=":/") if url == unquote(url) else url
+
     # Disable silent mode in order to display download progress bar.
     if not app_mode:
         curl_cmd.remove("--silent")

@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file. This projec
 - Prevented app window from expanding too much horizontally when processing extremely long filename or URL inputs.
 - Fixed incorrect `[0m` that terminated script output in app.
 - Fixed MacUpdate description pattern matching.
+- Better handling of apps (and their associated URLs) with spaces, ampersands, and other special characters.
 
 ### Changed
 
