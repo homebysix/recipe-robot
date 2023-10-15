@@ -541,7 +541,7 @@ DQ
                                             <size key="minSize" width="580" height="242"/>
                                             <size key="maxSize" width="588" height="10000000"/>
                                             <attributedString key="textStorage">
-                                                <fragment content=" ">
+                                                <fragment content="​">
                                                     <attributes>
                                                         <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                         <font key="NSFont" size="10" name="SFMono-Regular"/>
