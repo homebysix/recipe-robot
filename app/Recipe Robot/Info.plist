@@ -34,5 +34,7 @@
 	<string>NSApplication</string>
 	<key>SUFeedURL</key>
 	<string>https://homebysix.github.io/recipe-robot/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>12mngXgQPhqcWWKjpOS87nPDgcZB9ACeOvrnWKsifWg=</string>
 </dict>
 </plist>
