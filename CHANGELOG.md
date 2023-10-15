@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - Recipe Robot app finally supports dark mode in script output box!
 - Updated Sparkle framework to 2.5.0.
+- If existing recipes are found, output a hint that using `--ignore-existing` can create new recipes anyway.
 
 ### Removed
 
