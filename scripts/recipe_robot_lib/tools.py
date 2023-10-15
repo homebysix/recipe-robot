@@ -454,7 +454,8 @@ def print_death_text():
 
 def reset_term_colors():
     """Reset terminal colors back to normal."""
-    sys.stdout.write(ENDC)
+    if color_setting:
+        sys.stdout.write(ENDC)
 
 
 def get_user_defaults():
