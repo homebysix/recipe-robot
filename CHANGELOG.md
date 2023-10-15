@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Changed
 
+- Recipe Robot app finally supports dark mode in script output box!
 - Updated Sparkle framework to 2.5.0.
 
 ### Removed
