@@ -670,21 +670,25 @@ def congratulate(prefs, first_timer):
             Recipe Robot.
     """
     congrats_msg = (
+        "(Yep, it's pretty fun for me too.)",
         "Amazing.",
         "Easy peasy.",
         "Fantastic.",
         "Good on ya!",
         "Imagine all the typing you saved.",
         "Isn't meta-automation great?",
-        "(Yep, it's pretty fun for me too.)",
+        "Let's do some more!",
         "Pretty cool, right?",
         "Round of applause for you!",
         "Terrific job!",
-        "Thanks!",
         "That's awesome!",
+        "Very impressive.",
         "Want to do another?",
+        "Way to go!",
         "Well done!",
+        "You came here to build recipes and chew bubblegum. And you're all out of bubblegum.",
         "You rock star, you.",
+        "You're doing a great job.",
     )
     if prefs["RecipeCreateCount"] > 0:
         if first_timer:

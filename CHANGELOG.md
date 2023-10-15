@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. This projec
 - Local `file://` URLs are now supported input paths (but be aware that these may not be desirable for providing ongoing updates via AutoPkg, unless you have automation updating the local file).
 - New dedicated handler for Bare Bones update feeds, which are similar to Sparkle feeds but not the same. (#194)
 - Added three more app description sources, increasing the chance that Recipe Robot will pre-fill your Munki or Jamf recipes with useful descriptions for you to customize.
+- Added more post-recipe-creation affirmations, because why not.
 
 ### Fixed
 
