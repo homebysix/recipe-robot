@@ -56,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard
             let url = URL(string: "https://github.com/homebysix/recipe-robot/blob/master/README.md")
         else {
-            print("failed URL conversion")
+            print("Failed to convert Help URL.")
             return
         }
 
