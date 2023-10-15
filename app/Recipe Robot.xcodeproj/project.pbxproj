@@ -387,7 +387,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Skipping.\"\n# carthage outdated --xcode-warnings 2>/dev/null\n";
+			shellScript = "/opt/homebrew/bin/carthage outdated --xcode-warnings 2>/dev/null\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
