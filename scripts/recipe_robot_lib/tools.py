@@ -101,6 +101,8 @@ CACHE_DIR = os.path.join(
     datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"),
 )
 
+# Whether to display Terminal colors or not.
+# Variable name required to be lowercase in order to be overridden by script.
 color_setting = False
 
 # Domains associated with GitHub.
