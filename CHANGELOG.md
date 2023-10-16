@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+Nothing yet.
+
+## [2.3.0] - 2023-10-16
+
 ### Added
 
 - Recipe Robot is now able to create yaml recipes. To use this feature, run `--configure` and select `yaml` as the recipe format. (Or run `defaults write com.elliotjordan.recipe-robot RecipeFormat "yaml"`). The app does not yet have a method for selecting this preference.
@@ -392,7 +396,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/homebysix/recipe-robot/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/homebysix/recipe-robot/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/homebysix/recipe-robot/compare/v1.2.1...v2.0.0
