@@ -175,11 +175,6 @@
   developer: Ben Toms
   input_path: https://github.com/macmule/AutoCasperNBI
 
-- app_name: Azendoo
-  bundle_id: com.azendoo.desktop
-  developer: Azendoo
-  input_path: https://storage.googleapis.com/az_desktop/darwin-x64/Azendoo.dmg
-
 - app_name: BackupLoupe
   bundle_id: com.soma-zone.BackupLoupe
   developer: soma-zone
@@ -320,11 +315,6 @@
   developer: Kosuke USAMI
   input_path: https://github.com/coteditor/CotEditor
 
-- app_name: Dashblock
-  bundle_id: com.dashblock.desktop
-  developer: Datap
-  input_path: https://github.com/dashblock/desktop-releases
-
 - app_name: Deep Dreamer
   bundle_id: com.realmacsoftware.deepdreamer
   developer: Realmac Software
@@ -408,7 +398,7 @@
 - app_name: duet
   bundle_id: com.kairos.duet
   developer: Rahul Dewan
-  input_path: https://duet.nyc3.cdn.digitaloceanspaces.com/Mac/2_3/DuetDisplayAppcast.xml
+  input_path: https://updates.duetdisplay.com/checkMacUpdates
 
 - app_name: Duo Device Health
   bundle_id: com.duosecurity.duo-device-health
@@ -490,11 +480,6 @@
   developer: Jesse Grosjean
   input_path: https://s3.amazonaws.com/foldingtext/FoldingText.dmg
 
-- app_name: Folio
-  bundle_id: co.ysberg.Folio
-  developer: Hanno ter Hoor
-  input_path: https://s3.amazonaws.com/folioformac.com/folioupdates.xml.rss
-
 - app_name: Font Finagler
   bundle_id: com.markdouma.FontFinagler
   developer: Mark Douma
@@ -539,16 +524,6 @@
   bundle_id: com.macpaw.site.Gemini2
   developer: MacPaw
   input_path: https://dl.devmate.com/com.macpaw.site.Gemini2/Gemini2.dmg
-
-- app_name: GIF for Mac
-  bundle_id: com.riffsy.GIF-for-Mac
-  developer: Riffsy
-  input_path: https://media.tenor.co/mac/gif_for_mac_appcast.xml
-
-- app_name: Gitbox
-  bundle_id: com.oleganza.gitbox
-  developer: Oleg Andreev
-  input_path: http://gitboxapp.com/updates.xml
 
 - app_name: Gitify
   bundle_id: com.electron.gitify
@@ -609,11 +584,6 @@
   bundle_id: com.apimac.iNotepadMac
   developer: Ivan Gobbo
   input_path: https://www.apimac.com/download/iNotepad.zip
-
-- app_name: iOSConsole
-  bundle_id: com.lemonjar.iosconsole
-  developer: Lemonjar
-  input_path: https://updates.lemonjar.com/iosconsole.xml
 
 - app_name: IP in menu bar
   bundle_id: de.monkeybreadsoftware.freeware.ipinmenubar
@@ -845,11 +815,6 @@
   developer: CharlesSoft
   input_path: https://www.charlessoft.com/NibUnlocker.zip
 
-- app_name: NightOwl
-  bundle_id: com.fuekiin.NightOwl
-  developer: Benjamin Kramser
-  input_path: https://nightowl.kramser.xyz/files/NightOwl.dmg
-
 - app_name: Noise Machine
   bundle_id: net.publicspace.dist.noisemachine
   developer: Frank Reiff
@@ -889,11 +854,6 @@
   bundle_id: com.celestialteapot.direct.Pathology
   developer: Todd Ditchendorf
   input_path: http://celestialteapot.com/pathology/appcast/pathology.rss
-
-- app_name: Paw
-  bundle_id: com.luckymarmot.Paw
-  developer: Micha Mazaheri
-  input_path: https://luckymarmot.com/paw/download
 
 - app_name: PDFKit
   bundle_id: com.ireador.PDFKit
@@ -959,11 +919,6 @@
   bundle_id: com.searchwaresolutions.PrintWindow
   developer: Scott Crick
   input_path: http://printwindowapp.com/software/printwindow.dmg
-
-- app_name: ProfitTrain
-  bundle_id: com.clickablebliss.ProfitTrain
-  developer: RazorAnt Software
-  input_path: https://razorant.com/profittrain/profileInfo
 
 - app_name: ProtoPie
   bundle_id: io.protopie
@@ -1125,11 +1080,6 @@
   developer: Sveinbjörn Þórðarson
   input_path: https://sveinbjorn.org/files/appcasts/SlothAppcast.xml
 
-- app_name: Sofa Control
-  bundle_id: com.gravityapps.SofaControl
-  developer: CASEapps
-  input_path: http://www.caseapps.com/downloads/sofacontrol-update.xml
-
 - app_name: Solstice
   bundle_id: com.mersive.solstice.client
   developer: Mersive Technologies
@@ -1174,11 +1124,6 @@
   bundle_id: com.syncromsp.SyncroAgent
   developer: SyncroMSP
   input_path: https://production.kabutoservices.com/macos/SyncroAgent-Latest.zip
-
-- app_name: Tags
-  bundle_id: com.gravityapps.Tags
-  developer: CaseApps
-  input_path: http://www.caseapps.com/downloads/updates/tags/tags2-update.xml
 
 - app_name: TapeDeck
   bundle_id: com.supermegaultragroovy.tapedeck
@@ -1315,15 +1260,10 @@
   developer: Tae Won Ha
   input_path: https://raw.githubusercontent.com/qvacua/vimr/master/appcast.xml
 
-- app_name: VipRiser
-  bundle_id: com.onflapp.VipRiser
-  developer: Ondrej Florian
-  input_path: http://onflapp.github.io/blog/releases/vipriser/appcast.xml
-
 - app_name: VirtualC64
   bundle_id: de.dirkwhoffmann.VirtualC64
   developer: Prof. Dr. Dirk W. Hoffmann
-  input_path: http://dirkwhoffmann.de/virtualc64/VirtualC64Appcast.xml
+  input_path: https://github.com/dirkwhoffmann/virtualc64/releases/download/v4.6/VirtualC64.app.zip/VirtualC64Appcast.xml
 
 - app_name: Viscosity
   bundle_id: com.viscosityvpn.Viscosity
