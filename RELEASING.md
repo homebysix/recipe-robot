@@ -25,7 +25,7 @@
 
 7. Open Xcode and choose __Product > Archive__.
 
-8. Click __Distribute App > Developer ID > Next > Upload__. Wait for notarization to complete.
+8. Click __Distribute App > Direct Distribution > Distribute__. Wait for notarization to complete.
 
 9. Once ready, click __Export Notarized App__ and save to __build/Release/Recipe Robot.app__.
 
@@ -37,7 +37,7 @@
         zmv -v 'build/Recipe Robot (*).dmg' 'build/RecipeRobot-$1.dmg'
         open build/
 
-11. Create new release on GitHub. Add notes from change log. Attach built disk image.
+11. Create new release on GitHub with title format `Recipe Robot X.X.X`. Set label format to `vX.X.X`. Add notes from change log. Attach built disk image.
 
 12. Trigger a GitHub Pages build, which updates the Sparkle feed ([using @huangyq23's method detailed here](https://www.yiqiu.me/2015/11/19/sparkle-update-on-github/)):
 
