@@ -27,7 +27,6 @@ from __future__ import absolute_import, print_function
 
 import os.path
 import subprocess
-from urllib.parse import quote, unquote
 
 from .exceptions import RoboError
 from .tools import KNOWN_403_ON_HEAD, LogLevel, robo_print
@@ -36,6 +35,16 @@ from .tools import KNOWN_403_ON_HEAD, LogLevel, robo_print
 def prepare_curl_cmd():
     """Assemble basic curl command and return it."""
     return ["/usr/bin/curl", "--compressed", "--location", "--silent", "--show-error"]
+
+
+def quote_spaces(url):
+    """Curl will fail with exit code 3 if URL contains spaces, so quote those.
+
+    No need to quote other quotable characters, it seems.
+    Example: https://github.com/homebysix/recipe-robot/issues/197
+    """
+
+    return url.replace(" ", "%20")
 
 
 def add_curl_headers(curl_cmd, headers):
@@ -240,7 +249,7 @@ def download(url, headers=None, text=False):
     """
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
-    curl_cmd.extend(["--url", url])
+    curl_cmd.extend(["--url", quote_spaces(url)])
     output = download_with_curl(curl_cmd, text=text)
     return output
 
@@ -266,15 +275,11 @@ def download_to_file(url, filename, headers=None, app_mode=False):
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
 
-    # Quote URL if not already quoted. Curl will fail if path is unquoted, in some cases.
-    # https://github.com/homebysix/recipe-robot/issues/197
-    url = quote(url, safe=":/") if url == unquote(url) else url
-
     # Disable silent mode in order to display download progress bar.
     if not app_mode:
         curl_cmd.remove("--silent")
         curl_cmd.append("--progress-bar")
-    curl_cmd.extend(["--output", filename, "--url", url])
+    curl_cmd.extend(["--output", filename, "--url", quote_spaces(url)])
     download_with_curl(curl_cmd, text=False, capture_output=False)
     if os.path.exists(filename):
         return filename
@@ -296,6 +301,7 @@ def get_headers(url, headers=None):
     curl_cmd = prepare_curl_cmd()
     if headers:
         add_curl_headers(curl_cmd, headers)
+    url = quote_spaces(url)
     curl_cmd.extend(["--head", "--url", url])
     out, err, retcode = execute_curl(curl_cmd, text=True)
     parsed_headers = parse_headers(out, url=url)
