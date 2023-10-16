@@ -1685,8 +1685,9 @@ def inspect_pkg(input_path, args, facts):
     cmd = '/usr/sbin/pkgutil --expand "%s" "%s"' % (input_path, expand_path)
     exitcode, out, _ = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
-        # TODO: Support package bundles here. Example:
+        # TODO: Support package bundles here. Examples:
         # https://pqrs.org/osx/karabiner/files/KeyRemap4MacBook-7.4.0.pkg.zip
+        # http://www.draftsight.com/download-mac
         facts["warnings"].append("Unable to expand package: %s" % input_path)
     else:
         # Locate and inspect the app.
