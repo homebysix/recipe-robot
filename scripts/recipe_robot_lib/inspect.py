@@ -576,6 +576,7 @@ def get_app_description(app_name):
         result = re.search(source["pattern"], out)
         if result:
             description = html_decode(result.group("desc"))
+            description = description.replace("<b>", "").replace("</b>", "")
             return html.unescape(description), source["name"]
     return None, None
 
