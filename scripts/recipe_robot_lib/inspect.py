@@ -2018,7 +2018,8 @@ def inspect_barebones_feed_url(input_path, args, facts):
     # Remove items with unusable URLs.
     feed_entries = [x for x in feed_entries if x.get("SUFeedEntryUpdateURL")]
     if not feed_entries:
-        facts["warnings"].append("There appear to be no feed entries for this app.")
+        robo_print("No usable items found in feed", LogLevel.VERBOSE, 4)
+        return facts
 
     # Determine which item is "latest".
     vers_key_order = ("SUFeedEntryShortVersionString", "SUFeedEntryVersion")
@@ -2146,6 +2147,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Remove items with unusable URLs.
     sparkle_nones = (None, "", "null", "n/a", "none")
     sparkle_info = [x for x in sparkle_info if x["url"].lower() not in sparkle_nones]
+    if not sparkle_info:
+        robo_print("No usable items found in Sparkle feed", LogLevel.VERBOSE, 4)
+        return facts
 
     # Determine which item is "latest", preferring version, then shortVersionString,
     # then as a last resort, the URL itself.

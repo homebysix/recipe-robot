@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file. This projec
 - Fixed MacUpdate description pattern matching.
 - Better handling of URLs with unquoted spaces. (#197)
 - Improved detection of less obvious Sparkle feeds that might at first glance appear to be download URLs.
+- More gracefully handle Sparkle and Bare Bones feeds with no usable items or enclosure URLs.
 
 ### Changed
 
