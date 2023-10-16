@@ -16,20 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """
 test_facts.py
 
 Unit tests for facts-related functions.
 """
 
-
 from __future__ import absolute_import
-import os
-import json
 
 from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
-
 from recipe_robot_lib.facts import *
 
 

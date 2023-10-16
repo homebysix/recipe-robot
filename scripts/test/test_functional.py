@@ -37,7 +37,6 @@ from random import shuffle
 
 import yaml
 from nose.tools import *
-
 from recipe_robot_lib.tools import strip_dev_suffix
 
 # pylint: enable=unused-wildcard-import, wildcard-import
@@ -46,7 +45,7 @@ from recipe_robot_lib.tools import strip_dev_suffix
 # TODO (Shea): Add arguments to only produce certain RecipeTypes. This will
 # allow us to narrow the tests down.
 
-RECIPE_TYPES = ("download", "pkg", "munki", "install", "jss")
+RECIPE_TYPES = ("download", "pkg", "munki", "install")
 
 
 def robot_runner(input_path):
@@ -121,7 +120,6 @@ def test():
 
     # Iterate through sample data, generating a recipe for each input.
     for app in sample_data:
-
         if prefs.get("StripDeveloperSuffixes") is True:
             app["developer"] = strip_dev_suffix(app["developer"])
 

@@ -40,8 +40,9 @@ from .roboabc import RoboDict, RoboList
 from .tools import LogLevel, robo_print
 
 # pylint: enable=no-name-in-module
-
 # pylint: disable=too-few-public-methods
+
+
 class NotificationMixin(object):
     """Adds a send_notification method to Notifying classes."""
 

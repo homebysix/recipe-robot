@@ -27,21 +27,24 @@ from __future__ import absolute_import, print_function
 
 import os.path
 import subprocess
-from urllib.parse import urlparse
 
 from .exceptions import RoboError
-from .tools import (
-    GITHUB_DOMAINS,
-    KNOWN_403_ON_HEAD,
-    LogLevel,
-    any_item_in_string,
-    robo_print,
-)
+from .tools import KNOWN_403_ON_HEAD, LogLevel, robo_print
 
 
 def prepare_curl_cmd():
     """Assemble basic curl command and return it."""
     return ["/usr/bin/curl", "--compressed", "--location", "--silent", "--show-error"]
+
+
+def quote_spaces(url):
+    """Curl will fail with exit code 3 if URL contains spaces, so quote those.
+
+    No need to quote other quotable characters, it seems.
+    Example: https://github.com/homebysix/recipe-robot/issues/197
+    """
+
+    return url.replace(" ", "%20")
 
 
 def add_curl_headers(curl_cmd, headers):
@@ -167,7 +170,13 @@ def parse_headers(raw_headers, url=""):
             parse_ftp_header(line, header)
         elif line == "":
             # we got an empty line; end of headers (or curl exited)
-            if header.get("http_result_code") in ("301", "302", "303", "307", "308",):
+            if header.get("http_result_code") in (
+                "301",
+                "302",
+                "303",
+                "307",
+                "308",
+            ):
                 # redirect, so more headers are coming.
                 # Throw away the headers we've received so far
                 header["http_redirected"] = header.get("location", None)
@@ -240,7 +249,7 @@ def download(url, headers=None, text=False):
     """
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
-    curl_cmd.extend(["--url", url])
+    curl_cmd.extend(["--url", quote_spaces(url)])
     output = download_with_curl(curl_cmd, text=text)
     return output
 
@@ -265,11 +274,12 @@ def download_to_file(url, filename, headers=None, app_mode=False):
     """
     curl_cmd = prepare_curl_cmd()
     add_curl_headers(curl_cmd, headers)
+
     # Disable silent mode in order to display download progress bar.
     if not app_mode:
         curl_cmd.remove("--silent")
         curl_cmd.append("--progress-bar")
-    curl_cmd.extend(["--output", filename, "--url", url])
+    curl_cmd.extend(["--output", filename, "--url", quote_spaces(url)])
     download_with_curl(curl_cmd, text=False, capture_output=False)
     if os.path.exists(filename):
         return filename
@@ -291,6 +301,7 @@ def get_headers(url, headers=None):
     curl_cmd = prepare_curl_cmd()
     if headers:
         add_curl_headers(curl_cmd, headers)
+    url = quote_spaces(url)
     curl_cmd.extend(["--head", "--url", url])
     out, err, retcode = execute_curl(curl_cmd, text=True)
     parsed_headers = parse_headers(out, url=url)
@@ -331,7 +342,6 @@ def check_url(url, headers=None):
 
     # Try to mitigate errors.
     if http_result == 403:
-
         ua_safari = (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/605.1.15 (KHTML, like Gecko) "
@@ -357,7 +367,9 @@ def check_url(url, headers=None):
             head, retcode = get_headers(url, headers=headers)
             if int(head.get("http_result_code")) < 400:
                 robo_print(
-                    "Using browser user-agent.", LogLevel.VERBOSE, 4,
+                    "Using browser user-agent.",
+                    LogLevel.VERBOSE,
+                    4,
                 )
                 return url, head, headers["user-agent"]
 

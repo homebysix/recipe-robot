@@ -27,9 +27,8 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 
 from __future__ import absolute_import, print_function
 
+import json
 import os
-import plistlib
-import re
 import shlex
 import subprocess
 import sys
@@ -37,7 +36,6 @@ import timeit
 from datetime import datetime
 from functools import wraps
 from random import choice as random_choice
-from urllib.parse import quote_plus
 
 # pylint: disable=no-name-in-module
 from Foundation import (
@@ -54,7 +52,7 @@ from .exceptions import RoboError
 # pylint: enable=no-name-in-module
 
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 ENDC = "\033[0m"
 BUNDLE_ID = "com.elliotjordan.recipe-robot"
 PREFS_FILE = os.path.expanduser("~/Library/Preferences/%s.plist" % BUNDLE_ID)
@@ -80,12 +78,12 @@ SUPPORTED_BUNDLE_TYPES = {
 # the com.elliotjordan.recipe-robot.plist preference file.
 PREFERENCE_KEYS = (
     "DSPackagesPath",
-    "FollowOfficialJSSRecipesFormat",
     "IgnoreExisting",
     "Initialized",  # Used by the RR app to show/hide config sheet on first launch.
     "LastRecipeRobotVersion",
     "RecipeCreateCount",
     "RecipeCreateLocation",
+    "RecipeFormat",
     "RecipeIdentifierPrefix",
     "RecipeTypes",
     "StripDeveloperSuffixes",
@@ -103,6 +101,8 @@ CACHE_DIR = os.path.join(
     datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"),
 )
 
+# Whether to display Terminal colors or not.
+# Variable name required to be lowercase in order to be overridden by script.
 color_setting = False
 
 # Domains associated with GitHub.
@@ -230,9 +230,7 @@ def get_github_token():
             with open(github_token_file, "r") as tokenfile:
                 return tokenfile.read().strip()
         except IOError:
-            facts["warnings"].append(
-                "Couldn't read GitHub token file at {}.".format(github_token_file)
-            )
+            print("WARNING: Couldn't read GitHub token file at %s." % github_token_file)
     return None
 
 
@@ -317,7 +315,7 @@ def recipe_dirpath(app_name, dev, prefs):
     for char in char_replacements:
         app_name = app_name.replace(char[0], char[1])
     path_components = [prefs["RecipeCreateLocation"]]
-    if dev is not None and prefs.get("FollowOfficialJSSRecipesFormat", False) is False:
+    if dev is not None:
         # TODO (Elliot): Put this in the preferences.
         if prefs.get("StripDeveloperSuffixes", False) is True:
             dev = strip_dev_suffix(dev)
@@ -430,11 +428,11 @@ def print_welcome_text():
                       -----------------------------------
                      |  Welcome to Recipe Robot v%s.  |
                       -----------------------------------
-                                \   _[]_
-                                 \  [oo]
+                                \\   _[]_
+                                 \\  [oo]
                                    d-||-b
                                      ||
-                                   _/  \_
+                                   _/  \\_
     """
         % __version__
     )
@@ -449,14 +447,15 @@ def print_death_text():
                                     [xx]
                                    q-||-p
                                      ||
-                                   _/  \_
+                                   _/  \\_
     """
     robo_print(death_text)
 
 
 def reset_term_colors():
     """Reset terminal colors back to normal."""
-    sys.stdout.write(ENDC)
+    if color_setting:
+        sys.stdout.write(ENDC)
 
 
 def get_user_defaults():
@@ -509,6 +508,83 @@ def any_item_in_string(items, test_string):
     return any([True for item in items if item in test_string])
 
 
+def check_search_cache(facts, search_index_path):
+    """Update local search index, if it's missing or out of date."""
+    robo_print("Checking local search index cache...", LogLevel.VERBOSE)
+
+    # Retrieve metadata about search index file from GitHub API
+    cache_meta_url = (
+        "https://api.github.com/repos/autopkg/index/contents/index.json?ref=main"
+    )
+    cmd = 'curl -sL "%s" -H "Accept: application/vnd.github.v3+json"' % cache_meta_url
+    exitcode, stdout, _ = get_exitcode_stdout_stderr(cmd)
+    if exitcode != 0:
+        facts["warnings"].append(
+            "Unable to retrieve search index metadata from GitHub API."
+        )
+        return
+    cache_meta = json.loads(stdout)
+
+    # If cache exists locally, check whether it's current
+    if os.path.isfile(search_index_path) and os.path.isfile(
+        search_index_path + ".etag"
+    ):
+        with open(search_index_path + ".etag", "r", encoding="utf-8") as openfile:
+            local_etag = openfile.read().strip('"')
+        if local_etag == cache_meta["sha"]:
+            robo_print("Local search index cache is up to date.", LogLevel.VERBOSE, 4)
+            return
+
+    # Write etag file
+    with open(search_index_path + ".etag", "w", encoding="utf-8") as openfile:
+        openfile.write(cache_meta["sha"])
+
+    # Write cache file
+    cmd = 'curl -sLo "%s" "%s" -H "Accept: application/vnd.github.v3.raw"' % (
+        search_index_path,
+        cache_meta_url,
+    )
+    exitcode, _, _ = get_exitcode_stdout_stderr(cmd)
+    if exitcode != 0:
+        facts["warnings"].append(
+            "Unable to retrieve search index contents from GitHub API."
+        )
+        return
+    robo_print("Updated local search index cache.", LogLevel.VERBOSE, 4)
+
+
+def get_table_row(row_items, col_widths, header=False):
+    """This function takes table row content (list of strings) and column
+    widths (list of integers) as input and outputs a string representing a
+    table row in Markdown, with normalized "pretty" spacing that is readable
+    when unrendered."""
+
+    output = ""
+    header_sep = "\n"
+    column_space = 4
+    for idx, cell in enumerate(row_items):
+        padding = col_widths[idx] - len(cell) + column_space
+        header_sep += "-" * len(cell) + " " * padding
+        output += f"{cell}{' ' * padding}"
+
+    if header:
+        return output + header_sep
+
+    return output
+
+
+def normalize_keyword(keyword):
+    """Normalizes capitalization, punctuation, and spacing of search keywords
+    for better matching."""
+    # TODO: Consider implementing fuzzywuzzy or some other fuzzy search method
+    keyword = keyword.lower()
+    replacements = {" ": "", ".": "", ",": "", "-": ""}
+    for old, new in replacements.items():
+        keyword = keyword.replace(old, new)
+
+    return keyword
+
+
 def create_existing_recipe_list(facts):
     """Use autopkg search results to build existing recipe list.
 
@@ -521,64 +597,67 @@ def create_existing_recipe_list(facts):
         RoboError: Standard exception raised when Recipe Robot cannot proceed.
     """
     app_name = facts["app_name"]
-    recipes = facts["recipes"]
     # TODO(Elliot): Suggest users create GitHub API token to prevent
     # limiting. (#29)
 
-    # Generate an array to run through `autopkg search`.
-    recipe_searches = [quote_plus(app_name)]
+    # Update search index JSON cache
+    search_index_path = os.path.expanduser(
+        "~/Library/Caches/Recipe Robot/search_index.json"
+    )
+    check_search_cache(facts, search_index_path)
+    with open(search_index_path, "rb") as openfile:
+        search_index = json.load(openfile)
 
-    app_name_no_space = quote_plus("".join(app_name.split()))
-    if app_name_no_space not in recipe_searches:
-        recipe_searches.append(app_name_no_space)
+    # Search for existing recipes in index
+    robo_print(
+        "Searching for existing AutoPkg recipes for %s..." % app_name, LogLevel.VERBOSE
+    )
+    result_ids = []
+    for candidate, identifiers in search_index["shortnames"].items():
+        if normalize_keyword(app_name) in normalize_keyword(candidate):
+            result_ids.extend(identifiers)
+    result_ids = list(set(result_ids))
+    if not result_ids:
+        robo_print("No results", LogLevel.VERBOSE, 4)
+        return
 
-    app_name_no_symbol = quote_plus(re.sub(r"[^\w]", "", app_name))
-    if app_name_no_symbol not in recipe_searches:
-        recipe_searches.append(app_name_no_symbol)
+    # Collect result info into result list
+    result_items = []
+    for result_id in result_ids:
+        repo = search_index["identifiers"][result_id]["repo"]
+        if repo.startswith("autopkg/"):
+            repo = repo.replace("autopkg/", "")
+        result_item = {
+            "Name": os.path.split(search_index["identifiers"][result_id]["path"])[-1],
+            "Repo": repo,
+            "Path": search_index["identifiers"][result_id]["path"],
+        }
+        result_items.append(result_item)
+    col_widths = [
+        max([len(x[k]) for x in result_items] + [len(k)])
+        for k in result_items[0].keys()
+    ]
 
-    for this_search in recipe_searches:
-        robo_print(
-            "Searching for existing AutoPkg recipes for %s..." % this_search,
-            LogLevel.VERBOSE,
-        )
-        # TODO: Check for token in AutoPkg preferences.
-        if os.path.isfile(os.path.expanduser("~/.autopkg_gh_token")):
-            robo_print("Using GitHub token file", LogLevel.VERBOSE, 4)
-            cmd = (
-                "/usr/local/bin/autopkg search --path-only --use-token "
-                "%s" % this_search
-            )
-        else:
-            cmd = "/usr/local/bin/autopkg search --path-only %s" % this_search
-        exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-        out = out.split("\n")
-        # Set to False by default. If found, set True.
-        is_existing = False
-        # For each recipe type, see if it exists in the search results.
-        for recipe in recipes:
-            recipe_name = "%s.%s.recipe" % (this_search, recipe["type"])
-            for line in out:
-                if line.lower().startswith(recipe_name.lower()):
-                    # An existing recipe was found.
-                    if is_existing is False:
-                        robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
-                        is_existing = True
-                        recipe["existing"] = True
-                    robo_print(recipe_name, LogLevel.LOG, 8)
-                    break
-        if is_existing is True:
-            raise RoboError(
-                "Sorry, AutoPkg recipes already exist for this app, and "
-                "I can't blend new recipes with existing recipes.\n\nHere "
-                "are my suggestions:\n\t- See if one of the above recipes "
-                "meets your needs, either as-is or using an override."
-                "\n\t- Write your own recipe using one of the above as "
-                "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
-                "the creation of a new child recipe, as seen here:\n\t  "
-                "https://youtu.be/5VKDzY8bBxI?t=2829"
-            )
-        else:
-            robo_print("No results", LogLevel.VERBOSE, 4)
+    # Print result table, sorted by repo
+    robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
+    robo_print("")
+    robo_print(get_table_row(result_items[0].keys(), col_widths, header=True))
+    for result_item in sorted(result_items, key=lambda x: x["Repo"].lower()):
+        robo_print(get_table_row(result_item.values(), col_widths))
+    robo_print("")
+
+    raise RoboError(
+        "Sorry, AutoPkg recipes already exist for this app, and "
+        "I can't blend new recipes with existing recipes.\n\nHere "
+        "are my suggestions:\n\t- See if one of the above recipes "
+        "meets your needs, either as-is or using an override."
+        "\n\t- Write your own recipe using one of the above as "
+        "the ParentRecipe.\n\t- Use Recipe Robot to assist in "
+        "the creation of a new child recipe, as seen here:\n\t  "
+        "https://youtu.be/5VKDzY8bBxI?t=2829\n\t- To ignore this "
+        "warning and create recipes anyway, run again using "
+        "--ignore-existing."
+    )
 
 
 def congratulate(prefs, first_timer):
@@ -591,21 +670,25 @@ def congratulate(prefs, first_timer):
             Recipe Robot.
     """
     congrats_msg = (
+        "(Yep, it's pretty fun for me too.)",
         "Amazing.",
         "Easy peasy.",
         "Fantastic.",
         "Good on ya!",
         "Imagine all the typing you saved.",
         "Isn't meta-automation great?",
-        "(Yep, it's pretty fun for me too.)",
+        "Let's do some more!",
         "Pretty cool, right?",
         "Round of applause for you!",
         "Terrific job!",
-        "Thanks!",
         "That's awesome!",
+        "Very impressive.",
         "Want to do another?",
+        "Way to go!",
         "Well done!",
+        "You came here to build recipes and chew bubblegum. And you're all out of bubblegum.",
         "You rock star, you.",
+        "You're doing a great job.",
     )
     if prefs["RecipeCreateCount"] > 0:
         if first_timer:

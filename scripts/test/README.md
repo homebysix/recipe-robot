@@ -10,14 +10,14 @@ You must have the `nose` tool installed (and probably `pip3` to install it).
 /usr/local/autopkg/python -m pip install nose --user
 ```
 
-Also check Recipe Robot's config to make sure download, pkg, munki, and jss recipes are enabled. Also turn on the "strip developer suffixes" and turn off the "use official jss-recipes style" options.
+Also check Recipe Robot's config to make sure download, pkg, and munki recipes are enabled. Also turn on the "strip developer suffixes".
 
 ```
 defaults write com.elliotjordan.recipe-robot RecipeIdentifierPrefix "com.github.foo"
-defaults write com.elliotjordan.recipe-robot RecipeCreateLocation "~/Library/AutoPkg/Recipe Robot Output"
-defaults write com.elliotjordan.recipe-robot RecipeTypes -array "download" "pkg" "munki" "jss" "install"
+defaults write com.elliotjordan.recipe-robot RecipeCreateLocation "~/Library/AutoPkg/RecipeRobotTestOutput"
+defaults write com.elliotjordan.recipe-robot RecipeTypes -array "download" "pkg" "munki" "install"
+defaults write com.elliotjordan.recipe-robot RecipeFormat "plist"
 defaults write com.elliotjordan.recipe-robot StripDeveloperSuffixes -bool true
-defaults write com.elliotjordan.recipe-robot FollowOfficialJSSRecipesFormat -bool false
 ```
 
 Make sure your working directory is the **scripts** folder.

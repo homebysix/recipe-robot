@@ -8,6 +8,41 @@ All notable changes to this project will be documented in this file. This projec
 
 Nothing yet.
 
+## [2.3.0] - 2023-10-16
+
+### Added
+
+- Recipe Robot is now able to create yaml recipes. To use this feature, run `--configure` and select `yaml` as the recipe format. (Or run `defaults write com.elliotjordan.recipe-robot RecipeFormat "yaml"`). The app does not yet have a method for selecting this preference.
+- Now "jamf" recipes that leverage Graham Pugh's JamfPackageUploader processor can be created. This feature is currently limited to package-upload-only type recipes. (No creation of groups, policies, scripts, or other objects.) (#187)
+- Redeveloped existing recipe detection using the automated AutoPkg [recipe index](https://github.com/autopkg/index). Recipe Robot will use this method until the `autopkg search` results become reliable again.
+- Local `file://` URLs are now supported input paths (but be aware that these may not be desirable for providing ongoing updates via AutoPkg, unless you have automation updating the local file).
+- New dedicated handler for Bare Bones update feeds, which are similar to Sparkle feeds but not the same. (#194)
+- Added three more app description sources, increasing the chance that Recipe Robot will pre-fill your Munki or Jamf recipes with useful descriptions for you to customize.
+- Added more post-recipe-creation affirmations, because why not.
+
+### Fixed
+
+- Better handling of disk images that contain packages. (#188)
+- Recipe Robot better handles downloaded payloads that contain the contents of an app bundle, but lack the enclosing bundle itself. (Thanks to @andrewzierkel for #195)
+- Prevented app window from expanding too much horizontally when processing extremely long filename or URL inputs.
+- Fixed incorrect `[0m` that terminated script output in app.
+- Fixed MacUpdate description pattern matching.
+- Better handling of URLs with unquoted spaces. (#197)
+- Improved detection of less obvious Sparkle feeds that might at first glance appear to be download URLs.
+- More gracefully handle Sparkle and Bare Bones feeds with no usable items or enclosure URLs.
+
+### Changed
+
+- Recipe Robot app finally supports dark mode in script output box!
+- Updated [Sparkle](https://github.com/sparkle-project/Sparkle/) framework to 2.5.1.
+- If existing recipes are found, output a hint that using `--ignore-existing` can create new recipes anyway.
+- Use zero-width space for script output contents placeholder, which ensures that "Processing" on the first line aligns with the left side.
+
+### Removed
+
+- Removed support for generation of "jss" style recipes, which leverage the deprecated [Python-JSS](https://github.com/jssimporter/python-jss) module. Please [switch to JamfUploader type recipes](https://grahamrpugh.com/2022/02/16/jssimporter-jamf-pro-api-token-auth.html) instead.
+- Dropped AlternativeTo as a description source.
+
 ## [2.2.0] - 2020-12-13
 
 ### Added
@@ -361,7 +396,8 @@ Nothing yet.
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/homebysix/recipe-robot/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/homebysix/recipe-robot/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/homebysix/recipe-robot/compare/v1.2.1...v2.0.0

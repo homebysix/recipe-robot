@@ -27,8 +27,6 @@ Unit tests for recipe_generator.
 from __future__ import absolute_import
 
 from nose.tools import *
-
-# pylint: enable=unused-wildcard-import, wildcard-import
 from recipe_robot_lib import facts, recipe_generator
 from recipe_robot_lib.tools import (
     SUPPORTED_ARCHIVE_FORMATS,

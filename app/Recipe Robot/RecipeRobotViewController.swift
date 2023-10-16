@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  RecipeRobotViewController.swift
 //
 //  Recipe Robot
 //  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -19,7 +19,6 @@
 import AudioToolbox
 import Cocoa
 import Quartz
-import Sparkle
 
 //let sound = NSSound(named: "Glass")
 var sound: NSSound?
@@ -139,17 +138,11 @@ class PreferenceViewController: RecipeRobotViewController {
     // MARK: IBOutlets
     @IBOutlet var tableView: NSTableView!
     @IBOutlet var scrollView: NSScrollView!
-
     @IBOutlet var dsFolderPathButton: NSButton!
     @IBOutlet weak var dsLabel: NSTextField!
     @IBOutlet weak var dsTextField: NSTextField!
-
     @IBOutlet var recipeFolderPathButton: NSButton!
-
     @IBOutlet weak var recipeLocation: NSTextField!
-
-    @IBOutlet weak var jssCheckBox: NSButton!
-
     private var enabledRecipeTypes = Defaults.sharedInstance.recipeTypes ?? Set<String>()
 
     // MARK: Overrides
@@ -164,9 +157,6 @@ class PreferenceViewController: RecipeRobotViewController {
         self.recipeFolderPathButton.target = self
         self.dsFolderPathButton.action = #selector(PreferenceViewController.chooseFilePath(sender:))
         self.dsFolderPathButton.target = self
-
-        let jssHidden = !enabledRecipeTypes.contains(RecipeType.JSS.value)
-        jssCheckBox.isHidden = jssHidden
 
         let dsHidden = !enabledRecipeTypes.contains(RecipeType.DS.value)
         dsLabel.isHidden = dsHidden
@@ -302,8 +292,6 @@ extension PreferenceViewController: NSTableViewDataSource, NSTableViewDelegate {
 
         let type = RecipeType.cases[row]
         switch type {
-        case .JSS:
-            jssCheckBox.isHidden = !enabled
         case .DS:
             dsLabel.isHidden = !enabled
             dsTextField.isHidden = !enabled
@@ -396,7 +384,11 @@ class ProcessingViewController: RecipeRobotViewController {
             appIcon?.image = icon
         }
         if let name = task.appOrRecipeName {
-            titleLabel.stringValue = "Making \(name) recipes..."
+            if name.count < 50 {
+                titleLabel.stringValue = "Making \(name) recipes..."
+            } else {
+                titleLabel.stringValue = "Making recipes..."
+            }
         } else {
             titleLabel.stringValue = "Making recipes..."
         }
@@ -470,38 +462,5 @@ class ProcessingViewController: RecipeRobotViewController {
             self.task.cancel()
         }
         self.performSegue(withIdentifier: "ProcessingSegue", sender: self)
-    }
-}
-
-// MARK: - Sparkle Updates View Controller
-class VersionDisplayViewController: NSViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-    }
-
-    override var representedObject: Any? {
-        didSet {
-            // Update the view, if already loaded.
-        }
-    }
-    @IBAction func checkForUpdates(_ sender: Any) {
-        let updater = SUUpdater.shared()
-        updater?.checkForUpdates(self)
-    }
-}
-
-extension VersionDisplayViewController {
-    static func freshController() -> VersionDisplayViewController {
-        let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-        let identifier = NSStoryboard.SceneIdentifier("VersionDisplayViewController")
-        guard
-            let viewcontroller = storyboard.instantiateController(withIdentifier: identifier)
-                as? VersionDisplayViewController
-        else {
-            fatalError("Failed to find view controller - Check Main.storyboard")
-        }
-        return viewcontroller
     }
 }

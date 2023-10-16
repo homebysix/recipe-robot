@@ -8,7 +8,7 @@
 import Foundation
 
 enum RecipeType: Int {
-    case Download, Munki, Pkg, Install, JSS, JSSUpload, LANrev, SCCM, DS, Filewave, BigFix
+    case Download, Munki, Pkg, Install, Jamf, LANrev, SCCM, DS, Filewave, BigFix
 
     var value: String {
         switch self {
@@ -16,8 +16,7 @@ enum RecipeType: Int {
         case .Munki: return "munki"
         case .Pkg: return "pkg"
         case .Install: return "install"
-        case .JSS: return "jss"
-        case .JSSUpload: return "jss-upload"
+        case .Jamf: return "jamf"
         case .LANrev: return "lanrev"
         case .SCCM: return "sccm"
         case .DS: return "ds"
@@ -32,7 +31,7 @@ enum RecipeType: Int {
         case .Munki, .Pkg, .Install, .Filewave, .BigFix:
             // Requires Download
             types = types.union([.Download])
-        case .JSS, .JSSUpload, .LANrev, .SCCM, .DS:
+        case .Jamf, .LANrev, .SCCM, .DS:
             // Requires Package (inherits Download)
             types = types.union([.Pkg])
         default:

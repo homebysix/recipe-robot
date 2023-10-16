@@ -18,14 +18,30 @@
 
 import AppKit
 import Cocoa
+import Sparkle
 
 //import AppMover
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+    // Outlet for "Check for Updates" menu item
+    @IBOutlet var checkForUpdatesMenuItem: NSMenuItem!
+
+    let updaterController: SPUStandardUpdaterController
+
+    override init() {
+        // Check for updates using Sparkle
+        updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+    }
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        // Disabled until AppMover is implemented
         // AppMover.moveIfNecessary()
+
+        // Check for updates using Sparkle
+        checkForUpdatesMenuItem.target = updaterController
+        checkForUpdatesMenuItem.action = #selector(SPUStandardUpdaterController.checkForUpdates(_:))
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {
@@ -40,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard
             let url = URL(string: "https://github.com/homebysix/recipe-robot/blob/master/README.md")
         else {
-            print("failed URL conversion")
+            print("Failed to convert Help URL.")
             return
         }
 

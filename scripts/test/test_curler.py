@@ -25,11 +25,11 @@ Unit tests for curl-related functions.
 
 
 from __future__ import absolute_import
-import os
+
 import json
+import os
 
 from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
-
 from recipe_robot_lib import curler
 
 
@@ -188,7 +188,20 @@ class TestCurler(object):
         }
         assert_equal(expected, header)
 
-        raw_headers = """HTTP/2 301\nlocation: https://www.google.com/\ncontent-type: text/html; charset=UTF-8\ndate: Wed, 11 Nov 2020 08:59:27 GMT\nexpires: Fri, 11 Dec 2020 08:59:27 GMT\ncache-control: public, max-age=2592000\nserver: gws\ncontent-length: 220\nx-xss-protection: 0\nx-frame-options: SAMEORIGIN\n"""
+        raw_headers = "\n".join(
+            (
+                "HTTP/2 301",
+                "location: https://www.google.com/",
+                "content-type: text/html; charset=UTF-8",
+                "date: Wed, 11 Nov 2020 08:59:27 GMT",
+                "expires: Fri, 11 Dec 2023 08:59:27 GMT",
+                "cache-control: public, max-age=2592000",
+                "server: gws",
+                "content-length: 220",
+                "x-xss-protection: 0",
+                "x-frame-options: SAMEORIGIN",
+            )
+        )
         header = curler.parse_headers(raw_headers)
         expected = {
             "cache-control": "public, max-age=2592000",

@@ -39,7 +39,6 @@ from .tools import (
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_INSTALL_FORMATS,
     LogLevel,
-    __version__,
     create_dest_dirs,
     create_existing_recipe_list,
     extract_app_icon,
@@ -199,13 +198,21 @@ def build_recipes(facts, preferred, prefs):
     recipe_dest_dir = facts["recipe_dest_dir"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     for recipe in preferred:
-
         keys = recipe["keys"]
 
         keys["Input"]["NAME"] = facts[bundle_name_key]
 
         # Set the recipe filename (spaces are OK).
-        recipe["filename"] = "%s.%s.recipe" % (facts[bundle_name_key], recipe["type"])
+        if recipe["type"] == "jamf":
+            recipe["filename"] = "%s-pkg-upload.%s.recipe" % (
+                facts[bundle_name_key],
+                recipe["type"],
+            )
+        else:
+            recipe["filename"] = "%s.%s.recipe" % (
+                facts[bundle_name_key],
+                recipe["type"],
+            )
 
         # Set the recipe identifier.
         clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
@@ -234,11 +241,17 @@ def build_recipes(facts, preferred, prefs):
             recipe = generation_func(facts, prefs, recipe)
 
         if recipe:
-            dest_path = robo_join(recipe_dest_dir, recipe["filename"])
+            if prefs.get("RecipeFormat") not in ("plist", None):
+                dest_path = robo_join(
+                    recipe_dest_dir, recipe["filename"] + "." + prefs["RecipeFormat"]
+                )
+            else:
+                dest_path = robo_join(recipe_dest_dir, recipe["filename"])
             if not os.path.exists(dest_path):
                 count = prefs.get("RecipeCreateCount", 0)
                 prefs["RecipeCreateCount"] = count + 1
-            recipe.write(dest_path)
+
+            recipe.write(dest_path, prefs.get("RecipeFormat"))
             robo_print(dest_path, LogLevel.LOG, 4)
             facts["recipes"].append(dest_path)
 
@@ -288,7 +301,6 @@ def generate_download_recipe(facts, prefs, recipe):
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
     # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
 
     if facts.is_from_app_store():
@@ -302,7 +314,29 @@ def generate_download_recipe(facts, prefs, recipe):
     )
 
     # TODO (Shea): Extract method(s) to get_source_processor()
-    if "sparkle_feed" in facts:
+    if "barebones_product" in facts:
+        BarebonesURLProvider = processor.ProcessorFactory(
+            "com.github.autopkg.download.bbedit/BarebonesURLProvider",
+            ("product_name",),
+        )
+        bb_url_provider = BarebonesURLProvider(
+            product_name=facts["barebones_product"],
+        )
+        recipe.append_processor(bb_url_provider)
+        if not os.path.exists(
+            os.path.expanduser(
+                "~/Library/AutoPkg/RecipeRepos/com.github.autopkg."
+                "recipes/Barebones/BarebonesURLProvider.py"
+            )
+        ):
+            facts["reminders"].append(
+                "The download recipe I created uses the "
+                "BarebonesURLProvider processor, which is not in the "
+                "AutoPkg core. You'll need to add the appropriate repository "
+                "before running the recipe:\n"
+                "        autopkg repo-add recipes"
+            )
+    elif "sparkle_feed" in facts:
         sparkle_processor = processor.SparkleUpdateInfoProvider(
             appcast_url=facts["sparkle_feed"]
         )
@@ -399,7 +433,6 @@ def generate_download_recipe(facts, prefs, recipe):
 
     # TODO (Shea): Refactor to get_codesigning and get_unarchiver funcs.
     if facts.get("codesign_reqs") or facts.get("codesign_authorities"):
-
         if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             unarchiver = processor.Unarchiver()
             unarchiver.archive_path = "%pathname%"
@@ -454,7 +487,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 pkgpayloadunpacker.destination_path = "%RECIPE_CACHE_DIR%/payload"
                 pkgpayloadunpacker.purge_destination = True
 
-                if not "pkg_filename" in facts:
+                if "pkg_filename" not in facts:
                     # Use FileFinder to search for the package if the name is unknown.
                     filefinder = processor.FileFinder()
                     filefinder.pattern = "%RECIPE_CACHE_DIR%/unpack/*.pkg/Payload"
@@ -463,21 +496,27 @@ def generate_download_recipe(facts, prefs, recipe):
                     pkgpayloadunpacker.pkg_payload_path = "%found_filename%"
                 else:
                     # Skip FileFinder and specify the filename of the package.
-                    pkgpayloadunpacker.pkg_payload_path = "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
-                        facts["pkg_filename"]
+                    pkgpayloadunpacker.pkg_payload_path = (
+                        "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
+                            facts["pkg_filename"]
+                        )
                     )
 
                 recipe.append_processor(pkgpayloadunpacker)
 
-                versioner.input_plist_path = "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
-                    facts["app_relpath_from_payload"]
+                versioner.input_plist_path = (
+                    "%RECIPE_CACHE_DIR%/payload/{}/Contents/Info.plist".format(
+                        facts["app_relpath_from_payload"]
+                    )
                 )
             else:
                 if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-                    versioner.input_plist_path = "%pathname%/{}{}.{}/Contents/Info.plist".format(
-                        facts.get("relative_path", ""),
-                        facts.get("app_file", facts[bundle_name_key]),
-                        bundle_type,
+                    versioner.input_plist_path = (
+                        "%pathname%/{}{}.{}/Contents/Info.plist".format(
+                            facts.get("relative_path", ""),
+                            facts.get("app_file", facts[bundle_name_key]),
+                            bundle_type,
+                        )
                     )
                 else:
                     versioner.input_plist_path = (
@@ -888,7 +927,6 @@ def generate_pkg_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # Can't make this recipe without a bundle identifier.
     # TODO(Elliot): Bundle id is also provided by AppDmgVersioner and some
@@ -915,8 +953,17 @@ def generate_pkg_recipe(facts, prefs, recipe):
     # TODO: Try to make AppPkgCreator work with exclamation points in app names. Example:
     # 'https://s3.amazonaws.com/shirtpocket/SuperDuper/SuperDuper!.dmg'
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-        # TODO: if "pkg" in facts["inspections"] then use PkgCopier.
-        if bundle_type == "app":
+        if facts.get("pkg_in_dmg"):
+            recipe.append_processor(
+                {
+                    "Processor": "PkgCopier",
+                    "Arguments": {
+                        "source_pkg": "%pathname%/{}".format(facts["pkg_in_dmg"]),
+                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg",
+                    },
+                }
+            )
+        elif bundle_type == "app":
             if "relative_path" in facts:
                 recipe.append_processor(
                     {
@@ -1093,7 +1140,6 @@ def generate_install_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     if facts.is_from_app_store():
         warn_about_app_store_generation(facts, recipe["type"])
@@ -1178,8 +1224,9 @@ def generate_install_recipe(facts, prefs, recipe):
     return recipe
 
 
-def generate_jss_recipe(facts, prefs, recipe):
-    """Generate a jss recipe based on passed recipe dict.
+def generate_jamf_recipe(facts, prefs, recipe):
+    """Generate a JamfUpload type recipe that uploads a package to Jamf
+    based on passed recipe dict.
 
     Args:
         facts (RoboDict): A continually-updated dictionary containing all the
@@ -1193,154 +1240,40 @@ def generate_jss_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
-    bundle_type, bundle_name_key = get_bundle_name_info(facts)
-    # Can't make this recipe without a bundle identifier.
-    if "bundle_id" not in facts:
-        facts["warnings"].append(
-            "Skipping %s recipe, because I wasn't able to determine the "
-            "bundle identifier of this app. You may want to actually download "
-            "the app and try again, using the .app file itself as input."
-            % recipe["type"]
-        )
-        return
-
-    robo_print("Generating %s recipe..." % recipe["type"])
-
-    if prefs.get("FollowOfficialJSSRecipesFormat", False) is True:
-        clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
-        keys["Identifier"] = "com.github.jss-recipes.jss.%s" % clean_name
-
-    recipe.set_description(
-        "Downloads the latest version of %s and imports it "
-        "into your JSS." % facts[bundle_name_key]
-    )
-
-    recipe.set_parent_from(prefs, facts, "pkg")
-
-    keys["Input"]["CATEGORY"] = "Productivity"
-    facts["reminders"].append(
-        "Remember to manually set the category in the jss recipe. I've set "
-        'it to "Productivity" by default.'
-    )
-
-    keys["Input"]["POLICY_CATEGORY"] = "Testing"
-    keys["Input"]["POLICY_TEMPLATE"] = "PolicyTemplate.xml"
-    keys["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
-    if not os.path.exists(
-        robo_join(prefs["RecipeCreateLocation"], "%s.png" % facts[bundle_name_key])
-    ):
-        facts["reminders"].append(
-            "Make sure to keep %s.png with the jss recipe so JSSImporter can "
-            "use it." % facts[bundle_name_key]
-        )
-    keys["Input"]["SELF_SERVICE_DESCRIPTION"] = facts.get("description", "")
-    keys["Input"]["GROUP_NAME"] = "%NAME%-update-smart"
-
-    jssimporter_arguments = {
-        "prod_name": "%NAME%",
-        "category": "%CATEGORY%",
-        "policy_category": "%POLICY_CATEGORY%",
-        "policy_template": "%POLICY_TEMPLATE%",
-        "self_service_icon": "%SELF_SERVICE_ICON%",
-        "self_service_description": "%SELF_SERVICE_DESCRIPTION%",
-        "groups": [
-            {"name": "%GROUP_NAME%", "smart": True, "template_path": "%GROUP_TEMPLATE%"}
-        ],
-    }
-
-    # Set variables and arguments as necessary depending on version key.
-    if facts["version_key"] == "CFBundleVersion":
-        keys["Input"]["GROUP_TEMPLATE"] = "CFBundleVersionSmartGroupTemplate.xml"
-        jssimporter_arguments["extension_attributes"] = [
-            {"ext_attribute_path": "CFBundleVersionExtensionAttribute.xml"}
-        ]
-    else:
-        keys["Input"]["GROUP_TEMPLATE"] = "SmartGroupTemplate.xml"
-
-    # If the app's name differs from its filename, set jss_inventory_name.
-    if "app_file" in facts:
-        jssimporter_arguments["jss_inventory_name"] = facts["app_file"]
-
-    if bundle_type != "app":
-        facts["reminders"].append(
-            "Because this item is not an app, you'll need to manually create an "
-            "extension attribute XML template to use with this JSS recipe."
-        )
-
-    # Extract the app's icon and save it to disk.
-    if "icon_path" in facts:
-        extracted_icon = robo_join(
-            recipe_dirpath(facts[bundle_name_key], facts.get("developer", None), prefs),
-            facts[bundle_name_key] + ".png",
-        )
-        extract_app_icon(facts, extracted_icon)
-    else:
-        facts["warnings"].append(
-            "I don't have enough information to create a PNG icon for this app."
-        )
-
-    # Put fully constructed JSSImporter arguments into the process list.
-    recipe.append_processor(
-        {"Processor": "JSSImporter", "Arguments": jssimporter_arguments}
-    )
-
-    return recipe
-
-
-def generate_jss_upload_recipe(facts, prefs, recipe):
-    """Generate an upload-only jss recipe based on passed recipe dict.
-
-    Args:
-        facts (RoboDict): A continually-updated dictionary containing all the
-            information we know so far about the app associated with the
-            input path.
-        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
-            preferences.
-        recipe (Recipe): The recipe to operate on. This recipe will be mutated
-            by this function.
-
-    Returns:
-        Recipe: Newly updated Recipe object suitable for converting to plist.
-    """
-    # TODO: Possibly combine with generate_jss_upload_recipe() to handle multiple
-    # "varietals" of the same recipe type?
     keys = recipe["keys"]
     _, bundle_name_key = get_bundle_name_info(facts)
-    # Can't make this recipe without a bundle identifier.
-    if "bundle_id" not in facts:
-        facts["warnings"].append(
-            "Skipping %s recipe, because I wasn't able to determine the "
-            "bundle identifier of this app. You may want to actually download "
-            "the app and try again, using the .app file itself as input."
-            % recipe["type"]
-        )
-        return
 
     robo_print("Generating %s recipe..." % recipe["type"])
-
-    if prefs.get("FollowOfficialJSSRecipesFormat", False) is True:
-        clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
-        keys["Identifier"] = "com.github.jss-recipes.jss-upload.%s" % clean_name
 
     recipe.set_description(
         "Downloads the latest version of %s and uploads the package "
-        "to your JSS." % facts[bundle_name_key]
+        "to Jamf." % facts[bundle_name_key]
     )
 
     recipe.set_parent_from(prefs, facts, "pkg")
 
     keys["Input"]["CATEGORY"] = "Productivity"
     facts["reminders"].append(
-        "Remember to manually set the category in the jss-upload recipe. I've set "
+        "Remember to manually set the category in the jamf recipe. I've set "
         'it to "Productivity" by default.'
     )
 
-    jssimporter_arguments = {"prod_name": "%NAME%", "category": "%CATEGORY%"}
+    jamf_upload_stub = "com.github.grahampugh.jamf-upload.processors"
+    jamfcategoryuploader_args = {"category_name": "%CATEGORY%"}
+    jamfpackageuploader_args = {"pkg_category": "%CATEGORY%"}
 
     # Put fully constructed JSSImporter arguments into the process list.
     recipe.append_processor(
-        {"Processor": "JSSImporter", "Arguments": jssimporter_arguments}
+        {
+            "Processor": "%s/JamfCategoryUploader" % jamf_upload_stub,
+            "Arguments": jamfcategoryuploader_args,
+        }
+    )
+    recipe.append_processor(
+        {
+            "Processor": "%s/JamfPackageUploader" % jamf_upload_stub,
+            "Arguments": jamfpackageuploader_args,
+        }
     )
 
     return recipe
@@ -1361,7 +1294,6 @@ def generate_lanrev_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
@@ -1394,7 +1326,7 @@ def generate_lanrev_recipe(facts, prefs, recipe):
     recipe.append_processor(
         {
             "Processor": "com.github.jbaker10.LANrevImporter/LANrevImporter",
-            "SharedProcessorRepoURL": lanrevimporter_url,
+            "SharedProcessorRepoURL": "https://github.com/jbaker10",
             "Arguments": {
                 "dest_payload_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.amsdpackages",
                 "sdpackages_ampkgprops_path": "%RECIPE_DIR%/%NAME%-Defaults.ampkgprops",
@@ -1423,7 +1355,6 @@ def generate_sccm_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
@@ -1455,7 +1386,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
     recipe.append_processor(
         {
             "Processor": "com.github.autopkg.cgerke-recipes.SharedProcessors/CmmacCreator",
-            "SharedProcessorRepoURL": cgerke_url,
+            "SharedProcessorRepoURL": "https://github.com/autopkg/cgerke-recipes",
             "Arguments": {
                 "source_file": "%pkg_path%",
                 "destination_directory": "%RECIPE_CACHE_DIR%",
@@ -1481,7 +1412,6 @@ def generate_filewave_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():
@@ -1672,7 +1602,6 @@ def generate_bigfix_recipe(facts, prefs, recipe):
     # - https://github.com/autopkg/hansen-m-recipes/search?utf8=%E2%9C%93&q=win.download
     # And a BigFix recipe example:
     # - https://github.com/CLCMacTeam/AutoPkgBESEngine/blob/dd1603c3fc39c1b9530b49e2a08d3eb0bbeb19a1/Examples/TextWrangler.bigfix.recipe
-    keys = recipe["keys"]
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # TODO: Until we get it working.
     if facts.is_from_app_store():

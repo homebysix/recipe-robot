@@ -32,7 +32,7 @@ from __future__ import absolute_import
 
 import sys
 
-from .tools import robo_print, LogLevel
+from .tools import LogLevel, robo_print
 
 sys.path.append("/Library/AutoPkg")
 try:

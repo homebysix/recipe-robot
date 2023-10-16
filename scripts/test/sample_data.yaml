@@ -31,12 +31,6 @@
   developer: Macroplant
   input_path: http://www.macroplant.com/latest-binaries/adapter-mac.dmg
 
-# Download URL w/ bad Sparkle feed
-- app_name: HyperDock
-  bundle_id: de.bahoom.HyperDock.prefpane
-  developer: Christian  Baumgart
-  input_path: https://bahoom.com/hyperdock/download
-
 # Download URL, app in dmg
 - app_name: Chat
   bundle_id: com.google.chat
@@ -66,7 +60,7 @@
 - app_name: Kindle Previewer 3
   bundle_id: com.amazon.kpr
   developer: AMZN Mobile
-  input_path: https://s3.amazonaws.com/kindlepreviewer3/KindlePreviewerInstaller.pkg
+  input_path: https://d2bzeorukaqrvt.cloudfront.net/KindlePreviewerInstaller.pkg
 
 # Download URL to pkg in dmg
 - app_name: Karabiner
@@ -134,7 +128,7 @@
 - app_name: Airfoil
   bundle_id: com.rogueamoeba.Airfoil
   developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/airfoil/download/Airfoil.zip
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/public/airfoil/mac/download/Airfoil.zip
 
 - app_name: Airtool
   bundle_id: com.adriangranados.Airtool
@@ -166,35 +160,20 @@
   developer: Austin Sarner and Brian Ball
   input_path: https://www.appzapper.com/az2appcast.xml
 
-- app_name: Art View
-  bundle_id: com.codelinesoftware.artview-mac
-  developer: Code Line
-  input_path: https://www.code-line.com/download/ArtView2.zip
-
 - app_name: aText
   bundle_id: com.trankynam.aText
   developer: Tran Ky Nam
   input_path: https://www.trankynam.com/atext/aText-Appcast.xml
 
-- app_name: ATTO Disk Benchmark
-  bundle_id: com.ATTO.ATTODiskBenchmark
-  developer: ATTO Technology
-  input_path: https://www2.atto.com/asset/18:atto-disk-benchmark-for-macos
-
 - app_name: Audio Hijack
   bundle_id: com.rogueamoeba.audiohijack3
   developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/audiohijack/download/AudioHijack.zip
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/public/audiohijack/download/AudioHijack.zip
 
 - app_name: AutoCasperNBI
   bundle_id: com.macmule.AutoCasperNBI
   developer: Ben Toms
   input_path: https://github.com/macmule/AutoCasperNBI
-
-- app_name: Azendoo
-  bundle_id: com.azendoo.desktop
-  developer: Azendoo
-  input_path: https://storage.googleapis.com/az_desktop/darwin-x64/Azendoo.dmg
 
 - app_name: BackupLoupe
   bundle_id: com.soma-zone.BackupLoupe
@@ -205,11 +184,6 @@
   bundle_id: com.beardedspice.BeardedSpice
   developer: Roman Sokolov
   input_path: https://raw.github.com/beardedspice/beardedspice/distr/publish/beardedspice-appcast.xml
-
-- app_name: Better Window Manager
-  bundle_id: com.gngrwzrd.paddle.BetterWindowManager
-  developer: Aaron Smith
-  input_path: https://www.gngrwzrd.com/betterwindowmanager-appcast.xml
 
 - app_name: BlueJeans
   bundle_id: com.bluejeansnet.Blue
@@ -286,11 +260,6 @@
   developer: Cisco
   input_path: https://download.ciscospark.com/mac/CiscoSpark.dmg
 
-- app_name: Cisdem BetterUnarchiver
-  bundle_id: com.enolsoft.powerunarchiver
-  developer: Enolsoft
-  input_path: https://www.cisdem.com/download/cisdem-betterunarchiver.dmg
-
 - app_name: Clarify
   bundle_id: com.bluemangolearningsystems.clarify-osx
   developer: Blue Mango Learning Systems
@@ -346,11 +315,6 @@
   developer: Kosuke USAMI
   input_path: https://github.com/coteditor/CotEditor
 
-- app_name: Dashblock
-  bundle_id: com.dashblock.desktop
-  developer: Datap
-  input_path: https://github.com/dashblock/desktop-releases
-
 - app_name: Deep Dreamer
   bundle_id: com.realmacsoftware.deepdreamer
   developer: Realmac Software
@@ -359,7 +323,7 @@
 - app_name: Delicious Library 3
   bundle_id: com.delicious-monster.library3
   developer: Delicious Monster
-  input_path: https://delicious-monster.com/downloads/DeliciousLibrary3.zip
+  input_path: http://delicious-monster.com/downloads/DeliciousLibrary3.zip
 
 - app_name: Desktop Curtain
   bundle_id: com.manytricks.DesktopCurtain
@@ -431,15 +395,10 @@
   developer: 3ds
   input_path: http://www.draftsight.com/download-mac
 
-- app_name: Dropzone 3
-  bundle_id: com.aptonic.Dropzone3
-  developer: Aptonic
-  input_path: https://aptonic.com/sparkle/updates.xml
-
 - app_name: duet
   bundle_id: com.kairos.duet
   developer: Rahul Dewan
-  input_path: https://duet.nyc3.cdn.digitaloceanspaces.com/Mac/2_3/DuetDisplayAppcast.xml
+  input_path: https://updates.duetdisplay.com/checkMacUpdates
 
 - app_name: Duo Device Health
   bundle_id: com.duosecurity.duo-device-health
@@ -451,20 +410,10 @@
   developer: Yellow Mug
   input_path: https://www.yellowmug.com/download/EasyBatchPhoto.dmg
 
-- app_name: EmailArchiverPro2
-  bundle_id: com.keatenhouse.emailarchiverpro
-  developer: Ironic Software
-  input_path: https://ironicsoftware.com/downloads/EmailArchiverPro.zip
-
-- app_name: EmailArchiverPro3
-  bundle_id: com.palmerandersen.emailarchiverpro
-  developer: Ironic Software
-  input_path: https://emailarchiverpro.com/downloads/EmailArchiverPro.zip
-
 - app_name: Emailchemy
   bundle_id: com.install4j.6029-5726-8846-0121.89
   developer: Weird Kid Software
-  input_path: https://s3.amazonaws.com/wksdownload/Emailchemy-Mac.dmg
+  input_path: https://s3.amazonaws.com/wksdownload/emailchemy/Emailchemy-Mac.dmg
 
 - app_name: Endurance
   bundle_id: com.MagnetismStudios.endurance
@@ -499,7 +448,7 @@
 - app_name: Fission
   bundle_id: com.rogueamoeba.Fission
   developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/fission/download/Fission.zip
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/public/fission/download/Fission.zip
 
 - app_name: Flashlight
   bundle_id: com.nateparrott.Flashlight
@@ -531,11 +480,6 @@
   developer: Jesse Grosjean
   input_path: https://s3.amazonaws.com/foldingtext/FoldingText.dmg
 
-- app_name: Folio
-  bundle_id: co.ysberg.Folio
-  developer: Hanno ter Hoor
-  input_path: https://s3.amazonaws.com/folioformac.com/folioupdates.xml.rss
-
 - app_name: Font Finagler
   bundle_id: com.markdouma.FontFinagler
   developer: Mark Douma
@@ -545,11 +489,6 @@
   bundle_id: com.jamapi.fontnuke
   developer: Jake Pietrykowski
   input_path: https://www.jamapi.com/fontnuke/fontnuke-update-appcast.xml
-
-- app_name: Fontstand
-  bundle_id: com.fontstand-bv.mac.Fontstand
-  developer: Fontstand BV
-  input_path: https://fontstand.com/application/download/61
 
 - app_name: Forecast
   bundle_id: fm.overcast.forecast-encoder
@@ -586,16 +525,6 @@
   developer: MacPaw
   input_path: https://dl.devmate.com/com.macpaw.site.Gemini2/Gemini2.dmg
 
-- app_name: GIF for Mac
-  bundle_id: com.riffsy.GIF-for-Mac
-  developer: Riffsy
-  input_path: https://media.tenor.co/mac/gif_for_mac_appcast.xml
-
-- app_name: Gitbox
-  bundle_id: com.oleganza.gitbox
-  developer: Oleg Andreev
-  input_path: http://gitboxapp.com/updates.xml
-
 - app_name: Gitify
   bundle_id: com.electron.gitify
   developer: Emmanouil Konstantinidis
@@ -604,7 +533,7 @@
 - app_name: Grammarly
   bundle_id: com.grammarly.DesktopEditor
   developer: Grammarly
-  input_path: https://download-editor.grammarly.com/osx/Grammarly.dmg
+  input_path: https://download-mac.grammarly.com/Grammarly.dmg?browserName=chrome&containerId=gdrd7j7dlilq0302&state=r2leH
 
 - app_name: GroundControlLaunchpad
   bundle_id: com.GroundControl.GroundControlLaunchpad
@@ -626,11 +555,6 @@
   developer: Maxim Ananov
   input_path: https://hazeover.com/get/HazeOver.txz
 
-- app_name: Hocus Focus
-  bundle_id: com.uglyapps.HocusFocus
-  developer: Nial Giacomelli
-  input_path: https://hocusfoc.us/updates.xml
-
 - app_name: HoudahGeo
   bundle_id: com.houdah.HoudahGeo
   developer: Houdah Software
@@ -640,11 +564,6 @@
   bundle_id: com.houdah.HoudahSpot4
   developer: Houdah Software
   input_path: https://www.houdah.com/houdahSpot/updates/cast4.xml
-
-- app_name: HyperSwitch
-  bundle_id: com.bahoom.HyperSwitch
-  developer: Christian  Baumgart
-  input_path: https://bahoom.com/hyperswitch/appcast.xml
 
 - app_name: iClip
   bundle_id: com.irradiatedsoftware.iClip
@@ -665,16 +584,6 @@
   bundle_id: com.apimac.iNotepadMac
   developer: Ivan Gobbo
   input_path: https://www.apimac.com/download/iNotepad.zip
-
-- app_name: intiface-desktop
-  bundle_id: com.nonpolynomiallabs.intiface-desktop
-  developer: Nonpolynomial Labs
-  input_path: https://github.com/intiface/intiface-desktop
-
-- app_name: iOSConsole
-  bundle_id: com.lemonjar.iosconsole
-  developer: Lemonjar
-  input_path: https://updates.lemonjar.com/iosconsole.xml
 
 - app_name: IP in menu bar
   bundle_id: de.monkeybreadsoftware.freeware.ipinmenubar
@@ -719,7 +628,7 @@
 - app_name: JASP
   bundle_id: org.jasp-stats.jasp
   developer: jasp-stats
-  input_path: https://static.jasp-stats.org/JASP-0.14.0.0-Catalina.dmg
+  input_path: https://static.jasp-stats.org/JASP-0.16.4.0-macOS-x86_64.dmg
 
 - app_name: KeepingYouAwake
   bundle_id: info.marcel-dierkes.KeepingYouAwake
@@ -741,11 +650,6 @@
   developer: Many Tricks
   input_path: https://manytricks.com/keymou/appcast/?version=1
 
-- app_name: Kite
-  bundle_id: com.kite.Kite
-  developer: Manhattan Engineering
-  input_path: https://release.kite.com/appcast.xml
-
 - app_name: Kitematic
   bundle_id: com.electron.kitematic
   developer: Docker
@@ -754,7 +658,7 @@
 - app_name: KiteStudentPortal
   bundle_id: org.ats.kitestudentportal
   developer: Achievement and Assessment Institute
-  input_path: https://dynamiclearningmaps.org/download-kite-client-for-mac
+  input_path: https://files.kiteaai.org/installers/studentportal/latest/mac/Kite%20Student%20Portal.dmg
 
 - app_name: KNIME_Analytics_Platform
   bundle_id: org.knime.product
@@ -866,11 +770,6 @@
   developer: Many Tricks
   input_path: https://manytricks.com/moom/appcast.xml
 
-- app_name: Mou
-  bundle_id: com.mouapp.Mou
-  developer: 25.io
-  input_path: http://mouapp.com/up/updates.xml
-
 - app_name: Mountain
   bundle_id: de.appgineers.Mountain
   developer: Jan Linxweiler
@@ -916,16 +815,6 @@
   developer: CharlesSoft
   input_path: https://www.charlessoft.com/NibUnlocker.zip
 
-- app_name: Nicecast
-  bundle_id: com.rogueamoeba.Nicecast
-  developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/nicecast/download/Nicecast.zip
-
-- app_name: NightOwl
-  bundle_id: com.fuekiin.NightOwl
-  developer: Benjamin Kramser
-  input_path: https://nightowl.kramser.xyz/files/NightOwl.dmg
-
 - app_name: Noise Machine
   bundle_id: net.publicspace.dist.noisemachine
   developer: Frank Reiff
@@ -966,11 +855,6 @@
   developer: Todd Ditchendorf
   input_path: http://celestialteapot.com/pathology/appcast/pathology.rss
 
-- app_name: Paw
-  bundle_id: com.luckymarmot.Paw
-  developer: Micha Mazaheri
-  input_path: https://luckymarmot.com/paw/download
-
 - app_name: PDFKit
   bundle_id: com.ireador.PDFKit
   developer: Xuepeng Zhang
@@ -989,7 +873,7 @@
 - app_name: Piezo
   bundle_id: com.rogueamoeba.Piezo
   developer: Rogue Amoeba Software
-  input_path: https://d2oxtzozd38ts8.cloudfront.net/piezo/download/Piezo.zip
+  input_path: https://d2oxtzozd38ts8.cloudfront.net/public/piezo/download/Piezo.zip
 
 - app_name: Pingendo
   bundle_id: com.pingendo.editor
@@ -1014,7 +898,7 @@
 - app_name: Pock
   bundle_id: com.pigigaldi.pock
   developer: Pierluigi Galdi
-  input_path: https://pock.dev/download.php?file=pock_0_7_2.zip&nw=1
+  input_path: https://pock.app/download?file=pock_0_9_0__22.zip&nw=1
 
 - app_name: PollEv Presenter
   bundle_id: com.polleverywhere.PollEv-Presenter
@@ -1035,11 +919,6 @@
   bundle_id: com.searchwaresolutions.PrintWindow
   developer: Scott Crick
   input_path: http://printwindowapp.com/software/printwindow.dmg
-
-- app_name: ProfitTrain
-  bundle_id: com.clickablebliss.ProfitTrain
-  developer: RazorAnt Software
-  input_path: https://razorant.com/profittrain/profileInfo
 
 - app_name: ProtoPie
   bundle_id: io.protopie
@@ -1100,11 +979,6 @@
   bundle_id: com.marklyapp.RightFont
   developer: LIYI CHENG
   input_path: https://rightfontapp.com/update/appcast.xml
-
-- app_name: Ring
-  bundle_id: com.ring.mac
-  developer: Bot Home Automation
-  input_path: https://ring-mac-app-assets.s3.amazonaws.com/production/ring-appcast.xml
 
 - app_name: Rocket
   bundle_id: net.matthewpalmer.Rocket
@@ -1206,16 +1080,6 @@
   developer: Sveinbjörn Þórðarson
   input_path: https://sveinbjorn.org/files/appcasts/SlothAppcast.xml
 
-- app_name: Smaller
-  bundle_id: com.smallerapp.Smaller
-  developer: 25.io
-  input_path: http://25.io/smaller/up/updates.xml
-
-- app_name: Sofa Control
-  bundle_id: com.gravityapps.SofaControl
-  developer: CASEapps
-  input_path: http://www.caseapps.com/downloads/sofacontrol-update.xml
-
 - app_name: Solstice
   bundle_id: com.mersive.solstice.client
   developer: Mersive Technologies
@@ -1261,16 +1125,6 @@
   developer: SyncroMSP
   input_path: https://production.kabutoservices.com/macos/SyncroAgent-Latest.zip
 
-- app_name: Tags
-  bundle_id: com.gravityapps.Tags
-  developer: CaseApps
-  input_path: http://www.caseapps.com/downloads/updates/tags/tags2-update.xml
-
-- app_name: Tangerine!
-  bundle_id: com.potionfactory.Tangerine
-  developer: Karelia Software
-  input_path: https://launch.karelia.com/appcast.php?product=13
-
 - app_name: TapeDeck
   bundle_id: com.supermegaultragroovy.tapedeck
   developer: SuperMegaUltraGroovy
@@ -1300,11 +1154,6 @@
   bundle_id: com.RichSomerfield.TextBar
   developer: Rich Somerfield
   input_path: https://raw.githubusercontent.com/richie5um/richie5um.github.io/master/apps/textbar/sparkle_textbar.xml
-
-- app_name: The Hit List
-  bundle_id: com.potionfactory.TheHitList
-  developer: Karelia Software
-  input_path: https://launch.karelia.com/appcast.php?product=9&appname=The+Hit+List
 
 - app_name: Thyme
   bundle_id: com.joaomoreno.Thyme
@@ -1364,7 +1213,7 @@
 - app_name: TypeIt4Me
   bundle_id: com.typeit4me.TypeIt4MeMenu
   developer: Riccardo Ettore
-  input_path: https://ettoresoftware.com/download/TypeIt4MeAppcast.xml
+  input_path: http://ettoresoftware.com/download/TypeIt4MeAppcast.xml
 
 - app_name: Typinator
   bundle_id: com.macility.typinator2
@@ -1380,11 +1229,6 @@
   bundle_id: com.kanecheshire.macID-macOS
   developer: Kane Cheshire
   input_path: https://unlox.it/download/update.php
-
-- app_name: USETogether
-  bundle_id: com.use-together.use-together
-  developer: OPEXMEDIA
-  input_path: https://repository.use-together.com/stable/use-engine/macos/latest_version/use-engine.dmg
 
 - app_name: Usher
   bundle_id: com.manytricks.Usher
@@ -1416,20 +1260,10 @@
   developer: Tae Won Ha
   input_path: https://raw.githubusercontent.com/qvacua/vimr/master/appcast.xml
 
-- app_name: VipRiser
-  bundle_id: com.onflapp.VipRiser
-  developer: Ondrej Florian
-  input_path: http://onflapp.github.io/blog/releases/vipriser/appcast.xml
-
 - app_name: VirtualC64
   bundle_id: de.dirkwhoffmann.VirtualC64
   developer: Prof. Dr. Dirk W. Hoffmann
-  input_path: http://dirkwhoffmann.de/virtualc64/VirtualC64Appcast.xml
-
-- app_name: VirtualHostX
-  bundle_id: com.clickontyler.virtualhostx
-  developer: Tyler Hall
-  input_path: https://clickontyler.com/virtualhostx/download/v8
+  input_path: https://github.com/dirkwhoffmann/virtualc64/releases/download/v4.6/VirtualC64.app.zip/VirtualC64Appcast.xml
 
 - app_name: Viscosity
   bundle_id: com.viscosityvpn.Viscosity
@@ -1464,7 +1298,7 @@
 - app_name: Whiskey
   bundle_id: com.nothingmagical.whiskey
   developer: Sam Soffes
-  input_path: http://usewhiskey.com/latest
+  input_path: https://soffes.s3.us-east-1.amazonaws.com/Whiskey-357.zip
 
 - app_name: WiFi Explorer
   bundle_id: com.adriangranados.wifiexplorer

@@ -117,7 +117,11 @@ def main():
             if recipe_dict["Input"].get("BUNDLE_ID"):
                 bundle_id = recipe_dict["Input"]["BUNDLE_ID"]
             elif recipe_dict.get("Process"):
-                bundle_id = get_proc_attr(recipe_dict["Process"], "PkgCreator", "id",)
+                bundle_id = get_proc_attr(
+                    recipe_dict["Process"],
+                    "PkgCreator",
+                    "id",
+                )
 
             if bundle_id:
                 if name not in sample_data:

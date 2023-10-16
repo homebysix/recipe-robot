@@ -34,7 +34,7 @@ import re
 import shutil
 import sys
 from distutils.version import StrictVersion
-from urllib.parse import urlparse
+from urllib.parse import quote_plus, urlparse
 from xml.etree import ElementTree
 
 import xattr
@@ -116,8 +116,12 @@ def process_input_path(facts):
             input_path.lower().endswith((".xml", ".rss", ".php"))
             or "appcast" in input_path.lower()
         ):
-            robo_print("Input path looks like a Sparkle feed.", LogLevel.VERBOSE)
-            inspect_func = inspect_sparkle_feed_url
+            if "versioncheck.barebones.com" in input_path:
+                robo_print("Input path looks like a Bare Bones feed.", LogLevel.VERBOSE)
+                inspect_func = inspect_barebones_feed_url
+            else:
+                robo_print("Input path looks like a Sparkle feed.", LogLevel.VERBOSE)
+                inspect_func = inspect_sparkle_feed_url
         elif any_item_in_string(GITHUB_DOMAINS, input_path.lower()):
             robo_print("Input path looks like a GitHub URL.", LogLevel.VERBOSE)
             if "/download/" in input_path.lower():
@@ -147,6 +151,9 @@ def process_input_path(facts):
             inspect_func = inspect_download_url
     elif input_path.lower().startswith("ftp"):
         robo_print("Input path looks like a download URL.", LogLevel.VERBOSE)
+        inspect_func = inspect_download_url
+    elif input_path.lower().startswith("file"):
+        robo_print("Input path looks like a local file URL.", LogLevel.VERBOSE)
         inspect_func = inspect_download_url
     elif os.path.exists(input_path):
         if input_path.endswith(".app"):
@@ -309,7 +316,10 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         sparkle_feed = ""
         robo_print("Checking for a Sparkle feed...", LogLevel.VERBOSE)
         if "SUFeedURL" in info_plist:
-            sparkle_feed = info_plist["SUFeedURL"]
+            if "versioncheck.barebones.com" in info_plist["SUFeedURL"]:
+                facts = inspect_barebones_feed_url(info_plist["SUFeedURL"], args, facts)
+            else:
+                sparkle_feed = info_plist["SUFeedURL"]
         elif "SUOriginalFeedURL" in info_plist:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
         elif os.path.exists(
@@ -423,7 +433,6 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         cmd = '/usr/bin/codesign --display --verbose=2 -r- "{}"'.format(input_path)
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
-
             # From stdout:
             reqs_marker = "designated => "
             for line in out.splitlines():
@@ -534,18 +543,32 @@ def get_app_description(app_name):
         str: A string containing a description of the app.
         str: A string containing the source of the description.
     """
+    # Inclusion of data sources in Recipe Robot does not consistute endorsement
+    # or recommendation. In fact, I recommend AGAINST downloading software from
+    # anywhere but the developer's own site. But these sites can be useful for
+    # centrally searching for app descriptions.
     desc_sources = [
         {
-            "name": "MacUpdate",
-            "pattern": r"=\"mu_card_line_info_description\">(?P<desc>.*?)</div>",
-            "url": "https://www.macupdate.com/find/mac/context=%s" % app_name,
+            "name": "MacUpdate.com",
+            "pattern": r"=\"mu_card_complex_line_info_description\">(?P<desc>.*?)</div>",
+            "url": "https://www.macupdate.com/find/mac/context=%s"
+            % quote_plus(app_name),
         },
         {
-            "name": "AlternativeTo",
-            "pattern": r"<div class=\"itemDesc( read-more-box)?\">\s+"
-            '<p class="text">(?P<desc>.*?)</p>',
-            "url": "https://alternativeto.net/browse/search"
-            "/?ignoreExactMatch=true&platform=mac&q=%s" % app_name,
+            "name": "Informer.com",
+            "pattern": r'<p class="prog_text">(?P<desc>.*?)</p>',
+            "url": "https://macdownload.informer.com/search/%s" % quote_plus(app_name),
+        },
+        {
+            "name": "Download.com",
+            "pattern": r'<div class="c-productCard_summary g-text-small g-color-\S+">(?P<desc>.*?)</div>',
+            "url": "https://download.cnet.com/s/%s/?platform=mac"
+            % quote_plus(app_name),
+        },
+        {
+            "name": "Softonic.com",
+            "pattern": r'<p class="app-info__description" data-meta="app-description">(?P<desc>.*?)</p>',
+            "url": "https://en.softonic.com/s/%s:mac" % quote_plus(app_name),
         },
     ]
     for source in desc_sources:
@@ -553,6 +576,7 @@ def get_app_description(app_name):
         result = re.search(source["pattern"], out)
         if result:
             description = html_decode(result.group("desc"))
+            description = description.replace("<b>", "").replace("</b>", "")
             return html.unescape(description), source["name"]
     return None, None
 
@@ -925,7 +949,6 @@ def inspect_disk_image(input_path, args, facts):
     else:
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-
         # Confirmed; the download was a disk image. Make a note of that.
         robo_print("Successfully mounted disk image", LogLevel.VERBOSE, 4)
         facts["download_format"] = "dmg"  # most common disk image format
@@ -1005,6 +1028,7 @@ def inspect_disk_image(input_path, args, facts):
                 break
             if this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
                 facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
+                facts["pkg_in_dmg"] = this_file
                 break
     else:
         robo_print(
@@ -1152,8 +1176,6 @@ def inspect_download_url(input_path, args, facts):
     # Warn if the content-type is known not to be a downloadable file.
     # TODO: If content-type is HTML, try parsing for download URLs and
     # use URLTextSearcher.
-    # TODO: If content-type is XML, see if it's a Sparkle feed or parse for
-    # download URLs and use URLTextSearcher.
     if "content-type" in head:
         content_type = head["content-type"]
         robo_print("Download content-type is %s" % content_type, LogLevel.VERBOSE, 4)
@@ -1190,21 +1212,20 @@ def inspect_download_url(input_path, args, facts):
     # Just in case the "download" was actually an XML response.
     with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
         file_head = download_file.read(256).lower()
-    if file_head.startswith(b"<?xml"):
-        if b"xmlns:sparkle" in file_head:
-            robo_print(
-                "Surprise! This download is actually a Sparkle feed.",
-                LogLevel.VERBOSE,
-                4,
-            )
-            os.remove(os.path.join(CACHE_DIR, filename))
-            facts = inspect_sparkle_feed_url(checked_url, args, facts)
-            return facts
-        elif b"<error>" in file_head:
-            facts["warnings"].append(
-                "There's a good chance that the file failed to download. "
-                "Looks like an XML file was downloaded instead."
-            )
+    if b"xmlns:sparkle" in file_head:
+        robo_print(
+            "Surprise! This download is actually a Sparkle feed.",
+            LogLevel.VERBOSE,
+            4,
+        )
+        os.remove(os.path.join(CACHE_DIR, filename))
+        facts = inspect_sparkle_feed_url(checked_url, args, facts)
+        return facts
+    elif b"<error>" in file_head:
+        facts["warnings"].append(
+            "There's a good chance that the file failed to download. "
+            "Looks like an XML file was downloaded instead."
+        )
 
     # Try to determine the type of file downloaded. (Overwrites any
     # previous download_type, because the download URL is the most
@@ -1476,8 +1497,35 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
         facts["warnings"].append("Ditto failed to expand payload.")
     try:
         os.unlink(payload_archive)
-    except OSError as err:
-        facts["warnings"].append("Could not remove %s: %s" % (payload_archive, err))
+    except OSError as e:
+        facts["warnings"].append("Could not remove %s: %s" % (payload_archive, e))
+
+    """Check if the Payload was an app and rename accordingly"""
+    appInfoPath = os.path.join(payload_dir, "Contents", "Info.plist")
+    if os.path.isfile(appInfoPath):
+        try:
+            with open(appInfoPath, "rb") as openfile:
+                info_plist = plistlib.load(openfile)
+        except (AttributeError, TypeError, ValueError):
+            pass
+        if "CFBundleDisplayName" in info_plist:
+            robo_print(
+                "Payload looks like an app. Creating enclosing .app bundle...",
+                LogLevel.VERBOSE,
+            )
+            tempAppDir = os.path.join(
+                CACHE_DIR, info_plist["CFBundleDisplayName"] + ".app"
+            )
+            shutil.move(payload_dir, tempAppDir)
+            shutil.move(
+                tempAppDir,
+                os.path.join(payload_dir, info_plist["CFBundleDisplayName"] + ".app"),
+            )
+        else:
+            robo_print(
+                "Payload looks like an app, but lacks a CFBundleDisplayName.",
+                LogLevel.WARNING,
+            )
 
     for dirpath, dirnames, _ in os.walk(payload_dir):
         for dirname in dirnames:
@@ -1542,7 +1590,7 @@ def get_most_likely_app(app_list):
             for filename in filenames:
                 try:
                     this_size += os.path.getsize(os.path.join(dirpath, filename))
-                except FileNotFoundError as err:
+                except FileNotFoundError:
                     pass
         if this_size > largest_size:
             largest_size = this_size
@@ -1637,8 +1685,9 @@ def inspect_pkg(input_path, args, facts):
     cmd = '/usr/sbin/pkgutil --expand "%s" "%s"' % (input_path, expand_path)
     exitcode, out, _ = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
-        # TODO: Support package bundles here. Example:
+        # TODO: Support package bundles here. Examples:
         # https://pqrs.org/osx/karabiner/files/KeyRemap4MacBook-7.4.0.pkg.zip
+        # http://www.draftsight.com/download-mac
         facts["warnings"].append("Unable to expand package: %s" % input_path)
     else:
         # Locate and inspect the app.
@@ -1875,7 +1924,6 @@ def inspect_sourceforge_url(input_path, args, facts):
 
     # Get download format of latest release.
     if "download_url" not in facts:
-
         # Download the RSS feed and parse it.
         # Example: https://sourceforge.net/projects/grandperspectiv/rss
         # Example: https://sourceforge.net/projects/cord/rss
@@ -1891,7 +1939,8 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Get the latest download URL.
         download_url = ""
         robo_print(
-            "Determining download URL from SourceForge RSS feed...", LogLevel.VERBOSE,
+            "Determining download URL from SourceForge RSS feed...",
+            LogLevel.VERBOSE,
         )
         for item in doc.iterfind("channel/item"):
             # TODO(Elliot): The extra-info tag is not a reliable
@@ -1916,6 +1965,78 @@ def inspect_sourceforge_url(input_path, args, facts):
                 'This SourceForge project is marked "private" and '
                 "recipes you generate may not work for others."
             )
+
+    return facts
+
+
+def inspect_barebones_feed_url(input_path, args, facts):
+    """Process a Bare Bones app software update feed, gathering information
+    required to create AutoPkg recipes.
+
+    Args:
+        input_path (str): The path or URL that Recipe Robot was asked to use
+            to create recipes.
+        args (dict): Command-line arguments provided to Recipe Robot.
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+
+    Returns:
+        RoboDict: Facts dictionary updated with information learned
+            during inspection.
+    """
+    # Only proceed if we haven't inspected this feed yet.
+    # (Calling it a Sparkle feed because the key should be mutually exclusive.)
+    if "sparkle_feed_url" in facts["inspections"]:
+        return facts
+    facts["inspections"].append("sparkle_feed_url")
+
+    # Save the feed URL to the dictionary of facts.
+    robo_print("Bare Bones feed is: %s" % input_path, LogLevel.VERBOSE, 4)
+    facts["sparkle_feed"] = input_path
+
+    # Check to make sure URL is valid, and switch to HTTPS if possible.
+    checked_url, head, user_agent = curler.check_url(input_path)
+
+    # Remove feed if it's not usable.
+    http_result_code = int(head.get("http_result_code"))
+    if http_result_code >= 400:
+        facts.pop("sparkle_feed", None)
+        return facts
+
+    # Download and parse the feed.
+    try:
+        feed_info = plistlib.loads(curler.download(checked_url))
+        feed_entries = feed_info.get("SUFeedEntries")
+    except plistlib.InvalidFileException as err:
+        facts["warnings"].append(
+            "Error occurred while parsing Bare Bones feed (%s)" % err
+        )
+        facts.pop("sparkle_feed", None)
+        return facts
+
+    # Remove items with unusable URLs.
+    feed_entries = [x for x in feed_entries if x.get("SUFeedEntryUpdateURL")]
+    if not feed_entries:
+        robo_print("No usable items found in feed", LogLevel.VERBOSE, 4)
+        return facts
+
+    # Determine which item is "latest".
+    vers_key_order = ("SUFeedEntryShortVersionString", "SUFeedEntryVersion")
+    for key in vers_key_order:
+        try:
+            latest_info = max(feed_entries, key=lambda x: APLooseVersion(x[key]))
+            break
+        except AttributeError:
+            continue
+
+    for key in ("SUFeedEntryShortVersionString", "SUFeedEntryVersion"):
+        robo_print("The latest %s is %s" % (key, latest_info[key]), LogLevel.VERBOSE, 4)
+
+    # Pass latest URL to download URL inspection function.
+    facts["sparkle_provides_version"] = True
+    facts["barebones_product"] = input_path.split("/")[-1].replace(".xml", "").lower()
+    facts = inspect_download_url(latest_info["SUFeedEntryUpdateURL"], args, facts)
 
     return facts
 
@@ -2026,6 +2147,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Remove items with unusable URLs.
     sparkle_nones = (None, "", "null", "n/a", "none")
     sparkle_info = [x for x in sparkle_info if x["url"].lower() not in sparkle_nones]
+    if not sparkle_info:
+        robo_print("No usable items found in Sparkle feed", LogLevel.VERBOSE, 4)
+        return facts
 
     # Determine which item is "latest", preferring version, then shortVersionString,
     # then as a last resort, the URL itself.
@@ -2045,7 +2169,9 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             )
     else:
         robo_print(
-            "The Sparkle feed does not provide a version number", LogLevel.VERBOSE, 4,
+            "The Sparkle feed does not provide a version number",
+            LogLevel.VERBOSE,
+            4,
         )
     facts["sparkle_provides_version"] = sparkle_provides_version
 
