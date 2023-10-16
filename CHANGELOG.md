@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file. This projec
 - Fixed incorrect `[0m` that terminated script output in app.
 - Fixed MacUpdate description pattern matching.
 - Better handling of apps (and their associated URLs) with spaces, ampersands, and other special characters.
+- Improved detection of less obvious Sparkle feeds that might at first glance appear to be download URLs.
 
 ### Changed
 

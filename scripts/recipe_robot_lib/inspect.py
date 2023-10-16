@@ -1175,8 +1175,6 @@ def inspect_download_url(input_path, args, facts):
     # Warn if the content-type is known not to be a downloadable file.
     # TODO: If content-type is HTML, try parsing for download URLs and
     # use URLTextSearcher.
-    # TODO: If content-type is XML, see if it's a Sparkle feed or parse for
-    # download URLs and use URLTextSearcher.
     if "content-type" in head:
         content_type = head["content-type"]
         robo_print("Download content-type is %s" % content_type, LogLevel.VERBOSE, 4)
@@ -1213,21 +1211,20 @@ def inspect_download_url(input_path, args, facts):
     # Just in case the "download" was actually an XML response.
     with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
         file_head = download_file.read(256).lower()
-    if file_head.startswith(b"<?xml"):
-        if b"xmlns:sparkle" in file_head:
-            robo_print(
-                "Surprise! This download is actually a Sparkle feed.",
-                LogLevel.VERBOSE,
-                4,
-            )
-            os.remove(os.path.join(CACHE_DIR, filename))
-            facts = inspect_sparkle_feed_url(checked_url, args, facts)
-            return facts
-        elif b"<error>" in file_head:
-            facts["warnings"].append(
-                "There's a good chance that the file failed to download. "
-                "Looks like an XML file was downloaded instead."
-            )
+    if b"xmlns:sparkle" in file_head:
+        robo_print(
+            "Surprise! This download is actually a Sparkle feed.",
+            LogLevel.VERBOSE,
+            4,
+        )
+        os.remove(os.path.join(CACHE_DIR, filename))
+        facts = inspect_sparkle_feed_url(checked_url, args, facts)
+        return facts
+    elif b"<error>" in file_head:
+        facts["warnings"].append(
+            "There's a good chance that the file failed to download. "
+            "Looks like an XML file was downloaded instead."
+        )
 
     # Try to determine the type of file downloaded. (Overwrites any
     # previous download_type, because the download URL is the most
