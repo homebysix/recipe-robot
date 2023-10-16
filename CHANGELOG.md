@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file. This projec
 ### Added
 
 - Recipe Robot is now able to create yaml recipes. To use this feature, run `--configure` and select `yaml` as the recipe format. (Or run `defaults write com.elliotjordan.recipe-robot RecipeFormat "yaml"`). The app does not yet have a method for selecting this preference.
-- Now "jamf" recipes that leverage Graham Pugh's JamfPackageUploader processor can be created. This feature is limited to package-upload-only type recipes. (No creation of groups, policies, scripts, or other objects.) (#187)
+- Now "jamf" recipes that leverage Graham Pugh's JamfPackageUploader processor can be created. This feature is currently limited to package-upload-only type recipes. (No creation of groups, policies, scripts, or other objects.) (#187)
 - Redeveloped existing recipe detection using the automated AutoPkg [recipe index](https://github.com/autopkg/index). Recipe Robot will use this method until the `autopkg search` results become reliable again.
 - Local `file://` URLs are now supported input paths (but be aware that these may not be desirable for providing ongoing updates via AutoPkg, unless you have automation updating the local file).
 - New dedicated handler for Bare Bones update feeds, which are similar to Sparkle feeds but not the same. (#194)
