@@ -6,7 +6,13 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
-Nothing yet.
+### Fixed
+
+- Jamf pkg upload recipes that use a parent download recipe that retrieves a package file won't fail (related to the behavior change below, #193).
+
+### Changed
+
+- Recipe Robot no longer skips creating 'pkg' type recipes if the download is already in pkg format. Instead, it creates a recipe with a `PkgCopier` process (and potentially other processes if necessary for versioning). (#193)
 
 ## [2.3.0] - 2023-10-16
 
