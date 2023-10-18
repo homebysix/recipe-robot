@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Fixed
 
+- Fixed an issue with Recipe Robot's Sparkle update feed that caused "you're up to date" to appear even when the app wasn't the newest version. Resolved by publishing new automation to the [gh-pages](https://github.com/homebysix/recipe-robot/tree/gh-pages) branch of the repo.
 - Jamf pkg upload recipes that use a parent download recipe that retrieves a package file won't fail (related to the behavior change below, #193).
 
 ### Changed
