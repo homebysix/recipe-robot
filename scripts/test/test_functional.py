@@ -64,14 +64,21 @@ def robot_runner(input_path):
 def autopkg_runner(recipe_path):
     """For given recipe path, run AutoPkg and make sure the return code is zero."""
 
+    # Change to recipe directory so we can find the parent recipes easily
+    prevcwd = os.getcwd()
+    os.chdir(os.path.split(recipe_path)[0])
+
     proc = subprocess.run(
         ["/usr/local/bin/autopkg", "run", recipe_path, "--quiet"], check=False
     )
-    assert_equal(
-        proc.returncode,
-        0,
-        "{}: AutoPkg returned nonzero return code.".format(recipe_path),
-    )
+    try:
+        assert_equal(
+            proc.returncode,
+            0,
+            "{}: AutoPkg returned nonzero return code.".format(recipe_path),
+        )
+    finally:
+        os.chdir(prevcwd)
 
 
 def verify_processor_args(processor_name, recipe, expected_args):

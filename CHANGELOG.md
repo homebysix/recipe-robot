@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file. This projec
 - Jamf pkg upload recipes that use a parent download recipe that retrieves a package file won't fail (related to the behavior change below, #193).
 - Fixed a very rare issue in which Recipe Robot is not able to remove its cache folder after a pkg is unpacked that contains files that aren't user-writeable.
 - Adjusted SourceForge download URL search process and updated SF RSS parsing logic. Added support for detection of SourceForge `/project/` URLs, which apparently coexist with `/projects/` URLs.
+- Made adjustments to functional tests for upcoming AutoPkg 3 recipe map compatibility.
 
 ### Changed
 
