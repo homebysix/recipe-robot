@@ -1117,10 +1117,82 @@ def generate_pkg_recipe(facts, prefs, recipe):
             )
 
     elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
-        facts["warnings"].append(
-            "Skipping pkg recipe, since the download format is already pkg."
-        )
-        return
+        if facts.get("sparkle_provides_version") or "github_repo" in facts:
+            # Sparkle and GitHub provide version information.
+            recipe.append_processor(
+                {
+                    "Processor": "PkgCopier",
+                    "Arguments": {
+                        "source_pkg": "%pathname%",
+                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg",
+                    },
+                }
+            )
+        elif facts.get("app_relpath_from_payload"):
+            # Version available from an app inside the pkg payload.
+            recipe.append_processor(
+                {
+                    "Processor": "FlatPkgUnpacker",
+                    "Arguments": {
+                        "destination_path": "%RECIPE_CACHE_DIR%/unpacked",
+                        "flat_pkg_path": "%pathname%",
+                    },
+                }
+            )
+            recipe.append_processor(
+                {
+                    "Processor": "PkgPayloadUnpacker",
+                    "Arguments": {
+                        "destination_path": "%RECIPE_CACHE_DIR%/payload",
+                        "pkg_payload_path": f"%RECIPE_CACHE_DIR%/unpacked/{facts['pkg_filename']}/Payload",
+                        "purge_destination": True,
+                    },
+                }
+            )
+            recipe.append_processor(
+                {
+                    "Processor": "Versioner",
+                    "Arguments": {
+                        "input_plist_path": f"%RECIPE_CACHE_DIR%/payload/{facts['app_relpath_from_payload']}"
+                        "/Contents/Info.plist",
+                        "plist_version_key": facts.get(
+                            "version_key", "CFBundleShortVersionString"
+                        ),
+                    },
+                }
+            )
+            recipe.append_processor(
+                {
+                    "Processor": "PkgCopier",
+                    "Arguments": {
+                        "source_pkg": "%pathname%",
+                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg",
+                    },
+                }
+            )
+            recipe.append_processor(
+                {
+                    "Processor": "PathDeleter",
+                    "Arguments": {
+                        "path_list": [
+                            "%RECIPE_CACHE_DIR%/payload",
+                            "%RECIPE_CACHE_DIR%/unpacked",
+                        ]
+                    },
+                }
+            )
+        else:
+            # No version available.
+            # TODO: Are there other version retrieval possibilities?
+            recipe.append_processor(
+                {
+                    "Processor": "PkgCopier",
+                    "Arguments": {
+                        "source_pkg": "%pathname%",
+                        "pkg_path": "%RECIPE_CACHE_DIR%/%NAME%.pkg",
+                    },
+                }
+            )
 
     return recipe
 

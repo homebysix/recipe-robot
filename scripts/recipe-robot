@@ -29,6 +29,7 @@ import os
 import pprint
 import pwd
 import shutil
+import subprocess
 import sys
 import traceback
 
@@ -128,7 +129,13 @@ def main():
 
         # Clean up cache folder.
         if os.path.exists(CACHE_DIR) and not facts["args"].keep_cache:
-            shutil.rmtree(CACHE_DIR)
+            try:
+                shutil.rmtree(CACHE_DIR)
+            except PermissionError:
+                # Rarely, pkgs unpack files that are not user-writeable
+                cmd = ["/bin/chmod", "-R", "u+w", CACHE_DIR]
+                _ = subprocess.run(cmd, check=False)
+                shutil.rmtree(CACHE_DIR)
 
         # If debug is on, print all the things.
         if OutputMode.debug_mode:

@@ -8,6 +8,20 @@ All notable changes to this project will be documented in this file. This projec
 
 Nothing yet.
 
+## [2.3.1] - 2023-10-19
+
+### Fixed
+
+- Fixed an issue with Recipe Robot's Sparkle update feed that caused "you're up to date" to appear even when the app wasn't the newest version. Resolved by publishing new automation to the [gh-pages](https://github.com/homebysix/recipe-robot/tree/gh-pages) branch of the repo. (Although this is listed as a fix for 2.3.1, it should actually resolve the issue for all previous versions of Recipe Robot.)
+- Jamf pkg upload recipes that use a parent download recipe that retrieves a package file won't fail (related to the behavior change below, #193).
+- Fixed a very rare issue in which Recipe Robot is not able to remove its cache folder after a pkg is unpacked that contains files that aren't user-writeable.
+- Adjusted SourceForge download URL search process and updated SF RSS parsing logic. Added support for detection of SourceForge `/project/` URLs, which apparently coexist with `/projects/` URLs.
+- Made adjustments to functional tests for upcoming AutoPkg 3 recipe map compatibility.
+
+### Changed
+
+- Recipe Robot no longer skips creating 'pkg' type recipes if the download is already in pkg format. Instead, it creates a recipe with a `PkgCopier` process (and potentially other processes if necessary for versioning). (#193)
+
 ## [2.3.0] - 2023-10-16
 
 ### Added
@@ -396,7 +410,8 @@ Nothing yet.
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/homebysix/recipe-robot/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/homebysix/recipe-robot/compare/v2.0.0...v2.1.0

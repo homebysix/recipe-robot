@@ -1855,6 +1855,14 @@ def inspect_sourceforge_url(input_path, args, facts):
             proj_name = proj_str[: proj_str.find("/")]
         else:
             proj_name = proj_str
+    elif "/project/" in input_path:
+        # Example: https://www.sourceforge.net/project/vienna-rss
+        marker = "/project/"
+        proj_str = input_path[input_path.find(marker) + len(marker) :]
+        if proj_str.find("/") > 0:
+            proj_name = proj_str[: proj_str.find("/")]
+        else:
+            proj_name = proj_str
     elif "/p/" in input_path:
         # Example: https://sourceforge.net/p/grandperspectiv/wiki/Home/
         marker = "/p/"
@@ -1867,7 +1875,12 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Example: http://grandperspectiv.sourceforge.net/
         # Example: http://grandperspectiv.sourceforge.net/screenshots.html
         marker = ".sourceforge.net"
-        proj_str = input_path.lstrip("http://")
+        proj_str = (
+            input_path.removeprefix("https://www.")
+            .removeprefix("http://www.")
+            .removeprefix("https://")
+            .removeprefix("http://")
+        )
         proj_name = proj_str[: proj_str.find(marker)]
     else:
         facts["warnings"].append("Unable to parse SourceForge URL.")
@@ -1948,9 +1961,23 @@ def inspect_sourceforge_url(input_path, args, facts):
             # (#21) Example:
             # https://sourceforge.net/projects/grandperspectiv/rss
             search = "{https://sourceforge.net/api/files.rdf#}extra-info"
-            if item.find(search).text.startswith("data"):
-                download_url = item.find("link").text.rstrip("/download")
-                break
+            if "text" in item.find(search).text:
+                # Skip README, LICENSE, and other text files
+                continue
+            link = item.find("link")
+            if "beta" in link.text.lower() or "-dSYM" in link.text:
+                # Skip betas and framework sources
+                continue
+            # Transform download URL to bypass interactive page. Before:
+            #   https://sourceforge.net/projects/grandperspectiv/files/grandperspective/Bug-112/Bug-112.zip/download
+            # After:
+            #   https://master.dl.sourceforge.net/project/grandperspectiv/grandperspective/Bug-112/Bug-112.zip?viasf=1
+            dl_path = link.text.split("/files/")[-1].removesuffix("/download")
+            download_url = "https://master.dl.sourceforge.net/project/%s/%s?viasf=1" % (
+                proj_name,
+                dl_path,
+            )
+            break
         if download_url not in ("", None):
             facts = inspect_download_url(download_url, args, facts)
         else:

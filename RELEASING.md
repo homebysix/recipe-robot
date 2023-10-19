@@ -44,7 +44,7 @@
         git checkout gh-pages
         git commit --allow-empty -m "Trigger gh-pages build"
         git push
-        git checkout master
+        git checkout main
 
 13. Announce to [autopkg](https://macadmins.slack.com/archives/C056155B4) and other relevant channels, if desired.
 
