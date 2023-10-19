@@ -111,8 +111,8 @@ class TestCurler(object):
     def test_parse_http_header(self):
         """Verify we can parse a single HTTP header line."""
         header = {}
-        curler.parse_http_header("expires: Fri, 11 Dec 2020 08:37:42 GMT", header)
-        expected = {"expires": "Fri, 11 Dec 2020 08:37:42 GMT"}
+        curler.parse_http_header("expires: Fri, 11 Dec 2023 08:59:27 GMT", header)
+        expected = {"expires": "Fri, 11 Dec 2023 08:59:27 GMT"}
         assert_equal(expected, header)
 
         header = {}
@@ -208,7 +208,7 @@ class TestCurler(object):
             "content-length": "220",
             "content-type": "text/html; charset=UTF-8",
             "date": "Wed, 11 Nov 2020 08:59:27 GMT",
-            "expires": "Fri, 11 Dec 2020 08:59:27 GMT",
+            "expires": "Fri, 11 Dec 2023 08:59:27 GMT",
             "http_redirected": None,
             "http_result_code": "301",
             "http_result_description": "",
