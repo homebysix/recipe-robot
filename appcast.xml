@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
-<channel>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
     <title>recipe-robot</title>
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 2.3.1</title>
-                    <description><![CDATA[<h3 id="fixed">Fixed</h3>
+    <item>
+      <title>Recipe Robot 2.3.1</title>
+      <description><![CDATA[<h3 id="fixed">Fixed</h3>
 
 <ul>
   <li>Jamf pkg upload recipes that use a parent download recipe that retrieves a package file won’t fail (related to the behavior change below, #193).</li>
@@ -24,25 +21,12 @@
   <li>Recipe Robot no longer skips creating ‘pkg’ type recipes if the download is already in pkg format. Instead, it creates a recipe with a <code class="language-plaintext highlighter-rouge">PkgCopier</code> process (and potentially other processes if necessary for versioning). (#193)</li>
 </ul>
 ]]></description>
-                    <pubDate>Thu, 19 Oct 2023 16:32:23 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.3.1/RecipeRobot-2.3.1.dmg"
-                            sparkle:version="2.3.1"
-                            
-                            length="4348208"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 2.3.0</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Thu, 19 Oct 2023 16:32:23 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v2.3.1/RecipeRobot-2.3.1.dmg" sparkle:version="2.3.1" length="4348208" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 2.3.0</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 
 <ul>
   <li>Recipe Robot is now able to create yaml recipes. To use this feature, run <code class="language-plaintext highlighter-rouge">--configure</code> and select <code class="language-plaintext highlighter-rouge">yaml</code> as the recipe format. (Or run <code class="language-plaintext highlighter-rouge">defaults write com.elliotjordan.recipe-robot RecipeFormat "yaml"</code>). The app does not yet have a method for selecting this preference.</li>
@@ -89,25 +73,12 @@
   <li>The old Sparkle feed automation needs some adjustment, so users of Recipe Robot 2.2.0 may see an incorrect “you’re up to date” message when checking for updates. Current workaround is to manually download and install version 2.3.0.</li>
 </ul>
 ]]></description>
-                    <pubDate>Mon, 16 Oct 2023 14:08:08 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.3.0/RecipeRobot-2.3.0.dmg"
-                            sparkle:version="2.3.0"
-                            
-                            length="4333105"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 2.2.0</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Mon, 16 Oct 2023 14:08:08 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v2.3.0/RecipeRobot-2.3.0.dmg" sparkle:version="2.3.0" length="4333105" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 2.2.0</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 
 <ul>
   <li>Recipe Robot now incorporates <a href="https://sparkle-project.org">Sparkle</a> for keeping itself up to date. (#143)</li>
@@ -130,25 +101,12 @@
   <li>Removed FoundationPlist since Recipe Robot no longer depends on it.</li>
 </ul>
 ]]></description>
-                    <pubDate>Mon, 14 Dec 2020 06:35:08 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.2.0/RecipeRobot-2.2.0.dmg"
-                            sparkle:version="2.2.0"
-                            
-                            length="9181288"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 2.1.0</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Mon, 14 Dec 2020 06:35:08 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v2.2.0/RecipeRobot-2.2.0.dmg" sparkle:version="2.2.0" length="9181288" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 2.1.0</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Recipe Robot is now codesigned with a shiny new developer certificate and notarized!</li>
   <li>Unit tests for <code class="language-plaintext highlighter-rouge">curl</code> related functions that will help detect and prevent release of bugs.</li>
@@ -161,25 +119,12 @@
   <li>Corrected minimum system version back to 10.13. (#180)</li>
 </ul>
 ]]></description>
-                    <pubDate>Sun, 15 Nov 2020 03:49:27 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.1.0/RecipeRobot-2.1.0.dmg"
-                            sparkle:version="2.1.0"
-                            
-                            length="7311881"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 2.0.0</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Sun, 15 Nov 2020 03:49:27 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v2.1.0/RecipeRobot-2.1.0.dmg" sparkle:version="2.1.0" length="7311881" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 2.0.0</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Full Python 3 support, which makes Recipe Robot compatible with (and require) AutoPkg 2. Big thanks to <a href="https://github.com/sheagcraig">@sheagcraig</a> for fixing a particularly sticky bug involving string encoding. (#156, #160, #163)</li>
   <li>As part of Python 3 transition, rewrote significant portions of Recipe Robot to use <code class="language-plaintext highlighter-rouge">curl</code> instead of Python’s urllib. This adds flexibility and mimics AutoPkg’s behavior, but may result in changes in behavior from Recipe Robot 1.x.</li>
@@ -229,37 +174,12 @@
   <li>Because Recipe Robot is now using plistlib instead of FoundationPlist, it’s likely that some non-standard developer plist files may not successfully parse. This is because plistlib is stricter than FoundationPlist, and the same issue applies to AutoPkg itself (see <a href="https://github.com/autopkg/autopkg/issues/618">autopkg#618</a> for an example).</li>
 </ul>
 ]]></description>
-                    <pubDate>Tue, 03 Nov 2020 22:46:35 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.0.0/RecipeRobot-2.0.0.dmg"
-                            sparkle:version="2.0.0"
-                            
-                            length="14974392"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-        
-    
-        
-            
-        
-    
-        
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.2.1</title>
-                    <description><![CDATA[<p>(The list below includes changes from current release 1.2.1 and skipped release 1.2.0.)</p>
+      <pubDate>Tue, 03 Nov 2020 22:46:35 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v2.0.0/RecipeRobot-2.0.0.dmg" sparkle:version="2.0.0" length="14974392" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.2.1</title>
+      <description><![CDATA[<p>(The list below includes changes from current release 1.2.1 and skipped release 1.2.0.)</p>
 
 <h3 id="added">Added</h3>
 <ul>
@@ -292,25 +212,12 @@
   <li>Removed internal support for piped commands, in order to simplify shell-out process. Should have no effect on functionality.</li>
 </ul>
 ]]></description>
-                    <pubDate>Sat, 21 Dec 2019 21:58:39 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.2.1/RecipeRobot-1.2.1.dmg"
-                            sparkle:version="1.2.1"
-                            
-                            length="5420840"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.1.2</title>
-                    <description><![CDATA[<h3 id="changed">Changed</h3>
+      <pubDate>Sat, 21 Dec 2019 21:58:39 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.2.1/RecipeRobot-1.2.1.dmg" sparkle:version="1.2.1" length="5420840" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.1.2</title>
+      <description><![CDATA[<h3 id="changed">Changed</h3>
 <ul>
   <li>Recipe Robot will not add generically-named “Installer” or “Uninstaller” apps to the list of blocking applications in Munki recipes.</li>
   <li>Sparkle download URLs are now collected even if there is no version provided in the Sparkle feed. (#134)</li>
@@ -331,25 +238,12 @@
   <li>The <code class="language-plaintext highlighter-rouge">--github-token</code> flag is now deprecated. Recipe Robot will automatically use the AutoPkg GitHub token file at ~/.autopkg_gh_token, if it exists.</li>
 </ul>
 ]]></description>
-                    <pubDate>Mon, 25 Feb 2019 22:57:45 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.2/RecipeRobot-1.1.2.dmg"
-                            sparkle:version="1.1.2"
-                            
-                            length="5032312"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.1.1</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Mon, 25 Feb 2019 22:57:45 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.2/RecipeRobot-1.1.2.dmg" sparkle:version="1.1.2" length="5032312" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.1.1</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Recipe Robot now uses the AutoPkg GitHub token file at ~/.autopkg_gh_token, if it exists. This can help you avoid rate limiting if you’re creating many GitHub recipes in a short time. (#18)</li>
   <li>You can now use the <code class="language-plaintext highlighter-rouge">--configure</code> flag to access the Recipe Robot preferences setup in the Python script, in addition to the existing <code class="language-plaintext highlighter-rouge">-c</code> and <code class="language-plaintext highlighter-rouge">--config</code> flags.</li>
@@ -361,25 +255,12 @@
   <li>Resolved a bug that would cause the <code class="language-plaintext highlighter-rouge">developer</code> key to be an array instead of a string in generated Munki recipes. (#141)</li>
 </ul>
 ]]></description>
-                    <pubDate>Fri, 15 Feb 2019 17:45:09 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.1/RecipeRobot-1.1.1.dmg"
-                            sparkle:version="1.1.1"
-                            
-                            length="5030705"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.1.0</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Fri, 15 Feb 2019 17:45:09 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.1/RecipeRobot-1.1.1.dmg" sparkle:version="1.1.1" length="5030705" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.1.0</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Recipe Robot now does a much better job at parsing package payloads! It can locate apps within packages, determine which of multiple apps is the “real” one, and even pass through code signing and payload unpacking information to the appropriate AutoPkg processors. Round of applause all around. (#27)</li>
   <li>Able to detect and use DevMate update feeds. (#129, thanks to <a href="https://github.com/macprince">@macprince</a>)</li>
@@ -406,25 +287,12 @@
   <li>Blocking applications were not being added properly to Munki recipes for apps based on pkg file sources. That should be fixed now.</li>
 </ul>
 ]]></description>
-                    <pubDate>Tue, 12 Feb 2019 20:32:17 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.0/RecipeRobot-1.1.0.dmg"
-                            sparkle:version="1.1.0"
-                            
-                            length="5027750"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.0.5</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Tue, 12 Feb 2019 20:32:17 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.0/RecipeRobot-1.1.0.dmg" sparkle:version="1.1.0" length="5027750" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.0.5</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Uses new <a href="https://github.com/autopkg/autopkg/wiki/Processor-AppPkgCreator">AppPkgCreator</a> processor, which greatly simplifies the process of creating a pkg from an app.</li>
 </ul>
@@ -443,25 +311,12 @@
   <li>Improved performance and reliability of HTTPS URL validation.</li>
 </ul>
 ]]></description>
-                    <pubDate>Fri, 27 Jan 2017 17:51:01 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.5/RecipeRobot-1.0.5.dmg"
-                            sparkle:version="1.0.5"
-                            
-                            length="3572421"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.0.4</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Fri, 27 Jan 2017 17:51:01 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.5/RecipeRobot-1.0.5.dmg" sparkle:version="1.0.5" length="3572421" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.0.4</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Recipe Robot now automatically switches download URLs and Sparkle feeds from HTTP to HTTPS, if possible. (#92)</li>
   <li>Download progress indication is now displayed in the app. (#72)</li>
@@ -484,25 +339,12 @@
   <li>Better compatibility with other terminal apps (e.g. PuTTY). (#108)</li>
 </ul>
 ]]></description>
-                    <pubDate>Thu, 13 Oct 2016 21:09:31 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.4/RecipeRobot-1.0.4.dmg"
-                            sparkle:version="1.0.4"
-                            
-                            length="3572543"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.0.3</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Thu, 13 Oct 2016 21:09:31 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.4/RecipeRobot-1.0.4.dmg" sparkle:version="1.0.4" length="3572543" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.0.3</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Now detects and warns when using URLs that contain <code class="language-plaintext highlighter-rouge">Expires</code> or <code class="language-plaintext highlighter-rouge">AWSAccessKeyId</code> parameters. In the case of Amazon Web Services, these URLs are not permanent and therefore not useful for creating AutoPkg recipes. (#97)</li>
   <li>Recipe Robot now complains if a Sparkle feed is not using HTTPS, although this does not prevent recipe creation. (#92)</li>
@@ -523,25 +365,12 @@
   <li>Uses HTTPS to check MacUpdate for app description.</li>
 </ul>
 ]]></description>
-                    <pubDate>Thu, 25 Aug 2016 19:05:17 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.3/RecipeRobot-1.0.3.dmg"
-                            sparkle:version="1.0.3"
-                            
-                            length="3599290"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.0.2</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Thu, 25 Aug 2016 19:05:17 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.3/RecipeRobot-1.0.3.dmg" sparkle:version="1.0.3" length="3599290" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.0.2</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Added support for LANrev recipe type.</li>
   <li>Better support of disk images where the target app lives in an enclosed folder. (#90)</li>
@@ -558,25 +387,12 @@
   <li>Removed ability to create Absolute Manage recipe type. (Use LANrev instead.)</li>
 </ul>
 ]]></description>
-                    <pubDate>Wed, 23 Mar 2016 15:19:03 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.2/RecipeRobot-1.0.2.dmg"
-                            sparkle:version="1.0.2"
-                            
-                            length="3579114"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.0.1</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Wed, 23 Mar 2016 15:19:03 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.2/RecipeRobot-1.0.2.dmg" sparkle:version="1.0.2" length="3579114" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.0.1</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>If a dmg is supplied as input, Recipe Robot inspects the file metadata in order to detect possible download URLs (#81, thanks to @gregneagle).</li>
   <li>The script now displays a simple progress percentage during file downloads. (#24, #72)</li>
@@ -593,25 +409,12 @@
   <li>Now uses NSUserDefaults for preference handling. (#80)</li>
 </ul>
 ]]></description>
-                    <pubDate>Mon, 28 Dec 2015 21:32:02 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.1/RecipeRobot-1.0.1.dmg"
-                            sparkle:version="1.0.1"
-                            
-                            length="3515239"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 1.0</title>
-                    <description><![CDATA[<p><a href="https://github.com/homebysix/recipe-robot/releases/download/v1.0/RecipeRobot-1.0.dmg"><img src="https://cloud.githubusercontent.com/assets/7801391/11220676/f9396f1a-8d15-11e5-8462-1356c9ed08fa.png" alt="hello-macbrained" /></a></p>
+      <pubDate>Mon, 28 Dec 2015 21:32:02 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.1/RecipeRobot-1.0.1.dmg" sparkle:version="1.0.1" length="3515239" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 1.0</title>
+      <description><![CDATA[<p><a href="https://github.com/homebysix/recipe-robot/releases/download/v1.0/RecipeRobot-1.0.dmg"><img src="https://cloud.githubusercontent.com/assets/7801391/11220676/f9396f1a-8d15-11e5-8462-1356c9ed08fa.png" alt="hello-macbrained" /></a></p>
 
 <h3 id="changed">Changed</h3>
 <ul>
@@ -621,25 +424,12 @@
   <li>Updated screenshots and demo animations in readme file.</li>
 </ul>
 ]]></description>
-                    <pubDate>Wed, 18 Nov 2015 00:03:01 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0/RecipeRobot-1.0.dmg"
-                            sparkle:version="1.0"
-                            
-                            length="3514164"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 0.2.5</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Wed, 18 Nov 2015 00:03:01 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v1.0/RecipeRobot-1.0.dmg" sparkle:version="1.0" length="3514164" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 0.2.5</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Hooray! The Recipe Robot app can now accept URLs as input, just like the script.</li>
 </ul>
@@ -668,25 +458,12 @@
   <li>Removed unused MacUpdate description scraper that was simpler but had dependencies.</li>
 </ul>
 ]]></description>
-                    <pubDate>Sat, 14 Nov 2015 01:54:34 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.5/RecipeRobot-0.2.5.dmg"
-                            sparkle:version="0.2.5"
-                            
-                            length="3512075"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 0.2.4</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Sat, 14 Nov 2015 01:54:34 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.5/RecipeRobot-0.2.5.dmg" sparkle:version="0.2.5" length="3512075" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 0.2.4</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Sweet new icon!</li>
   <li><a href="https://www.youtube.com/playlist?list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq">Short video tutorials</a> for Recipe Robot are now available.</li>
@@ -705,48 +482,22 @@
   <li>A few typo fixes.</li>
 </ul>
 ]]></description>
-                    <pubDate>Wed, 11 Nov 2015 22:39:20 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/0.2.4/RecipeRobot-0.2.4.dmg"
-                            sparkle:version="0.2.4"
-                            
-                            length="3451377"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 0.2.2</title>
-                    <description><![CDATA[<h3 id="fixed">Fixed</h3>
+      <pubDate>Wed, 11 Nov 2015 22:39:20 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/0.2.4/RecipeRobot-0.2.4.dmg" sparkle:version="0.2.4" length="3451377" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 0.2.2</title>
+      <description><![CDATA[<h3 id="fixed">Fixed</h3>
 <ul>
   <li>Fixed an issue where the script output doesn’t flush when run via the app.</li>
 </ul>
 ]]></description>
-                    <pubDate>Fri, 06 Nov 2015 23:09:26 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/0.2.2/RecipeRobot-0.2.2.dmg"
-                            sparkle:version="0.2.2"
-                            
-                            length="2513864"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 0.2.1</title>
-                    <description><![CDATA[<h3 id="added">Added</h3>
+      <pubDate>Fri, 06 Nov 2015 23:09:26 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/0.2.2/RecipeRobot-0.2.2.dmg" sparkle:version="0.2.2" length="2513864" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 0.2.1</title>
+      <description><![CDATA[<h3 id="added">Added</h3>
 <ul>
   <li>Prefs sheet now appears by default on first launch.</li>
   <li>Help menu now opens README.md in default web browser. (#57)</li>
@@ -766,43 +517,19 @@
   <li>Adjusted layout of Mac app.</li>
 </ul>
 ]]></description>
-                    <pubDate>Fri, 06 Nov 2015 19:34:15 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.1/RecipeRobot-0.2.1.dmg"
-                            sparkle:version="0.2.1"
-                            
-                            length="2540578"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-        
-            
-                <item>
-                    <title>Recipe Robot 0.2.0</title>
-                    <description><![CDATA[<p>We’re proud to announce that Recipe Robot is now available as a public beta.</p>
+      <pubDate>Fri, 06 Nov 2015 19:34:15 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.1/RecipeRobot-0.2.1.dmg" sparkle:version="0.2.1" length="2540578" type="application/octet-stream"/>
+    </item>
+    <item>
+      <title>Recipe Robot 0.2.0</title>
+      <description><![CDATA[<p>We’re proud to announce that Recipe Robot is now available as a public beta.</p>
 
 <p>Take a look through our documentation <a href="https://github.com/homebysix/recipe-robot">here</a>. If you find bugs or have feature requests, please open a <a href="https://github.com/homebysix/recipe-robot/issues">GitHub issue</a>.</p>
 
 <p>Enjoy!</p>
 ]]></description>
-                    <pubDate>Fri, 30 Oct 2015 21:42:19 +0000</pubDate>
-                    
-                        
-                        <enclosure
-                            url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.0/RecipeRobot-0.2.0.dmg"
-                            sparkle:version="0.2.0"
-                            
-                            length="2088572"
-                            type="application/octet-stream" />
-                    
-                </item>
-            
-        
-    
-</channel>
+      <pubDate>Fri, 30 Oct 2015 21:42:19 +0000</pubDate>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.0/RecipeRobot-0.2.0.dmg" sparkle:version="0.2.0" length="2088572" type="application/octet-stream"/>
+    </item>
+  </channel>
 </rss>
