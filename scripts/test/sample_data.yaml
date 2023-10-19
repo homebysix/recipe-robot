@@ -393,7 +393,7 @@
 - app_name: DraftSight
   bundle_id: com.3ds.draftsight
   developer: 3ds
-  input_path: http://www.draftsight.com/download-mac
+  input_path: https://dl-ak.solidworks.com/nonsecure/draftsight/2023SP4-1-5WQLABEM/DraftSight.pkg
 
 - app_name: duet
   bundle_id: com.kairos.duet
@@ -609,11 +609,6 @@
   bundle_id: at.techno-grafik.iTaskX3
   developer: Techno-Grafik
   input_path: https://www.itaskx3.com/services/appcast.ashx
-
-- app_name: iThoughtsX
-  bundle_id: com.toketaware.ithoughtsx
-  developer: toketaWare
-  input_path: https://s3-eu-west-1.amazonaws.com/ithoughtsx/ithoughtsx.xml
 
 - app_name: iZip
   bundle_id: com.iboostup.izip
@@ -1253,7 +1248,7 @@
 - app_name: Vienna
   bundle_id: uk.co.opencommunity.vienna2
   developer: Barijaona Ramaholimihaso
-  input_path: https://viennarss.github.io/sparkle-files/changelog.xml
+  input_path: https://github.com/ViennaRSS/vienna-rss
 
 - app_name: VimR
   bundle_id: com.qvacua.VimR
