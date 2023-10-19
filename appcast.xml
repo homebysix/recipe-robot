@@ -1,4 +1,808 @@
----
-release_only: true
----
-{%include appcast.inc %}
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel>
+    <title>recipe-robot</title>
+    <description>Most recent changes with links to updates.</description>
+    <language>en</language>
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 2.3.1</title>
+                    <description><![CDATA[<h3 id="fixed">Fixed</h3>
+
+<ul>
+  <li>Jamf pkg upload recipes that use a parent download recipe that retrieves a package file won’t fail (related to the behavior change below, #193).</li>
+  <li>Fixed a very rare issue in which Recipe Robot is not able to remove its cache folder after a pkg is unpacked that contains files that aren’t user-writeable.</li>
+  <li>Adjusted SourceForge download URL search process and updated SF RSS parsing logic. Added support for detection of SourceForge <code class="language-plaintext highlighter-rouge">/project/</code> URLs, which apparently coexist with <code class="language-plaintext highlighter-rouge">/projects/</code> URLs.</li>
+  <li>Made adjustments to functional tests for upcoming AutoPkg 3 recipe map compatibility.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+
+<ul>
+  <li>Recipe Robot no longer skips creating ‘pkg’ type recipes if the download is already in pkg format. Instead, it creates a recipe with a <code class="language-plaintext highlighter-rouge">PkgCopier</code> process (and potentially other processes if necessary for versioning). (#193)</li>
+</ul>
+]]></description>
+                    <pubDate>Thu, 19 Oct 2023 16:32:23 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.3.1/RecipeRobot-2.3.1.dmg"
+                            sparkle:version="2.3.1"
+                            
+                            length="4348208"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 2.3.0</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+
+<ul>
+  <li>Recipe Robot is now able to create yaml recipes. To use this feature, run <code class="language-plaintext highlighter-rouge">--configure</code> and select <code class="language-plaintext highlighter-rouge">yaml</code> as the recipe format. (Or run <code class="language-plaintext highlighter-rouge">defaults write com.elliotjordan.recipe-robot RecipeFormat "yaml"</code>). The app does not yet have a method for selecting this preference.</li>
+  <li>Now “jamf” recipes that leverage Graham Pugh’s JamfPackageUploader processor can be created. This feature is currently limited to package-upload-only type recipes. (No creation of groups, policies, scripts, or other objects.) (#187)</li>
+  <li>Redeveloped existing recipe detection using the automated AutoPkg <a href="https://github.com/autopkg/index">recipe index</a>. Recipe Robot will use this method until the <code class="language-plaintext highlighter-rouge">autopkg search</code> results become reliable again.</li>
+  <li>Local <code class="language-plaintext highlighter-rouge">file://</code> URLs are now supported input paths (but be aware that these may not be desirable for providing ongoing updates via AutoPkg, unless you have automation updating the local file).</li>
+  <li>New dedicated handler for Bare Bones update feeds, which are similar to Sparkle feeds but not the same. (#194)</li>
+  <li>Added three more app description sources, increasing the chance that Recipe Robot will pre-fill your Munki or Jamf recipes with useful descriptions for you to customize.</li>
+  <li>Added more post-recipe-creation affirmations, because why not.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+
+<ul>
+  <li>Better handling of disk images that contain packages. (#188)</li>
+  <li>Recipe Robot better handles downloaded payloads that contain the contents of an app bundle, but lack the enclosing bundle itself. (Thanks to @andrewzierkel for #195)</li>
+  <li>Prevented app window from expanding too much horizontally when processing extremely long filename or URL inputs.</li>
+  <li>Fixed incorrect <code class="language-plaintext highlighter-rouge">[0m</code> that terminated script output in app.</li>
+  <li>Fixed MacUpdate description pattern matching.</li>
+  <li>Better handling of URLs with unquoted spaces. (#197)</li>
+  <li>Improved detection of less obvious Sparkle feeds that might at first glance appear to be download URLs.</li>
+  <li>More gracefully handle Sparkle and Bare Bones feeds with no usable items or enclosure URLs.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+
+<ul>
+  <li>Recipe Robot app finally supports dark mode in script output box!</li>
+  <li>Updated <a href="https://github.com/sparkle-project/Sparkle/">Sparkle</a> framework to 2.5.1.</li>
+  <li>If existing recipes are found, output a hint that using <code class="language-plaintext highlighter-rouge">--ignore-existing</code> can create new recipes anyway.</li>
+  <li>Use zero-width space for script output contents placeholder, which ensures that “Processing” on the first line aligns with the left side.</li>
+</ul>
+
+<h3 id="removed">Removed</h3>
+
+<ul>
+  <li>Removed support for generation of “jss” style recipes, which leverage the deprecated <a href="https://github.com/jssimporter/python-jss">Python-JSS</a> module. Please <a href="https://grahamrpugh.com/2022/02/16/jssimporter-jamf-pro-api-token-auth.html">switch to JamfUploader type recipes</a> instead.</li>
+  <li>Dropped AlternativeTo as a description source.</li>
+</ul>
+
+<h3 id="known-issues">Known issues</h3>
+
+<ul>
+  <li>The old Sparkle feed automation needs some adjustment, so users of Recipe Robot 2.2.0 may see an incorrect “you’re up to date” message when checking for updates. Current workaround is to manually download and install version 2.3.0.</li>
+</ul>
+]]></description>
+                    <pubDate>Mon, 16 Oct 2023 14:08:08 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.3.0/RecipeRobot-2.3.0.dmg"
+                            sparkle:version="2.3.0"
+                            
+                            length="4333105"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 2.2.0</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+
+<ul>
+  <li>Recipe Robot now incorporates <a href="https://sparkle-project.org">Sparkle</a> for keeping itself up to date. (#143)</li>
+  <li>The app is now built as a universal binary (however no testing on Macs with Apple Silicon has been done yet).</li>
+  <li>Verbose output now includes HTTP content-type and copying from disk images.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+
+<ul>
+  <li>Improved code signing authorities parsing, which should allow Recipe Robot to capture developer names and team identifiers in some situations where it would not previously.</li>
+  <li>Fixed a bug that would prevent using Sparkle URLs hosted on updates.devmate.com as input.</li>
+  <li>Gracefully handle missing file errors during installer payload inspection.</li>
+  <li>Slightly more resilient processing of downloaded files when the file format is unknown.</li>
+</ul>
+
+<h3 id="removed">Removed</h3>
+
+<ul>
+  <li>Removed FoundationPlist since Recipe Robot no longer depends on it.</li>
+</ul>
+]]></description>
+                    <pubDate>Mon, 14 Dec 2020 06:35:08 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.2.0/RecipeRobot-2.2.0.dmg"
+                            sparkle:version="2.2.0"
+                            
+                            length="9181288"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 2.1.0</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Recipe Robot is now codesigned with a shiny new developer certificate and notarized!</li>
+  <li>Unit tests for <code class="language-plaintext highlighter-rouge">curl</code> related functions that will help detect and prevent release of bugs.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Fixed a bug that would fail recipe generation if a <code class="language-plaintext highlighter-rouge">expected_authority_names</code> list is used for <code class="language-plaintext highlighter-rouge">CodeSignatureVerifier</code>.</li>
+  <li>Resolved an uncaught exception resulting from the <code class="language-plaintext highlighter-rouge">RecipeIdentifierPrefix</code> or <code class="language-plaintext highlighter-rouge">RecipeCreateLocation</code> preferences being unset. (#179)</li>
+  <li>Corrected minimum system version back to 10.13. (#180)</li>
+</ul>
+]]></description>
+                    <pubDate>Sun, 15 Nov 2020 03:49:27 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.1.0/RecipeRobot-2.1.0.dmg"
+                            sparkle:version="2.1.0"
+                            
+                            length="7311881"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 2.0.0</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Full Python 3 support, which makes Recipe Robot compatible with (and require) AutoPkg 2. Big thanks to <a href="https://github.com/sheagcraig">@sheagcraig</a> for fixing a particularly sticky bug involving string encoding. (#156, #160, #163)</li>
+  <li>As part of Python 3 transition, rewrote significant portions of Recipe Robot to use <code class="language-plaintext highlighter-rouge">curl</code> instead of Python’s urllib. This adds flexibility and mimics AutoPkg’s behavior, but may result in changes in behavior from Recipe Robot 1.x.</li>
+  <li>New disk image build tool and layout.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">recipe-robot</code> script now supports the creation of “jss-upload” type recipes, which imports a package into Jamf Pro but does not create any policies or groups. (#153)</li>
+  <li>Now able to build recipes for macOS screen saver (.saver) bundles.</li>
+  <li>Recipe Robot now does more thorough pre-checking of URLs: attempts to use HTTPS instead of HTTP when possible, and tries to add a widely used user-agent if a 403 error is encountered.</li>
+  <li>Added CodeQL scanning to GitHub repo.</li>
+  <li>Added Sparkle shortVersionString to verbose output. (#173)</li>
+  <li>Added code signature team identifier verbose output. (#174)</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Recipe Robot no longer assigns AutoPkg input variables for <code class="language-plaintext highlighter-rouge">DOWNLOAD_URL</code>, <code class="language-plaintext highlighter-rouge">SPARKLE_FEED_URL</code>, <code class="language-plaintext highlighter-rouge">GITHUB_REPO</code>, and <code class="language-plaintext highlighter-rouge">BUNDLE_ID</code>. Instead, it hard-codes these values into the appropriate processor arguments. <a href="https://github.com/jazzace">@jazzace</a> nicely summarizes the benefit of this change <a href="https://youtu.be/BI10WWrgG2A?t=2620">here</a>.</li>
+  <li>Added detail to the <code class="language-plaintext highlighter-rouge">--configure</code> option that clarifies that following the official “jss-recipes” style format is unnecessary unless you’re contributing to <a href="https://www.github.com/autopkg/jss-recipes">jss-recipes</a>.</li>
+  <li>Recipe Robot script <code class="language-plaintext highlighter-rouge">--configure</code> option now treats pressing Return the same as pressing “S” to save the list of preferred recipe types, to align with the behavior of other configuration options.</li>
+  <li>Various minor adjustments to continue preparing for Python 3 compatibility.</li>
+  <li>Cleaned up Swift codebase using <code class="language-plaintext highlighter-rouge">swiftlint</code>.</li>
+  <li>More robust Sparkle feed processing. (#150, #173)</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Resolved an issue that resulted in preferences unrelated to Recipe Robot being saved into the Recipe Robot preference file.</li>
+  <li>Updated regular expression used to grab app descriptions from MacUpdate.</li>
+  <li>Fixed an issue that would cause certain GitHub URLs to be parsed incorrectly.</li>
+  <li>Fixed a bug that occurred when checking for existing recipes using AutoPkg 2. (#171)</li>
+  <li>Resolved a first-run issue with reading empty preference values.</li>
+  <li>Fixed an issue that could cause a disk to fill up with recursive links. (#158)</li>
+  <li>Caught an error that resulted from neglecting to cast certain lists before writing to recipe plist.</li>
+  <li>Better handle download file inputs that are lacking <code class="language-plaintext highlighter-rouge">kMDItemWhereFroms</code> extended attributes.</li>
+  <li>Worked around an issue preventing real-time script output from being displayed in the app by shelling out to <code class="language-plaintext highlighter-rouge">echo</code> while running in app mode. (#169, #170)</li>
+</ul>
+
+<h3 id="removed">Removed</h3>
+<ul>
+  <li>Removed internal support for piped subprocess commands, previously deprecated in v1.2.0.</li>
+  <li>Temporarily removed 403 error detection (usually due to rate-limiting) for BitBucket, GitHub, and SourceForge API calls.</li>
+  <li>Removed all calls to FoundationPlist in support of Python 3 transition. (Left FoundationPlist itself included in source, but will remove in a future release.)</li>
+</ul>
+
+<h3 id="known-issues">Known Issues</h3>
+<ul>
+  <li>On macOS 10.14 (and possibly earlier) an incorrect “certificate has expired” warning may appear in the output. (#165)</li>
+  <li>The “jss-upload” type is not addressable yet in the Recipe Robot app, only in the script.</li>
+  <li>Because Recipe Robot is now using plistlib instead of FoundationPlist, it’s likely that some non-standard developer plist files may not successfully parse. This is because plistlib is stricter than FoundationPlist, and the same issue applies to AutoPkg itself (see <a href="https://github.com/autopkg/autopkg/issues/618">autopkg#618</a> for an example).</li>
+</ul>
+]]></description>
+                    <pubDate>Tue, 03 Nov 2020 22:46:35 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v2.0.0/RecipeRobot-2.0.0.dmg"
+                            sparkle:version="2.0.0"
+                            
+                            length="14974392"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.2.1</title>
+                    <description><![CDATA[<p>(The list below includes changes from current release 1.2.1 and skipped release 1.2.0.)</p>
+
+<h3 id="added">Added</h3>
+<ul>
+  <li>Recipe Robot can now create recipes for basic non-app bundles (e.g. prefpane, plugin) contained in zip or dmg downloads.</li>
+  <li>A warning will be displayed if the “content-type” header of downloaded files seems unusual.</li>
+  <li>A warning will be displayed if a reliable version could not be determined (specifically from unsigned apps hosted by SourceForge). (#144)</li>
+  <li>A warning will be displayed if an installer app is detected (e.g. “Install Hazel.app”).</li>
+  <li>Issue templates, Apache 2.0 license, and code of conduct added to GitHub project.</li>
+  <li>Recipe Robot warns if a code signing requirements is unnecessarily loose (e.g. <code class="language-plaintext highlighter-rouge">anchor trusted</code>).</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Only download and pkg recipe types are enabled by default on first run.</li>
+  <li>Display recipe types in specified order when displaying configuration options. (#67)</li>
+  <li>Made Recipe Robot less likely to give “user-agent” related warnings unnecessarily.</li>
+  <li>Various automatic syntax updates to align with Swift 5.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Resolved Xcode signing issue that resulted in “damaged” warning upon launching Recipe Robot 1.2.0. (#154)</li>
+  <li>Resolved a minor bug in which Recipe Robot would incorrectly treat a zip file as a tgz file.</li>
+  <li>Resolved an issue with SourceForge file regex. (#144)</li>
+  <li>Fixed rounding download progress to nearest 10% in app output.</li>
+</ul>
+
+<h3 id="removed">Removed</h3>
+<ul>
+  <li>Removed internal support for piped commands, in order to simplify shell-out process. Should have no effect on functionality.</li>
+</ul>
+]]></description>
+                    <pubDate>Sat, 21 Dec 2019 21:58:39 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.2.1/RecipeRobot-1.2.1.dmg"
+                            sparkle:version="1.2.1"
+                            
+                            length="5420840"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.1.2</title>
+                    <description><![CDATA[<h3 id="changed">Changed</h3>
+<ul>
+  <li>Recipe Robot will not add generically-named “Installer” or “Uninstaller” apps to the list of blocking applications in Munki recipes.</li>
+  <li>Sparkle download URLs are now collected even if there is no version provided in the Sparkle feed. (#134)</li>
+  <li>Recipe Robot now exits with an error if the /usr/local/bin/autopkg symlink is not present. (#134)</li>
+  <li>A few Python formatting changes to prepare for eventual adoption of an autoformatter.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Resolved a bug that would cause certain URL types not to be recognized properly. (#136)</li>
+  <li>Fixed a bug that prevented expansion of tgz files. (#134)</li>
+  <li>Squashed a meta-error caused by failed AutoPkg searches for existing recipes.</li>
+  <li>Used better math to ensure first-time users will see their congratulations message.</li>
+</ul>
+
+<h3 id="removed">Removed</h3>
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">--github-token</code> flag is now deprecated. Recipe Robot will automatically use the AutoPkg GitHub token file at ~/.autopkg_gh_token, if it exists.</li>
+</ul>
+]]></description>
+                    <pubDate>Mon, 25 Feb 2019 22:57:45 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.2/RecipeRobot-1.1.2.dmg"
+                            sparkle:version="1.1.2"
+                            
+                            length="5032312"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.1.1</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Recipe Robot now uses the AutoPkg GitHub token file at ~/.autopkg_gh_token, if it exists. This can help you avoid rate limiting if you’re creating many GitHub recipes in a short time. (#18)</li>
+  <li>You can now use the <code class="language-plaintext highlighter-rouge">--configure</code> flag to access the Recipe Robot preferences setup in the Python script, in addition to the existing <code class="language-plaintext highlighter-rouge">-c</code> and <code class="language-plaintext highlighter-rouge">--config</code> flags.</li>
+  <li>The Python script preferences setup now prompts you to set the new <code class="language-plaintext highlighter-rouge">StripDeveloperSuffixes</code> setting.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Resolved a bug that would cause the <code class="language-plaintext highlighter-rouge">developer</code> key to be an array instead of a string in generated Munki recipes. (#141)</li>
+</ul>
+]]></description>
+                    <pubDate>Fri, 15 Feb 2019 17:45:09 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.1/RecipeRobot-1.1.1.dmg"
+                            sparkle:version="1.1.1"
+                            
+                            length="5030705"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.1.0</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Recipe Robot now does a much better job at parsing package payloads! It can locate apps within packages, determine which of multiple apps is the “real” one, and even pass through code signing and payload unpacking information to the appropriate AutoPkg processors. Round of applause all around. (#27)</li>
+  <li>Able to detect and use DevMate update feeds. (#129, thanks to <a href="https://github.com/macprince">@macprince</a>)</li>
+  <li>More intelligent GitHub release searching. If multiple supported formats exist, Recipe Robot will generally prefer dmg first, then zip, and finally pkg. (#127)</li>
+  <li>Automatically uses <code class="language-plaintext highlighter-rouge">asset_regex</code> in GitHubReleasesInfoProvider if it is needed.</li>
+  <li>Uses AlternativeTo as a second source for app descriptions, if the description can’t be found on MacUpdate.</li>
+  <li>Optional <code class="language-plaintext highlighter-rouge">StripDeveloperSuffixes</code> preference, which automatically removes company name suffixes like “Inc” and “Ltd” from developer names.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li><strong>The Recipe Robot app now requires macOS 10.13 or higher.</strong> (If you have an older version of macOS, you should be able to continue using the Python script.)</li>
+  <li>App code base upgraded from Swift 2.3 to 4.2. (#139, HUGE thanks to <a href="https://github.com/olofhellman">@olofhellman</a>)</li>
+  <li>A warning is printed if a GitHub or BitBucket link is provided as input, and the link points directly to a download file. Recipe Robot parses the link as a project repository (and looks for other release assets), but there may be some cases where this isn’t the right thing to do (e.g. a project that contains releases for multiple apps) (#119).</li>
+  <li>A warning is printed if a download produces HTML content instead of an actual file. This is common if a moved asset now produces a 404 error.</li>
+  <li>Dropbox links that end in <code class="language-plaintext highlighter-rouge">?dl=0</code> are changed to <code class="language-plaintext highlighter-rouge">?dl=1</code> to force download of the file.</li>
+  <li>Apps that lack bundle identifiers no longer result in a fatal error, just a warning.</li>
+  <li>Read me image optimization. (#126, thanks to <a href="https://github.com/keeleysam">@keeleysam</a>)</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Fixed regex used to match MacUpdate descriptions.</li>
+  <li>Blocking applications were not being added properly to Munki recipes for apps based on pkg file sources. That should be fixed now.</li>
+</ul>
+]]></description>
+                    <pubDate>Tue, 12 Feb 2019 20:32:17 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.1.0/RecipeRobot-1.1.0.dmg"
+                            sparkle:version="1.1.0"
+                            
+                            length="5027750"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.0.5</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Uses new <a href="https://github.com/autopkg/autopkg/wiki/Processor-AppPkgCreator">AppPkgCreator</a> processor, which greatly simplifies the process of creating a pkg from an app.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Updated app code to comply with Swift 2.3 syntax and Xcode 8.2 recommendations.</li>
+  <li><code class="language-plaintext highlighter-rouge">MinimumVersion</code> of AutoPkg on generated recipes is now 1.0.0, in order to support the new AppPkgCreator processor.</li>
+  <li>Simplified the path that apps are unzipped to, since PkgCreator is no longer needed.</li>
+  <li>Changed remaining <code class="language-plaintext highlighter-rouge">%NAME%</code> references to hard-coded app name where a path is required.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Better handles apps where the filename of the app differs from the display name of the app.</li>
+  <li>Improved performance and reliability of HTTPS URL validation.</li>
+</ul>
+]]></description>
+                    <pubDate>Fri, 27 Jan 2017 17:51:01 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.5/RecipeRobot-1.0.5.dmg"
+                            sparkle:version="1.0.5"
+                            
+                            length="3572421"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.0.4</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Recipe Robot now automatically switches download URLs and Sparkle feeds from HTTP to HTTPS, if possible. (#92)</li>
+  <li>Download progress indication is now displayed in the app. (#72)</li>
+  <li>New <code class="language-plaintext highlighter-rouge">--skip-icon</code> command-line flag skips creation of PNG file for use as app icon in Munki/Casper.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Uses HTTPS for all SourceForge API calls.</li>
+  <li>General readability and formatting improvements to Python code.</li>
+  <li>Now references SourceForgeURLProvider as a shared processor rather than copying it to the output folder.</li>
+  <li>Download progress percentage indicator updates in near-realtime.</li>
+  <li>Streamlined the reminders you get when a required repo isn’t present on disk.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Handles unicode characters in MacUpdate app descriptions.</li>
+  <li>Handles missing “where from” metadata in downloaded files more gracefully.</li>
+  <li>Better compatibility with other terminal apps (e.g. PuTTY). (#108)</li>
+</ul>
+]]></description>
+                    <pubDate>Thu, 13 Oct 2016 21:09:31 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.4/RecipeRobot-1.0.4.dmg"
+                            sparkle:version="1.0.4"
+                            
+                            length="3572543"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.0.3</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Now detects and warns when using URLs that contain <code class="language-plaintext highlighter-rouge">Expires</code> or <code class="language-plaintext highlighter-rouge">AWSAccessKeyId</code> parameters. In the case of Amazon Web Services, these URLs are not permanent and therefore not useful for creating AutoPkg recipes. (#97)</li>
+  <li>Recipe Robot now complains if a Sparkle feed is not using HTTPS, although this does not prevent recipe creation. (#92)</li>
+  <li>Outputs useful hints for people who want to test Recipe Robot by creating recipes for Recipe Robot.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Corrected the FileWaveImporter processor identifier path used by FileWave recipes. (#104)</li>
+  <li>Corrected the <code class="language-plaintext highlighter-rouge">fw_import_source</code> path referenced by FileWave recipes. (#104, thanks to <a href="https://github.com/cv-rao">@cv-rao</a>)</li>
+  <li>Fixed a bug that prevented detection of existing recipes when the app name contained a space.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Clarified and improved a few error and warning messages.</li>
+  <li>Recipe Robot will now use the actual app name for CodeSignatureVerifier, rather than using <code class="language-plaintext highlighter-rouge">%NAME%</code>. This should allow administrators to override the name without breaking code signature verification. (thanks to <a href="https://github.com/gregneagle">@gregneagle</a> and <a href="https://github.com/chilcote">@chilcote</a>)</li>
+  <li>Uses HTTPS to check MacUpdate for app description.</li>
+</ul>
+]]></description>
+                    <pubDate>Thu, 25 Aug 2016 19:05:17 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.3/RecipeRobot-1.0.3.dmg"
+                            sparkle:version="1.0.3"
+                            
+                            length="3599290"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.0.2</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Added support for LANrev recipe type.</li>
+  <li>Better support of disk images where the target app lives in an enclosed folder. (#90)</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">MinimumVersion</code> of AutoPkg on generated recipes is now 0.6.1.</li>
+  <li>Minor typo fixes, standardizations, and semi-obsessive tweaks.</li>
+</ul>
+
+<h3 id="removed">Removed</h3>
+<ul>
+  <li>Removed ability to create Absolute Manage recipe type. (Use LANrev instead.)</li>
+</ul>
+]]></description>
+                    <pubDate>Wed, 23 Mar 2016 15:19:03 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.2/RecipeRobot-1.0.2.dmg"
+                            sparkle:version="1.0.2"
+                            
+                            length="3579114"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.0.1</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>If a dmg is supplied as input, Recipe Robot inspects the file metadata in order to detect possible download URLs (#81, thanks to @gregneagle).</li>
+  <li>The script now displays a simple progress percentage during file downloads. (#24, #72)</li>
+  <li>Added more <a href="https://www.youtube.com/playlist?list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq">video tutorials</a>!</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Adjusted colors so that they’ll be more readable on both bright and dark backgrounds. (#79)</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Now uses NSUserDefaults for preference handling. (#80)</li>
+</ul>
+]]></description>
+                    <pubDate>Mon, 28 Dec 2015 21:32:02 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0.1/RecipeRobot-1.0.1.dmg"
+                            sparkle:version="1.0.1"
+                            
+                            length="3515239"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 1.0</title>
+                    <description><![CDATA[<p><a href="https://github.com/homebysix/recipe-robot/releases/download/v1.0/RecipeRobot-1.0.dmg"><img src="https://cloud.githubusercontent.com/assets/7801391/11220676/f9396f1a-8d15-11e5-8462-1356c9ed08fa.png" alt="hello-macbrained" /></a></p>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Put extra polish on things for MacBrained introduction demo.</li>
+  <li>App now validates the path specified is a valid directory for recipe locations, and DS Packages.</li>
+  <li>UI elements in preferences are hidden/shown only when required. (#69)</li>
+  <li>Updated screenshots and demo animations in readme file.</li>
+</ul>
+]]></description>
+                    <pubDate>Wed, 18 Nov 2015 00:03:01 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v1.0/RecipeRobot-1.0.dmg"
+                            sparkle:version="1.0"
+                            
+                            length="3514164"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 0.2.5</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Hooray! The Recipe Robot app can now accept URLs as input, just like the script.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Build number now tracks the Git commit count.</li>
+  <li>Default preference value uses the existing value whenever possible. (#68)</li>
+  <li>Updated URL of FileWave recipe repository.</li>
+  <li>The Recipe Robot script now prints a debug message about <code class="language-plaintext highlighter-rouge">cfprefsd</code> after modifying the preference files directly. This is a stopgap measure until we switch to better handling of preferences. (#70)</li>
+  <li>When you create AppStoreApp recipes, Recipe Robot only nags you once about adding Nick’s repo and installing pyasn1.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Fixed a bug that caused the app to display a “can’t be found” error when clicking on the <strong>Reveal Recipes</strong> button. (#60)</li>
+  <li>Characters related to ANSI colors no longer appear in the app output.</li>
+  <li>Resolved issue that prevented creation of AppStoreApp recipes.</li>
+  <li>Recipe Robot handles curly quotes in app descriptions better now.</li>
+  <li>Fixed an error that could occur when writing a jss recipe with a missing preference key.</li>
+  <li>Spelling fixes, because we care!</li>
+</ul>
+
+<h3 id="removed">Removed</h3>
+<ul>
+  <li>Removed unused MacUpdate description scraper that was simpler but had dependencies.</li>
+</ul>
+]]></description>
+                    <pubDate>Sat, 14 Nov 2015 01:54:34 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.5/RecipeRobot-0.2.5.dmg"
+                            sparkle:version="0.2.5"
+                            
+                            length="3512075"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 0.2.4</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Sweet new icon!</li>
+  <li><a href="https://www.youtube.com/playlist?list=PLK1ZziC_XFWoDnSYU3__WRQCRpXA2fhXq">Short video tutorials</a> for Recipe Robot are now available.</li>
+  <li>We’ve started building unit tests for Recipe Robot, so we can minimize the number of bugs that find their way into future releases.</li>
+  <li>Added requirements to readme.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>Default recipe identifier is now based on your local username. (#63)</li>
+  <li>Significant simplification and refactoring of the recipe generation code.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>A few typo fixes.</li>
+</ul>
+]]></description>
+                    <pubDate>Wed, 11 Nov 2015 22:39:20 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/0.2.4/RecipeRobot-0.2.4.dmg"
+                            sparkle:version="0.2.4"
+                            
+                            length="3451377"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 0.2.2</title>
+                    <description><![CDATA[<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Fixed an issue where the script output doesn’t flush when run via the app.</li>
+</ul>
+]]></description>
+                    <pubDate>Fri, 06 Nov 2015 23:09:26 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/0.2.2/RecipeRobot-0.2.2.dmg"
+                            sparkle:version="0.2.2"
+                            
+                            length="2513864"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 0.2.1</title>
+                    <description><![CDATA[<h3 id="added">Added</h3>
+<ul>
+  <li>Prefs sheet now appears by default on first launch.</li>
+  <li>Help menu now opens README.md in default web browser. (#57)</li>
+  <li>Added license header to each source file.</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+<ul>
+  <li>The app now displays the raw script output, including all warnings, reminders, and errors.</li>
+  <li>Selecting a given recipe type in the preferences window (or <code class="language-plaintext highlighter-rouge">--config</code> prompts) now automatically selects its required parent recipe types.</li>
+  <li>Changed readme to point to the version of <code class="language-plaintext highlighter-rouge">recipe-robot</code> Python script embedded in the Recipe Robot app.</li>
+  <li>Code simplification and refactoring.</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Adjusted layout of Mac app.</li>
+</ul>
+]]></description>
+                    <pubDate>Fri, 06 Nov 2015 19:34:15 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.1/RecipeRobot-0.2.1.dmg"
+                            sparkle:version="0.2.1"
+                            
+                            length="2540578"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+        
+            
+                <item>
+                    <title>Recipe Robot 0.2.0</title>
+                    <description><![CDATA[<p>We’re proud to announce that Recipe Robot is now available as a public beta.</p>
+
+<p>Take a look through our documentation <a href="https://github.com/homebysix/recipe-robot">here</a>. If you find bugs or have feature requests, please open a <a href="https://github.com/homebysix/recipe-robot/issues">GitHub issue</a>.</p>
+
+<p>Enjoy!</p>
+]]></description>
+                    <pubDate>Fri, 30 Oct 2015 21:42:19 +0000</pubDate>
+                    
+                        
+                        <enclosure
+                            url="https://github.com/homebysix/recipe-robot/releases/download/v0.2.0/RecipeRobot-0.2.0.dmg"
+                            sparkle:version="0.2.0"
+                            
+                            length="2088572"
+                            type="application/octet-stream" />
+                    
+                </item>
+            
+        
+    
+</channel>
+</rss>
