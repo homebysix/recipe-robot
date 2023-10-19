@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+Nothing yet.
+
+## [2.3.1] - 2023-10-19
+
 ### Fixed
 
 - Fixed an issue with Recipe Robot's Sparkle update feed that caused "you're up to date" to appear even when the app wasn't the newest version. Resolved by publishing new automation to the [gh-pages](https://github.com/homebysix/recipe-robot/tree/gh-pages) branch of the repo. (Although this is listed as a fix for 2.3.1, it should actually resolve the issue for all previous versions of Recipe Robot.)
@@ -406,7 +410,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/homebysix/recipe-robot/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/homebysix/recipe-robot/compare/v2.0.0...v2.1.0
