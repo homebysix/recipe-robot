@@ -41,8 +41,8 @@ from recipe_robot_lib.tools import strip_dev_suffix
 
 # pylint: enable=unused-wildcard-import, wildcard-import
 
-# TODO (Shea): Mock up an "app" for testing purposes.
-# TODO (Shea): Add arguments to only produce certain RecipeTypes. This will
+# TODO: Mock up an "app" for testing purposes.
+# TODO: Add arguments to only produce certain RecipeTypes. This will
 # allow us to narrow the tests down.
 
 RECIPE_TYPES = ("download", "pkg", "munki", "install")

@@ -316,7 +316,7 @@ def recipe_dirpath(app_name, dev, prefs):
         app_name = app_name.replace(char[0], char[1])
     path_components = [prefs["RecipeCreateLocation"]]
     if dev is not None:
-        # TODO (Elliot): Put this in the preferences.
+        # TODO: Put this in the preferences.
         if prefs.get("StripDeveloperSuffixes", False) is True:
             dev = strip_dev_suffix(dev)
         for char in char_replacements:
@@ -597,7 +597,7 @@ def create_existing_recipe_list(facts):
         RoboError: Standard exception raised when Recipe Robot cannot proceed.
     """
     app_name = facts["app_name"]
-    # TODO(Elliot): Suggest users create GitHub API token to prevent
+    # TODO: Suggest users create GitHub API token to prevent
     # limiting. (#29)
 
     # Update search index JSON cache
