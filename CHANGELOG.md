@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
-Nothing yet.
+### Fixed
+
+- Resolved an issue with Sparkle feed parsing that could cause Recipe Robot to insert a static download URL in URLDownloader if the feed provided a version at the item level instead of the enclosure level (#206).
 
 ## [2.3.1] - 2023-10-19
 

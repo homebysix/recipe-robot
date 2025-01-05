@@ -2158,18 +2158,21 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     sparkle_ns = "{http://www.andymatuschak.org/xml-namespaces/sparkle}"
     sparkle_provides_version = False
     sparkle_info = []
-    for item in doc.iterfind("channel/item/enclosure"):
-        encl_vers = item.get(sparkle_ns + "version")
-        encl_shortvers = item.get(sparkle_ns + "shortVersionString")
-        if encl_vers or encl_shortvers:
-            sparkle_provides_version = True
-        sparkle_info.append(
-            {
-                "url": item.attrib.get("url", ""),
-                "version": encl_vers,
-                "shortVersionString": encl_shortvers,
-            }
-        )
+    for item in doc.iterfind("channel/item"):
+        item_vers = item.find(sparkle_ns + "version").text
+        item_shortvers = item.find(sparkle_ns + "shortVersionString").text
+        for encl in item.iterfind("enclosure"):
+            encl_vers = encl.get(sparkle_ns + "version")
+            encl_shortvers = encl.get(sparkle_ns + "shortVersionString")
+            if any([item_vers, item_shortvers, encl_vers, encl_shortvers]):
+                sparkle_provides_version = True
+            sparkle_info.append(
+                {
+                    "url": encl.attrib.get("url", ""),
+                    "version": encl_vers or item_vers,
+                    "shortVersionString": encl_shortvers or item_shortvers,
+                }
+            )
 
     # Remove items with unusable URLs.
     sparkle_nones = (None, "", "null", "n/a", "none")
