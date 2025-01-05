@@ -2159,8 +2159,12 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     sparkle_provides_version = False
     sparkle_info = []
     for item in doc.iterfind("channel/item"):
-        item_vers = item.find(sparkle_ns + "version").text
-        item_shortvers = item.find(sparkle_ns + "shortVersionString").text
+        try:
+            item_vers = item.find(sparkle_ns + "version").text
+            item_shortvers = item.find(sparkle_ns + "shortVersionString").text
+        except AttributeError:
+            item_vers = None
+            item_shortvers = None
         for encl in item.iterfind("enclosure"):
             encl_vers = encl.get(sparkle_ns + "version")
             encl_shortvers = encl.get(sparkle_ns + "shortVersionString")
