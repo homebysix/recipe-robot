@@ -99,8 +99,9 @@ def verify_processor_args(processor_name, recipe, expected_args):
 def get_output_path(prefs, app_name, developer, recipe_type=None):
     """Build a path to the output dir or output recipe for app_name."""
     path = os.path.join(prefs.get("RecipeCreateLocation"), developer)
+    extension = ".yaml" if prefs.get("RecipeFormat") == "yaml" else ""
     if recipe_type:
-        path = os.path.join(path, "{}.{}.recipe".format(app_name, recipe_type))
+        path = os.path.join(path, f"{app_name}.{recipe_type}.recipe{extension}")
         if not os.path.exists(path):
             print("[ERROR] {} does not exist.".format(path))
     return os.path.expanduser(path)
