@@ -185,11 +185,6 @@
   developer: Roman Sokolov
   input_path: https://raw.github.com/beardedspice/beardedspice/distr/publish/beardedspice-appcast.xml
 
-- app_name: BlueJeans
-  bundle_id: com.bluejeansnet.Blue
-  developer: Blue Jeans Network
-  input_path: https://swdl.bluejeans.com/desktop-app/mac/ga.appcast.xml
-
 - app_name: BonjourBrowser
   bundle_id: com.tildesoft.RendezvousBrowser
   developer: Tildesoft
@@ -200,10 +195,10 @@
   developer: Sonny Software
   input_path: https://www.sonnysoftware.com/Bookends.dmg
 
-- app_name: Boom 2
-  bundle_id: com.globaldelight.Boom2
+- app_name: Boom 3D
+  bundle_id: com.globaldelight.Boom3D
   developer: Global Delight Technologies
-  input_path: https://www.globaldelight.com/boom/download/2x/web/boom2.dmg
+  input_path: https://dfvk972795zr9.cloudfront.net/Boom3Dmac/webstore/Boom3D.dmg
 
 - app_name: Brave
   bundle_id: com.electron.brave
@@ -254,11 +249,6 @@
   bundle_id: com.cisco.experimental.Proximity
   developer: Cisco
   input_path: https://proximity.cisco.com/mac/Proximity.dmg
-
-- app_name: Cisco Spark
-  bundle_id: Cisco-Systems.Spark
-  developer: Cisco
-  input_path: https://download.ciscospark.com/mac/CiscoSpark.dmg
 
 - app_name: Clarify
   bundle_id: com.bluemangolearningsystems.clarify-osx
@@ -319,11 +309,6 @@
   bundle_id: com.realmacsoftware.deepdreamer
   developer: Realmac Software
   input_path: https://dl.devmate.com/com.realmacsoftware.deepdreamer/DeepDreamer.zip
-
-- app_name: Delicious Library 3
-  bundle_id: com.delicious-monster.library3
-  developer: Delicious Monster
-  input_path: http://delicious-monster.com/downloads/DeliciousLibrary3.zip
 
 - app_name: Desktop Curtain
   bundle_id: com.manytricks.DesktopCurtain
@@ -393,7 +378,7 @@
 - app_name: DraftSight
   bundle_id: com.3ds.draftsight
   developer: 3ds
-  input_path: https://dl-ak.solidworks.com/nonsecure/draftsight/2023SP4-1-5WQLABEM/DraftSight.pkg
+  input_path: https://dl-ak.solidworks.com/nonsecure/draftsight/2025SP0-1-SQLJASWL/DraftSight.pkg
 
 - app_name: duet
   bundle_id: com.kairos.duet
@@ -496,9 +481,9 @@
   input_path: https://overcast.fm/appcast/Forecast.xml
 
 - app_name: ForkLift
-  bundle_id: com.binarynights.ForkLift2
+  bundle_id: com.binarynights.ForkLift
   developer: BinaryNights
-  input_path: https://updates.binarynights.com/ForkLift3/update.xml
+  input_path: https://updates.binarynights.com/ForkLift/update.xml
 
 - app_name: FramerX
   bundle_id: com.framer.x
@@ -509,11 +494,6 @@
   bundle_id: com.fuzebox.fuze.Fuze
   developer: FuzeBox Software Corporation
   input_path: https://citadel.thinkingphones.com/api/v1/applications/fuzeapp/mac/versions/latest/download/installer
-
-- app_name: Gas Mask
-  bundle_id: ee.clockwise.gmask
-  developer: Siim Raud
-  input_path: http://gmask.clockwise.ee/check_update/
 
 - app_name: Geekbench 4
   bundle_id: com.primatelabs.Geekbench4
@@ -605,11 +585,6 @@
   developer: Ioannis Zafeiropoulos
   input_path: https://s3.amazonaws.com/iswift/iswift.xml
 
-- app_name: iTaskX3
-  bundle_id: at.techno-grafik.iTaskX3
-  developer: Techno-Grafik
-  input_path: https://www.itaskx3.com/services/appcast.ashx
-
 - app_name: iZip
   bundle_id: com.iboostup.izip
   developer: iBoostUp
@@ -649,11 +624,6 @@
   bundle_id: com.electron.kitematic
   developer: Docker
   input_path: https://github.com/docker/kitematic
-
-- app_name: KiteStudentPortal
-  bundle_id: org.ats.kitestudentportal
-  developer: Achievement and Assessment Institute
-  input_path: https://files.kiteaai.org/installers/studentportal/latest/mac/Kite%20Student%20Portal.dmg
 
 - app_name: KNIME_Analytics_Platform
   bundle_id: org.knime.product
@@ -838,7 +808,7 @@
 - app_name: ParseHub
   bundle_id: org.mozilla.parsehub
   developer: ParseHub
-  input_path: https://www.parsehub.com/static/client/parsehub.dmg
+  input_path: https://www.parsehub.com/static/client/ParseHub.dmg
 
 - app_name: Pathological
   bundle_id: com.celestialteapot.Pathological
@@ -854,11 +824,6 @@
   bundle_id: com.ireador.PDFKit
   developer: Xuepeng Zhang
   input_path: https://www.ireador.com/downloads/PDFKit.dmg
-
-- app_name: Persona
-  bundle_id: com.marinersoftware.persona
-  developer: Mariner Software
-  input_path: https://www.marinersoftware.com/sparkle/persona/persona.xml
 
 - app_name: PIA
   bundle_id: fr.cnil.linc.pia
@@ -889,11 +854,6 @@
   bundle_id: com.plug.Plug2
   developer: Alex Marchant
   input_path: https://www.plugformac.com/updates/plug2/sparklecast.xml
-
-- app_name: Pock
-  bundle_id: com.pigigaldi.pock
-  developer: Pierluigi Galdi
-  input_path: https://pock.app/download?file=pock_0_9_0__22.zip&nw=1
 
 - app_name: PollEv Presenter
   bundle_id: com.polleverywhere.PollEv-Presenter
@@ -963,7 +923,7 @@
 - app_name: Resilio Sync
   bundle_id: com.resilio.Sync
   developer: Resilio
-  input_path: https://download-cdn.getsync.com/stable/osx/Resilio-Sync.dmg
+  input_path: https://download-cdn.resilio.com/stable/mac/osx/0/Resilio-Sync.dmg
 
 - app_name: Resolutionator
   bundle_id: com.manytricks.Resolutionator
@@ -1033,7 +993,7 @@
 - app_name: SecuritySpy
   bundle_id: com.bensoftware.SecuritySpy
   developer: Ben Software
-  input_path: https://www.bensoftware.com/securityspy/SecuritySpy.dmg
+  input_path: https://www.bensoftware.com/securityspy/releases/SecuritySpy.dmg
 
 - app_name: SelfControl
   bundle_id: org.eyebeam.SelfControl
@@ -1089,11 +1049,6 @@
   bundle_id: com.facebook.arstudio.skylight
   developer: Facebook
   input_path: https://www.facebook.com/sparkarmacos/download/
-
-- app_name: Sparkle
-  bundle_id: eu.riverdesign.sparkle
-  developer: River
-  input_path: https://sparkleapp.com/update/Sparkle.zip
 
 - app_name: StretchLink
   bundle_id: com.brettterpstra.stretchlink
@@ -1218,7 +1173,7 @@
 - app_name: uBar
   bundle_id: ca.brawer.uBar
   developer: Brawer Canada
-  input_path: https://brawersoftware.com/appcasts/feeds/ubar/ubar4.xml
+  input_path: https://brawersoftware.com/downloads/ubar/ubar422.zip
 
 - app_name: Unlox
   bundle_id: com.kanecheshire.macID-macOS
@@ -1230,11 +1185,6 @@
   developer: Many Tricks
   input_path: https://manytricks.com/usher/appcast.xml
 
-- app_name: uTorrent
-  bundle_id: com.bittorrent.uTorrent
-  developer: BitTorrent
-  input_path: http://download.ap.bittorrent.com/track/stable/endpoint/utmac/os/osx
-
 - app_name: Vanilla
   bundle_id: net.matthewpalmer.Vanilla
   developer: Matthew Palmer
@@ -1245,11 +1195,6 @@
   developer: Vectorworks
   input_path: http://release.vectorworks.net/nnapub/mac/2018/SP0/389445/NNA/eng/installer5/Vectorworks-2018-Viewer.dmg
 
-- app_name: Vienna
-  bundle_id: uk.co.opencommunity.vienna2
-  developer: Barijaona Ramaholimihaso
-  input_path: https://github.com/ViennaRSS/vienna-rss
-
 - app_name: VimR
   bundle_id: com.qvacua.VimR
   developer: Tae Won Ha
@@ -1258,7 +1203,7 @@
 - app_name: VirtualC64
   bundle_id: de.dirkwhoffmann.VirtualC64
   developer: Prof. Dr. Dirk W. Hoffmann
-  input_path: https://github.com/dirkwhoffmann/virtualc64/releases/download/v4.6/VirtualC64.app.zip/VirtualC64Appcast.xml
+  input_path: https://github.com/dirkwhoffmann/virtualc64/releases/download/v5.1/VirtualC64.app.zip
 
 - app_name: Viscosity
   bundle_id: com.viscosityvpn.Viscosity
@@ -1289,11 +1234,6 @@
   bundle_id: com.id-design.whatsize
   developer: ID-DESIGN
   input_path: https://whatsizemac.com/software/whatsize6/whatsize.dmg
-
-- app_name: Whiskey
-  bundle_id: com.nothingmagical.whiskey
-  developer: Sam Soffes
-  input_path: https://soffes.s3.us-east-1.amazonaws.com/Whiskey-357.zip
 
 - app_name: WiFi Explorer
   bundle_id: com.adriangranados.wifiexplorer
