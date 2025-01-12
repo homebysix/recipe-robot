@@ -1876,6 +1876,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Example: http://grandperspectiv.sourceforge.net/screenshots.html
         marker = ".sourceforge.net"
         proj_str = (
+            # Requires Python 3.9+
             input_path.removeprefix("https://www.")
             .removeprefix("http://www.")
             .removeprefix("https://")
@@ -2161,9 +2162,11 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     for item in doc.iterfind("channel/item"):
         try:
             item_vers = item.find(sparkle_ns + "version").text
-            item_shortvers = item.find(sparkle_ns + "shortVersionString").text
         except AttributeError:
             item_vers = None
+        try:
+            item_shortvers = item.find(sparkle_ns + "shortVersionString").text
+        except AttributeError:
             item_shortvers = None
         for encl in item.iterfind("enclosure"):
             encl_vers = encl.get(sparkle_ns + "version")
