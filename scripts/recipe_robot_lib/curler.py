@@ -118,7 +118,7 @@ def parse_curl_error(proc_stderr):
     try:
         curl_err = proc_stderr.rstrip("\n")
         curl_err = curl_err.split(None, 2)[2]
-    except IndexError:
+    except (AttributeError, IndexError):
         pass
 
     return curl_err
