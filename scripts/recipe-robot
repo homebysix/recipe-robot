@@ -44,7 +44,7 @@ if sys.version_info.major < 3:
     print("ERROR: This version of Recipe Robot requires AutoPkg 2 and Python 3.")
     sys.exit(1)
 
-# TODO (Shea): Clean up importing from our library.
+# TODO: Clean up importing from our library.
 import recipe_robot_lib
 from recipe_robot_lib import tools
 from recipe_robot_lib.exceptions import RoboError, RoboException
@@ -88,7 +88,7 @@ def main():
         first_timer = prefs.get("RecipeCreateCount", 0) == 0
 
         # Collect facts from the input path, based on the type of path.
-        # TODO (Shea): Standardize on always returning Facts, even though they
+        # TODO: Standardize on always returning Facts, even though they
         # are passed by reference, to remove ambiguity about what is happening.
         process_input_path(facts)
 

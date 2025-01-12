@@ -861,7 +861,7 @@ def inspect_bitbucket_url(input_path, args, facts):
             "Getting information from latest BitBucket release...", LogLevel.VERBOSE
         )
         if "values" in parsed_release:
-            # TODO (Elliot): Use find_supported_release() instead of these
+            # TODO: Use find_supported_release() instead of these
             # nested loops. May need to flatten the 'asset' dict first.
             for this_format in ALL_SUPPORTED_FORMATS:
                 for asset in parsed_release["values"]:
@@ -990,7 +990,7 @@ def inspect_disk_image(input_path, args, facts):
         for this_file in os.listdir(dmg_mount):
             if this_file.lower().endswith(".app"):
                 # Copy app to cache folder.
-                # TODO(Elliot): What if .app isn't on root of dmg mount? (#26)
+                # TODO: What if .app isn't on root of dmg mount? (#26)
                 attached_app_path = os.path.join(dmg_mount, this_file)
                 cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
                 robo_print("Copying %s into cache..." % this_file, LogLevel.VERBOSE, 4)
@@ -1135,7 +1135,7 @@ def inspect_download_url(input_path, args, facts):
         headers = {}
 
     # Download the file for continued inspection.
-    # TODO(Elliot): Maybe something like this is better for downloading
+    # TODO: Maybe something like this is better for downloading
     # big files? https://gist.github.com/gourneau/1430932 (#24)
     robo_print("Downloading file for further inspection...", LogLevel.VERBOSE)
 
@@ -1718,7 +1718,7 @@ def inspect_pkg(input_path, args, facts):
                     facts["warnings"].append(
                         "Yo dawg, I found a flat package inside this flat package!"
                     )
-                    # TODO (Elliot): Recursion! Any chance for a loop here?
+                    # TODO: Recursion! Any chance for a loop here?
                     facts = inspect_pkg(os.path.join(dirpath, filename), args, facts)
                 elif filename == "PackageInfo":
                     robo_print(
@@ -1876,6 +1876,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         # Example: http://grandperspectiv.sourceforge.net/screenshots.html
         marker = ".sourceforge.net"
         proj_str = (
+            # Requires Python 3.9+
             input_path.removeprefix("https://www.")
             .removeprefix("http://www.")
             .removeprefix("https://")
@@ -1956,7 +1957,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             LogLevel.VERBOSE,
         )
         for item in doc.iterfind("channel/item"):
-            # TODO(Elliot): The extra-info tag is not a reliable
+            # TODO: The extra-info tag is not a reliable
             # indicator of which item should actually be downloaded.
             # (#21) Example:
             # https://sourceforge.net/projects/grandperspectiv/rss
@@ -2158,18 +2159,27 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     sparkle_ns = "{http://www.andymatuschak.org/xml-namespaces/sparkle}"
     sparkle_provides_version = False
     sparkle_info = []
-    for item in doc.iterfind("channel/item/enclosure"):
-        encl_vers = item.get(sparkle_ns + "version")
-        encl_shortvers = item.get(sparkle_ns + "shortVersionString")
-        if encl_vers or encl_shortvers:
-            sparkle_provides_version = True
-        sparkle_info.append(
-            {
-                "url": item.attrib.get("url", ""),
-                "version": encl_vers,
-                "shortVersionString": encl_shortvers,
-            }
-        )
+    for item in doc.iterfind("channel/item"):
+        try:
+            item_vers = item.find(sparkle_ns + "version").text
+        except AttributeError:
+            item_vers = None
+        try:
+            item_shortvers = item.find(sparkle_ns + "shortVersionString").text
+        except AttributeError:
+            item_shortvers = None
+        for encl in item.iterfind("enclosure"):
+            encl_vers = encl.get(sparkle_ns + "version")
+            encl_shortvers = encl.get(sparkle_ns + "shortVersionString")
+            if any([item_vers, item_shortvers, encl_vers, encl_shortvers]):
+                sparkle_provides_version = True
+            sparkle_info.append(
+                {
+                    "url": encl.attrib.get("url", ""),
+                    "version": encl_vers or item_vers,
+                    "shortVersionString": encl_shortvers or item_shortvers,
+                }
+            )
 
     # Remove items with unusable URLs.
     sparkle_nones = (None, "", "null", "n/a", "none")

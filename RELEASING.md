@@ -39,12 +39,7 @@
 
 11. Create new release on GitHub with title format `Recipe Robot X.X.X`. Set label format to `vX.X.X`. Add notes from change log. Attach built disk image.
 
-12. Trigger a GitHub Pages build, which updates the Sparkle feed ([using @huangyq23's method detailed here](https://www.yiqiu.me/2015/11/19/sparkle-update-on-github/)):
-
-        git checkout gh-pages
-        git commit --allow-empty -m "Trigger gh-pages build"
-        git push
-        git checkout main
+12. Manually update `appcast.xml` on the `gh-pages` branch.
 
 13. Announce to [autopkg](https://macadmins.slack.com/archives/C056155B4) and other relevant channels, if desired.
 
