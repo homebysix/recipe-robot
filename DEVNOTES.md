@@ -4,9 +4,11 @@ Some scattered notes to assist in the design and development of Recipe Robot.
 
 <!-- MarkdownTOC -->
 
-- [Facts](#facts)
-- [Interesting examples and edge cases to use for testing:](#interesting-examples-and-edge-cases-to-use-for-testing)
-- [Content Types](#content-types)
+- [Recipe Robot Development Notes](#recipe-robot-development-notes)
+    - [Facts](#facts)
+    - [Interesting examples and edge cases to use for testing:](#interesting-examples-and-edge-cases-to-use-for-testing)
+    - [Content Types](#content-types)
+    - [Sparkle feeds](#sparkle-feeds)
 
 <!-- /MarkdownTOC -->
 
@@ -227,21 +229,70 @@ recipe-robot --verbose https://bahoom.com/hyperdock/HyperDock.dmg
 
 To get an grasp of the typical content types that Recipe Robot will be dealing with, I ran `curl -sIL` on every SPARKLE_FEED_URL and DOWNLOAD_URL in the homebysix-recipes repo. Here are the content types that were returned:
 
-| Type                                | Count |  
-| ----------------------------------- | ----- |  
-| text/html                           | 101   |  
-| application/xml                     | 62    |  
-| application/zip                     | 33    |  
-| application/x-apple-diskimage       | 24    |  
-| text/xml                            | 24    |  
-| application/octet-stream            | 22    |  
-| text/plain                          | 7     |  
-| application/xhtml+xml               | 5     |  
-| application/rss+xml                 | 3     |  
-| binary/octet-stream                 | 3     |  
-| application/vnd.apple.installer+xml | 1     |  
-| application/x-bzip2                 | 1     |  
-| application/x-rss+xml               | 1     |  
-| plain/text                          | 1     |  
+| Type                                | Count |
+| ----------------------------------- | ----- |
+| text/html                           | 101   |
+| application/xml                     | 62    |
+| application/zip                     | 33    |
+| application/x-apple-diskimage       | 24    |
+| text/xml                            | 24    |
+| application/octet-stream            | 22    |
+| text/plain                          | 7     |
+| application/xhtml+xml               | 5     |
+| application/rss+xml                 | 3     |
+| binary/octet-stream                 | 3     |
+| application/vnd.apple.installer+xml | 1     |
+| application/x-bzip2                 | 1     |
+| application/x-rss+xml               | 1     |
+| plain/text                          | 1     |
 
 ("text/html" also includes error messages caused by input variables in URL.)
+
+## Sparkle feeds
+
+Sparkle feed that has item versions but not enclosure versions:
+
+```xml
+<?xml version="1.0"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>Caffeine</title>
+    <description>Most recent changes with links to updates.</description>
+    <language>en</language>
+    <item>
+      <title>Version 1.4.3</title>
+      <sparkle:version>21</sparkle:version>
+      <sparkle:shortVersionString>1.4.3</sparkle:shortVersionString>
+      <pubDate>Sun, 14 April 2024 8:00:00 +0000</pubDate>
+      <enclosure url="https://dr-caffeine-mac.s3.amazonaws.com/Caffeine_1.4.3.zip" length="5961295" type="application/octet-stream" sparkle:edSignature="985QTq5gW2CIAWdBTJqg1n8+5KTVGln5fIumSyCY+YI1CGSUx2InGSBdUWWih0j9XowDeXIIbyDyHqzdeDYNDw=="/>
+      <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[ <ul> <li>Added Sparkle updater</li> </ul> ]]></description>
+    </item>
+  </channel>
+</rss>
+```
+
+Sparkle feed that has enclosure versions but not item versions:
+
+```xml
+<?xml version="1.0"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>coconutBattery changelog</title>
+    <link>https://www.coconut-flavour.com/updates/coconutBattery.xml</link>
+    <description>coconutBattery changelog</description>
+    <language>en</language>
+    <item>
+      <title>Version 4.0.1</title>
+      <description><![CDATA[ <body style="font: 12px '-apple-system', system-ui, BlinkMacSystemFont, segoe ui, Roboto, helvetica neue, Arial, sans-serif; line-height: 1.3; margin: 0; padding: 0; background: #fff; color: #000;"> <div style="background-color: #4c84b3; color: white; width: 80%; margin: 0 auto; padding: 10px; padding-left:20px; padding-right:20px; margin-top: 15px; text-align: center; border-radius: 8px;"> <b>All coconutBattery 3 Plus licenses were upgraded to coconutBattery 4 Plus Lifetime licenses.</b><br> <span style="display: block; margin-top: 10px;"> <b><a style="color: white; text-decoration: underline;" href="https://www.coconut-flavour.com/coconutBattery/#plus">- coconutBattery 4 Plus -</a></b> </span> </div> <div class="release" style="padding-left: 30px;padding-top:10px;"> <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 10px;"><b>coconutBattery 4.0.1</b> <span style="opacity: 0.5;font-size:12px">| Dec 20, 2024</span></h2> <ul style="padding-left: 16px; margin: 0; list-style: disc;"> <li style="margin-bottom: 5px;">Fixed a bug that could cause displaying "NaN" in the history viewer for history that was imported from version 3</li> <li style="margin-bottom: 5px;">Info text if battery is not supported by lifetime viewer</li> <li style="margin-bottom: 5px;">If multiple adapters are connected, the one with the highest wattage is displayed</li> <li style="margin-bottom: 5px;">Print template selection now recognize Plus license correctly</li> <li style="margin-bottom: 5px;">Fixed display issues on iMac M3</li> <li style="margin-bottom: 5px;">The History Viewer "Save now" option shows matching icons for the device that will be saved </li> <li style="margin-bottom: 5px;">Fixed a bug where some coconutBattery 3 Plus licenses were not recognized correctly in coconutBattery 4</li> <li style="margin-bottom: 5px;">Added an option in the app settings to manually enable the coconutBattery menu bar</li> <li style="margin-bottom: 5px;">History Viewer now automatically selects first device when opened</li> <li style="margin-bottom: 5px;">History elements can be deleted using the context menu in the History Viewer</li> <li style="margin-bottom: 5px;">Toolbar state is now saved</li> <li style="margin-bottom: 5px;">Fixed battery manufacturer reading on some Macs</li> <li style="margin-bottom: 5px;">Battery health >100% is now displayed as 100% in non raw data mode</li> <li style="margin-bottom: 5px;">Fixed a bug that could cause the app displaying incorrectlry the charging state on Intel Macs </li> </ul> </div> <div class="release" style="padding-left: 30px;padding-top:10px;"> <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 10px;"><b>coconutBattery 4.0.0</b> <span style="opacity: 0.5;font-size:12px">| Nov 30, 2024</span></h2> <ul style="padding-left: 16px; margin: 0; list-style: disc;"> <li style="margin-bottom: 5px;">Refined UI for improved usability</li> <li style="margin-bottom: 5px;">New App Icon</li> <li style="margin-bottom: 5px;">Realtime battery usage metrics for Macs</li> <li style="margin-bottom: 5px;">Improved device details viewer</li> <li style="margin-bottom: 5px;">Battery lifetime viewer now available for Macs</li> <li style="margin-bottom: 5px;">Re-engineered menu bar interface</li> <li style="margin-bottom: 5px;">Implemented low battery notifications for iPhones and iPads</li> </ul> </div> </body> ]]></description>
+      <enclosure url="https://www.coconut-flavour.com/downloads/coconutBattery_401_130.zip" sparkle:version="4.0.1" sparkle:dsaSignature="MC0CFDiiAP1h+TJLfE+bDSe39osBfD5hAhUAlk2Iefd0mx6zTFPrqChwYai1dbE=" length="5457536" type="application/octet-stream"/>
+      <sparkle:minimumSystemVersion>12.4</sparkle:minimumSystemVersion>
+    </item>
+    <item>
+      <title>Version 3.9.18</title>
+      <enclosure url="https://www.coconut-flavour.com/downloads/coconutBattery_3918_8BC5B481.zip" sparkle:version="3.9.18" sparkle:dsaSignature="MC4CFQCsOPpjH69d6Z2fVKWhDhlu2CgyywIVAKx5LGVSX9r6t6vUAY70wHS1DceW" length="14058872" type="application/octet-stream"/>
+      <sparkle:minimumSystemVersion>10.11.0</sparkle:minimumSystemVersion>
+    </item>
+  </channel>
+</rss>
+```

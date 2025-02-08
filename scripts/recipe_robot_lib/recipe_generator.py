@@ -86,7 +86,7 @@ def generate_recipes(facts, prefs):
     raise_if_recipes_cannot_be_generated(facts, preferred)
 
     # We have enough information to create a recipe set, but with assumptions.
-    # TODO(Elliot): This code may not be necessary if inspections do their job.
+    # TODO: This code may not be necessary if inspections do their job.
     if "codesign_reqs" not in facts and "codesign_authorities" not in facts:
         facts["reminders"].append(
             "I can't tell whether this app is codesigned or not, so I'm "
@@ -104,7 +104,7 @@ def generate_recipes(facts, prefs):
         )
         facts["version_key"] = "CFBundleShortVersionString"
 
-    # TODO(Elliot): Run `autopkg repo-list` once and store the resulting value
+    # TODO: Run `autopkg repo-list` once and store the resulting value
     # for future use when detecting missing required repos, rather than running
     # `autopkg repo-list` separately during each check. (For example, the
     # FileWaveImporter repo must be present to run created filewave recipes.)
@@ -118,7 +118,7 @@ def generate_recipes(facts, prefs):
 
     build_recipes(facts, preferred, prefs)
 
-    # TODO (Shea): As far as I can tell, the only pref that changes is the
+    # TODO: As far as I can tell, the only pref that changes is the
     # recipe created count. Move out from here!
     # Save preferences to disk for next time.
     save_user_defaults(prefs)
@@ -279,7 +279,7 @@ def get_generation_func(facts, prefs, recipe):
     if recipe["type"] in ("munki", "pkg") and facts.is_from_app_store():
         func_name.insert(1, "app_store")
 
-    # TODO (Shea): This is a hack until I can use AbstractFactory for this.
+    # TODO: This is a hack until I can use AbstractFactory for this.
     generation_func = globals()["_".join(func_name)]
 
     return generation_func
@@ -300,7 +300,7 @@ def generate_download_recipe(facts, prefs, recipe):
     Returns:
         Recipe: Newly updated Recipe object suitable for converting to plist.
     """
-    # TODO(Elliot): Handle signed or unsigned pkgs wrapped in dmgs or zips.
+    # TODO: Handle signed or unsigned pkgs wrapped in dmgs or zips.
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
 
     if facts.is_from_app_store():
@@ -313,7 +313,7 @@ def generate_download_recipe(facts, prefs, recipe):
         "Downloads the latest version of %s." % facts[bundle_name_key]
     )
 
-    # TODO (Shea): Extract method(s) to get_source_processor()
+    # TODO: Extract method(s) to get_source_processor()
     if "barebones_product" in facts:
         BarebonesURLProvider = processor.ProcessorFactory(
             "com.github.autopkg.download.bbedit/BarebonesURLProvider",
@@ -348,7 +348,7 @@ def generate_download_recipe(facts, prefs, recipe):
 
         recipe.append_processor(sparkle_processor)
 
-    # TODO (Shea): Extract method(s) to get_source_processor()
+    # TODO: Extract method(s) to get_source_processor()
     elif "github_repo" in facts:
         if facts.get("use_asset_regex", False):
             gh_release_info_provider = processor.GitHubReleasesInfoProvider(
@@ -361,7 +361,7 @@ def generate_download_recipe(facts, prefs, recipe):
             )
         recipe.append_processor(gh_release_info_provider)
 
-    # TODO (Shea): Extract method(s) to get_source_processor()
+    # TODO: Extract method(s) to get_source_processor()
     elif "sourceforge_id" in facts:
         SourceForgeURLProvider = processor.ProcessorFactory(
             "com.github.jessepeterson.munki.GrandPerspective/SourceForgeURLProvider",
@@ -431,7 +431,7 @@ def generate_download_recipe(facts, prefs, recipe):
     end_of_check_phase = processor.EndOfCheckPhase()
     recipe.append_processor(end_of_check_phase)
 
-    # TODO (Shea): Refactor to get_codesigning and get_unarchiver funcs.
+    # TODO: Refactor to get_codesigning and get_unarchiver funcs.
     if facts.get("codesign_reqs") or facts.get("codesign_authorities"):
         if facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
             unarchiver = processor.Unarchiver()
@@ -451,7 +451,7 @@ def generate_download_recipe(facts, prefs, recipe):
             )
         elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
             # The download is in pkg format, and the pkg is signed.
-            # TODO(Elliot): Need a few test cases to prove this works.
+            # TODO: Need a few test cases to prove this works.
             input_path = "%pathname%"
         else:
             facts["warnings"].append(
@@ -464,7 +464,7 @@ def generate_download_recipe(facts, prefs, recipe):
             codesigverifier = get_code_signature_verifier(input_path, facts)
             recipe.append_processor(codesigverifier)
 
-        # TODO (Shea): Extract method -> get_versioner
+        # TODO: Extract method -> get_versioner
         if needs_versioner(facts):
             versioner = processor.Versioner()
             if (
@@ -929,7 +929,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
     """
     bundle_type, bundle_name_key = get_bundle_name_info(facts)
     # Can't make this recipe without a bundle identifier.
-    # TODO(Elliot): Bundle id is also provided by AppDmgVersioner and some
+    # TODO: Bundle id is also provided by AppDmgVersioner and some
     # Sparkle feeds. When those are present, can we proceed even though we
     # don't have bundle_id in facts? (#40)
     if "bundle_id" not in facts:
@@ -1547,7 +1547,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
                 }
             )
     elif facts.get("download_format") in SUPPORTED_INSTALL_FORMATS:
-        # TODO(Elliot): Fix this. (#41)
+        # TODO: Fix this. (#41)
         facts["warnings"].append(
             "Sorry, I don't yet know how to create filewave recipes from pkg "
             "downloads."

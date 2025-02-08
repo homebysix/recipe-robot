@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file. This projec
 
 Nothing yet.
 
+## [2.3.2] - 2025-02-08
+
+### Fixed
+
+- Resolved an issue with Sparkle feed parsing that could cause Recipe Robot to insert a static download URL in URLDownloader if the feed provided a version at the item level instead of the enclosure level (#206).
+
 ## [2.3.1] - 2023-10-19
 
 ### Fixed
@@ -410,7 +416,8 @@ Nothing yet.
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.2...HEAD
+[2.3.2]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/homebysix/recipe-robot/compare/v2.1.0...v2.2.0
