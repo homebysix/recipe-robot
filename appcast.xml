@@ -5,6 +5,18 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>Recipe Robot 2.3.2</title>
+      <pubDate>Sat, 08 Feb 2025 15:21:29 -0800</pubDate>
+      <sparkle:version>1407</sparkle:version>
+      <sparkle:shortVersionString>2.3.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>Fixed</h3>
+<ul>
+<li>Resolved an issue with Sparkle feed parsing that could cause Recipe Robot to insert a static download URL in URLDownloader if the feed provided a version at the item level instead of the enclosure level (#206).</li>
+</ul>]]></description>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v2.3.2/RecipeRobot-2.3.2.dmg" length="4310766" type="application/octet-stream" sparkle:edSignature="/Zel+cupZaAbA82E6PzHUiu9IVNEtoCOY61AwOZhOVHdPE+wqllywPsGyABNSTP3a+jw4FNN1HLAdNPhgJ2jAg=="/>
+    </item>
+    <item>
       <title>Recipe Robot 2.3.1</title>
       <pubDate>Thu, 19 Oct 2023 16:32:23 +0000</pubDate>
       <sparkle:version>1375</sparkle:version>
