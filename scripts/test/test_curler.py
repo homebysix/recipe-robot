@@ -28,19 +28,19 @@ from __future__ import absolute_import
 
 import json
 import os
+import unittest
 
-from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
 from recipe_robot_lib import curler
 
 
-class TestCurler(object):
+class TestCurler(unittest.TestCase):
     """Tests for the curl-related functions."""
 
     curl_path = "/usr/bin/curl"
 
     def test_curl_exists(self):
         """Verify the curl binary exists at the expected location."""
-        assert_true(os.path.isfile(self.curl_path))
+        self.assertTrue(os.path.isfile(self.curl_path))
 
     def test_prepare_curl_cmd(self):
         """Verify we can assemble a basic curl command."""
@@ -52,7 +52,7 @@ class TestCurler(object):
             "--show-error",
         ]
         actual = curler.prepare_curl_cmd()
-        assert_equal(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_add_curl_headers(self):
         """Verify we can add headers to a curl command."""
@@ -60,7 +60,7 @@ class TestCurler(object):
         headers = {"foo": "bar", "fizz": "buzz"}
         curler.add_curl_headers(curl_cmd, headers)
         expected = [self.curl_path, "--header", "foo: bar", "--header", "fizz: buzz"]
-        assert_equal(expected, curl_cmd)
+        self.assertEqual(expected, curl_cmd)
 
     def test_clear_header(self):
         """Verify we can clear curl headers."""
@@ -75,7 +75,7 @@ class TestCurler(object):
             "http_result_code": "000",
             "http_result_description": "",
         }
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         header = {}
         curler.clear_header(header)
@@ -84,7 +84,7 @@ class TestCurler(object):
             "http_result_code": "000",
             "http_result_description": "",
         }
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
     def test_parse_http_protocol(self):
         """Verify we can parse first HTTP header line."""
@@ -93,7 +93,7 @@ class TestCurler(object):
         expected = {
             "http_result_code": "200",
         }
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         header = {}
         curler.parse_http_protocol("HTTP/2 403 FORBIDDEN", header)
@@ -101,24 +101,24 @@ class TestCurler(object):
             "http_result_code": "403",
             "http_result_description": "FORBIDDEN",
         }
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         header = {}
         curler.parse_http_protocol("", header)
         expected = {}
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
     def test_parse_http_header(self):
         """Verify we can parse a single HTTP header line."""
         header = {}
         curler.parse_http_header("expires: Fri, 11 Dec 2023 08:59:27 GMT", header)
         expected = {"expires": "Fri, 11 Dec 2023 08:59:27 GMT"}
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         header = {}
         curler.parse_http_header("foo", header)
         expected = {"foo": ""}
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
     def test_parse_curl_error(self):
         """Verify we can report a curl failure."""
@@ -126,23 +126,23 @@ class TestCurler(object):
             "curl: (6) Could not resolve host: example.none"
         )
         expected = "Could not resolve host: example.none"
-        assert_equal(expected, actual)
+        self.assertEqual(expected, actual)
 
         actual = curler.parse_curl_error("")
         expected = ""
-        assert_equal(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_parse_ftp_header(self):
         """Verify we can parse a single FTP header line."""
         header = {}
         curler.parse_ftp_header("213 123456", header)
         expected = {"content-length": "123456"}
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         header = {}
         curler.parse_ftp_header("213", header)
         expected = {}
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         header = {}
         curler.parse_ftp_header("55 TEST", header)
@@ -150,7 +150,7 @@ class TestCurler(object):
             "http_result_code": "404",
             "http_result_description": "55 TEST",
         }
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         header = {}
         curler.parse_ftp_header("125 TEST", header)
@@ -158,12 +158,12 @@ class TestCurler(object):
             "http_result_code": "200",
             "http_result_description": "125 TEST",
         }
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         header = {}
         curler.parse_ftp_header("FOO BAR", header)
         expected = {}
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
     def test_parse_headers(self):
         """Verify we can parse headers from curl."""
@@ -186,7 +186,7 @@ class TestCurler(object):
             "server": "ECS (sec/976A)",
             "x-cache": "HIT",
         }
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
         raw_headers = "\n".join(
             (
@@ -217,7 +217,7 @@ class TestCurler(object):
             "x-frame-options": "SAMEORIGIN",
             "x-xss-protection": "0",
         }
-        assert_equal(expected, header)
+        self.assertEqual(expected, header)
 
     def test_execute_curl(self):
         """Verify we can execute a curl command."""
@@ -236,7 +236,7 @@ class TestCurler(object):
             "title": "delectus aut autem",
             "userId": 1,
         }
-        assert_equal(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_download_with_curl(self):
         """Verify we can use curl to download a URL, handling failures."""
@@ -255,7 +255,7 @@ class TestCurler(object):
             "title": "delectus aut autem",
             "userId": 1,
         }
-        assert_equal(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_download(self):
         """Verify we can use curl to download a URL with default options."""
@@ -268,7 +268,7 @@ class TestCurler(object):
             "title": "delectus aut autem",
             "userId": 1,
         }
-        assert_equal(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_download_to_file(self):
         """Verify we can use curl to download a URL to a file."""
@@ -283,19 +283,23 @@ class TestCurler(object):
             "title": "delectus aut autem",
             "userId": 1,
         }
-        assert_equal(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_get_headers(self):
         """Verify we can get a URL's HTTP headers, parse them, and return them."""
         headers, retcode = curler.get_headers("https://www.example.com")
-        assert_equal(retcode, 0)
-        assert_equal(headers.get("content-type"), "text/html; charset=UTF-8")
-        assert_equal(headers.get("http_result_code"), "200")
+        self.assertEqual(retcode, 0)
+        self.assertEqual(headers.get("content-type"), "text/html")
+        self.assertEqual(headers.get("http_result_code"), "200")
 
     def test_check_url(self):
         """Verify we can test a URL's headers, and switch to HTTPS if available."""
         url, headers, _ = curler.check_url("http://www.example.com")
         expected = "https://www.example.com"
-        assert_equal(expected, url)
-        assert_equal(headers.get("content-type"), "text/html; charset=UTF-8")
-        assert_equal(headers.get("http_result_code"), "200")
+        self.assertEqual(expected, url)
+        self.assertEqual(headers.get("content-type"), "text/html")
+        self.assertEqual(headers.get("http_result_code"), "200")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -26,7 +26,7 @@ Unit tests for recipe_generator.
 # pylint: disable=unused-wildcard-import, wildcard-import
 from __future__ import absolute_import
 
-from nose.tools import *
+import unittest
 from recipe_robot_lib import facts, recipe_generator
 from recipe_robot_lib.tools import (
     SUPPORTED_ARCHIVE_FORMATS,
@@ -35,7 +35,7 @@ from recipe_robot_lib.tools import (
 )
 
 
-class TestRecipeGenerator(object):
+class TestRecipeGenerator(unittest.TestCase):
     """Tests for the recipe_generator functions."""
 
     def test_get_code_signature_verifier_reqs(self):
@@ -48,9 +48,9 @@ class TestRecipeGenerator(object):
         codesigverifier = recipe_generator.get_code_signature_verifier(
             input_path, test_facts
         )
-        assert_equal(codesigverifier.input_path, input_path)
-        assert_equal(codesigverifier.requirement, req)
-        assert_is_none(codesigverifier.expected_authority_names)
+        self.assertEqual(codesigverifier.input_path, input_path)
+        self.assertEqual(codesigverifier.requirement, req)
+        self.assertIsNone(codesigverifier.expected_authority_names)
 
     def test_get_code_signature_verifier_expect_auth(self):
         """Ensure CodeSignatureVerifier processor codesign_authorities arg is
@@ -62,18 +62,18 @@ class TestRecipeGenerator(object):
         codesigverifier = recipe_generator.get_code_signature_verifier(
             input_path, test_facts
         )
-        assert_equal(codesigverifier.input_path, input_path)
-        assert_is_none(codesigverifier.requirement)
-        assert_sequence_equal(codesigverifier.expected_authority_names, req)
+        self.assertEqual(codesigverifier.input_path, input_path)
+        self.assertIsNone(codesigverifier.requirement)
+        self.assertSequenceEqual(codesigverifier.expected_authority_names, req)
 
     def test_needs_versioner(self):
         """Test result of needs_versioner() function."""
         for format in SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS:
             true_facts = {"download_format": format, "sparkle_provides_version": False}
-            assert_true(recipe_generator.needs_versioner(true_facts))
+            self.assertTrue(recipe_generator.needs_versioner(true_facts))
         for format in SUPPORTED_INSTALL_FORMATS:
             install_facts = {
                 "download_format": format,
                 "sparkle_provides_version": False,
             }
-            assert_false(recipe_generator.needs_versioner(install_facts))
+            self.assertFalse(recipe_generator.needs_versioner(install_facts))
