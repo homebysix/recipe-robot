@@ -42,3 +42,7 @@ scripts/.noseids
 
 # Virtual environment
 venv/
+
+# Test artifacts
+.coverage
+htmlcov/
