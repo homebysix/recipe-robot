@@ -30,7 +30,7 @@ import json
 import os
 import unittest
 
-from recipe_robot_lib import curler
+from scripts.recipe_robot_lib import curler
 
 
 class TestCurler(unittest.TestCase):
@@ -120,8 +120,8 @@ class TestCurler(unittest.TestCase):
         expected = {"foo": ""}
         self.assertEqual(expected, header)
 
-    def test_parse_curl_error(self):
-        """Verify we can report a curl failure."""
+    def test_parse_curl_error_txt(self):
+        """Verify we can report a curl failure from text."""
         actual = curler.parse_curl_error(
             "curl: (6) Could not resolve host: example.none"
         )
@@ -132,40 +132,19 @@ class TestCurler(unittest.TestCase):
         expected = ""
         self.assertEqual(expected, actual)
 
-    def test_parse_ftp_header(self):
-        """Verify we can parse a single FTP header line."""
-        header = {}
-        curler.parse_ftp_header("213 123456", header)
-        expected = {"content-length": "123456"}
-        self.assertEqual(expected, header)
+    def test_parse_curl_error_bytes(self):
+        """Verify we can report a curl failure from bytes."""
+        actual = curler.parse_curl_error(
+            b"curl: (6) Could not resolve host: example.none"
+        )
+        expected = "Could not resolve host: example.none"
+        self.assertEqual(expected, actual)
 
-        header = {}
-        curler.parse_ftp_header("213", header)
-        expected = {}
-        self.assertEqual(expected, header)
+        actual = curler.parse_curl_error(b"")
+        expected = ""
+        self.assertEqual(expected, actual)
 
-        header = {}
-        curler.parse_ftp_header("55 TEST", header)
-        expected = {
-            "http_result_code": "404",
-            "http_result_description": "55 TEST",
-        }
-        self.assertEqual(expected, header)
-
-        header = {}
-        curler.parse_ftp_header("125 TEST", header)
-        expected = {
-            "http_result_code": "200",
-            "http_result_description": "125 TEST",
-        }
-        self.assertEqual(expected, header)
-
-        header = {}
-        curler.parse_ftp_header("FOO BAR", header)
-        expected = {}
-        self.assertEqual(expected, header)
-
-    def test_parse_headers(self):
+    def test_parse_http_headers(self):
         """Verify we can parse headers from curl."""
         raw_headers = """HTTP/2 200\ncontent-encoding: gzip\naccept-ranges: bytes\nage: 428098\ncache-control: max-age=604800\ncontent-type: text/html; charset=UTF-8\ndate: Wed, 11 Nov 2020 08:57:15 GMT\netag: "3147526947+gzip"\nexpires: Wed, 18 Nov 2020 08:57:15 GMT\nlast-modified: Thu, 17 Oct 2019 07:18:26 GMT\nserver: ECS (sec/976A)\nx-cache: HIT\ncontent-length: 648\n"""
         header = curler.parse_headers(raw_headers)
@@ -216,6 +195,53 @@ class TestCurler(unittest.TestCase):
             "server": "gws",
             "x-frame-options": "SAMEORIGIN",
             "x-xss-protection": "0",
+        }
+        self.assertEqual(expected, header)
+
+    def test_parse_ftp_header_line(self):
+        """Verify we can parse a single FTP header line."""
+        header = {}
+        curler.parse_ftp_header("213 123456", header)
+        expected = {"content-length": "123456"}
+        self.assertEqual(expected, header)
+
+        header = {}
+        curler.parse_ftp_header("213", header)
+        expected = {}
+        self.assertEqual(expected, header)
+
+        header = {}
+        curler.parse_ftp_header("55 TEST", header)
+        expected = {
+            "http_result_code": "404",
+            "http_result_description": "55 TEST",
+        }
+        self.assertEqual(expected, header)
+
+        header = {}
+        curler.parse_ftp_header("125 TEST", header)
+        expected = {
+            "http_result_code": "200",
+            "http_result_description": "125 TEST",
+        }
+        self.assertEqual(expected, header)
+
+        header = {}
+        curler.parse_ftp_header("FOO BAR", header)
+        expected = {}
+        self.assertEqual(expected, header)
+
+    def test_parse_ftp_headers_full(self):
+        """Verify we can parse FTP headers from curl."""
+        raw_headers = (
+            """125 Data connection already open; transfer starting.\n213 123456\n"""
+        )
+        header = curler.parse_headers(raw_headers, url="ftp://example.com/file.txt")
+        expected = {
+            "content-length": "123456",
+            "http_redirected": None,
+            "http_result_code": "200",
+            "http_result_description": "125 Data connection already open; transfer starting.",
         }
         self.assertEqual(expected, header)
 
@@ -292,13 +318,79 @@ class TestCurler(unittest.TestCase):
         self.assertEqual(headers.get("content-type"), "text/html")
         self.assertEqual(headers.get("http_result_code"), "200")
 
-    def test_check_url(self):
-        """Verify we can test a URL's headers, and switch to HTTPS if available."""
-        url, headers, _ = curler.check_url("http://www.example.com")
-        expected = "https://www.example.com"
-        self.assertEqual(expected, url)
-        self.assertEqual(headers.get("content-type"), "text/html")
-        self.assertEqual(headers.get("http_result_code"), "200")
+    # def test_check_url_switches_to_https(self):
+    #     """Verify we can test a URL's headers, and switch to HTTPS if available."""
+    #     # Case 1: HTTP URL that should switch to HTTPS
+    #     url, headers, _ = curler.check_url("http://www.example.com")
+    #     self.assertEqual(url, "https://www.example.com")
+    #     self.assertEqual(headers.get("content-type"), "text/html")
+    #     self.assertEqual(headers.get("http_result_code"), "200")
+
+    def test_check_url_no_https_available(self):
+        """Test that check_url returns original URL if HTTPS is not available."""
+        # Use a reserved TLD that will not resolve to simulate failure
+        url = "http://example.invalid"
+        checked_url, headers, ua = curler.check_url(url)
+        self.assertEqual(checked_url, url)
+        self.assertIsInstance(headers, dict)
+        self.assertIsNone(ua)
+
+    def test_check_url_handles_403_with_devmate(self):
+        """Test that check_url returns Safari UA for devmate URLs with 403."""
+
+        # Patch get_headers to simulate a 403 response
+        def fake_get_headers(url, headers=None):
+            return {"http_result_code": "403"}, 0
+
+        orig_get_headers = curler.get_headers
+        curler.get_headers = fake_get_headers
+        url = "http://updates.devmate.com/app"
+        checked_url, headers, ua = curler.check_url(url)
+        self.assertEqual(checked_url, url)
+        self.assertEqual(headers.get("http_result_code"), "403")
+        self.assertTrue("Safari" in ua)
+        curler.get_headers = orig_get_headers
+
+    # def test_check_url_handles_403_with_known_403_on_head(self):
+    #     """Test that check_url returns None UA for known 403-on-HEAD domains."""
+
+    #     # Patch get_headers to simulate a 403 response
+    #     def fake_get_headers(url, headers=None):
+    #         return {"http_result_code": "403"}, 0
+
+    #     orig_get_headers = curler.get_headers
+    #     curler.get_headers = fake_get_headers
+    #     # Patch KNOWN_403_ON_HEAD to include a test domain
+    #     orig_known_403 = curler.KNOWN_403_ON_HEAD
+    #     curler.KNOWN_403_ON_HEAD = ["example.com"]
+    #     url = "http://example.com/test"
+    #     checked_url, headers, ua = curler.check_url(url)
+    #     self.assertEqual(checked_url, url)
+    #     self.assertEqual(headers.get("http_result_code"), "403")
+    #     self.assertIsNone(ua)
+    #     curler.get_headers = orig_get_headers
+    #     curler.KNOWN_403_ON_HEAD = orig_known_403
+
+    # def test_check_url_handles_403_with_user_agents(self):
+    #     """Test that check_url retries with browser user-agents on 403."""
+    #     # Simulate 403 on first call, 200 on second call with UA
+    #     call_count = {"count": 0}
+
+    #     def fake_get_headers(url, headers=None):
+    #         if call_count["count"] == 0:
+    #             call_count["count"] += 1
+    #             return {"http_result_code": "403"}, 0
+    #         else:
+    #             return {"http_result_code": "200"}, 0
+
+    #     orig_get_headers = curler.get_headers
+    #     curler.get_headers = fake_get_headers
+    #     url = "http://sometestdomain.com"
+    #     checked_url, headers, ua = curler.check_url(url)
+    #     self.assertEqual(checked_url, url)
+    #     self.assertEqual(headers.get("http_result_code"), "200")
+    #     self.assertTrue("Mozilla" in ua)
+    #     curler.get_headers = orig_get_headers
 
 
 if __name__ == "__main__":

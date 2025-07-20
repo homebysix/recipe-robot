@@ -27,8 +27,8 @@ Unit tests for recipe_generator.
 from __future__ import absolute_import
 
 import unittest
-from recipe_robot_lib import facts, recipe_generator
-from recipe_robot_lib.tools import (
+from scripts.recipe_robot_lib import facts, recipe_generator
+from scripts.recipe_robot_lib.tools import (
     SUPPORTED_ARCHIVE_FORMATS,
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_INSTALL_FORMATS,
@@ -77,3 +77,78 @@ class TestRecipeGenerator(unittest.TestCase):
                 "sparkle_provides_version": False,
             }
             self.assertFalse(recipe_generator.needs_versioner(install_facts))
+
+    def test_needs_versioner_with_sparkle(self):
+        """Test needs_versioner() when Sparkle provides version."""
+        sparkle_facts = {
+            "download_format": "zip",
+            "sparkle_provides_version": True,
+        }
+        self.assertFalse(recipe_generator.needs_versioner(sparkle_facts))
+
+    def test_get_pkgdirs_simple_path(self):
+        """Test get_pkgdirs() with a simple path."""
+        path = "/Applications"
+        result = recipe_generator.get_pkgdirs(path)
+        expected = {"": "0775", "/Applications": "0775"}
+        self.assertEqual(result, expected)
+
+    def test_get_pkgdirs_nested_path(self):
+        """Test get_pkgdirs() with a nested path."""
+        path = "/Applications/Utilities"
+        result = recipe_generator.get_pkgdirs(path)
+        expected = {"Applications": "0775", "Applications/Utilities": "0775"}
+        self.assertEqual(result, expected)
+
+    def test_get_pkgdirs_with_leading_slash(self):
+        """Test get_pkgdirs() behavior with multiple slashes."""
+        path = "//Applications//Utilities/"
+        result = recipe_generator.get_pkgdirs(path)
+        expected = {
+            "Applications//Utilities": "0775",
+            "Applications//Utilities/": "0775",
+        }
+        self.assertEqual(result, expected)
+
+    def test_get_code_signature_verifier_no_codesign_info(self):
+        """Test CodeSignatureVerifier with no codesign information."""
+        test_facts = facts.Facts()
+        test_facts["codesign_authorities"] = []
+        input_path = "/path/to/app"
+        codesigverifier = recipe_generator.get_code_signature_verifier(
+            input_path, test_facts
+        )
+        self.assertEqual(codesigverifier.input_path, input_path)
+        self.assertIsNone(codesigverifier.requirement)
+        self.assertIsNone(codesigverifier.expected_authority_names)
+
+    def test_get_code_signature_verifier_both_reqs_and_authorities(self):
+        """Test CodeSignatureVerifier when both requirements and authorities exist."""
+        test_facts = facts.Facts()
+        test_facts["codesign_reqs"] = "TEST_REQ"
+        test_facts["codesign_authorities"] = ["AUTH1", "AUTH2"]
+        input_path = "/path/to/app"
+        codesigverifier = recipe_generator.get_code_signature_verifier(
+            input_path, test_facts
+        )
+        self.assertEqual(codesigverifier.input_path, input_path)
+        # Requirements should take precedence over authorities
+        self.assertEqual(codesigverifier.requirement, "TEST_REQ")
+        self.assertIsNone(codesigverifier.expected_authority_names)
+
+    def test_warn_about_app_store_generation(self):
+        """Test warn_about_app_store_generation() function."""
+        test_facts = facts.Facts()
+        initial_warning_count = len(test_facts["warnings"])
+        recipe_type = "munki"
+
+        recipe_generator.warn_about_app_store_generation(test_facts, recipe_type)
+
+        self.assertEqual(len(test_facts["warnings"]), initial_warning_count + 1)
+        warning_message = test_facts["warnings"][-1]
+        self.assertIn("App Store", warning_message)
+        self.assertIn(recipe_type, warning_message)
+
+
+if __name__ == "__main__":
+    unittest.main()

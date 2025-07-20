@@ -27,7 +27,7 @@ Unit tests for processor class.
 from __future__ import absolute_import
 
 import unittest
-from recipe_robot_lib import processor
+from scripts.recipe_robot_lib import processor
 
 
 class TestProcessor(unittest.TestCase):

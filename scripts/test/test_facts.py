@@ -25,7 +25,7 @@ Unit tests for facts-related functions.
 from __future__ import absolute_import
 
 import unittest
-from recipe_robot_lib.facts import *
+from scripts.recipe_robot_lib.facts import *
 
 
 class TestFacts(unittest.TestCase):
