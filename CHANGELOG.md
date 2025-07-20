@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
-Nothing yet.
+### Changed
+
+- Converted Python tests from nose to unittest and configured for code coverage.
 
 ## [2.3.2] - 2025-02-08
 
