@@ -40,6 +40,9 @@ TODO.md
 # Debris from testing
 scripts/.noseids
 
+# VSCode settings
+.vscode/
+
 # Virtual environment
 venv/
 
