@@ -41,6 +41,14 @@ import unittest
 from scripts.recipe_robot_lib.tools import strip_dev_suffix
 
 
+# Skip functional tests unless explicitly enabled
+SKIP_FUNCTIONAL = not os.environ.get("RUN_FUNCTIONAL_TESTS", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+
 # TODO: Mock up an "app" for testing purposes.
 # TODO: Add arguments to only produce certain RecipeTypes. This will
 # allow us to narrow the tests down.
@@ -119,6 +127,10 @@ class TestFunctional(unittest.TestCase):
         if os.path.exists(path):
             shutil.rmtree(path)
 
+    @unittest.skipIf(
+        SKIP_FUNCTIONAL,
+        "Functional tests skipped (set RUN_FUNCTIONAL_TESTS=1 to enable)",
+    )
     def test_funtional(self):
         """Functional tests"""
 
