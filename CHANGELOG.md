@@ -13,6 +13,11 @@ All notable changes to this project will be documented in this file. This projec
 ### Changed
 
 - Converted Python tests from nose to unittest and configured for code coverage.
+- Made functional tests optional during unittest runs. Specify `RUN_FUNCTIONAL_TESTS=true` to include them.
+
+### Removed
+
+- Removed support for pulling app descriptions from now-inoperative Informer site
 
 ## [2.3.2] - 2025-02-08
 
