@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+### Fixed
+
+- Fixed issue with app description parsing that was causing most descriptions to show "Popular multimedia player"
+
 ### Changed
 
 - Converted Python tests from nose to unittest and configured for code coverage.

@@ -551,7 +551,7 @@ def get_app_description(app_name):
         {
             "name": "MacUpdate.com",
             "pattern": r"=\"mu_card_complex_line_info_description\">(?P<desc>.*?)</div>",
-            "url": "https://www.macupdate.com/find/mac/context=%s"
+            "url": "https://www.macupdate.com/find/mac?page=1&context=%s&sort=relevance"
             % quote_plus(app_name),
         },
         {
