@@ -555,11 +555,6 @@ def get_app_description(app_name):
             % quote_plus(app_name),
         },
         {
-            "name": "Informer.com",
-            "pattern": r'<p class="prog_text">(?P<desc>.*?)</p>',
-            "url": "https://macdownload.informer.com/search/%s" % quote_plus(app_name),
-        },
-        {
             "name": "Download.com",
             "pattern": r'<div class="c-productCard_summary g-text-small g-color-\S+">(?P<desc>.*?)</div>',
             "url": "https://download.cnet.com/s/%s/?platform=mac"
