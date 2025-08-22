@@ -29,6 +29,7 @@ from __future__ import absolute_import, print_function
 
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -243,36 +244,44 @@ def strip_dev_suffix(dev):
     Returns:
         str: Name of app developer with suffixes stripped.
     """
-    corp_suffixes = (
-        "incorporated",
-        "corporation",
-        "limited",
-        "oy/ltd",
-        "pty ltd",
-        "pty. ltd",
-        "pvt ltd",
-        "pvt. ltd",
-        "s.a r.l",
-        "sa rl",
-        "sarl",
-        "srl",
-        "corp",
-        "gmbh",
-        "l.l.c",
-        "inc",
-        "llc",
-        "ltd",
-        "pvt",
-        "oy",
-        "sa",
-        "ab",
-    )
-    if dev not in (None, ""):
-        for suffix in corp_suffixes:
-            if dev.lower().rstrip(" .").endswith(suffix):
-                dev = dev.rstrip(" .")[: len(dev) - len(suffix) - 1].rstrip(",. ")
-                break
-    return dev
+    if not dev:
+        return dev
+
+    # Corporate suffixes ordered by specificity (longer/more specific first)
+    corp_suffixes = [
+        r"incorporated",
+        r"corporation",
+        r"pty\.?\s+ltd\.?",
+        r"pvt\.?\s+ltd\.?",
+        r"s\.a\s+r\.l",
+        r"sa\s+rl",
+        r"s\.r\.o\.?",
+        r"oy/ltd",
+        r"l\.l\.c\.?",
+        r"limited",
+        r"sarl",
+        r"gmbh",
+        r"corp\.?",
+        r"inc\.?",
+        r"ltd\.?",
+        r"llc\.?",
+        r"pvt\.?",
+        r"srl",
+        r"sro",
+        r"oy",
+        r"sa",
+        r"ab",
+    ]
+
+    # Create a single regex pattern that matches any suffix at the end
+    # with optional comma/period/space separators
+    suffix_pattern = r"[,\s]*\b(?:" + "|".join(corp_suffixes) + r")\s*\.?\s*$"
+
+    # Remove the suffix if found (case insensitive)
+    result = re.sub(suffix_pattern, "", dev, flags=re.IGNORECASE)
+
+    # Clean up any trailing whitespace, commas, or periods
+    return result.rstrip(" .,")
 
 
 def get_bundle_name_info(facts):

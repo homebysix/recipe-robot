@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - Converted Python tests from nose to unittest and configured for code coverage.
 - Made functional tests optional during unittest runs. Specify `RUN_FUNCTIONAL_TESTS=true` to include them.
+- Improved company suffix stripping (e.g. Inc, LLC, Ltd) and included s.r.o. suffix.
 
 ### Removed
 
