@@ -129,7 +129,7 @@ class TestFunctional(unittest.TestCase):
 
         # Read and randomize sample data.
         with open("scripts/test/sample_data.yaml", "rb") as openfile:
-            sample_data = yaml.load(openfile, Loader=yaml.FullLoader)
+            sample_data = yaml.safe_load(openfile)
         shuffle(sample_data)
 
         # Iterate through sample data, generating a recipe for each input.
