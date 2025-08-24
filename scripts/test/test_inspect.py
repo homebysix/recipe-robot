@@ -746,5 +746,829 @@ class TestProcessInputPath(unittest.TestCase):
             )
 
 
+class TestInspectApp(unittest.TestCase):
+    """Tests for the inspect_app function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.facts = RoboDict()
+        self.facts["inspections"] = []
+        self.facts["warnings"] = []
+        self.facts["blocking_applications"] = []
+        self.facts["codesign_authorities"] = []
+        self.args = MagicMock()
+        self.args.skip_icon = False
+        self.test_app_path = "/tmp/test.app"
+
+    def create_mock_info_plist(self, **kwargs):
+        """Create a mock Info.plist with default values that can be overridden."""
+        default_plist = {
+            "CFBundleName": "Test App",
+            "CFBundleIdentifier": "com.example.testapp",
+            "CFBundleShortVersionString": "1.0.0",
+            "CFBundleVersion": "100",
+            "CFBundleIconFile": "icon.icns",
+        }
+        default_plist.update(kwargs)
+        return default_plist
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_basic_app_inspection(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test basic app inspection with valid plist."""
+        # Setup mocks
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")  # unsigned app
+        mock_get_description.return_value = ("Test app description", "TestSource")
+
+        # Import the function to test
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        # Call function
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        # Verify basic results
+        self.assertEqual(result["app_name"], "Test App")
+        self.assertEqual(result["bundle_id"], "com.example.testapp")
+        self.assertEqual(result["version_key"], "CFBundleShortVersionString")
+        self.assertEqual(result["app_path"], self.test_app_path)
+        self.assertIn("app", result["inspections"])
+        self.assertIn("test.app", result["blocking_applications"])
+        self.assertEqual(result["description"], "Test app description")
+        self.assertFalse(result["is_from_app_store"])
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_app_already_inspected(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        _mock_basename,
+        _mock_exists,
+        _mock_get_exitcode,
+        _mock_get_description,
+    ):
+        """Test that function returns early if app already inspected."""
+        # Pre-populate inspections
+        self.facts["inspections"] = ["app"]
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        # Should return facts unchanged without processing
+        self.assertEqual(result, self.facts)
+        mock_plist_load.assert_not_called()
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_app_name_fallback_chain(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test app name determination fallback chain."""
+        test_cases = [
+            # (plist_data, expected_name)
+            ({"CFBundleName": "Test App"}, "Test App"),
+            ({"CFBundleExecutable": "TestExec"}, "TestExec"),
+            ({}, "test"),  # falls back to filename
+        ]
+
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        for plist_data, expected_name in test_cases:
+            with self.subTest(plist_data=plist_data, expected_name=expected_name):
+                # Reset facts for each test
+                test_facts = RoboDict()
+                test_facts["inspections"] = []
+                test_facts["warnings"] = []
+                test_facts["blocking_applications"] = []
+                test_facts["codesign_authorities"] = []
+
+                plist_with_defaults = self.create_mock_info_plist(**plist_data)
+                # Remove CFBundleName if not explicitly set
+                if "CFBundleName" not in plist_data:
+                    plist_with_defaults.pop("CFBundleName", None)
+                if "CFBundleExecutable" not in plist_data:
+                    plist_with_defaults.pop("CFBundleExecutable", None)
+
+                mock_plist_load.return_value = plist_with_defaults
+
+                result = inspect_app(self.test_app_path, self.args, test_facts)
+                self.assertEqual(result["app_name"], expected_name)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_app_file_different_from_name(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test handling when app filename differs from bundle name."""
+        mock_plist_load.return_value = self.create_mock_info_plist(
+            CFBundleName="Different Name"
+        )
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        self.assertEqual(result["app_name"], "Different Name")
+        self.assertEqual(result["app_file"], "test")
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_missing_bundle_identifier(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test handling of missing bundle identifier."""
+        plist_data = self.create_mock_info_plist()
+        del plist_data["CFBundleIdentifier"]
+        mock_plist_load.return_value = plist_data
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        warning_found = any(
+            "doesn't seem to have a bundle identifier" in warning
+            for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_recipe_robot_special_case(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test special case handling for Recipe Robot itself."""
+        mock_plist_load.return_value = self.create_mock_info_plist(
+            CFBundleIdentifier="com.elliotjordan.recipe-robot"
+        )
+        mock_basename.return_value = "recipe-robot.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        warning_found = any(
+            "I see what you did there" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_disaster_warning(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test disaster-related humor warning."""
+        mock_plist_load.return_value = self.create_mock_info_plist(
+            CFBundleName="Disaster Recovery App"
+        )
+        mock_basename.return_value = "disaster.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        warning_found = any(
+            "recipe for disaster" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_installer_app_warning(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test warning for installer apps."""
+        test_cases = [
+            "Install TestApp",
+            "TestApp Installer.app",
+        ]
+
+        mock_basename.return_value = "installer.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        for app_name in test_cases:
+            with self.subTest(app_name=app_name):
+                test_facts = RoboDict()
+                test_facts["inspections"] = []
+                test_facts["warnings"] = []
+                test_facts["blocking_applications"] = []
+                test_facts["codesign_authorities"] = []
+
+                mock_plist_load.return_value = self.create_mock_info_plist(
+                    CFBundleName=app_name
+                )
+
+                result = inspect_app(self.test_app_path, self.args, test_facts)
+
+                warning_found = any(
+                    "installer app rather than the actual app" in warning
+                    for warning in result["warnings"]
+                )
+                self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_app_store_detection(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test Mac App Store app detection."""
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt/receipt" in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        self.assertTrue(result["is_from_app_store"])
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_version_key_selection(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test version key selection logic."""
+        test_cases = [
+            # (plist_data, expected_version_key)
+            ({"CFBundleShortVersionString": "1.0.0"}, "CFBundleShortVersionString"),
+            ({"CFBundleVersion": "100"}, "CFBundleVersion"),
+            (
+                {"CFBundleShortVersionString": "1.0.0", "CFBundleVersion": "100"},
+                "CFBundleShortVersionString",
+            ),
+            (
+                {"CFBundleShortVersionString": "invalid", "CFBundleVersion": "1.0.0"},
+                "CFBundleVersion",
+            ),
+            (
+                {"CFBundleShortVersionString": "123", "CFBundleVersion": "invalid"},
+                "CFBundleShortVersionString",
+            ),
+            (
+                {"CFBundleShortVersionString": "invalid", "CFBundleVersion": "456"},
+                "CFBundleVersion",
+            ),
+            (
+                {
+                    "CFBundleShortVersionString": "invalid",
+                    "CFBundleVersion": "also_invalid",
+                },
+                "CFBundleShortVersionString",
+            ),
+        ]
+
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        for plist_data, expected_key in test_cases:
+            with self.subTest(plist_data=plist_data, expected_key=expected_key):
+                test_facts = RoboDict()
+                test_facts["inspections"] = []
+                test_facts["warnings"] = []
+                test_facts["blocking_applications"] = []
+                test_facts["codesign_authorities"] = []
+
+                base_plist = self.create_mock_info_plist()
+                # Remove default version keys and add test-specific ones
+                base_plist.pop("CFBundleShortVersionString", None)
+                base_plist.pop("CFBundleVersion", None)
+                base_plist.update(plist_data)
+                mock_plist_load.return_value = base_plist
+
+                result = inspect_app(self.test_app_path, self.args, test_facts)
+                self.assertEqual(result["version_key"], expected_key)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_icon_detection(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test icon path detection."""
+        mock_plist_load.return_value = self.create_mock_info_plist(
+            CFBundleIconFile="MyIcon.icns"
+        )
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        expected_icon_path = "/tmp/test.app/Contents/Resources/MyIcon.icns"
+        self.assertEqual(result["icon_path"], expected_icon_path)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_skip_icon_flag(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test that icon detection is skipped when flag is set."""
+        self.args.skip_icon = True
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        self.assertNotIn("icon_path", result)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_missing_icon_warning(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test warning when icon cannot be determined."""
+        plist_data = self.create_mock_info_plist()
+        del plist_data["CFBundleIconFile"]
+        mock_plist_load.return_value = plist_data
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        warning_found = any(
+            "Can't determine icon" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_codesign_unsigned_app(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test handling of unsigned app."""
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")  # codesign failure
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        self.assertEqual(result.get("codesign_reqs", ""), "")
+        self.assertEqual(len(result["codesign_authorities"]), 0)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_codesign_signed_app(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test handling of signed app."""
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+
+        # Mock codesign output for signed app
+        stdout = 'designated => identifier "com.example.testapp" and certificate leaf[subject.CN] = "Developer ID Application: Test Developer (TEAM123456)"'
+        stderr = """Format=app bundle with Mach-O universal (x86_64 arm64)
+Authority=Developer ID Application: Test Developer (TEAM123456)
+Authority=Developer ID Certification Authority
+Authority=Apple Root CA
+TeamIdentifier=TEAM123456
+Sealed Resources version=2 rules=13 files=245"""
+
+        mock_get_exitcode.return_value = (0, stdout, stderr)
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        expected_reqs = 'identifier "com.example.testapp" and certificate leaf[subject.CN] = "Developer ID Application: Test Developer (TEAM123456)"'
+        self.assertEqual(result["codesign_reqs"], expected_reqs)
+        self.assertIn(
+            "Developer ID Application: Test Developer (TEAM123456)",
+            result["codesign_authorities"],
+        )
+        self.assertEqual(result["developer"], "Test Developer")
+        self.assertEqual(result["codesign_input_filename"], "test.app")
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_codesign_obsolete_signature(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test handling of obsolete code signature."""
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+
+        # Mock codesign output with obsolete signature
+        stdout = "designated => anchor apple generic"
+        stderr = "Sealed Resources version=1 rules=5 files=10"
+
+        mock_get_exitcode.return_value = (0, stdout, stderr)
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(self.test_app_path, self.args, self.facts)
+
+        # Should be treated as unsigned due to obsolete signature
+        self.assertEqual(result.get("codesign_reqs", ""), "")
+        self.assertEqual(len(result["codesign_authorities"]), 0)
+
+        warning_found = any(
+            "obsolete code signature" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_codesign_loose_requirements_warning(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test warning for loose code signing requirements."""
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+
+        loose_requirements = [
+            "anchor apple generic",
+            "anchor trusted",
+            "certificate anchor trusted",
+        ]
+
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        for req in loose_requirements:
+            with self.subTest(requirement=req):
+                test_facts = RoboDict()
+                test_facts["inspections"] = []
+                test_facts["warnings"] = []
+                test_facts["blocking_applications"] = []
+                test_facts["codesign_authorities"] = []
+
+                stdout = f"designated => {req}"
+                stderr = "Authority=Some Authority"
+                mock_get_exitcode.return_value = (0, stdout, stderr)
+
+                result = inspect_app(self.test_app_path, self.args, test_facts)
+
+                warning_found = any(
+                    "code signing designated requirements are set very broadly"
+                    in warning
+                    for warning in result["warnings"]
+                )
+                self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_non_app_bundle_type(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+    ):
+        """Test inspection of non-app bundle types like screen savers."""
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.saver"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        result = inspect_app(
+            "/tmp/test.saver", self.args, self.facts, bundle_type="saver"
+        )
+
+        self.assertEqual(result["saver_name"], "Test App")
+        self.assertIn("saver", result["inspections"])
+        # Non-app bundles shouldn't be added to blocking_applications
+        self.assertEqual(len(result["blocking_applications"]), 0)
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_sparkle_feed_url")
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_sparkle_feed_detection(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+        mock_inspect_sparkle,
+    ):
+        """Test detection and inspection of Sparkle feed URLs."""
+        mock_plist_load.return_value = self.create_mock_info_plist(
+            SUFeedURL="https://example.com/appcast.xml"
+        )
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+        mock_inspect_sparkle.return_value = self.facts
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        inspect_app(self.test_app_path, self.args, self.facts)
+
+        mock_inspect_sparkle.assert_called_once_with(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_barebones_feed_url")
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_barebones_feed_detection(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+        mock_inspect_barebones,
+    ):
+        """Test detection and inspection of Bare Bones feed URLs."""
+        mock_plist_load.return_value = self.create_mock_info_plist(
+            SUFeedURL="https://versioncheck.barebones.com/TestApp.xml"
+        )
+        mock_basename.return_value = "test.app"
+        mock_exists.side_effect = lambda path: "_MASReceipt" not in path
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+        mock_inspect_barebones.return_value = self.facts
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        inspect_app(self.test_app_path, self.args, self.facts)
+
+        mock_inspect_barebones.assert_called_once_with(
+            "https://versioncheck.barebones.com/TestApp.xml", self.args, self.facts
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_sparkle_feed_url")
+    @patch("scripts.recipe_robot_lib.inspect.get_app_description")
+    @patch("scripts.recipe_robot_lib.inspect.get_exitcode_stdout_stderr")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
+    def test_devmate_feed_detection(
+        self,
+        mock_plist_load,
+        _mock_open_builtin,
+        mock_basename,
+        mock_exists,
+        mock_get_exitcode,
+        mock_get_description,
+        mock_inspect_sparkle,
+    ):
+        """Test detection of DevMate framework and auto-generated feed URL."""
+        mock_plist_load.return_value = self.create_mock_info_plist()
+        mock_basename.return_value = "test.app"
+
+        def mock_exists_devmate(path):
+            if "_MASReceipt" in path:
+                return False
+            elif "DevMateKit.framework" in path:
+                return True
+            return False
+
+        mock_exists.side_effect = mock_exists_devmate
+        mock_get_exitcode.return_value = (1, "", "")
+        mock_get_description.return_value = (None, None)
+        mock_inspect_sparkle.return_value = self.facts
+
+        from scripts.recipe_robot_lib.inspect import inspect_app
+
+        inspect_app(self.test_app_path, self.args, self.facts)
+
+        expected_devmate_url = "https://updates.devmate.com/com.example.testapp.xml"
+        mock_inspect_sparkle.assert_called_once_with(
+            expected_devmate_url, self.args, self.facts
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
