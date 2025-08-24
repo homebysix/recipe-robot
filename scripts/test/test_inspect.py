@@ -29,6 +29,7 @@ from scripts.recipe_robot_lib.inspect import (
     get_app_description,
     html_decode,
     inspect_sparkle_feed_url,
+    process_input_path,
 )
 from scripts.recipe_robot_lib.facts import RoboDict
 
@@ -472,6 +473,277 @@ class TestInspectSparkleFeed(unittest.TestCase):
         mock_inspect_download.assert_called_once()
         call_args = mock_inspect_download.call_args[0]
         self.assertEqual(call_args[0], "https://example.com/app-1.0.0.dmg")
+
+
+class TestProcessInputPath(unittest.TestCase):
+    """Tests for the process_input_path function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.facts = RoboDict()
+        self.args = MagicMock()
+        self.args.input_path = None
+        self.facts["args"] = self.args
+        # Initialize required lists
+        self.facts["warnings"] = []
+
+    @patch("scripts.recipe_robot_lib.inspect.sys.exit")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_no_input_path_exits(self, mock_robo_print, mock_exit):
+        """Test that function exits when no input path is provided."""
+        # Make sys.exit raise an exception so we can catch it and verify it was called
+        mock_exit.side_effect = SystemExit(0)
+        self.args.input_path = None
+
+        with self.assertRaises(SystemExit):
+            process_input_path(self.facts)
+
+        mock_exit.assert_called_once_with(0)
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_sparkle_feed_url")
+    def test_sparkle_feed_detection(self, mock_inspect_sparkle):
+        """Test detection and processing of Sparkle feed URLs."""
+        mock_inspect_sparkle.return_value = self.facts
+        test_cases = [
+            "https://example.com/appcast.xml",
+            "https://example.com/updates.rss",
+            "https://example.com/feed.php",
+            "https://example.com/updates/appcast",
+        ]
+
+        for url in test_cases:
+            with self.subTest(url=url):
+                self.args.input_path = url
+                mock_inspect_sparkle.reset_mock()
+
+                process_input_path(self.facts)
+
+                mock_inspect_sparkle.assert_called_once_with(url, self.args, self.facts)
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_barebones_feed_url")
+    def test_barebones_feed_detection(self, mock_inspect_barebones):
+        """Test detection and processing of Bare Bones feed URLs."""
+        mock_inspect_barebones.return_value = self.facts
+
+        self.args.input_path = "https://versioncheck.barebones.com/TextSoap.xml"
+
+        process_input_path(self.facts)
+
+        mock_inspect_barebones.assert_called_once_with(
+            "https://versioncheck.barebones.com/TextSoap.xml", self.args, self.facts
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_github_url")
+    def test_github_url_detection(self, mock_inspect_github):
+        """Test detection and processing of GitHub URLs."""
+        mock_inspect_github.return_value = self.facts
+        test_cases = [
+            "https://github.com/user/repo",
+            "https://github.com/user/repo/releases/latest",
+            "https://api.github.com/repos/user/repo",
+            "https://user.github.io/repo",
+        ]
+
+        for url in test_cases:
+            with self.subTest(url=url):
+                self.args.input_path = url
+                mock_inspect_github.reset_mock()
+
+                process_input_path(self.facts)
+
+                mock_inspect_github.assert_called_once_with(url, self.args, self.facts)
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_github_url")
+    def test_github_download_url_warning(self, mock_inspect_github):
+        """Test warning for GitHub download URLs that might be misinterpreted."""
+        mock_inspect_github.return_value = self.facts
+
+        self.args.input_path = (
+            "https://github.com/user/repo/releases/download/v1.0/app.zip"
+        )
+
+        process_input_path(self.facts)
+
+        # Check that warning was added
+        warning_found = any(
+            "processing the input path as a GitHub repo URL" in warning
+            for warning in self.facts.get("warnings", [])
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_sourceforge_url")
+    def test_sourceforge_url_detection(self, mock_inspect_sourceforge):
+        """Test detection and processing of SourceForge URLs."""
+        mock_inspect_sourceforge.return_value = self.facts
+        test_cases = [
+            "https://sourceforge.net/projects/projectname",
+            "https://sourceforge.net/projects/projectname/",
+            "https://sourceforge.net/project/projectname",
+            "https://projectname.sourceforge.net/",
+        ]
+
+        for url in test_cases:
+            with self.subTest(url=url):
+                self.args.input_path = url
+                mock_inspect_sourceforge.reset_mock()
+
+                process_input_path(self.facts)
+
+                mock_inspect_sourceforge.assert_called_once_with(
+                    url, self.args, self.facts
+                )
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_bitbucket_url")
+    def test_bitbucket_url_detection(self, mock_inspect_bitbucket):
+        """Test detection and processing of BitBucket URLs."""
+        mock_inspect_bitbucket.return_value = self.facts
+
+        self.args.input_path = "https://bitbucket.org/user/repo"
+
+        process_input_path(self.facts)
+
+        mock_inspect_bitbucket.assert_called_once_with(
+            "https://bitbucket.org/user/repo", self.args, self.facts
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_bitbucket_url")
+    def test_bitbucket_downloads_warning(self, mock_inspect_bitbucket):
+        """Test warning for BitBucket downloads URLs that might be misinterpreted."""
+        mock_inspect_bitbucket.return_value = self.facts
+
+        self.args.input_path = "https://bitbucket.org/user/repo/downloads/file.zip"
+
+        process_input_path(self.facts)
+
+        # Check that warning was added
+        warning_found = any(
+            "processing the input path as a BitBucket repo URL" in warning
+            for warning in self.facts.get("warnings", [])
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    def test_dropbox_shared_link(self, mock_inspect_download):
+        """Test processing of Dropbox shared links."""
+        mock_inspect_download.return_value = self.facts
+
+        self.args.input_path = "https://dropbox.com/s/abc123/file.zip?dl=0"
+
+        process_input_path(self.facts)
+
+        # Check that dl=0 was changed to dl=1
+        expected_url = "https://dropbox.com/s/abc123/file.zip?dl=1"
+        mock_inspect_download.assert_called_once_with(
+            expected_url, self.args, self.facts
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    def test_http_download_url(self, mock_inspect_download):
+        """Test processing of HTTP download URLs."""
+        mock_inspect_download.return_value = self.facts
+        test_cases = [
+            "https://example.com/file.zip",
+            "http://example.com/file.dmg",
+            "ftp://example.com/file.pkg",
+            "file:///path/to/file.zip",
+        ]
+
+        for url in test_cases:
+            with self.subTest(url=url):
+                self.args.input_path = url
+                mock_inspect_download.reset_mock()
+
+                process_input_path(self.facts)
+
+                mock_inspect_download.assert_called_once_with(
+                    url, self.args, self.facts
+                )
+
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.inspect_app")
+    def test_local_app_path(self, mock_inspect_app, mock_exists):
+        """Test processing of local .app paths."""
+        mock_exists.return_value = True
+        mock_inspect_app.return_value = self.facts
+
+        self.args.input_path = "/Applications/TestApp.app"
+
+        process_input_path(self.facts)
+
+        mock_inspect_app.assert_called_once_with(
+            "/Applications/TestApp.app", self.args, self.facts
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.inspect_pkg")
+    def test_local_pkg_path(self, mock_inspect_pkg, mock_exists):
+        """Test processing of local installer package paths."""
+        mock_exists.return_value = True
+        mock_inspect_pkg.return_value = self.facts
+        test_cases = ["/path/to/installer.pkg", "/path/to/installer.mpkg"]
+
+        for path in test_cases:
+            with self.subTest(path=path):
+                self.args.input_path = path
+                mock_inspect_pkg.reset_mock()
+
+                process_input_path(self.facts)
+
+                mock_inspect_pkg.assert_called_once_with(path, self.args, self.facts)
+
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.inspect_disk_image")
+    def test_local_disk_image_path(self, mock_inspect_disk_image, mock_exists):
+        """Test processing of local disk image paths."""
+        mock_exists.return_value = True
+        mock_inspect_disk_image.return_value = self.facts
+        test_cases = ["/path/to/image.dmg", "/path/to/image.iso"]
+
+        for path in test_cases:
+            with self.subTest(path=path):
+                self.args.input_path = path
+                mock_inspect_disk_image.reset_mock()
+
+                process_input_path(self.facts)
+
+                mock_inspect_disk_image.assert_called_once_with(
+                    path, self.args, self.facts
+                )
+
+    @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
+    @patch("scripts.recipe_robot_lib.inspect.inspect_archive")
+    def test_local_archive_path(self, mock_inspect_archive, mock_exists):
+        """Test processing of local archive paths."""
+        mock_exists.return_value = True
+        mock_inspect_archive.return_value = self.facts
+        test_cases = ["/path/to/archive.zip", "/path/to/archive.tar.gz"]
+
+        for path in test_cases:
+            with self.subTest(path=path):
+                self.args.input_path = path
+                mock_inspect_archive.reset_mock()
+
+                process_input_path(self.facts)
+
+                mock_inspect_archive.assert_called_once_with(
+                    path, self.args, self.facts
+                )
+
+    def test_url_path_preserves_trailing_slash(self):
+        """Test that URLs preserve trailing slashes (not stripped)."""
+        with patch(
+            "scripts.recipe_robot_lib.inspect.inspect_download_url"
+        ) as mock_inspect_download:
+            mock_inspect_download.return_value = self.facts
+
+            self.args.input_path = "https://example.com/download/"
+
+            process_input_path(self.facts)
+
+            # URL should preserve the trailing slash
+            mock_inspect_download.assert_called_once_with(
+                "https://example.com/download/", self.args, self.facts
+            )
 
 
 if __name__ == "__main__":
