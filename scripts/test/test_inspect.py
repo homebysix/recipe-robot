@@ -23,9 +23,14 @@ Unit tests for inspect-related functions.
 
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
-from scripts.recipe_robot_lib.inspect import get_app_description, html_decode
+from scripts.recipe_robot_lib.inspect import (
+    get_app_description,
+    html_decode,
+    inspect_sparkle_feed_url,
+)
+from scripts.recipe_robot_lib.facts import RoboDict
 
 
 class TestInspect(unittest.TestCase):
@@ -142,6 +147,331 @@ class TestInspect(unittest.TestCase):
 
         self.assertEqual(description, "Found on Download.com")
         self.assertEqual(source, "Download.com")
+
+
+class TestInspectSparkleFeed(unittest.TestCase):
+    """Tests for the inspect_sparkle_feed_url function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.facts = RoboDict()
+        self.facts["inspections"] = []
+        self.facts["warnings"] = []
+        self.args = MagicMock()
+
+    def create_sample_sparkle_xml(
+        self,
+        include_version=True,
+        include_short_version=True,
+        include_enclosure_version=True,
+    ):
+        """Create a sample Sparkle XML feed for testing."""
+        version_elem = (
+            "<sparkle:version>2000</sparkle:version>" if include_version else ""
+        )
+        short_version_elem = (
+            "<sparkle:shortVersionString>2.0.0</sparkle:shortVersionString>"
+            if include_short_version
+            else ""
+        )
+        enclosure_version = (
+            'sparkle:version="2000"' if include_enclosure_version else ""
+        )
+
+        xml_content = f"""<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>App Updates</title>
+        <link>https://example.com/</link>
+        <description>Most recent changes with links to updates.</description>
+        <language>en</language>
+        <item>
+            <title>Version 2.0.0</title>
+            {version_elem}
+            {short_version_elem}
+            <pubDate>Wed, 15 Jan 2025 10:00:00 +0000</pubDate>
+            <enclosure url="https://example.com/app-2.0.0.dmg"
+                       {enclosure_version}
+                       length="12345678"
+                       type="application/octet-stream" />
+        </item>
+        <item>
+            <title>Version 1.5.0</title>
+            <sparkle:version>1500</sparkle:version>
+            <sparkle:shortVersionString>1.5.0</sparkle:shortVersionString>
+            <pubDate>Mon, 01 Dec 2024 10:00:00 +0000</pubDate>
+            <enclosure url="https://example.com/app-1.5.0.dmg"
+                       sparkle:version="1500"
+                       length="11111111"
+                       type="application/octet-stream" />
+        </item>
+    </channel>
+</rss>"""
+        return xml_content
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_basic_sparkle_feed_processing(
+        self, mock_check_url, mock_download, mock_inspect_download
+    ):
+        """Test basic processing of a valid Sparkle feed."""
+        # Setup mocks
+        mock_check_url.return_value = (
+            "https://example.com/appcast.xml",
+            {"http_result_code": "200"},
+            None,
+        )
+        mock_download.return_value = self.create_sample_sparkle_xml()
+        mock_inspect_download.return_value = self.facts
+
+        # Call the function
+        result = inspect_sparkle_feed_url(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify results
+        self.assertEqual(result["sparkle_feed"], "https://example.com/appcast.xml")
+        self.assertIn("sparkle_feed_url", result["inspections"])
+        self.assertTrue(result["sparkle_provides_version"])
+
+        # Verify that download URL inspection was called with the latest version URL
+        mock_inspect_download.assert_called_once()
+        call_args = mock_inspect_download.call_args[0]
+        self.assertEqual(call_args[0], "https://example.com/app-2.0.0.dmg")
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_sparkle_feed_always_provides_version(
+        self, mock_check_url, mock_download, mock_inspect_download
+    ):
+        """Test that Sparkle feeds always provide version regardless of version info presence."""
+        # Test with XML that has no explicit version info
+        xml_without_versions = """<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>App Updates</title>
+        <item>
+            <title>Version 2.0.0</title>
+            <enclosure url="https://example.com/App-2.0.0.zip"
+                       length="12345678"
+                       type="application/octet-stream" />
+        </item>
+    </channel>
+</rss>"""
+
+        # Setup mocks
+        mock_check_url.return_value = (
+            "https://example.com/appcast.xml",
+            {"http_result_code": "200"},
+            None,
+        )
+        mock_download.return_value = xml_without_versions
+        mock_inspect_download.return_value = self.facts
+
+        # Call the function
+        result = inspect_sparkle_feed_url(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify that sparkle_provides_version is still True
+        # This tests our fix - AutoPkg's SparkleUpdateInfoProvider can extract version from URL
+        self.assertTrue(result["sparkle_provides_version"])
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_sparkle_feed_http_error(self, mock_check_url):
+        """Test handling of HTTP errors when accessing Sparkle feed."""
+        # Setup mock to return 404 error
+        mock_check_url.return_value = (
+            "https://example.com/appcast.xml",
+            {"http_result_code": "404"},
+            None,
+        )
+
+        # Call the function
+        result = inspect_sparkle_feed_url(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify that sparkle_feed is removed due to error
+        self.assertNotIn("sparkle_feed", result)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.download")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_sparkle_feed_invalid_xml(self, mock_check_url, mock_download):
+        """Test handling of invalid XML in Sparkle feed."""
+        # Setup mocks
+        mock_check_url.return_value = (
+            "https://example.com/appcast.xml",
+            {"http_result_code": "200"},
+            None,
+        )
+        mock_download.return_value = "<invalid>xml</not_closed>"
+
+        # Call the function
+        result = inspect_sparkle_feed_url(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify error handling
+        self.assertNotIn("sparkle_feed", result)
+        self.assertTrue(
+            any(
+                "Error occurred while parsing Sparkle feed" in warning
+                for warning in result["warnings"]
+            )
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_sparkle_feed_no_usable_items(
+        self, mock_check_url, mock_download, mock_inspect_download
+    ):
+        """Test handling of Sparkle feed with no usable items."""
+        # XML with no enclosures
+        xml_no_enclosures = """<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>App Updates</title>
+        <item>
+            <title>Version 2.0.0</title>
+            <!-- No enclosure element -->
+        </item>
+    </channel>
+</rss>"""
+
+        # Setup mocks
+        mock_check_url.return_value = (
+            "https://example.com/appcast.xml",
+            {"http_result_code": "200"},
+            None,
+        )
+        mock_download.return_value = xml_no_enclosures
+
+        # Call the function
+        result = inspect_sparkle_feed_url(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify that function returns early when no usable items found
+        self.assertEqual(result["sparkle_feed"], "https://example.com/appcast.xml")
+        mock_inspect_download.assert_not_called()
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_sparkle_feed_user_agent_required(
+        self, mock_check_url, mock_download, mock_inspect_download
+    ):
+        """Test handling when user-agent is required to access feed."""
+        # Setup mocks
+        mock_check_url.return_value = (
+            "https://example.com/appcast.xml",
+            {"http_result_code": "200"},
+            "Mozilla/5.0",
+        )
+        mock_download.return_value = self.create_sample_sparkle_xml()
+        mock_inspect_download.return_value = self.facts
+
+        # Call the function
+        result = inspect_sparkle_feed_url(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify user-agent was recorded
+        self.assertEqual(result["user-agent"], "Mozilla/5.0")
+        self.assertTrue(any("user-agent" in warning for warning in result["warnings"]))
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_sparkle_feed_https_warning(
+        self, mock_check_url, mock_download, mock_inspect_download
+    ):
+        """Test warning for non-HTTPS Sparkle feeds."""
+        # Setup mocks with HTTP URL
+        mock_check_url.return_value = (
+            "http://example.com/appcast.xml",
+            {"http_result_code": "200"},
+            None,
+        )
+        mock_download.return_value = self.create_sample_sparkle_xml()
+        mock_inspect_download.return_value = self.facts
+
+        # Call the function
+        result = inspect_sparkle_feed_url(
+            "http://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify HTTPS warning was added
+        https_warnings = [w for w in result["warnings"] if "not using HTTPS" in w]
+        self.assertTrue(len(https_warnings) > 0)
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_sparkle_feed_skip_already_inspected(
+        self, mock_check_url, mock_download, mock_inspect_download
+    ):
+        """Test that function skips processing if already inspected."""
+        # Pre-populate inspections
+        self.facts["inspections"] = ["sparkle_feed_url"]
+
+        # Call the function
+        inspect_sparkle_feed_url(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify that no processing occurred
+        mock_check_url.assert_not_called()
+        mock_download.assert_not_called()
+        mock_inspect_download.assert_not_called()
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    def test_sparkle_feed_version_priority(
+        self, mock_check_url, mock_download, mock_inspect_download
+    ):
+        """Test that latest version is correctly determined by version priority."""
+        # XML with mixed version info
+        xml_mixed_versions = """<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>App Updates</title>
+        <item>
+            <title>Version 1.0.0</title>
+            <sparkle:version>3000</sparkle:version>
+            <enclosure url="https://example.com/app-1.0.0.dmg" type="application/octet-stream" />
+        </item>
+        <item>
+            <title>Version 2.0.0</title>
+            <sparkle:version>2000</sparkle:version>
+            <enclosure url="https://example.com/app-2.0.0.dmg" type="application/octet-stream" />
+        </item>
+    </channel>
+</rss>"""
+
+        # Setup mocks
+        mock_check_url.return_value = (
+            "https://example.com/appcast.xml",
+            {"http_result_code": "200"},
+            None,
+        )
+        mock_download.return_value = xml_mixed_versions
+        mock_inspect_download.return_value = self.facts
+
+        # Call the function
+        inspect_sparkle_feed_url(
+            "https://example.com/appcast.xml", self.args, self.facts
+        )
+
+        # Verify that the highest version (3000) was selected
+        mock_inspect_download.assert_called_once()
+        call_args = mock_inspect_download.call_args[0]
+        self.assertEqual(call_args[0], "https://example.com/app-1.0.0.dmg")
 
 
 if __name__ == "__main__":
