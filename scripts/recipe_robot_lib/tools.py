@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -24,8 +23,6 @@ This module of Recipe Robot contains various helper and tool functions that
 support the main `recipe-robot` script and the `recipe_generator.py` module.
 """
 
-
-from __future__ import absolute_import, print_function
 
 import json
 import os
@@ -118,7 +115,7 @@ KNOWN_403_ON_HEAD = (
 )
 
 
-class LogLevel(object):
+class LogLevel:
     """Correlate logging level of a message with designated colors for more
     readable output in Terminal."""
 
@@ -130,7 +127,7 @@ class LogLevel(object):
     WARNING = ("\033[1;38;5;208m", "WARNING")
 
 
-class OutputMode(object):
+class OutputMode:
     """Manage global output mode state with a singleton."""
 
     # Use --verbose command-line argument, or hard-code
@@ -228,9 +225,9 @@ def get_github_token():
     github_token_file = os.path.expanduser("~/.autopkg_gh_token")
     if os.path.isfile(github_token_file):
         try:
-            with open(github_token_file, "r") as tokenfile:
+            with open(github_token_file) as tokenfile:
                 return tokenfile.read().strip()
-        except IOError:
+        except OSError:
             print("WARNING: Couldn't read GitHub token file at %s." % github_token_file)
     return None
 
@@ -538,7 +535,7 @@ def check_search_cache(facts, search_index_path):
     if os.path.isfile(search_index_path) and os.path.isfile(
         search_index_path + ".etag"
     ):
-        with open(search_index_path + ".etag", "r", encoding="utf-8") as openfile:
+        with open(search_index_path + ".etag", encoding="utf-8") as openfile:
             local_etag = openfile.read().strip('"')
         if local_etag == cache_meta["sha"]:
             robo_print("Local search index cache is up to date.", LogLevel.VERBOSE, 4)
@@ -549,7 +546,7 @@ def check_search_cache(facts, search_index_path):
         openfile.write(cache_meta["sha"])
 
     # Write cache file
-    cmd = 'curl -sLo "%s" "%s" -H "Accept: application/vnd.github.v3.raw"' % (
+    cmd = 'curl -sLo "{}" "{}" -H "Accept: application/vnd.github.v3.raw"'.format(
         search_index_path,
         cache_meta_url,
     )
@@ -714,9 +711,7 @@ def congratulate(prefs, first_timer):
             else:
                 recipe_count = "{} recipes".format(prefs["RecipeCreateCount"])
             congrats = random_choice(congrats_msg)
-        robo_print(
-            "\nYou've created {} with Recipe Robot. {}\n".format(recipe_count, congrats)
-        )
+        robo_print(f"\nYou've created {recipe_count} with Recipe Robot. {congrats}\n")
 
 
 def robo_join(*args):

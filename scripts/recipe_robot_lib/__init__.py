@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -21,8 +20,6 @@
 recipe_robot_lib
 """
 
-
-from __future__ import absolute_import
 
 # TODO: We can import stuff better here to cut down on length of calls.
 from . import tools  # noqa: F401

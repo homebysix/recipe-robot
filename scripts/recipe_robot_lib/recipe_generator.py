@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -27,7 +26,6 @@ to create autopkg recipes for the specified app.
 # TODO: refactor code issuing warnings about missing processors/repos.
 # pylint: disable=no-member
 
-from __future__ import absolute_import
 
 import os
 
@@ -204,19 +202,19 @@ def build_recipes(facts, preferred, prefs):
 
         # Set the recipe filename (spaces are OK).
         if recipe["type"] == "jamf":
-            recipe["filename"] = "%s-pkg-upload.%s.recipe" % (
+            recipe["filename"] = "{}-pkg-upload.{}.recipe".format(
                 facts[bundle_name_key],
                 recipe["type"],
             )
         else:
-            recipe["filename"] = "%s.%s.recipe" % (
+            recipe["filename"] = "{}.{}.recipe".format(
                 facts[bundle_name_key],
                 recipe["type"],
             )
 
         # Set the recipe identifier.
         clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
-        keys["Identifier"] = "%s.%s.%s" % (
+        keys["Identifier"] = "{}.{}.{}".format(
             prefs["RecipeIdentifierPrefix"],
             recipe["type"],
             clean_name,

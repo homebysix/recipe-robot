@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -22,7 +21,6 @@ test_tools.py
 Unit tests for tools-related functions.
 """
 
-from __future__ import absolute_import
 
 import unittest
 from scripts.recipe_robot_lib.tools import strip_dev_suffix

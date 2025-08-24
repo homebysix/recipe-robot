@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -24,8 +23,6 @@ Recipe: Class for describing AutoPkg recipes along with metadata.
 Recipes: Container class for Recipe objects.
 """
 
-
-from __future__ import absolute_import
 
 import plistlib
 
@@ -86,7 +83,7 @@ class Recipe(RoboDict):
             recipe_type (str): Type of recipe (e.g. download, pkg, munki).
             description (str): Description of what the recipe does.
         """
-        super(Recipe, self).__init__()
+        super().__init__()
         default_enabled = ("download", "pkg")
         preferred = True if recipe_type in default_enabled else False
         self.update(
@@ -222,7 +219,7 @@ class Recipes(RoboList):
 
     def __init__(self):
         """Store information related to each supported recipe type."""
-        super(Recipes, self).__init__()
+        super().__init__()
         self.extend(
             [
                 Recipe(recipe_type["type"], recipe_type["desc"])

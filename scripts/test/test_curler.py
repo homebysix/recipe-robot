@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -23,8 +22,6 @@ test_curler.py
 Unit tests for curl-related functions.
 """
 
-
-from __future__ import absolute_import
 
 import json
 import os
@@ -301,7 +298,7 @@ class TestCurler(unittest.TestCase):
         url = "https://jsonplaceholder.typicode.com/todos/1"
         filepath = "/private/tmp/test_download_to_file"
         curler.download_to_file(url, filepath, app_mode=True)
-        with open(filepath, "r") as openfile:
+        with open(filepath) as openfile:
             actual = json.loads(openfile.read())
         expected = {
             "completed": False,

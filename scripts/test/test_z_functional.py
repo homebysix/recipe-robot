@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -27,8 +26,6 @@ Since it's apparently a thing, test scenarios are run by a fictional
 character. We will use "Robby the Robot" for ours.
 """
 
-
-from __future__ import absolute_import, print_function
 
 import os
 import plistlib
@@ -76,7 +73,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(
             proc.returncode,
             0,
-            "{}: Recipe Robot returned nonzero return code.".format(input_path),
+            f"{input_path}: Recipe Robot returned nonzero return code.",
         )
 
     def autopkg_runner(self, recipe_path):
@@ -93,7 +90,7 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual(
                 proc.returncode,
                 0,
-                "{}: AutoPkg returned nonzero return code.".format(recipe_path),
+                f"{recipe_path}: AutoPkg returned nonzero return code.",
             )
         finally:
             os.chdir(prevcwd)
@@ -119,7 +116,7 @@ class TestFunctional(unittest.TestCase):
         if recipe_type:
             path = os.path.join(path, f"{app_name}.{recipe_type}.recipe{extension}")
             if not os.path.exists(path):
-                print("[ERROR] {} does not exist.".format(path))
+                print(f"[ERROR] {path} does not exist.")
         return os.path.expanduser(path)
 
     def clean_folder(self, path):

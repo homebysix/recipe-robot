@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -22,7 +21,6 @@ test_inspect.py
 Unit tests for inspect-related functions.
 """
 
-from __future__ import absolute_import
 
 import unittest
 from unittest.mock import patch
