@@ -995,7 +995,7 @@ class TestInspectApp(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.os.path.basename")
     @patch("builtins.open")
     @patch("scripts.recipe_robot_lib.inspect.plistlib.load")
-    def test_disaster_warning(
+    def test_dad_joke(
         self,
         mock_plist_load,
         _mock_open_builtin,
@@ -1004,7 +1004,7 @@ class TestInspectApp(unittest.TestCase):
         mock_get_exitcode,
         mock_get_description,
     ):
-        """Test disaster-related humor warning."""
+        """Test dad joke."""
         mock_plist_load.return_value = self.create_mock_info_plist(
             CFBundleName="Disaster Recovery App"
         )
