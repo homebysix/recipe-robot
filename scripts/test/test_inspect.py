@@ -27,6 +27,7 @@ from unittest.mock import patch, MagicMock
 
 from scripts.recipe_robot_lib.inspect import (
     get_app_description,
+    get_download_link_from_xattr,
     html_decode,
     inspect_sparkle_feed_url,
     process_input_path,
@@ -1568,6 +1569,249 @@ Sealed Resources version=2 rules=13 files=245"""
         mock_inspect_sparkle.assert_called_once_with(
             expected_devmate_url, self.args, self.facts
         )
+
+
+class TestGetDownloadLinkFromXattr(unittest.TestCase):
+    """Tests for the get_download_link_from_xattr function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.facts = RoboDict()
+        self.facts["warnings"] = []
+        self.args = MagicMock()
+        self.test_path = "/tmp/test_file.dmg"
+
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
+    @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_successful_xattr_extraction(
+        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
+    ):
+        """Test successful extraction of download URL from xattr metadata."""
+        # Mock the extended attributes data
+        mock_getxattr.return_value = b"test_plist_data"
+        mock_plistlib_loads.return_value = [
+            "https://example.com/download.dmg",
+            "https://example.com/mirror.dmg",
+        ]
+
+        # Call the function
+        get_download_link_from_xattr(self.test_path, self.args, self.facts)
+
+        # Verify the correct xattr was queried
+        mock_getxattr.assert_called_once_with(
+            self.test_path, "com.apple.metadata:kMDItemWhereFroms"
+        )
+
+        # Verify plistlib.loads was called with the xattr data
+        mock_plistlib_loads.assert_called_once_with(b"test_plist_data")
+
+        # Verify the first URL was set as download_url
+        self.assertEqual(self.facts["download_url"], "https://example.com/download.dmg")
+
+        # Verify the success message was printed
+        mock_robo_print.assert_called_once()
+        call_args = mock_robo_print.call_args[0]
+        self.assertIn("Download URL found in file metadata", call_args[0])
+        self.assertIn("https://example.com/download.dmg", call_args[0])
+
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
+    @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_empty_where_froms_list(
+        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
+    ):
+        """Test when the where froms list is empty."""
+        # Mock empty list from plistlib
+        mock_getxattr.return_value = b"empty_plist_data"
+        mock_plistlib_loads.return_value = []
+
+        # Call the function
+        get_download_link_from_xattr(self.test_path, self.args, self.facts)
+
+        # Verify xattr was queried
+        mock_getxattr.assert_called_once_with(
+            self.test_path, "com.apple.metadata:kMDItemWhereFroms"
+        )
+
+        # Verify plistlib.loads was called
+        mock_plistlib_loads.assert_called_once_with(b"empty_plist_data")
+
+        # Verify no download_url was set
+        self.assertNotIn("download_url", self.facts)
+
+        # Verify no success message was printed (only called on failure)
+        mock_robo_print.assert_not_called()
+
+    @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_keyerror_handling(self, mock_robo_print, mock_getxattr):
+        """Test handling of KeyError when xattr doesn't exist."""
+        # Mock KeyError from getxattr
+        mock_getxattr.side_effect = KeyError("No such xattr")
+
+        # Call the function
+        get_download_link_from_xattr(self.test_path, self.args, self.facts)
+
+        # Verify xattr was queried
+        mock_getxattr.assert_called_once_with(
+            self.test_path, "com.apple.metadata:kMDItemWhereFroms"
+        )
+
+        # Verify no download_url was set
+        self.assertNotIn("download_url", self.facts)
+
+        # Verify error message was printed
+        mock_robo_print.assert_called_once()
+        call_args = mock_robo_print.call_args[0]
+        self.assertIn(
+            "Unable to derive a download URL from file metadata", call_args[0]
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_oserror_handling(self, mock_robo_print, mock_getxattr):
+        """Test handling of OSError when file doesn't exist or can't be accessed."""
+        # Mock OSError from getxattr
+        mock_getxattr.side_effect = OSError("File not found")
+
+        # Call the function
+        get_download_link_from_xattr(self.test_path, self.args, self.facts)
+
+        # Verify xattr was queried
+        mock_getxattr.assert_called_once_with(
+            self.test_path, "com.apple.metadata:kMDItemWhereFroms"
+        )
+
+        # Verify no download_url was set
+        self.assertNotIn("download_url", self.facts)
+
+        # Verify error message was printed
+        mock_robo_print.assert_called_once()
+        call_args = mock_robo_print.call_args[0]
+        self.assertIn(
+            "Unable to derive a download URL from file metadata", call_args[0]
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
+    @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_plistlib_exception_handling(
+        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
+    ):
+        """Test handling when plistlib fails to parse the xattr data."""
+        # Mock successful xattr retrieval but failed plist parsing
+        mock_getxattr.return_value = b"invalid_plist_data"
+        mock_plistlib_loads.side_effect = Exception("Invalid plist format")
+
+        # Call the function - this should raise the exception since it's not caught
+        with self.assertRaises(Exception):
+            get_download_link_from_xattr(self.test_path, self.args, self.facts)
+
+        # Verify xattr was queried
+        mock_getxattr.assert_called_once_with(
+            self.test_path, "com.apple.metadata:kMDItemWhereFroms"
+        )
+
+        # Verify plistlib.loads was called
+        mock_plistlib_loads.assert_called_once_with(b"invalid_plist_data")
+
+        # Verify no download_url was set
+        self.assertNotIn("download_url", self.facts)
+
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
+    @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_multiple_urls_takes_first(
+        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
+    ):
+        """Test that when multiple URLs exist, the first one is used."""
+        # Mock multiple URLs in the where froms
+        mock_getxattr.return_value = b"multi_url_plist_data"
+        mock_plistlib_loads.return_value = [
+            "https://first.example.com/download.dmg",
+            "https://second.example.com/download.dmg",
+            "https://third.example.com/download.dmg",
+        ]
+
+        # Call the function
+        get_download_link_from_xattr(self.test_path, self.args, self.facts)
+
+        # Verify the first URL was set as download_url
+        self.assertEqual(
+            self.facts["download_url"], "https://first.example.com/download.dmg"
+        )
+
+        # Verify the success message mentions the first URL
+        mock_robo_print.assert_called_once()
+        call_args = mock_robo_print.call_args[0]
+        self.assertIn("https://first.example.com/download.dmg", call_args[0])
+
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
+    @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_function_modifies_facts_in_place(
+        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
+    ):
+        """Test that the function modifies the facts dictionary in place."""
+        # Mock successful xattr extraction
+        mock_getxattr.return_value = b"test_plist_data"
+        mock_plistlib_loads.return_value = ["https://example.com/download.dmg"]
+
+        # Store original facts object reference
+        original_facts = self.facts
+
+        # Call the function
+        get_download_link_from_xattr(self.test_path, self.args, self.facts)
+
+        # Verify the same facts object was modified
+        self.assertIs(self.facts, original_facts)
+        self.assertEqual(self.facts["download_url"], "https://example.com/download.dmg")
+
+    @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
+    @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_preserves_existing_facts(
+        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
+    ):
+        """Test that function preserves existing facts when adding download_url."""
+        # Pre-populate facts with some data
+        self.facts["app_name"] = "Test App"
+        self.facts["bundle_id"] = "com.example.testapp"
+
+        # Mock successful xattr extraction
+        mock_getxattr.return_value = b"test_plist_data"
+        mock_plistlib_loads.return_value = ["https://example.com/download.dmg"]
+
+        # Call the function
+        get_download_link_from_xattr(self.test_path, self.args, self.facts)
+
+        # Verify existing facts are preserved
+        self.assertEqual(self.facts["app_name"], "Test App")
+        self.assertEqual(self.facts["bundle_id"], "com.example.testapp")
+
+        # Verify new fact was added
+        self.assertEqual(self.facts["download_url"], "https://example.com/download.dmg")
+
+    def test_function_signature_and_docstring(self):
+        """Test that the function has the expected signature and docstring."""
+        import inspect
+
+        # Get function signature
+        sig = inspect.signature(get_download_link_from_xattr)
+        params = list(sig.parameters.keys())
+
+        # Verify parameter names
+        expected_params = ["input_path", "args", "facts"]
+        self.assertEqual(params, expected_params)
+
+        # Verify docstring exists and has expected content
+        docstring = get_download_link_from_xattr.__doc__
+        self.assertIsNotNone(docstring)
+        if docstring:
+            self.assertIn("Attempts to derive download URL", docstring)
+            self.assertIn("extended attribute", docstring)
+            self.assertIn("xattr", docstring)
 
 
 if __name__ == "__main__":
