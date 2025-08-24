@@ -23,11 +23,17 @@ Unit tests for tools-related functions.
 
 
 import unittest
+import tempfile
+import os
+from unittest.mock import patch
+
+from scripts.recipe_robot_lib import tools
+from scripts.recipe_robot_lib.facts import Facts
 from scripts.recipe_robot_lib.tools import strip_dev_suffix
 
 
-class TestStripDevSuffix(unittest.TestCase):
-    """Tests for the strip_dev_suffix function."""
+class TestTools(unittest.TestCase):
+    """Tests for tools.py."""
 
     def test_strip_dev_suffix_with_none(self):
         """Test that None input returns None."""
@@ -260,6 +266,104 @@ class TestStripDevSuffix(unittest.TestCase):
             with self.subTest(input_name=input_name):
                 result = strip_dev_suffix(input_name)
                 self.assertEqual(result, expected)
+
+    def test_normalize_keyword_basic(self):
+        """Test normalize_keyword function."""
+        test_cases = [
+            ("Test Keyword", "testkeyword"),
+            ("with-dashes", "withdashes"),
+            ("Multiple   Spaces", "multiplespaces"),
+            ("MixedCase", "mixedcase"),
+            ("", ""),
+        ]
+
+        for input_keyword, expected in test_cases:
+            with self.subTest(input_keyword=input_keyword):
+                result = tools.normalize_keyword(input_keyword)
+                self.assertEqual(result, expected)
+
+    @patch("scripts.recipe_robot_lib.tools.get_exitcode_stdout_stderr")
+    def test_get_user_defaults_failure(self, mock_exec):
+        """Test get_user_defaults when defaults command fails."""
+        # Mock failed defaults read
+        mock_exec.return_value = (1, "", "Error message")
+
+        result = tools.get_user_defaults()
+
+        # Should return current state on failure (function doesn't return empty dict)
+        self.assertIsInstance(result, dict)
+
+    def test_get_bundle_name_info_no_bundles(self):
+        """Test get_bundle_name_info when no recognized bundles exist."""
+        # Create Facts object with empty inspections
+        facts = Facts()
+        facts["inspections"] = {}
+
+        bundle_type, bundle_name_key = tools.get_bundle_name_info(facts)
+
+        # Should return None values when no bundles found
+        self.assertIsNone(bundle_type)
+        self.assertIsNone(bundle_name_key)
+
+    def test_get_table_row_empty_input(self):
+        """Test get_table_row with empty inputs."""
+        result = tools.get_table_row("", "")
+
+        self.assertIsInstance(result, str)
+
+
+class TestToolsFilesystemFunctions(unittest.TestCase):
+    """Test filesystem-related functions in tools module."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """Clean up test fixtures."""
+        # Clean up temp directory
+        import shutil
+
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    @patch("scripts.recipe_robot_lib.tools.robo_print")
+    def test_print_welcome_text(self, mock_print):
+        """Test print_welcome_text function."""
+        tools.print_welcome_text()
+
+        # Should call robo_print
+        self.assertTrue(mock_print.called)
+
+    @patch("scripts.recipe_robot_lib.tools.robo_print")
+    def test_print_death_text(self, mock_print):
+        """Test print_death_text function."""
+        tools.print_death_text()
+
+        # Should call robo_print
+        self.assertTrue(mock_print.called)
+
+    def test_reset_term_colors(self):
+        """Test reset_term_colors function."""
+        # Function should not raise an exception
+        try:
+            tools.reset_term_colors()
+        except Exception as e:
+            self.fail(f"reset_term_colors raised an exception: {e}")
+
+
+class TestToolsSearchFunctions(unittest.TestCase):
+    """Test search-related functions in tools module."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.cache_file = os.path.join(self.temp_dir, "test_cache.json")
+
+    def tearDown(self):
+        """Clean up test fixtures."""
+        import shutil
+
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":
