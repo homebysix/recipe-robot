@@ -847,6 +847,23 @@ def generate_munki_recipe(facts, prefs, recipe):
     recipe.append_processor(munki_importer)
 
     # Extract the app's icon and save it to disk.
+    extract_icon_for_recipe(facts, prefs)
+
+    return recipe
+
+
+def extract_icon_for_recipe(facts, prefs):
+    """Extract the app's icon and save it to disk if icon path is available.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+    """
+    _, bundle_name_key = get_bundle_name_info(facts)
+
     if "icon_path" in facts:
         extracted_icon = robo_join(
             recipe_dirpath(facts[bundle_name_key], facts.get("developer", None), prefs),
@@ -857,8 +874,6 @@ def generate_munki_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "I don't have enough information to create a PNG icon for this app."
         )
-
-    return recipe
 
 
 def get_pkgdirs(path):
@@ -1345,6 +1360,9 @@ def generate_jamf_recipe(facts, prefs, recipe):
             "Arguments": jamfpackageuploader_args,
         }
     )
+
+    # Extract the app's icon and save it to disk.
+    extract_icon_for_recipe(facts, prefs)
 
     return recipe
 

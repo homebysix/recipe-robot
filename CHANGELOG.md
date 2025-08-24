@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - Fixed issue with app description parsing that was causing most descriptions to show "Popular multimedia player."
 - Fixed redundant versioning caused by Recipe Robot's treatment of Sparkle feeds being out of date with SparkleUpdateInfoProvider (#207).
+- Restored icon extraction when Jamf recipes (but not Munki) are selected in user preferences (#203).
 
 ### Changed
 
