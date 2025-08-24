@@ -2151,7 +2151,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Determine what information the Sparkle feed provides.
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
     sparkle_ns = "{http://www.andymatuschak.org/xml-namespaces/sparkle}"
-    sparkle_provides_version = False
     sparkle_info = []
     for item in doc.iterfind("channel/item"):
         try:
@@ -2165,8 +2164,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         for encl in item.iterfind("enclosure"):
             encl_vers = encl.get(sparkle_ns + "version")
             encl_shortvers = encl.get(sparkle_ns + "shortVersionString")
-            if any([item_vers, item_shortvers, encl_vers, encl_shortvers]):
-                sparkle_provides_version = True
             sparkle_info.append(
                 {
                     "url": encl.attrib.get("url", ""),
@@ -2192,18 +2189,17 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         except AttributeError:
             continue
 
-    if sparkle_provides_version:
-        robo_print("The Sparkle feed provides a version number", LogLevel.VERBOSE, 4)
-        for key in ("version", "shortVersionString"):
+    # SparkleUpdateInfoProvider always provides version information when it processes
+    # a valid Sparkle feed with usable items. It will use human_version if available,
+    # otherwise the machine-readable version, or extract version from the URL as a
+    # last resort. This matches AutoPkg's SparkleUpdateInfoProvider behavior.
+    sparkle_provides_version = True
+    robo_print("The Sparkle feed provides a version number", LogLevel.VERBOSE, 4)
+    for key in ("version", "shortVersionString"):
+        if latest_info.get(key):
             robo_print(
                 "The latest {} is {}".format(key, latest_info[key]), LogLevel.VERBOSE, 4
             )
-    else:
-        robo_print(
-            "The Sparkle feed does not provide a version number",
-            LogLevel.VERBOSE,
-            4,
-        )
     facts["sparkle_provides_version"] = sparkle_provides_version
 
     # Pass latest URL to download URL inspection function.
