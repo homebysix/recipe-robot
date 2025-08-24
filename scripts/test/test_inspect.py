@@ -29,6 +29,7 @@ from scripts.recipe_robot_lib.inspect import (
     get_app_description,
     get_download_link_from_xattr,
     html_decode,
+    inspect_download_url,
     inspect_sparkle_feed_url,
     process_input_path,
 )
@@ -1812,6 +1813,770 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
             self.assertIn("Attempts to derive download URL", docstring)
             self.assertIn("extended attribute", docstring)
             self.assertIn("xattr", docstring)
+
+
+class TestInspectDownloadUrl(unittest.TestCase):
+    """Tests for the inspect_download_url function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.facts = RoboDict()
+        self.facts["warnings"] = []
+        self.facts["inspections"] = []
+        self.args = MagicMock()
+        self.args.app_mode = False
+        self.facts["args"] = self.args  # Add args to facts as expected by function
+        self.test_url = "https://example.com/test.dmg"
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_sparkle_feed_url")
+    @patch("scripts.recipe_robot_lib.inspect.inspect_disk_image")
+    @patch("scripts.recipe_robot_lib.inspect.os.remove")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_basic_download_url_processing(
+        self,
+        mock_robo_print,
+        mock_check_url,
+        mock_download_to_file,
+        mock_open,
+        mock_remove,
+        mock_inspect_disk_image,
+        mock_inspect_sparkle,
+    ):
+        """Test basic processing of a download URL."""
+        # Setup mocks
+        mock_check_url.return_value = (
+            "https://example.com/test.dmg",
+            {
+                "http_result_code": "200",
+                "content-type": "application/x-apple-diskimage",
+            },
+            None,
+        )
+        mock_download_to_file.return_value = None
+
+        # Mock file content reading to simulate a DMG file
+        mock_file = MagicMock()
+        mock_file.read.return_value = b"dmg_binary_content"
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        mock_inspect_disk_image.return_value = self.facts
+
+        # Call the function
+        result = inspect_download_url(self.test_url, self.args, self.facts)
+
+        # Verify basic results
+        self.assertEqual(result["download_url"], self.test_url)
+        self.assertFalse(result["is_from_app_store"])
+        self.assertEqual(result["download_filename"], "test.dmg")
+        self.assertEqual(result["download_format"], "dmg")
+        self.assertFalse(result["specify_filename"])
+
+        # Verify URL checking was called
+        mock_check_url.assert_called_once_with(self.test_url, headers={})
+
+        # Verify download was called
+        mock_download_to_file.assert_called_once()
+
+        # Verify disk image inspection was called
+        mock_inspect_disk_image.assert_called_once()
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_url_stripping(self, mock_robo_print, mock_check_url):
+        """Test that leading and trailing spaces are stripped from URLs."""
+        # Setup mocks
+        mock_check_url.return_value = (
+            "https://example.com/test.dmg",
+            {"http_result_code": "200"},
+            None,
+        )
+
+        # Test URL with spaces
+        url_with_spaces = "  https://example.com/test.dmg  "
+
+        # Mock the rest of the function to avoid full execution
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(url_with_spaces, self.args, self.facts)
+
+        # Verify the URL was stripped
+        self.assertEqual(result["download_url"], "https://example.com/test.dmg")
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_github_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_github_url_detection(
+        self, mock_robo_print, mock_check_url, mock_inspect_github
+    ):
+        """Test detection and inspection of GitHub URLs."""
+        test_urls = [
+            "https://github.com/user/repo/releases/download/v1.0/app.dmg",
+            "https://githubusercontent.com/user/repo/main/app.dmg",
+        ]
+
+        mock_check_url.return_value = (
+            "https://github.com/user/repo/releases/download/v1.0/app.dmg",
+            {"http_result_code": "200"},
+            None,
+        )
+        mock_inspect_github.return_value = self.facts
+
+        for test_url in test_urls:
+            with self.subTest(url=test_url):
+                # Reset mocks
+                mock_inspect_github.reset_mock()
+                test_facts = RoboDict()
+                test_facts["warnings"] = []
+                test_facts["inspections"] = []
+                test_facts["args"] = self.args
+
+                # Mock the rest of the function
+                with patch(
+                    "scripts.recipe_robot_lib.inspect.curler.download_to_file"
+                ), patch("builtins.open"), patch(
+                    "scripts.recipe_robot_lib.inspect.inspect_disk_image"
+                ) as mock_inspect:
+                    mock_inspect.return_value = test_facts
+
+                    # Call the function
+                    inspect_download_url(test_url, self.args, test_facts)
+
+                # Verify GitHub inspection was called
+                mock_inspect_github.assert_called_once_with(
+                    test_url, self.args, test_facts
+                )
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_sourceforge_url")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_sourceforge_url_detection(
+        self, mock_robo_print, mock_check_url, mock_inspect_sourceforge
+    ):
+        """Test detection and inspection of SourceForge URLs."""
+        test_url = "https://sourceforge.net/projects/test/files/app.dmg"
+
+        mock_check_url.return_value = (test_url, {"http_result_code": "200"}, None)
+        mock_inspect_sourceforge.return_value = self.facts
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            inspect_download_url(test_url, self.args, self.facts)
+
+        # Verify SourceForge inspection was called
+        mock_inspect_sourceforge.assert_called_once_with(
+            test_url, self.args, self.facts
+        )
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_version_specific_url_warning(self, mock_robo_print, mock_check_url):
+        """Test warning for version-specific URLs."""
+        version_specific_url = "https://example.com/app-1.2.3.dmg"
+
+        mock_check_url.return_value = (
+            version_specific_url,
+            {"http_result_code": "200"},
+            None,
+        )
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(version_specific_url, self.args, self.facts)
+
+        # Verify warning was added
+        warning_found = any(
+            "version-specific URL" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_cdn_url_warning(self, mock_robo_print, mock_check_url):
+        """Test warning for CDN URLs with expiration."""
+        cdn_url = "https://cdn.example.com/file.dmg?Expires=1234567890"
+
+        mock_check_url.return_value = (cdn_url, {"http_result_code": "200"}, None)
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(cdn_url, self.args, self.facts)
+
+        # Verify warning was added
+        warning_found = any(
+            "CDN-cached URL" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_aws_access_key_warning(self, mock_robo_print, mock_check_url):
+        """Test warning for AWS URLs with access keys."""
+        aws_url = "https://s3.amazonaws.com/bucket/file.dmg?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE"
+
+        mock_check_url.return_value = (aws_url, {"http_result_code": "200"}, None)
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(aws_url, self.args, self.facts)
+
+        # Verify warning was added
+        warning_found = any(
+            "AWSAccessKeyId parameter" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_specify_filename_detection(self, mock_robo_print, mock_check_url):
+        """Test detection of URLs that need filename specified."""
+        test_cases = [
+            ("https://example.com/download?id=123", True),  # needs filename
+            ("https://example.com/app.dmg", False),  # doesn't need filename
+        ]
+
+        for url, should_specify in test_cases:
+            with self.subTest(url=url, should_specify=should_specify):
+                mock_check_url.return_value = (url, {"http_result_code": "200"}, None)
+
+                test_facts = RoboDict()
+                test_facts["warnings"] = []
+                test_facts["inspections"] = []
+                test_facts["args"] = self.args
+
+                # Mock the rest of the function
+                with patch(
+                    "scripts.recipe_robot_lib.inspect.curler.download_to_file"
+                ), patch("builtins.open"), patch(
+                    "scripts.recipe_robot_lib.inspect.inspect_disk_image"
+                ) as mock_inspect_disk, patch(
+                    "scripts.recipe_robot_lib.inspect.inspect_archive"
+                ) as mock_inspect_archive, patch(
+                    "scripts.recipe_robot_lib.inspect.inspect_pkg"
+                ) as mock_inspect_pkg:
+
+                    # Make sure all inspection functions return without doing anything
+                    mock_inspect_disk.return_value = test_facts
+                    mock_inspect_archive.return_value = test_facts
+                    mock_inspect_pkg.return_value = test_facts
+
+                    # Call the function
+                    result = inspect_download_url(url, self.args, test_facts)
+
+                # Verify specify_filename is set correctly
+                self.assertEqual(result["specify_filename"], should_specify)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_github_token_headers(self, mock_robo_print, mock_check_url):
+        """Test that GitHub token is included in headers when available."""
+        github_url = "https://github.com/user/repo/releases/download/v1.0/app.dmg"
+
+        # Mock GITHUB_TOKEN
+        with patch(
+            "scripts.recipe_robot_lib.inspect.GITHUB_TOKEN", "test_token"
+        ), patch(
+            "scripts.recipe_robot_lib.inspect.any_item_in_string", return_value=True
+        ):
+
+            mock_check_url.return_value = (
+                github_url,
+                {"http_result_code": "200"},
+                None,
+            )
+
+            # Mock the rest of the function
+            with patch(
+                "scripts.recipe_robot_lib.inspect.curler.download_to_file"
+            ) as mock_download, patch("builtins.open"), patch(
+                "scripts.recipe_robot_lib.inspect.inspect_disk_image"
+            ) as mock_inspect:
+                mock_inspect.return_value = self.facts
+
+                # Call the function
+                inspect_download_url(github_url, self.args, self.facts)
+
+            # Verify headers were passed correctly
+            expected_headers = {"Authorization": "token test_token"}
+            mock_check_url.assert_called_once_with(github_url, headers=expected_headers)
+            mock_download.assert_called_once()
+            call_args = mock_download.call_args
+            self.assertEqual(call_args[1]["headers"], expected_headers)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_http_error_warning(self, mock_robo_print, mock_check_url):
+        """Test warning for HTTP error responses."""
+        mock_check_url.return_value = (
+            self.test_url,
+            {"http_result_code": "404"},
+            None,
+        )
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(self.test_url, self.args, self.facts)
+
+        # Verify warning was added
+        warning_found = any(
+            "Error encountered during file download HEAD check" in warning
+            for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_user_agent_detection(self, mock_robo_print, mock_check_url):
+        """Test detection and handling of required user-agent."""
+        mock_check_url.return_value = (
+            self.test_url,
+            {"http_result_code": "200"},
+            "Mozilla/5.0 Custom Agent",
+        )
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(self.test_url, self.args, self.facts)
+
+        # Verify user-agent was recorded
+        self.assertEqual(result["user-agent"], "Mozilla/5.0 Custom Agent")
+
+        # Verify warning was added
+        warning_found = any(
+            "different user-agent" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_http_url_warning(self, mock_robo_print, mock_check_url):
+        """Test warning for non-HTTPS URLs."""
+        http_url = "http://example.com/test.dmg"
+        mock_check_url.return_value = (http_url, {"http_result_code": "200"}, None)
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(http_url, self.args, self.facts)
+
+        # Verify warning was added
+        warning_found = any(
+            "not using HTTPS" in warning for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_unusual_content_type_warning(self, mock_robo_print, mock_check_url):
+        """Test warning for unusual content types."""
+        mock_check_url.return_value = (
+            self.test_url,
+            {
+                "http_result_code": "200",
+                "content-type": "text/html",
+            },
+            None,
+        )
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(self.test_url, self.args, self.facts)
+
+        # Verify warning was added
+        warning_found = any(
+            "content-type (text/html) is unusual" in warning
+            for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_content_disposition_filename(self, mock_robo_print, mock_check_url):
+        """Test filename extraction from content-disposition header."""
+        mock_check_url.return_value = (
+            "https://example.com/download?id=123",
+            {
+                "http_result_code": "200",
+                "content-disposition": 'attachment; filename="actual-app.dmg";',
+            },
+            None,
+        )
+
+        # Mock the rest of the function
+        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
+            "builtins.open"
+        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(
+                "https://example.com/download?id=123", self.args, self.facts
+            )
+
+        # Verify filename was extracted from content-disposition
+        self.assertEqual(result["download_filename"], "actual-app.dmg")
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_sparkle_feed_url")
+    @patch("scripts.recipe_robot_lib.inspect.os.remove")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_sparkle_feed_detection(
+        self,
+        mock_robo_print,
+        mock_check_url,
+        mock_download_to_file,
+        mock_open,
+        mock_remove,
+        mock_inspect_sparkle,
+    ):
+        """Test detection of Sparkle feeds disguised as downloads."""
+        mock_check_url.return_value = (self.test_url, {"http_result_code": "200"}, None)
+        mock_download_to_file.return_value = None
+
+        # Mock file content to simulate a Sparkle feed
+        mock_file = MagicMock()
+        mock_file.read.return_value = b'<?xml version="1.0" encoding="utf-8"?><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">'
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        mock_inspect_sparkle.return_value = self.facts
+
+        # Call the function
+        _ = inspect_download_url(self.test_url, self.args, self.facts)
+
+        # Verify file was removed and Sparkle inspection was called
+        mock_remove.assert_called_once()
+        mock_inspect_sparkle.assert_called_once_with(
+            self.test_url, self.args, self.facts
+        )
+
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_xml_error_detection(
+        self, mock_robo_print, mock_check_url, mock_download_to_file, mock_open
+    ):
+        """Test detection of XML error responses."""
+        mock_check_url.return_value = (self.test_url, {"http_result_code": "200"}, None)
+        mock_download_to_file.return_value = None
+
+        # Mock file content to simulate an XML error
+        mock_file = MagicMock()
+        mock_file.read.return_value = b"<error>File not found</error>"
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        # Mock the rest of the function to avoid format detection
+        with patch(
+            "scripts.recipe_robot_lib.inspect.inspect_disk_image"
+        ) as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(self.test_url, self.args, self.facts)
+
+        # Verify warning was added
+        warning_found = any(
+            "XML file was downloaded instead" in warning
+            for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_html_download_detection(
+        self, mock_robo_print, mock_check_url, mock_download_to_file, mock_open
+    ):
+        """Test detection of HTML pages downloaded instead of files."""
+        mock_check_url.return_value = (self.test_url, {"http_result_code": "200"}, None)
+        mock_download_to_file.return_value = None
+
+        # Mock file content to simulate HTML
+        mock_file = MagicMock()
+        mock_file.read.side_effect = [
+            b"binary_data_first_256_bytes",  # First read for Sparkle check
+            b"<html><head><title>404</title>",  # Second read for HTML check
+        ]
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        # Mock the rest of the function
+        with patch(
+            "scripts.recipe_robot_lib.inspect.inspect_disk_image"
+        ) as mock_inspect:
+            mock_inspect.return_value = self.facts
+
+            # Call the function
+            result = inspect_download_url(self.test_url, self.args, self.facts)
+
+        # Verify warning was added
+        warning_found = any(
+            "webpage was downloaded instead" in warning
+            for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_archive")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_archive_format_detection(
+        self,
+        mock_robo_print,
+        mock_check_url,
+        mock_download_to_file,
+        mock_open,
+        mock_inspect_archive,
+    ):
+        """Test detection and handling of archive formats."""
+        archive_url = "https://example.com/test.zip"
+        mock_check_url.return_value = (archive_url, {"http_result_code": "200"}, None)
+        mock_download_to_file.return_value = None
+
+        # Mock file content
+        mock_file = MagicMock()
+        mock_file.read.return_value = b"zip_binary_content"
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        mock_inspect_archive.return_value = self.facts
+
+        # Call the function
+        result = inspect_download_url(archive_url, self.args, self.facts)
+
+        # Verify archive inspection was called
+        mock_inspect_archive.assert_called_once()
+        self.assertEqual(result["download_format"], "zip")
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_pkg")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_pkg_format_detection(
+        self,
+        mock_robo_print,
+        mock_check_url,
+        mock_download_to_file,
+        mock_open,
+        mock_inspect_pkg,
+    ):
+        """Test detection and handling of package formats."""
+        pkg_url = "https://example.com/test.pkg"
+        mock_check_url.return_value = (pkg_url, {"http_result_code": "200"}, None)
+        mock_download_to_file.return_value = None
+
+        # Mock file content
+        mock_file = MagicMock()
+        mock_file.read.return_value = b"pkg_binary_content"
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        mock_inspect_pkg.return_value = self.facts
+
+        # Call the function
+        result = inspect_download_url(pkg_url, self.args, self.facts)
+
+        # Verify package inspection was called
+        mock_inspect_pkg.assert_called_once()
+        self.assertEqual(result["download_format"], "pkg")
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_disk_image")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_mime_type_format_detection(
+        self,
+        mock_robo_print,
+        mock_check_url,
+        mock_download_to_file,
+        mock_open,
+        mock_inspect_disk_image,
+    ):
+        """Test format detection based on MIME type when filename is ambiguous."""
+        ambiguous_url = "https://example.com/download?id=123"
+        mock_check_url.return_value = (
+            ambiguous_url,
+            {
+                "http_result_code": "200",
+                "content-type": "application/x-apple-diskimage",
+            },
+            None,
+        )
+        mock_download_to_file.return_value = None
+
+        # Mock file content
+        mock_file = MagicMock()
+        mock_file.read.return_value = b"dmg_binary_content"
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        mock_inspect_disk_image.return_value = self.facts
+
+        # Call the function
+        result = inspect_download_url(ambiguous_url, self.args, self.facts)
+
+        # Verify disk image inspection was called based on MIME type
+        mock_inspect_disk_image.assert_called_once()
+        self.assertEqual(result["download_format"], "dmg")
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_pkg")
+    @patch("scripts.recipe_robot_lib.inspect.inspect_archive")
+    @patch("scripts.recipe_robot_lib.inspect.inspect_disk_image")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_format_guessing_fallback(
+        self,
+        mock_robo_print,
+        mock_check_url,
+        mock_download_to_file,
+        mock_open,
+        mock_inspect_disk_image,
+        mock_inspect_archive,
+        mock_inspect_pkg,
+    ):
+        """Test fallback format guessing when no format can be determined."""
+        ambiguous_url = "https://example.com/download"
+        mock_check_url.return_value = (
+            ambiguous_url,
+            {"http_result_code": "200"},
+            None,
+        )
+        mock_download_to_file.return_value = None
+
+        # Mock file content
+        mock_file = MagicMock()
+        mock_file.read.return_value = b"unknown_binary_content"
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        # Mock inspection functions to simulate unsuccessful attempts
+        test_facts = RoboDict()
+        test_facts["warnings"] = []
+        test_facts["inspections"] = []
+        test_facts["args"] = self.args
+
+        mock_inspect_disk_image.return_value = test_facts
+        mock_inspect_archive.return_value = test_facts
+        mock_inspect_pkg.return_value = test_facts
+
+        # Call the function
+        result = inspect_download_url(ambiguous_url, self.args, test_facts)
+
+        # Verify warning about unknown format was added
+        warning_found = any(
+            "not sure what the download format is" in warning
+            for warning in result["warnings"]
+        )
+        self.assertTrue(warning_found)
+
+        # Verify all inspection methods were tried
+        mock_inspect_disk_image.assert_called()
+        mock_inspect_archive.assert_called()
+        mock_inspect_pkg.assert_called()
+
+    @patch("scripts.recipe_robot_lib.inspect.inspect_disk_image")
+    @patch("builtins.open")
+    @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
+    @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
+    @patch("scripts.recipe_robot_lib.inspect.robo_print")
+    def test_early_return_when_app_already_inspected(
+        self,
+        mock_robo_print,
+        mock_check_url,
+        mock_download_to_file,
+        mock_open,
+        mock_inspect_disk_image,
+    ):
+        """Test early return when app and download format are already known."""
+        # Pre-populate facts
+        self.facts["download_format"] = "dmg"
+        self.facts["inspections"] = ["app"]
+
+        mock_check_url.return_value = (self.test_url, {"http_result_code": "200"}, None)
+        mock_download_to_file.return_value = None
+
+        # Mock file content
+        mock_file = MagicMock()
+        mock_file.read.return_value = b"dmg_binary_content"
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        # Call the function
+        result = inspect_download_url(self.test_url, self.args, self.facts)
+
+        # Verify disk image inspection was NOT called (early return)
+        mock_inspect_disk_image.assert_not_called()
+
+        # Verify basic facts were still set
+        self.assertEqual(result["download_url"], self.test_url)
+        self.assertEqual(result["download_format"], "dmg")
+
+    def test_function_signature_and_docstring(self):
+        """Test that the function has the expected signature and docstring."""
+        import inspect
+
+        # Get function signature
+        sig = inspect.signature(inspect_download_url)
+        params = list(sig.parameters.keys())
+
+        # Verify parameter names
+        expected_params = ["input_path", "args", "facts"]
+        self.assertEqual(params, expected_params)
+
+        # Verify docstring exists and has expected content
+        docstring = inspect_download_url.__doc__
+        self.assertIsNotNone(docstring)
+        if docstring:
+            self.assertIn("Process a download URL", docstring)
+            self.assertIn("gathering information required", docstring)
+            self.assertIn("AutoPkg recipes", docstring)
 
 
 if __name__ == "__main__":
