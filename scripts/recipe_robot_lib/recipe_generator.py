@@ -50,6 +50,9 @@ from .tools import (
     timed,
 )
 
+# Recipe generator function registry - will be populated after function definitions
+RECIPE_GENERATORS = {}
+
 
 @timed
 def generate_recipes(facts, prefs):
@@ -266,21 +269,18 @@ def get_generation_func(facts, prefs, recipe):
         recipe (Recipe): Object representing the recipe being generated.
 
     Returns:
-        str: String representing the function that is used to generate this
-            recipe type.
+        callable or None: Function that generates the specified recipe type,
+            or None if the recipe type is not supported or enabled.
     """
     if recipe["type"] not in prefs["RecipeTypes"]:
         return None
 
-    func_name = ["generate", recipe["type"].replace("-", "_"), "recipe"]
-
+    # Build the key for lookup in the registry
+    key = recipe["type"].replace("-", "_")
     if recipe["type"] in ("munki", "pkg") and facts.is_from_app_store():
-        func_name.insert(1, "app_store")
+        key = f"app_store_{key}"
 
-    # TODO: This is a hack until I can use AbstractFactory for this.
-    generation_func = globals()["_".join(func_name)]
-
-    return generation_func
+    return RECIPE_GENERATORS.get(key)
 
 
 def generate_download_recipe(facts, prefs, recipe):
@@ -1785,3 +1785,22 @@ def warn_about_appstoreapp_pyasn(facts):
         "already. More information:\n"
         "https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe"
     )
+
+
+# Initialize the recipe generator registry after all functions are defined
+RECIPE_GENERATORS.update(
+    {
+        "download": generate_download_recipe,
+        "munki": generate_munki_recipe,
+        "app_store_munki": generate_app_store_munki_recipe,
+        "pkg": generate_pkg_recipe,
+        "app_store_pkg": generate_app_store_pkg_recipe,
+        "install": generate_install_recipe,
+        "jamf": generate_jamf_recipe,
+        "lanrev": generate_lanrev_recipe,
+        "sccm": generate_sccm_recipe,
+        "filewave": generate_filewave_recipe,
+        "ds": generate_ds_recipe,
+        "bigfix": generate_bigfix_recipe,
+    }
+)
