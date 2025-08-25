@@ -54,6 +54,7 @@ __version__ = "2.3.3"
 ENDC = "\033[0m"
 BUNDLE_ID = "com.elliotjordan.recipe-robot"
 PREFS_FILE = os.path.expanduser("~/Library/Preferences/%s.plist" % BUNDLE_ID)
+DEFAULT_RECIPE_OUTPUT_PATH = os.path.expanduser("~/Library/AutoPkg/Recipe Robot Output")
 
 # Build the list of download formats we know about.
 SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
@@ -320,7 +321,14 @@ def recipe_dirpath(app_name, dev, prefs):
     char_replacements = (("/", "-"), ("\\", "-"), (":", "-"), ("*", "-"), ("?", ""))
     for char in char_replacements:
         app_name = app_name.replace(char[0], char[1])
-    path_components = [prefs["RecipeCreateLocation"]]
+
+    # Ensure we have a valid RecipeCreateLocation, use default if missing
+    recipe_location = prefs.get("RecipeCreateLocation")
+    if not recipe_location:
+        recipe_location = DEFAULT_RECIPE_OUTPUT_PATH
+        prefs["RecipeCreateLocation"] = recipe_location
+
+    path_components = [recipe_location]
     if dev is not None:
         # TODO: Put this in the preferences.
         if prefs.get("StripDeveloperSuffixes", False) is True:
@@ -349,8 +357,14 @@ def create_dest_dirs(path):
     if not os.path.exists(dest_dir):
         try:
             os.makedirs(dest_dir)
+            robo_print("Created recipe output directory: %s" % dest_dir)
         except OSError as error:
-            raise RoboError("Unable to create directory at %s." % dest_dir, error)
+            raise RoboError(
+                "Unable to create recipe output directory at %s. "
+                "Please check that the parent directory exists and you have "
+                "write permissions." % dest_dir,
+                error,
+            )
 
 
 def extract_app_icon(facts, png_path):
@@ -474,6 +488,8 @@ def get_user_defaults():
     prefs_dict = {
         key: CFPreferencesCopyAppValue(key, BUNDLE_ID) for key in PREFERENCE_KEYS
     }
+    # Filter out None values so missing preferences are properly detected
+    prefs_dict = {k: v for k, v in prefs_dict.items() if v is not None}
     return prefs_dict
 
 
