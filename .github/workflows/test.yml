@@ -52,35 +52,16 @@ jobs:
         carthage bootstrap --platform macOS --use-xcframeworks --cache-builds
         echo "✅ Dependencies installed successfully"
 
-    - name: Setup Build Environment
-      run: |
-        # Create a temporary keychain to avoid keychain access issues
-        security create-keychain -p "" build.keychain
-        security list-keychains -s build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p "" build.keychain
-        security set-keychain-settings build.keychain
-        echo "🔐 Temporary keychain created for build"
-
-        # Create a dummy codesign script
-        echo '#!/bin/bash' | sudo tee /usr/local/bin/codesign_dummy > /dev/null
-        echo 'echo "Dummy codesign called with args: $@"' | sudo tee -a /usr/local/bin/codesign_dummy > /dev/null
-        echo 'exit 0' | sudo tee -a /usr/local/bin/codesign_dummy > /dev/null
-        sudo chmod +x /usr/local/bin/codesign_dummy
-
-        # Backup original codesign and replace with dummy
-        sudo cp /usr/bin/codesign /usr/bin/codesign_original
-        sudo cp /usr/local/bin/codesign_dummy /usr/bin/codesign
-
     - name: Build and Test
       env:
-        SKIP_SIGNING: "YES"
+        CI_SKIP_SIGNING: "YES"
         CI: "true"
       run: |
         cd app
         echo "🧪 Building and testing Recipe Robot..."
+        echo "CI_SKIP_SIGNING is: $CI_SKIP_SIGNING"
 
-        # Try building and testing in one command first
+        # Try building and testing in one command
         xcodebuild test \
           -workspace "Recipe Robot.xcworkspace" \
           -scheme "Recipe Robot" \
@@ -111,12 +92,3 @@ jobs:
           echo "Checking for build logs..."
           find DerivedData/Logs -type f | head -10 || echo "No logs found"
         fi
-
-    - name: Cleanup
-      if: always()
-      run: |
-        # Restore original codesign
-        sudo cp /usr/bin/codesign_original /usr/bin/codesign || true
-        # Clean up temporary keychain
-        security delete-keychain build.keychain || true
-        echo "🧹 Cleanup completed"

@@ -352,7 +352,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Sign Sparkle again to ensure compatibility with hardened runtime\ncodesign --verbose --force --deep -o runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/Sparkle.framework/Versions/Current/Autoupdate\"\n";
+			shellScript = "# Skip signing for GitHub Actions test runs\n[[ $CI_SKIP_SIGNING ]] && exit 0\n\n# Sign Sparkle again to ensure compatibility with hardened runtime\ncodesign --verbose --force --deep -o runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/Sparkle.framework/Versions/Current/Autoupdate\"\n";
 		};
 		8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */ = {
 			isa = PBXShellScriptBuildPhase;
