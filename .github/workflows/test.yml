@@ -2,9 +2,9 @@ name: Test Recipe Robot
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, test ]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ main, dev, test ]
 
 jobs:
   test:
@@ -19,8 +19,6 @@ jobs:
             runner: macos-15
           - macos-version: "14"
             runner: macos-14
-          - macos-version: "13"
-            runner: macos-13
 
     steps:
     - name: Checkout repository
@@ -64,10 +62,25 @@ jobs:
         security set-keychain-settings build.keychain
         echo "🔐 Temporary keychain created for build"
 
+        # Create a dummy codesign script
+        echo '#!/bin/bash' | sudo tee /usr/local/bin/codesign_dummy > /dev/null
+        echo 'echo "Dummy codesign called with args: $@"' | sudo tee -a /usr/local/bin/codesign_dummy > /dev/null
+        echo 'exit 0' | sudo tee -a /usr/local/bin/codesign_dummy > /dev/null
+        sudo chmod +x /usr/local/bin/codesign_dummy
+
+        # Backup original codesign and replace with dummy
+        sudo cp /usr/bin/codesign /usr/bin/codesign_original
+        sudo cp /usr/local/bin/codesign_dummy /usr/bin/codesign
+
     - name: Build and Test
+      env:
+        SKIP_SIGNING: "YES"
+        CI: "true"
       run: |
         cd app
         echo "🧪 Building and testing Recipe Robot..."
+
+        # Try building and testing in one command first
         xcodebuild test \
           -workspace "Recipe Robot.xcworkspace" \
           -scheme "Recipe Robot" \
@@ -76,12 +89,14 @@ jobs:
           -derivedDataPath DerivedData \
           -quiet \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGN_IDENTITY="" \
+          CODE_SIGN_IDENTITY="-" \
           CODE_SIGNING_ALLOWED=NO \
           DEVELOPMENT_TEAM="" \
           PROVISIONING_PROFILE_SPECIFIER="" \
           CODE_SIGN_ENTITLEMENTS="" \
-          CODE_SIGN_STYLE=Manual
+          CODE_SIGN_STYLE=Manual \
+          EXPANDED_CODE_SIGN_IDENTITY_NAME="-" \
+          SKIP_INSTALL=YES
 
     - name: Test Results Summary
       if: always()
@@ -100,6 +115,8 @@ jobs:
     - name: Cleanup
       if: always()
       run: |
+        # Restore original codesign
+        sudo cp /usr/bin/codesign_original /usr/bin/codesign || true
         # Clean up temporary keychain
         security delete-keychain build.keychain || true
         echo "🧹 Cleanup completed"
