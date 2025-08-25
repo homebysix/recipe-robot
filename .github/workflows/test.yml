@@ -2,9 +2,9 @@ name: Test Recipe Robot
 
 on:
   push:
-    branches: [ main, dev, test ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main, dev, test ]
+    branches: [ main, dev ]
 
 jobs:
   test:
