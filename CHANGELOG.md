@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+Nothing yet.
+
+## [2.4.0] - 2025-08-24
+
 ### Fixed
 
 - Fixed issue with app description parsing that was causing most descriptions to show "Popular multimedia player."
