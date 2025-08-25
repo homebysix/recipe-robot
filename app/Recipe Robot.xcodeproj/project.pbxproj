@@ -220,7 +220,6 @@
 				D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */,
 				D5416419220E96EC00A886AF /* Recipe RobotTests-Shared.xcconfig */,
 			);
-			name = xcconfig;
 			path = xcconfig;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -276,7 +275,7 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1640;
 				ORGANIZATIONNAME = "Elliot Jordan";
 				TargetAttributes = {
 					8B42AC7D1B5C5BEC0058A814 = {
@@ -337,24 +336,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		9F831C5B2560E2F1003FF5D1 /* Run Script: Remove test directory from bundle */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script: Remove test directory from bundle";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Remove test subdirectory from bundled scripts\nSCRIPTS_DEST=\"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Resources/scripts\"\n\n# Remove test subdirectory if it exists\nif [ -d \"$SCRIPTS_DEST/test\" ]; then\n    rm -rf \"$SCRIPTS_DEST/test\"\n    echo \"Removed test directory from bundle\"\nelse\n    echo \"Test directory not found in bundle (already excluded)\"\nfi\n";
-		};
 		8B153E052586F22C006D6C41 /* Run Script: Sign Sparkle framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -404,6 +385,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "$(which carthage) outdated --xcode-warnings 2>/dev/null\n";
+		};
+		9F831C5B2560E2F1003FF5D1 /* Run Script: Remove test directory from bundle */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script: Remove test directory from bundle";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Remove test subdirectory from bundled scripts\nSCRIPTS_DEST=\"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Resources/scripts\"\n\n# Remove test subdirectory if it exists\nif [ -d \"$SCRIPTS_DEST/test\" ]; then\n    rm -rf \"$SCRIPTS_DEST/test\"\n    echo \"Removed test directory from bundle\"\nelse\n    echo \"Test directory not found in bundle (already excluded)\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -488,8 +487,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 32SVX952DB;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -525,7 +526,9 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 32SVX952DB;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -547,7 +550,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1381;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 32SVX952DB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -557,7 +559,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 2.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -575,7 +577,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1381;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 32SVX952DB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -585,7 +586,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 2.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.elliotjordan.recipe-robot";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -602,7 +603,6 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 32SVX952DB;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
@@ -617,7 +617,6 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 32SVX952DB;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};

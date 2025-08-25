@@ -21,7 +21,7 @@
 
 5. Merge development branch to main/master branch.
 
-6. Run Recipe Robot unit tests and fix any errors. (See __scripts/test/README.md__ for detailed steps.)
+6. Run Recipe Robot unit tests and fix any errors. (See __scripts/test/README.md__ for detailed steps. Optionally use `RUN_FUNCTIONAL_TESTS=true` to run lengthy functional tests.)
 
 7. Open Xcode and choose __Product > Archive__.
 
