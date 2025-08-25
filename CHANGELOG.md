@@ -8,6 +8,30 @@ All notable changes to this project will be documented in this file. This projec
 
 Nothing yet.
 
+## [2.4.0] - 2025-08-24
+
+### Fixed
+
+- Fixed issue with app description parsing that was causing most descriptions to show "Popular multimedia player."
+- Fixed redundant versioning caused by Recipe Robot's treatment of Sparkle feeds being out of date with SparkleUpdateInfoProvider (#207).
+- Restored icon extraction when Jamf recipes (but not Munki) are selected in user preferences (#203).
+- Fixed an EOFError that could happen if the `RecipeCreateLocation` doesn't exist. (#185).
+
+### Changed
+
+- Updated app to use latest version of Sparkle self-updater framework.
+- Converted Python tests from nose to unittest and configured for code coverage.
+- Made functional tests optional during unittest runs. Specify `RUN_FUNCTIONAL_TESTS=true` to include them.
+- Built out Swift unit testing for the Mac app.
+- Improved company suffix stripping (e.g. Inc, LLC, Ltd) and included s.r.o. suffix.
+- Updated Python syntax to 3.10 using `pyupgrade`.
+- Added `s.r.o.` to corporate suffixes able to be removed.
+- Data structure adjustments to recipe generation functions.
+
+### Removed
+
+- Removed support for pulling app descriptions from now-inoperative Informer site
+
 ## [2.3.2] - 2025-02-08
 
 ### Fixed

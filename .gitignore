@@ -37,8 +37,17 @@ Carthage/
 TODO.md
 .idea
 
-# Debris from testing
+# Debris from testing and typing
 scripts/.noseids
+monkeytype.sqlite3
+
+# VSCode settings
+.vscode/
 
 # Virtual environment
 venv/
+
+# Test coverage reports
+htmlcov/
+.coverage
+coverage.xml

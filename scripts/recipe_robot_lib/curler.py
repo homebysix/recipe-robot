@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -23,7 +22,6 @@ Various functions that use /usr/bin/curl for retrieving HTTP/HTTPS
 content. Based on and borrowed from autopkg's URLGetter.
 """
 
-from __future__ import absolute_import, print_function
 
 import os.path
 import subprocess
@@ -358,7 +356,7 @@ def check_url(url, headers=None):
             return url, head, ua_safari
 
         # Skip domains for which 403 is a known false positive on HEAD check.
-        if any((x in url for x in KNOWN_403_ON_HEAD)):
+        if any(x in url for x in KNOWN_403_ON_HEAD):
             return url, head, None
 
         # Try again with alternate user-agents.

@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -23,8 +22,6 @@ exceptions.py
 Custom Exceptions for use in Recipe Robot.
 """
 
-
-from __future__ import absolute_import
 
 import traceback
 
@@ -50,7 +47,7 @@ class RoboException(Exception):
         """
         # This is primarily set up to store tracebacks for later debug
         # printing.
-        super(RoboException, self).__init__(message)
+        super().__init__(message)
         self.error = error
 
     @property
@@ -59,7 +56,23 @@ class RoboException(Exception):
 
     @error.setter
     def error(self, exception_object):
-        self._error = traceback.format_exc(exception_object)
+        if exception_object is None:
+            self._error = None
+        else:
+            # Convert exception to string representation with traceback if available
+            if (
+                hasattr(exception_object, "__traceback__")
+                and exception_object.__traceback__
+            ):
+                self._error = "".join(
+                    traceback.format_exception(
+                        type(exception_object),
+                        exception_object,
+                        exception_object.__traceback__,
+                    )
+                )
+            else:
+                self._error = str(exception_object)
 
 
 class RoboError(RoboException):
@@ -69,5 +82,3 @@ class RoboError(RoboException):
     Args:
         RoboException (Exception): Superclass - see above.
     """
-
-    pass

@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -32,7 +31,6 @@ but also robo_prints the message as well.
 
 
 # pylint: disable=no-name-in-module
-from __future__ import absolute_import
 
 from Foundation import NSDistributedNotificationCenter, NSNotificationDeliverImmediately
 
@@ -43,7 +41,7 @@ from .tools import LogLevel, robo_print
 # pylint: disable=too-few-public-methods
 
 
-class NotificationMixin(object):
+class NotificationMixin:
     """Adds a send_notification method to Notifying classes."""
 
     def send_notification(self, message):
@@ -78,7 +76,7 @@ class Facts(RoboDict):
 
     def __init__(self):
         """Set up a Fact instance with required list-like objects."""
-        super(Facts, self).__init__()
+        super().__init__()
         self._dict.update(
             {
                 "complete": NotifyingList("complete"),
@@ -104,7 +102,7 @@ class Facts(RoboDict):
             val = NotifyingList(self.default_suffix, val)
         elif isinstance(val, bool):
             val = NotifyingBool(self.default_suffix, val)
-        super(Facts, self).__setitem__(key, val)
+        super().__setitem__(key, val)
 
     def is_from_app_store(self):
         """Returns a bool from the is_from_app_store fact, which enables certain
@@ -128,7 +126,7 @@ class NotifyingList(NotificationMixin, RoboList):
             message_type (str): String name appended to message identifier.
             iterable (iterable, optional): Used to fill the instance. Defaults to None.
         """
-        super(NotifyingList, self).__init__(iterable)
+        super().__init__(iterable)
         # NSDistributedNotificationCenter is the NotificationCenter
         # that allows messages to be sent between applications.
         self.notification_center = NSDistributedNotificationCenter.defaultCenter()
@@ -141,7 +139,7 @@ class NotifyingList(NotificationMixin, RoboList):
             index (int): Index of the item to set.
             val (type varies): Value to set the item to.
         """
-        super(NotifyingList, self).__setitem__(index, val)
+        super().__setitem__(index, val)
         self.send_notification(str(val))
 
     def insert(self, index, val):
@@ -151,7 +149,7 @@ class NotifyingList(NotificationMixin, RoboList):
             index (int): Index of the item to insert before.
             val (type varies): Value of the item to insert.
         """
-        super(NotifyingList, self).insert(index, val)
+        super().insert(index, val)
         self.send_notification(str(val))
 
 
@@ -164,7 +162,7 @@ class NoisyNotifyingList(NotifyingList):
         Args:
             message (str): Message to send to our notification center.
         """
-        super(NoisyNotifyingList, self).send_notification(message)
+        super().send_notification(message)
         log_level = LogLevel.__getattribute__(
             LogLevel, self.message_type.rstrip("s").upper()
         )
@@ -184,7 +182,7 @@ class NotifyingString(NotificationMixin, str):
         Returns:
             NotifyingString: NotifyingString with the message_type set.
         """
-        instance = super(NotifyingString, cls).__new__(cls, text)
+        instance = super().__new__(cls, text)
         instance.message_type = message_type
         return instance
 
@@ -200,12 +198,12 @@ class NotifyingString(NotificationMixin, str):
         # that allows messages to be sent between applications.
         self.notification_center = NSDistributedNotificationCenter.defaultCenter()
         self.send_notification(text)
-        super(NotifyingString, self).__init__()
+        super().__init__()
 
     # pylint: enable=unused-argument
 
 
-class NotifyingBool(NotificationMixin, object):
+class NotifyingBool(NotificationMixin):
     """A bool that sends notifications."""
 
     def __new__(cls, message_type, val):
@@ -215,7 +213,7 @@ class NotifyingBool(NotificationMixin, object):
             message_type (str): String name appended to message identifier.
             val (bool): Contents of the boolean - True or False
         """
-        instance = super(NotifyingBool, cls).__new__(cls)
+        instance = super().__new__(cls)
         instance.message_type = message_type
         # NSDistributedNotificationCenter is the NotificationCenter
         # that allows messages to be sent between applications.

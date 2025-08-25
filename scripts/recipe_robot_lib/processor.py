@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -28,8 +27,6 @@ AutoPkg autopkglib.
 """
 
 
-from __future__ import absolute_import
-
 import sys
 
 from .tools import LogLevel, robo_print
@@ -42,7 +39,7 @@ except ImportError:
     sys.exit(1)
 
 
-class AbstractProcessor(object):
+class AbstractProcessor:
     """Represent an AutoPkg processor for recipe purposes."""
 
     def __init__(self, classtype):

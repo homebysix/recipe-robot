@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -27,7 +26,6 @@ to create autopkg recipes for the specified app.
 # TODO: refactor code issuing warnings about missing processors/repos.
 # pylint: disable=no-member
 
-from __future__ import absolute_import
 
 import os
 
@@ -51,6 +49,9 @@ from .tools import (
     strip_dev_suffix,
     timed,
 )
+
+# Recipe generator function registry - will be populated after function definitions
+RECIPE_GENERATORS = {}
 
 
 @timed
@@ -204,19 +205,19 @@ def build_recipes(facts, preferred, prefs):
 
         # Set the recipe filename (spaces are OK).
         if recipe["type"] == "jamf":
-            recipe["filename"] = "%s-pkg-upload.%s.recipe" % (
+            recipe["filename"] = "{}-pkg-upload.{}.recipe".format(
                 facts[bundle_name_key],
                 recipe["type"],
             )
         else:
-            recipe["filename"] = "%s.%s.recipe" % (
+            recipe["filename"] = "{}.{}.recipe".format(
                 facts[bundle_name_key],
                 recipe["type"],
             )
 
         # Set the recipe identifier.
         clean_name = facts[bundle_name_key].replace(" ", "").replace("+", "Plus")
-        keys["Identifier"] = "%s.%s.%s" % (
+        keys["Identifier"] = "{}.{}.{}".format(
             prefs["RecipeIdentifierPrefix"],
             recipe["type"],
             clean_name,
@@ -268,21 +269,18 @@ def get_generation_func(facts, prefs, recipe):
         recipe (Recipe): Object representing the recipe being generated.
 
     Returns:
-        str: String representing the function that is used to generate this
-            recipe type.
+        callable or None: Function that generates the specified recipe type,
+            or None if the recipe type is not supported or enabled.
     """
     if recipe["type"] not in prefs["RecipeTypes"]:
         return None
 
-    func_name = ["generate", recipe["type"].replace("-", "_"), "recipe"]
-
+    # Build the key for lookup in the registry
+    key = recipe["type"].replace("-", "_")
     if recipe["type"] in ("munki", "pkg") and facts.is_from_app_store():
-        func_name.insert(1, "app_store")
+        key = f"app_store_{key}"
 
-    # TODO: This is a hack until I can use AbstractFactory for this.
-    generation_func = globals()["_".join(func_name)]
-
-    return generation_func
+    return RECIPE_GENERATORS.get(key)
 
 
 def generate_download_recipe(facts, prefs, recipe):
@@ -849,6 +847,23 @@ def generate_munki_recipe(facts, prefs, recipe):
     recipe.append_processor(munki_importer)
 
     # Extract the app's icon and save it to disk.
+    extract_icon_for_recipe(facts, prefs)
+
+    return recipe
+
+
+def extract_icon_for_recipe(facts, prefs):
+    """Extract the app's icon and save it to disk if icon path is available.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+    """
+    _, bundle_name_key = get_bundle_name_info(facts)
+
     if "icon_path" in facts:
         extracted_icon = robo_join(
             recipe_dirpath(facts[bundle_name_key], facts.get("developer", None), prefs),
@@ -859,8 +874,6 @@ def generate_munki_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "I don't have enough information to create a PNG icon for this app."
         )
-
-    return recipe
 
 
 def get_pkgdirs(path):
@@ -1348,6 +1361,9 @@ def generate_jamf_recipe(facts, prefs, recipe):
         }
     )
 
+    # Extract the app's icon and save it to disk.
+    extract_icon_for_recipe(facts, prefs)
+
     return recipe
 
 
@@ -1787,3 +1803,22 @@ def warn_about_appstoreapp_pyasn(facts):
         "already. More information:\n"
         "https://github.com/autopkg/nmcspadden-recipes#appstoreapp-recipe"
     )
+
+
+# Initialize the recipe generator registry after all functions are defined
+RECIPE_GENERATORS.update(
+    {
+        "download": generate_download_recipe,
+        "munki": generate_munki_recipe,
+        "app_store_munki": generate_app_store_munki_recipe,
+        "pkg": generate_pkg_recipe,
+        "app_store_pkg": generate_app_store_pkg_recipe,
+        "install": generate_install_recipe,
+        "jamf": generate_jamf_recipe,
+        "lanrev": generate_lanrev_recipe,
+        "sccm": generate_sccm_recipe,
+        "filewave": generate_filewave_recipe,
+        "ds": generate_ds_recipe,
+        "bigfix": generate_bigfix_recipe,
+    }
+)

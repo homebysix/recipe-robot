@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -24,27 +23,25 @@ Unit tests for processor class.
 """
 
 
-from __future__ import absolute_import
-
-from nose.tools import *  # pylint: disable=unused-wildcard-import, wildcard-import
-from recipe_robot_lib import processor
+import unittest
+from scripts.recipe_robot_lib import processor
 
 
-class TestProcessor(object):
+class TestProcessor(unittest.TestCase):
     """Tests for the AbstractProcessor subclasses."""
 
     def test_set_via_constructor_kwargs(self):
         """See if processor constructor correctly sets attr vals."""
         val = "/test"
         app_dmg_versioner = processor.AppDmgVersioner(dmg_path=val)
-        assert_equal(app_dmg_versioner.dmg_path, val)
+        self.assertEqual(app_dmg_versioner.dmg_path, val)
 
     def test_set_via_attribute(self):
         """Test that setting attribute values works."""
         val = "/test"
         app_dmg_versioner = processor.AppDmgVersioner()
         app_dmg_versioner.dmg_path = val
-        assert_equal(app_dmg_versioner.dmg_path, val)
+        self.assertEqual(app_dmg_versioner.dmg_path, val)
 
     def test_input_variables(self):
         """Ensure a processor gets input vars setup correctly."""
@@ -68,7 +65,7 @@ class TestProcessor(object):
             "version_comparison_key",
         )
 
-        assert_sequence_equal(
+        self.assertSequenceEqual(
             sorted(munki_importer._input_variables), sorted(expected_variables)
         )
 
@@ -78,7 +75,7 @@ class TestProcessor(object):
         output_dict = adv.to_dict()
         test_dict = {"Processor": "AppDmgVersioner"}
 
-        assert_dict_equal(output_dict, test_dict)
+        self.assertDictEqual(output_dict, test_dict)
 
     def test_loaded_to_dict(self):
         """Ensure a processor's dict repr is correct with values."""
@@ -89,4 +86,8 @@ class TestProcessor(object):
             "Arguments": {"dmg_path": "~/Downloads/Awesome.dmg"},
         }
 
-        assert_dict_equal(output_dict, test_dict)
+        self.assertDictEqual(output_dict, test_dict)
+
+
+if __name__ == "__main__":
+    unittest.main()

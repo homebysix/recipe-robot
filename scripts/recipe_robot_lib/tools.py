@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -25,10 +24,9 @@ support the main `recipe-robot` script and the `recipe_generator.py` module.
 """
 
 
-from __future__ import absolute_import, print_function
-
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -52,10 +50,11 @@ from .exceptions import RoboError
 # pylint: enable=no-name-in-module
 
 
-__version__ = "2.3.2"
+__version__ = "2.4.0"
 ENDC = "\033[0m"
 BUNDLE_ID = "com.elliotjordan.recipe-robot"
 PREFS_FILE = os.path.expanduser("~/Library/Preferences/%s.plist" % BUNDLE_ID)
+DEFAULT_RECIPE_OUTPUT_PATH = os.path.expanduser("~/Library/AutoPkg/Recipe Robot Output")
 
 # Build the list of download formats we know about.
 SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
@@ -117,7 +116,7 @@ KNOWN_403_ON_HEAD = (
 )
 
 
-class LogLevel(object):
+class LogLevel:
     """Correlate logging level of a message with designated colors for more
     readable output in Terminal."""
 
@@ -129,7 +128,7 @@ class LogLevel(object):
     WARNING = ("\033[1;38;5;208m", "WARNING")
 
 
-class OutputMode(object):
+class OutputMode:
     """Manage global output mode state with a singleton."""
 
     # Use --verbose command-line argument, or hard-code
@@ -227,9 +226,9 @@ def get_github_token():
     github_token_file = os.path.expanduser("~/.autopkg_gh_token")
     if os.path.isfile(github_token_file):
         try:
-            with open(github_token_file, "r") as tokenfile:
+            with open(github_token_file) as tokenfile:
                 return tokenfile.read().strip()
-        except IOError:
+        except OSError:
             print("WARNING: Couldn't read GitHub token file at %s." % github_token_file)
     return None
 
@@ -243,36 +242,44 @@ def strip_dev_suffix(dev):
     Returns:
         str: Name of app developer with suffixes stripped.
     """
-    corp_suffixes = (
-        "incorporated",
-        "corporation",
-        "limited",
-        "oy/ltd",
-        "pty ltd",
-        "pty. ltd",
-        "pvt ltd",
-        "pvt. ltd",
-        "s.a r.l",
-        "sa rl",
-        "sarl",
-        "srl",
-        "corp",
-        "gmbh",
-        "l.l.c",
-        "inc",
-        "llc",
-        "ltd",
-        "pvt",
-        "oy",
-        "sa",
-        "ab",
-    )
-    if dev not in (None, ""):
-        for suffix in corp_suffixes:
-            if dev.lower().rstrip(" .").endswith(suffix):
-                dev = dev.rstrip(" .")[: len(dev) - len(suffix) - 1].rstrip(",. ")
-                break
-    return dev
+    if not dev:
+        return dev
+
+    # Corporate suffixes ordered by specificity (longer/more specific first)
+    corp_suffixes = [
+        r"incorporated",
+        r"corporation",
+        r"pty\.?\s+ltd\.?",
+        r"pvt\.?\s+ltd\.?",
+        r"s\.a\s+r\.l",
+        r"sa\s+rl",
+        r"s\.r\.o\.?",
+        r"oy/ltd",
+        r"l\.l\.c\.?",
+        r"limited",
+        r"sarl",
+        r"gmbh",
+        r"corp\.?",
+        r"inc\.?",
+        r"ltd\.?",
+        r"llc\.?",
+        r"pvt\.?",
+        r"srl",
+        r"sro",
+        r"oy",
+        r"sa",
+        r"ab",
+    ]
+
+    # Create a single regex pattern that matches any suffix at the end
+    # with optional comma/period/space separators
+    suffix_pattern = r"[,\s]*\b(?:" + "|".join(corp_suffixes) + r")\s*\.?\s*$"
+
+    # Remove the suffix if found (case insensitive)
+    result = re.sub(suffix_pattern, "", dev, flags=re.IGNORECASE)
+
+    # Clean up any trailing whitespace, commas, or periods
+    return result.rstrip(" .,")
 
 
 def get_bundle_name_info(facts):
@@ -314,7 +321,14 @@ def recipe_dirpath(app_name, dev, prefs):
     char_replacements = (("/", "-"), ("\\", "-"), (":", "-"), ("*", "-"), ("?", ""))
     for char in char_replacements:
         app_name = app_name.replace(char[0], char[1])
-    path_components = [prefs["RecipeCreateLocation"]]
+
+    # Ensure we have a valid RecipeCreateLocation, use default if missing
+    recipe_location = prefs.get("RecipeCreateLocation")
+    if not recipe_location:
+        recipe_location = DEFAULT_RECIPE_OUTPUT_PATH
+        prefs["RecipeCreateLocation"] = recipe_location
+
+    path_components = [recipe_location]
     if dev is not None:
         # TODO: Put this in the preferences.
         if prefs.get("StripDeveloperSuffixes", False) is True:
@@ -343,8 +357,14 @@ def create_dest_dirs(path):
     if not os.path.exists(dest_dir):
         try:
             os.makedirs(dest_dir)
+            robo_print("Created recipe output directory: %s" % dest_dir)
         except OSError as error:
-            raise RoboError("Unable to create directory at %s." % dest_dir, error)
+            raise RoboError(
+                "Unable to create recipe output directory at %s. "
+                "Please check that the parent directory exists and you have "
+                "write permissions." % dest_dir,
+                error,
+            )
 
 
 def extract_app_icon(facts, png_path):
@@ -468,6 +488,8 @@ def get_user_defaults():
     prefs_dict = {
         key: CFPreferencesCopyAppValue(key, BUNDLE_ID) for key in PREFERENCE_KEYS
     }
+    # Filter out None values so missing preferences are properly detected
+    prefs_dict = {k: v for k, v in prefs_dict.items() if v is not None}
     return prefs_dict
 
 
@@ -529,7 +551,7 @@ def check_search_cache(facts, search_index_path):
     if os.path.isfile(search_index_path) and os.path.isfile(
         search_index_path + ".etag"
     ):
-        with open(search_index_path + ".etag", "r", encoding="utf-8") as openfile:
+        with open(search_index_path + ".etag", encoding="utf-8") as openfile:
             local_etag = openfile.read().strip('"')
         if local_etag == cache_meta["sha"]:
             robo_print("Local search index cache is up to date.", LogLevel.VERBOSE, 4)
@@ -540,7 +562,7 @@ def check_search_cache(facts, search_index_path):
         openfile.write(cache_meta["sha"])
 
     # Write cache file
-    cmd = 'curl -sLo "%s" "%s" -H "Accept: application/vnd.github.v3.raw"' % (
+    cmd = 'curl -sLo "{}" "{}" -H "Accept: application/vnd.github.v3.raw"'.format(
         search_index_path,
         cache_meta_url,
     )
@@ -705,9 +727,7 @@ def congratulate(prefs, first_timer):
             else:
                 recipe_count = "{} recipes".format(prefs["RecipeCreateCount"])
             congrats = random_choice(congrats_msg)
-        robo_print(
-            "\nYou've created {} with Recipe Robot. {}\n".format(recipe_count, congrats)
-        )
+        robo_print(f"\nYou've created {recipe_count} with Recipe Robot. {congrats}\n")
 
 
 def robo_join(*args):

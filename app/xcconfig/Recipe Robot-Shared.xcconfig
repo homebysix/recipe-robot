@@ -75,4 +75,4 @@ SWIFT_OBJC_BRIDGING_HEADER = Recipe Robot/Recipe Robot-Bridging-Header.h
 //
 //
 
-SWIFT_VERSION = 4.2
+SWIFT_VERSION = 5.0

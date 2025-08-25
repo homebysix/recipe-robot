@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -28,8 +27,6 @@ RoboList:
 """
 
 
-from __future__ import absolute_import
-
 from collections.abc import MutableMapping, MutableSequence
 
 
@@ -54,8 +51,7 @@ class RoboDict(MutableMapping):
             del self._dict[key]
 
     def __iter__(self):
-        for key in self._dict:
-            yield key
+        yield from self._dict
 
     def __len__(self):
         return len(self._dict)

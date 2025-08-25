@@ -1,5 +1,4 @@
 #!/usr/local/autopkg/python
-# This Python file uses the following encoding: utf-8
 
 # Recipe Robot
 # Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
@@ -23,8 +22,6 @@ inspect.py
 Look at a path or URL for an app and generate facts about it.
 """
 
-
-from __future__ import absolute_import
 
 import html
 import json
@@ -97,7 +94,7 @@ def process_input_path(facts):
         sys.exit(0)
     # Otherwise, retrieve the input path.
     input_path = args.input_path
-    robo_print("Processing: {}".format(input_path))
+    robo_print(f"Processing: {input_path}")
 
     # Strip trailing slash, but only if input_path is not a URL.
     if "http" not in input_path:
@@ -218,14 +215,14 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         facts["blocking_applications"].append(os.path.basename(input_path))
 
     # Read the app's Info.plist.
-    robo_print("Validating {}...".format(bundle_type), LogLevel.VERBOSE)
+    robo_print(f"Validating {bundle_type}...", LogLevel.VERBOSE)
     try:
         with open(input_path + "/Contents/Info.plist", "rb") as openfile:
             info_plist = plistlib.load(openfile)
-        robo_print("This {} seems valid".format(bundle_type), LogLevel.VERBOSE, 4)
+        robo_print(f"This {bundle_type} seems valid", LogLevel.VERBOSE, 4)
     except (AttributeError, TypeError, ValueError) as error:
         raise RoboError(
-            "{} doesn't look like a valid {} to me.".format(input_path, bundle_type),
+            f"{input_path} doesn't look like a valid {bundle_type} to me.",
             error,
         )
 
@@ -254,7 +251,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
     # for this.
     if app_name != app_file:
         robo_print(
-            "Bundle name differs from the actual {} filename.".format(bundle_type),
+            f"Bundle name differs from the actual {bundle_type} filename.",
             LogLevel.VERBOSE,
         )
         robo_print(
@@ -278,7 +275,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             facts["bundle_id"] = bundle_id
         else:
             facts["warnings"].append(
-                "{} doesn't seem to have a bundle identifier.".format(app_name)
+                f"{app_name} doesn't seem to have a bundle identifier."
             )
 
     # Leave a hint for people testing Recipe Robot on itself.
@@ -322,10 +319,8 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
                 sparkle_feed = info_plist["SUFeedURL"]
         elif "SUOriginalFeedURL" in info_plist:
             sparkle_feed = info_plist["SUOriginalFeedURL"]
-        elif os.path.exists(
-            "{}/Contents/Frameworks/DevMateKit.framework".format(input_path)
-        ):
-            sparkle_feed = "https://updates.devmate.com/{}.xml".format(bundle_id)
+        elif os.path.exists(f"{input_path}/Contents/Frameworks/DevMateKit.framework"):
+            sparkle_feed = f"https://updates.devmate.com/{bundle_id}.xml"
         if sparkle_feed != "" and sparkle_feed != "NULL":
             facts = inspect_sparkle_feed_url(sparkle_feed, args, facts)
         else:
@@ -336,7 +331,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             "Determining whether app was downloaded from the Mac App Store...",
             LogLevel.VERBOSE,
         )
-        if os.path.exists("{}/Contents/_MASReceipt/receipt".format(input_path)):
+        if os.path.exists(f"{input_path}/Contents/_MASReceipt/receipt"):
             robo_print("App came from the App Store", LogLevel.VERBOSE, 4)
             facts["is_from_app_store"] = True
         else:
@@ -379,7 +374,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
                 version_key = "CFBundleVersion"
         if version_key not in ("", None):
             robo_print(
-                "Version key is: {} ({})".format(version_key, info_plist[version_key]),
+                f"Version key is: {version_key} ({info_plist[version_key]})",
                 LogLevel.VERBOSE,
                 4,
             )
@@ -402,7 +397,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         else:
             facts["warnings"].append("Can't determine icon.")
         if icon_path not in ("", None):
-            robo_print("Icon is: {}".format(icon_path), LogLevel.VERBOSE, 4)
+            robo_print(f"Icon is: {icon_path}", LogLevel.VERBOSE, 4)
             facts["icon_path"] = icon_path
 
     # Attempt to get a description of the app.
@@ -411,7 +406,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         description, source = get_app_description(app_name)
         if description is not None:
             robo_print(
-                "Description (from {}): {}".format(source, description),
+                f"Description (from {source}): {description}",
                 LogLevel.VERBOSE,
                 4,
             )
@@ -430,7 +425,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         developer = ""
         team_id = ""
         robo_print("Gathering code signature information...", LogLevel.VERBOSE)
-        cmd = '/usr/bin/codesign --display --verbose=2 -r- "{}"'.format(input_path)
+        cmd = f'/usr/bin/codesign --display --verbose=2 -r- "{input_path}"'
         exitcode, out, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             # From stdout:
@@ -470,21 +465,21 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             # Check for obsolete code signature version.
             if "Sealed Resources version=1" in err:
                 facts["warnings"].append(
-                    "This {} uses an obsolete code signature.".format(bundle_type)
+                    f"This {bundle_type} uses an obsolete code signature."
                 )
                 # Clear code signature markers, treat app as unsigned.
                 codesign_reqs = ""
                 codesign_authorities = []
 
         if codesign_reqs == "" and len(codesign_authorities) == 0:
-            robo_print("This {} is not signed".format(bundle_type), LogLevel.VERBOSE, 4)
+            robo_print(f"This {bundle_type} is not signed", LogLevel.VERBOSE, 4)
         else:
             robo_print(
                 "Code signature verification requirements recorded", LogLevel.VERBOSE, 4
             )
             facts["codesign_reqs"] = codesign_reqs
             robo_print(
-                "{} authority names recorded".format(len(codesign_authorities)),
+                f"{len(codesign_authorities)} authority names recorded",
                 LogLevel.VERBOSE,
                 4,
             )
@@ -503,10 +498,10 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
                     "set a stricter requirement.".format(bundle_type)
                 )
         if developer not in ("", None):
-            robo_print("Developer: {}".format(developer), LogLevel.VERBOSE, 4)
+            robo_print(f"Developer: {developer}", LogLevel.VERBOSE, 4)
             facts["developer"] = developer
         if team_id not in ("", None):
-            robo_print("Team ID: {}".format(team_id), LogLevel.VERBOSE, 4)
+            robo_print(f"Team ID: {team_id}", LogLevel.VERBOSE, 4)
 
     return facts
 
@@ -551,13 +546,8 @@ def get_app_description(app_name):
         {
             "name": "MacUpdate.com",
             "pattern": r"=\"mu_card_complex_line_info_description\">(?P<desc>.*?)</div>",
-            "url": "https://www.macupdate.com/find/mac/context=%s"
+            "url": "https://www.macupdate.com/find/mac?page=1&context=%s&sort=relevance"
             % quote_plus(app_name),
-        },
-        {
-            "name": "Informer.com",
-            "pattern": r'<p class="prog_text">(?P<desc>.*?)</p>',
-            "url": "https://macdownload.informer.com/search/%s" % quote_plus(app_name),
         },
         {
             "name": "Download.com",
@@ -640,8 +630,8 @@ def inspect_archive(input_path, args, facts):
     if not os.path.exists(unpacked_dir):
         os.mkdir(unpacked_dir)
     archive_cmds = (
-        ("zip", '/usr/bin/unzip "{}" -d "{}"'.format(input_path, unpacked_dir)),
-        ("tgz", '/usr/bin/tar -zxvf "{}" -C "{}"'.format(input_path, unpacked_dir)),
+        ("zip", f'/usr/bin/unzip "{input_path}" -d "{unpacked_dir}"'),
+        ("tgz", f'/usr/bin/tar -zxvf "{input_path}" -C "{unpacked_dir}"'),
     )
     for fmt in archive_cmds:
         exitcode, _, _ = get_exitcode_stdout_stderr(fmt[1])
@@ -1002,7 +992,7 @@ def inspect_disk_image(input_path, args, facts):
                 # Unmount attached volume when done.
                 # TODO: Handle unicode characters here. Example:
                 # http://download.ap.bittorrent.com/track/stable/endpoint/utmac/os/osx
-                cmd = '/usr/bin/hdiutil detach "{}"'.format(dmg_mount)
+                cmd = f'/usr/bin/hdiutil detach "{dmg_mount}"'
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 facts = inspect_app(cached_app_path, args, facts)
                 break
@@ -1144,7 +1134,7 @@ def inspect_download_url(input_path, args, facts):
 
     http_result_code = int(head.get("http_result_code"))
     if http_result_code >= 400:
-        if not any((x in checked_url for x in KNOWN_403_ON_HEAD)):
+        if not any(x in checked_url for x in KNOWN_403_ON_HEAD):
             facts["warnings"].append(
                 "Error encountered during file download HEAD check. (%s)"
                 % int(head.get("http_result_code"))
@@ -1491,14 +1481,14 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
     payload_apps = []
     payload_dir = os.path.join(CACHE_DIR, "payload%s" % payload_id)
     os.mkdir(payload_dir)
-    cmd = '/usr/bin/ditto -x "%s" "%s"' % (payload_archive, payload_dir)
+    cmd = '/usr/bin/ditto -x "{}" "{}"'.format(payload_archive, payload_dir)
     exitcode, _, err = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         facts["warnings"].append("Ditto failed to expand payload.")
     try:
         os.unlink(payload_archive)
     except OSError as e:
-        facts["warnings"].append("Could not remove %s: %s" % (payload_archive, e))
+        facts["warnings"].append("Could not remove {}: {}".format(payload_archive, e))
 
     """Check if the Payload was an app and rename accordingly"""
     appInfoPath = os.path.join(payload_dir, "Contents", "Info.plist")
@@ -1682,7 +1672,7 @@ def inspect_pkg(input_path, args, facts):
     expand_path = os.path.join(CACHE_DIR, "expanded")
     if os.path.exists(expand_path):
         shutil.rmtree(expand_path)
-    cmd = '/usr/sbin/pkgutil --expand "%s" "%s"' % (input_path, expand_path)
+    cmd = '/usr/sbin/pkgutil --expand "{}" "{}"'.format(input_path, expand_path)
     exitcode, out, _ = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         # TODO: Support package bundles here. Examples:
@@ -1725,7 +1715,7 @@ def inspect_pkg(input_path, args, facts):
                         "Trying to get bundle identifier from PackageInfo file...",
                         LogLevel.VERBOSE,
                     )
-                    with open(os.path.join(dirpath, filename), "r") as pkginfo_file:
+                    with open(os.path.join(dirpath, filename)) as pkginfo_file:
                         pkginfo_parsed = ElementTree.parse(pkginfo_file)
                     bundle_id = ""
                     if "bundle_id" not in facts:
@@ -1974,9 +1964,11 @@ def inspect_sourceforge_url(input_path, args, facts):
             # After:
             #   https://master.dl.sourceforge.net/project/grandperspectiv/grandperspective/Bug-112/Bug-112.zip?viasf=1
             dl_path = link.text.split("/files/")[-1].removesuffix("/download")
-            download_url = "https://master.dl.sourceforge.net/project/%s/%s?viasf=1" % (
-                proj_name,
-                dl_path,
+            download_url = (
+                "https://master.dl.sourceforge.net/project/{}/{}?viasf=1".format(
+                    proj_name,
+                    dl_path,
+                )
             )
             break
         if download_url not in ("", None):
@@ -2059,7 +2051,9 @@ def inspect_barebones_feed_url(input_path, args, facts):
             continue
 
     for key in ("SUFeedEntryShortVersionString", "SUFeedEntryVersion"):
-        robo_print("The latest %s is %s" % (key, latest_info[key]), LogLevel.VERBOSE, 4)
+        robo_print(
+            "The latest {} is {}".format(key, latest_info[key]), LogLevel.VERBOSE, 4
+        )
 
     # Pass latest URL to download URL inspection function.
     facts["sparkle_provides_version"] = True
@@ -2106,7 +2100,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Remove Sparkle feed if it's not usable.
     http_result_code = int(head.get("http_result_code"))
     if http_result_code == 403:
-        if not any((x in checked_url for x in KNOWN_403_ON_HEAD)):
+        if not any(x in checked_url for x in KNOWN_403_ON_HEAD):
             # 403 errors are false positives for specific domains.
             facts.pop("sparkle_feed", None)
             return facts
@@ -2157,7 +2151,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     # Determine what information the Sparkle feed provides.
     robo_print("Getting information from Sparkle feed...", LogLevel.VERBOSE)
     sparkle_ns = "{http://www.andymatuschak.org/xml-namespaces/sparkle}"
-    sparkle_provides_version = False
     sparkle_info = []
     for item in doc.iterfind("channel/item"):
         try:
@@ -2171,8 +2164,6 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         for encl in item.iterfind("enclosure"):
             encl_vers = encl.get(sparkle_ns + "version")
             encl_shortvers = encl.get(sparkle_ns + "shortVersionString")
-            if any([item_vers, item_shortvers, encl_vers, encl_shortvers]):
-                sparkle_provides_version = True
             sparkle_info.append(
                 {
                     "url": encl.attrib.get("url", ""),
@@ -2198,18 +2189,17 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         except AttributeError:
             continue
 
-    if sparkle_provides_version:
-        robo_print("The Sparkle feed provides a version number", LogLevel.VERBOSE, 4)
-        for key in ("version", "shortVersionString"):
+    # SparkleUpdateInfoProvider always provides version information when it processes
+    # a valid Sparkle feed with usable items. It will use human_version if available,
+    # otherwise the machine-readable version, or extract version from the URL as a
+    # last resort. This matches AutoPkg's SparkleUpdateInfoProvider behavior.
+    sparkle_provides_version = True
+    robo_print("The Sparkle feed provides a version number", LogLevel.VERBOSE, 4)
+    for key in ("version", "shortVersionString"):
+        if latest_info.get(key):
             robo_print(
-                "The latest %s is %s" % (key, latest_info[key]), LogLevel.VERBOSE, 4
+                "The latest {} is {}".format(key, latest_info[key]), LogLevel.VERBOSE, 4
             )
-    else:
-        robo_print(
-            "The Sparkle feed does not provide a version number",
-            LogLevel.VERBOSE,
-            4,
-        )
     facts["sparkle_provides_version"] = sparkle_provides_version
 
     # Pass latest URL to download URL inspection function.
