@@ -384,7 +384,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$(which carthage) outdated --xcode-warnings 2>/dev/null\n";
+			shellScript = "/opt/homebrew/bin/carthage outdated --xcode-warnings 2>/dev/null\n";
 		};
 		9F831C5B2560E2F1003FF5D1 /* Run Script: Remove test directory from bundle */ = {
 			isa = PBXShellScriptBuildPhase;
