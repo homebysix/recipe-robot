@@ -54,6 +54,16 @@ jobs:
         carthage bootstrap --platform macOS --use-xcframeworks --cache-builds
         echo "✅ Dependencies installed successfully"
 
+    - name: Setup Build Environment
+      run: |
+        # Create a temporary keychain to avoid keychain access issues
+        security create-keychain -p "" build.keychain
+        security list-keychains -s build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p "" build.keychain
+        security set-keychain-settings build.keychain
+        echo "🔐 Temporary keychain created for build"
+
     - name: Build and Test
       run: |
         cd app
@@ -67,7 +77,11 @@ jobs:
           -quiet \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          DEVELOPMENT_TEAM="" \
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          CODE_SIGN_ENTITLEMENTS="" \
+          CODE_SIGN_STYLE=Manual
 
     - name: Test Results Summary
       if: always()
@@ -82,3 +96,10 @@ jobs:
           echo "Checking for build logs..."
           find DerivedData/Logs -type f | head -10 || echo "No logs found"
         fi
+
+    - name: Cleanup
+      if: always()
+      run: |
+        # Clean up temporary keychain
+        security delete-keychain build.keychain || true
+        echo "🧹 Cleanup completed"
