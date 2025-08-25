@@ -45,6 +45,9 @@ SKIP_FUNCTIONAL = not os.environ.get("RUN_FUNCTIONAL_TESTS", "").lower() in (
     "yes",
 )
 
+# Default number of recipes to test (can be overridden with RECIPE_TEST_COUNT env var)
+DEFAULT_RECIPE_COUNT = 25
+
 
 # TODO: Mock up an "app" for testing purposes.
 # TODO: Add arguments to only produce certain RecipeTypes. This will
@@ -140,6 +143,15 @@ class TestFunctional(unittest.TestCase):
         with open("scripts/test/sample_data.yaml", "rb") as openfile:
             sample_data = yaml.safe_load(openfile)
         shuffle(sample_data)
+
+        # Get the number of recipes to test from environment variable, default to 25
+        num_recipes = int(
+            os.environ.get("RECIPE_TEST_COUNT", str(DEFAULT_RECIPE_COUNT))
+        )
+        sample_data = sample_data[:num_recipes]
+        print(
+            f"Testing {len(sample_data)} recipes (set RECIPE_TEST_COUNT to customize)"
+        )
 
         # Iterate through sample data, generating a recipe for each input.
         try:
