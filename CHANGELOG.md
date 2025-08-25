@@ -6,7 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
-Nothing yet.
+### Added
+
+- Automated macOS 14 and 15 Xcode tests on GitHub actions.
+- Some badges on readme, but only good ones.
 
 ## [2.4.0] - 2025-08-24
 
