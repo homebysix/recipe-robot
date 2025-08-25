@@ -220,11 +220,6 @@
   developer: Benjamin Bird
   input_path: https://www.bensoftware.com/capturesync/CaptureSync.dmg
 
-- app_name: Changes
-  bundle_id: com.bitbq.Changes
-  developer: MartianCraft
-  input_path: https://bitbq_changes.s3.amazonaws.com/changes-production.xml
-
 - app_name: Chat
   bundle_id: com.perma.chat
   developer: Christian Owens
@@ -380,11 +375,6 @@
   developer: 3ds
   input_path: https://dl-ak.solidworks.com/nonsecure/draftsight/2025SP0-1-SQLJASWL/DraftSight.pkg
 
-- app_name: duet
-  bundle_id: com.kairos.duet
-  developer: Rahul Dewan
-  input_path: https://updates.duetdisplay.com/checkMacUpdates
-
 - app_name: Duo Device Health
   bundle_id: com.duosecurity.duo-device-health
   developer: Duo Security
@@ -529,11 +519,6 @@
   bundle_id: com.noodlesoft.Hazel
   developer: Noodlesoft
   input_path: https://www.noodlesoft.com/Products/Hazel/download
-
-- app_name: HazeOver
-  bundle_id: com.pointum.hazeover
-  developer: Maxim Ananov
-  input_path: https://hazeover.com/get/HazeOver.txz
 
 - app_name: HoudahGeo
   bundle_id: com.houdah.HoudahGeo
@@ -685,11 +670,6 @@
   developer: Ilya Parniuk
   input_path: https://www.crystalidea.com/downloads/macsfancontrol.zip
 
-- app_name: MacTerm
-  bundle_id: net.macterm.MacTerm
-  developer: Kevin Grant
-  input_path: https://www.macterm.net/updates/macterm-latest.dmg
-
 - app_name: MacUpdater
   bundle_id: com.corecode.MacUpdater
   developer: CoreCode
@@ -784,11 +764,6 @@
   bundle_id: net.publicspace.dist.noisemachine
   developer: Frank Reiff
   input_path: http://www.publicspace.net/app/nm.xml
-
-- app_name: Nomadesk
-  bundle_id: com.NomaDesk
-  developer: NomaDesk
-  input_path: https://secure.nomadesk.com/download/?os=macosx
 
 - app_name: Numi
   bundle_id: com.dmitrynikolaev.numi
@@ -1140,11 +1115,6 @@
   developer: Steve Harris
   input_path: https://reinventedsoftware.com/together/downloads/Together3.xml
 
-- app_name: TouchSwitcher
-  bundle_id: com.pointum.TouchSwitcher
-  developer: Maxim Ananov
-  input_path: https://hazeover.com/touchswitcher/updates.xml
-
 - app_name: Tower
   bundle_id: com.fournova.Tower2
   developer: fournova Software
@@ -1229,11 +1199,6 @@
   bundle_id: Cisco-Systems.Spark
   developer: Cisco
   input_path: http://www.webex.com/downloads/WebexTeams.dmg
-
-- app_name: WhatSize
-  bundle_id: com.id-design.whatsize
-  developer: ID-DESIGN
-  input_path: https://whatsizemac.com/software/whatsize6/whatsize.dmg
 
 - app_name: WiFi Explorer
   bundle_id: com.adriangranados.wifiexplorer
