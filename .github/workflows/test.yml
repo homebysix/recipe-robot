@@ -1,0 +1,84 @@
+name: Test Recipe Robot
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  test:
+    name: Test on macOS ${{ matrix.macos-version }}
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - macos-version: "15"
+            runner: macos-15
+          - macos-version: "14"
+            runner: macos-14
+          - macos-version: "13"
+            runner: macos-13
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: System Information
+      run: |
+        echo "🖥️  Testing Recipe Robot on macOS ${{ matrix.macos-version }}"
+        echo "Runner: ${{ matrix.runner }}"
+        echo "macOS version: $(sw_vers -productVersion)"
+        echo "Build version: $(sw_vers -buildVersion)"
+        echo "Xcode version: $(xcodebuild -version)"
+        echo "Available SDKs:"
+        xcodebuild -showsdks | grep macosx
+
+    - name: Install Carthage
+      run: |
+        if ! command -v carthage &> /dev/null; then
+          echo "📦 Installing Carthage via Homebrew..."
+          brew install carthage
+        else
+          echo "📦 Carthage already available: $(carthage version)"
+        fi
+
+    - name: Bootstrap Dependencies
+      run: |
+        cd app
+        echo "🔧 Bootstrapping Carthage dependencies..."
+        carthage bootstrap --platform macOS --use-xcframeworks --cache-builds
+        echo "✅ Dependencies installed successfully"
+
+    - name: Build and Test
+      run: |
+        cd app
+        echo "🧪 Building and testing Recipe Robot..."
+        xcodebuild test \
+          -workspace "Recipe Robot.xcworkspace" \
+          -scheme "Recipe Robot" \
+          -destination 'platform=macOS' \
+          -enableCodeCoverage YES \
+          -derivedDataPath DerivedData \
+          -quiet \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_ALLOWED=NO
+
+    - name: Test Results Summary
+      if: always()
+      run: |
+        cd app
+        echo "📊 Test Results Summary for macOS ${{ matrix.macos-version }}:"
+        if [ -d "DerivedData/Logs/Test" ]; then
+          echo "✅ Test logs generated successfully"
+          find DerivedData/Logs/Test -name "*.xcresult" | head -5
+        else
+          echo "❌ No test logs found"
+          echo "Checking for build logs..."
+          find DerivedData/Logs -type f | head -10 || echo "No logs found"
+        fi
