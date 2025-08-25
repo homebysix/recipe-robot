@@ -23,7 +23,7 @@ Nothing yet.
 - Converted Python tests from nose to unittest and configured for code coverage.
 - Made functional tests optional during unittest runs. Specify `RUN_FUNCTIONAL_TESTS=true` to include them.
 - Built out Swift unit testing for the Mac app.
-- Improved company suffix stripping (e.g. Inc, LLC, Ltd) and included s.r.o. suffix.
+- Improved company suffix stripping (e.g. Inc, LLC, Ltd).
 - Updated Python syntax to 3.10 using `pyupgrade`.
 - Added `s.r.o.` to corporate suffixes able to be removed.
 - Data structure adjustments to recipe generation functions.
@@ -440,7 +440,8 @@ Nothing yet.
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.2...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/homebysix/recipe-robot/compare/v2.3.2...v2.4.0
 [2.3.2]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...v2.3.0
