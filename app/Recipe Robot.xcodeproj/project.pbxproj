@@ -224,8 +224,8 @@
 				D5416419220E96EC00A886AF /* Recipe RobotTests-Shared.xcconfig */,
 			);
 			name = xcconfig;
-			path = "New Group";
-			sourceTree = "<group>";
+			path = xcconfig;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
