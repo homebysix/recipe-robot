@@ -57,9 +57,9 @@ PREFS_FILE = os.path.expanduser("~/Library/Preferences/%s.plist" % BUNDLE_ID)
 DEFAULT_RECIPE_OUTPUT_PATH = os.path.expanduser("~/Library/AutoPkg/Recipe Robot Output")
 
 # Build the list of download formats we know about.
+SUPPORTED_INSTALL_FORMATS = ("pkg",)
 SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
 SUPPORTED_ARCHIVE_FORMATS = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
-SUPPORTED_INSTALL_FORMATS = ("pkg",)
 ALL_SUPPORTED_FORMATS = (
     SUPPORTED_INSTALL_FORMATS + SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS
 )
