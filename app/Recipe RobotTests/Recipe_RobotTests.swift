@@ -18,6 +18,7 @@
 
 import Cocoa
 import XCTest
+
 @testable import Recipe_Robot
 
 class Recipe_RobotTests: XCTestCase {
@@ -94,7 +95,10 @@ class Recipe_RobotTests: XCTestCase {
 
     func testRecipeTypeStaticValues() {
         let values = RecipeType.values
-        let expectedValues = ["download", "munki", "pkg", "install", "jamf", "lanrev", "sccm", "ds", "filewave", "bigfix"]
+        let expectedValues = [
+            "download", "munki", "pkg", "install", "jamf", "lanrev", "sccm", "ds", "filewave",
+            "bigfix",
+        ]
 
         XCTAssertEqual(values.count, expectedValues.count)
         for value in expectedValues {
@@ -274,8 +278,8 @@ class Recipe_RobotTests: XCTestCase {
         dict1.update(other: dict2)
 
         XCTAssertEqual(dict1["key1"], "value1")
-        XCTAssertEqual(dict1["key2"], "newValue2") // Should be updated
-        XCTAssertEqual(dict1["key3"], "value3")   // Should be added
+        XCTAssertEqual(dict1["key2"], "newValue2")  // Should be updated
+        XCTAssertEqual(dict1["key3"], "value3")  // Should be added
         XCTAssertEqual(dict1.count, 3)
     }
 
@@ -363,10 +367,13 @@ class Recipe_RobotTests: XCTestCase {
     }
 
     func testTaskErrorEnum() {
-        XCTAssertEqual(Task.ErrorEnum.NotExecutable.localizedDescription, "The specified path is not executable.")
+        XCTAssertEqual(
+            Task.ErrorEnum.NotExecutable.localizedDescription,
+            "The specified path is not executable.")
         XCTAssertEqual(Task.ErrorEnum.BadInput.localizedDescription, "The input data is bad.")
         XCTAssertEqual(Task.ErrorEnum.BadOutput.localizedDescription, "The received data was bad.")
-        XCTAssertEqual(Task.ErrorEnum.NonZeroExit.localizedDescription, "Error running the command.")
+        XCTAssertEqual(
+            Task.ErrorEnum.NonZeroExit.localizedDescription, "Error running the command.")
     }
 
     // MARK: - Performance Tests

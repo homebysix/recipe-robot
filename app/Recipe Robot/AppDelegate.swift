@@ -104,8 +104,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func showAutoPkgRequiredAlert() {
         let alert = NSAlert()
         alert.messageText = "AutoPkg Required"
-        alert.informativeText = "Recipe Robot requires AutoPkg to function. " +
-            "Please install AutoPkg and then run Recipe Robot again."
+        alert.informativeText =
+            "Recipe Robot requires AutoPkg to function. "
+            + "Please install AutoPkg and then run Recipe Robot again."
         alert.alertStyle = .critical
         alert.addButton(withTitle: "Quit")
         alert.addButton(withTitle: "Get AutoPkg")
