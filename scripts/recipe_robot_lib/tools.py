@@ -61,7 +61,7 @@ SUPPORTED_IMAGE_FORMATS = ("dmg", "iso")  # downloading iso unlikely
 SUPPORTED_ARCHIVE_FORMATS = ("zip", "tar.gz", "gzip", "tar.bz2", "tbz", "tgz")
 SUPPORTED_INSTALL_FORMATS = ("pkg",)
 ALL_SUPPORTED_FORMATS = (
-    SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS + SUPPORTED_INSTALL_FORMATS
+    SUPPORTED_INSTALL_FORMATS + SUPPORTED_IMAGE_FORMATS + SUPPORTED_ARCHIVE_FORMATS
 )
 
 # Build the list of bundle types we support, and their destinations. ("app" should be listed first.)
