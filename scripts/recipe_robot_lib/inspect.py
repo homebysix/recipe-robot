@@ -562,12 +562,16 @@ def get_app_description(app_name):
         },
     ]
     for source in desc_sources:
-        out = curler.download(source["url"], text=True)
-        result = re.search(source["pattern"], out)
-        if result:
-            description = html_decode(result.group("desc"))
-            description = description.replace("<b>", "").replace("</b>", "")
-            return html.unescape(description), source["name"]
+        try:
+            out = curler.download(source["url"], text=True)
+            result = re.search(source["pattern"], out)
+            if result:
+                description = html_decode(result.group("desc"))
+                description = description.replace("<b>", "").replace("</b>", "")
+                return html.unescape(description), source["name"]
+        except Exception:  # pylint: disable=W0703
+            # If this source fails, try the next one
+            continue
     return None, None
 
 
@@ -806,10 +810,16 @@ def inspect_bitbucket_url(input_path, args, facts):
 
     # TODO: Check for 403 rate-limiting errors without making 2
     # separate curl requests.
-    raw_json_repo = curler.download(repo_api_url, text=True)
-    parsed_repo = json.loads(raw_json_repo)
-    raw_json_release = curler.download(releases_api_url, text=True)
-    parsed_release = json.loads(raw_json_release)
+    try:
+        raw_json_repo = curler.download(repo_api_url, text=True)
+        parsed_repo = json.loads(raw_json_repo)
+        raw_json_release = curler.download(releases_api_url, text=True)
+        parsed_release = json.loads(raw_json_release)
+    except Exception as err:  # pylint: disable=W0703
+        facts["warnings"].append(
+            "Error occurred while accessing BitBucket API: %s" % err
+        )
+        return facts
 
     # Get app name.
     if "app_name" not in facts:
@@ -1369,14 +1379,18 @@ def inspect_github_url(input_path, args, facts):
     user_api_url = "https://api.github.com/users/%s" % github_repo.split("/")[0]
 
     # Download the information from the GitHub API.
-    raw_json_repo = curler.download(repo_api_url, headers=headers, text=True)
-    raw_json_release = curler.download(releases_api_url, headers=headers, text=True)
-    raw_json_user = curler.download(user_api_url, headers=headers, text=True)
+    try:
+        raw_json_repo = curler.download(repo_api_url, headers=headers, text=True)
+        raw_json_release = curler.download(releases_api_url, headers=headers, text=True)
+        raw_json_user = curler.download(user_api_url, headers=headers, text=True)
 
-    # Parse the downloaded JSON.
-    parsed_repo = json.loads(raw_json_repo)
-    parsed_release = json.loads(raw_json_release)
-    parsed_user = json.loads(raw_json_user)
+        # Parse the downloaded JSON.
+        parsed_repo = json.loads(raw_json_repo)
+        parsed_release = json.loads(raw_json_release)
+        parsed_user = json.loads(raw_json_user)
+    except Exception as err:  # pylint: disable=W0703
+        facts["warnings"].append("Error occurred while accessing GitHub API: %s" % err)
+        return facts
 
     # Get app name.
     if "app_name" not in facts:
@@ -1881,8 +1895,14 @@ def inspect_sourceforge_url(input_path, args, facts):
 
     # Use SourceForge API to obtain project information.
     project_api_url = "https://sourceforge.net/rest/p/" + proj_name
-    raw_json = curler.download(project_api_url, text=True)
-    parsed_json = json.loads(raw_json)
+    try:
+        raw_json = curler.download(project_api_url, text=True)
+        parsed_json = json.loads(raw_json)
+    except Exception as err:  # pylint: disable=W0703
+        facts["warnings"].append(
+            "Error occurred while accessing SourceForge API: %s" % err
+        )
+        return facts
 
     # Get app name.
     if "app_name" not in facts:
@@ -1938,6 +1958,8 @@ def inspect_sourceforge_url(input_path, args, facts):
             facts["warnings"].append(
                 "Error occurred while inspecting SourceForge RSS feed: %s" % err
             )
+            # Skip RSS feed processing if download failed
+            return facts
         doc = ElementTree.fromstring(raw_xml)
 
         # Get the latest download URL.
@@ -2147,7 +2169,15 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         )
 
     # Download and parse the Sparkle feed.
-    raw_xml = curler.download(checked_url, headers=headers, text=True)
+    try:
+        raw_xml = curler.download(checked_url, headers=headers, text=True)
+    except Exception as err:  # pylint: disable=W0703
+        facts["warnings"].append(
+            "Error occurred while downloading Sparkle feed: %s" % err
+        )
+        facts.pop("sparkle_feed", None)
+        return facts
+
     try:
         doc = ElementTree.fromstring(raw_xml)
     except ElementTree.ParseError as err:
