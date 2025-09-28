@@ -2036,7 +2036,11 @@ def inspect_barebones_feed_url(input_path, args, facts):
         return facts
 
     # Remove items with unusable URLs.
-    feed_entries = [x for x in feed_entries if x.get("SUFeedEntryUpdateURL")]
+    feed_entries = [
+        x
+        for x in feed_entries
+        if x.get("SUFeedEntryUpdateURL") or x.get("SUFeedEntryDownloadURL")
+    ]
     if not feed_entries:
         robo_print("No usable items found in feed", LogLevel.VERBOSE, 4)
         return facts
@@ -2058,7 +2062,10 @@ def inspect_barebones_feed_url(input_path, args, facts):
     # Pass latest URL to download URL inspection function.
     facts["sparkle_provides_version"] = True
     facts["barebones_product"] = input_path.split("/")[-1].replace(".xml", "").lower()
-    facts = inspect_download_url(latest_info["SUFeedEntryUpdateURL"], args, facts)
+    if latest_info.get("SUFeedEntryDownloadURL"):
+        facts = inspect_download_url(latest_info["SUFeedEntryDownloadURL"], args, facts)
+    elif latest_info.get("SUFeedEntryUpdateURL"):
+        facts = inspect_download_url(latest_info["SUFeedEntryUpdateURL"], args, facts)
 
     return facts
 
