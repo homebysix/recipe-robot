@@ -1546,15 +1546,19 @@ def get_most_likely_app(app_list):
     """Takes an array of dicts, each with a 'path' key that points to a
     potential app to be evaluated. Uses various criteria to make an educated
     guess about which app is the "real" app, and returns the index of the
-    winner. If no winner can be determined, returns None.
+    winner. If no winner can be determined, returns the first app.
 
     Args:
         app_list ([dict]): List of dictionaries with app information,
             including path.
 
     Returns:
-        int or None: Index of the selected app, or None if no app was selected.
+        int or None: Index of the selected app, or None if app_list is empty.
     """
+
+    # Return None if no apps provided
+    if not app_list:
+        return None
 
     # Criteria 1: If only one app has a Sparkle feed, choose that one.
     has_sparkle = []
@@ -1606,6 +1610,11 @@ def get_most_likely_app(app_list):
         if this_size > largest_size:
             largest_size = this_size
             largest_index = index
+
+    # If no app was selected by size (e.g., all have zero size), return the first app
+    if largest_index is None:
+        return 0
+
     return largest_index
 
 
