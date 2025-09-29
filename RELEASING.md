@@ -11,8 +11,7 @@
 
 1. Update frameworks with Carthage:
 
-        cd ./app
-        carthage update --platform macOS
+        make deps
 
 2. Ensure both the `MARKETING_VERSION` variables in __app/Recipe Robot.xcodeproj/project.pbxproj__ have been updated.
 
@@ -24,9 +23,18 @@
 
 6. Merge development branch to main/master branch.
 
-7. Run Recipe Robot unit tests and fix any errors. (See __scripts/test/README.md__ for detailed steps. Optionally use `RUN_FUNCTIONAL_TESTS=true` to run lengthy functional tests.)
+7. Run Recipe Robot unit tests and fix any errors:
 
-8. Open Xcode and choose __Product > Archive__.
+        make test
+        make test-coverage
+
+   (See __scripts/test/README.md__ for detailed steps. Optionally use `RUN_FUNCTIONAL_TESTS=true` to run lengthy functional tests.)
+
+8. Archive the app for distribution:
+
+        make archive
+
+   Alternatively, open Xcode and choose __Product > Archive__.
 
 9. Click __Distribute App > Direct Distribution > Distribute__. Wait for notarization to complete.
 
