@@ -27,7 +27,7 @@ Test assumptions:
 - Focuses on critical recipe generation functions with low coverage
 """
 
-import os
+from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
@@ -400,9 +400,9 @@ class TestRecipeGeneratorIntegration(unittest.TestCase):
     def test_sample_data_integration(self):
         """Test that sample data can be used for recipe generation setup."""
         # Load sample data
-        sample_file = os.path.join(os.path.dirname(__file__), "sample_data.yaml")
-        if os.path.exists(sample_file):
-            with open(sample_file, "r") as f:
+        sample_file = Path(__file__).parent / "sample_data.yaml"
+        if sample_file.exists():
+            with open(str(sample_file), "r") as f:
                 sample_data = yaml.safe_load(f)
 
             # Verify we can use sample data for testing

@@ -26,11 +26,13 @@ Look at a path or URL for an app and generate facts about it.
 import html
 import json
 import os
+import os.path  # Keep for test compatibility
 import plistlib
 import re
 import shutil
 import sys
 from distutils.version import StrictVersion
+from pathlib import Path
 from urllib.parse import quote_plus, urlparse
 from xml.etree import ElementTree
 
@@ -212,7 +214,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
     # Record this app as a blocking application (for munki recipe based
     # on pkg).
     if bundle_type == "app":
-        facts["blocking_applications"].append(os.path.basename(input_path))
+        facts["blocking_applications"].append(Path(input_path).name)
 
     # Read the app's Info.plist.
     robo_print(f"Validating {bundle_type}...", LogLevel.VERBOSE)
@@ -228,7 +230,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
-    app_file = os.path.splitext(os.path.basename(input_path))[0]
+    app_file = Path(input_path).stem
 
     # Determine the name of the app. (Overwrites any previous app_name,
     # because the app Info.plist itself is the most reliable source.)
@@ -391,8 +393,11 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         icon_path = ""
         robo_print("Looking for icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:
-            icon_path = os.path.join(
-                input_path, "Contents", "Resources", info_plist["CFBundleIconFile"]
+            icon_path = str(
+                Path(input_path)
+                / "Contents"
+                / "Resources"
+                / info_plist["CFBundleIconFile"]
             )
         else:
             facts["warnings"].append("Can't determine icon.")
@@ -484,7 +489,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
                 4,
             )
             facts["codesign_authorities"] = list(codesign_authorities)
-            facts["codesign_input_filename"] = os.path.basename(input_path)
+            facts["codesign_input_filename"] = Path(input_path).name
             # Check for overly loose requirements.
             # https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/RequirementLang/RequirementLang.html
             if codesign_reqs in (
@@ -630,9 +635,9 @@ def inspect_archive(input_path, args, facts):
         get_download_link_from_xattr(input_path, args, facts)
 
     # Treat the download as a potential archive.
-    unpacked_dir = os.path.join(CACHE_DIR, "unpacked")
-    if not os.path.exists(unpacked_dir):
-        os.mkdir(unpacked_dir)
+    unpacked_dir = Path(CACHE_DIR) / "unpacked"
+    if not unpacked_dir.exists():
+        unpacked_dir.mkdir()
     archive_cmds = (
         ("zip", f'/usr/bin/unzip "{input_path}" -d "{unpacked_dir}"'),
         ("tgz", f'/usr/bin/tar -zxvf "{input_path}" -C "{unpacked_dir}"'),
@@ -649,84 +654,75 @@ def inspect_archive(input_path, args, facts):
                 SUPPORTED_ARCHIVE_FORMATS
             ):
                 facts["download_filename"] = "{}.{}".format(
-                    facts.get("download_filename", os.path.basename(input_path)), fmt[0]
+                    facts.get("download_filename", Path(input_path).name), fmt[0]
                 )
 
             # Locate and inspect any apps, non-app bundles, or pkgs on the root level.
             stop_searching_archive = False
-            for this_file in os.listdir(unpacked_dir):
+            for this_file in unpacked_dir.iterdir():
+                this_file = this_file.name
                 if this_file.lower().endswith(".app"):
-                    facts = inspect_app(
-                        os.path.join(unpacked_dir, this_file), args, facts
-                    )
+                    facts = inspect_app(str(unpacked_dir / this_file), args, facts)
                     stop_searching_archive = True
                     return facts
                 elif this_file.lower().endswith(
                     tuple([x for x in SUPPORTED_BUNDLE_TYPES])
                 ):
                     facts = inspect_app(
-                        os.path.join(unpacked_dir, this_file),
+                        str(unpacked_dir / this_file),
                         args,
                         facts,
-                        bundle_type=os.path.splitext(this_file)[1].lower().lstrip("."),
+                        bundle_type=Path(this_file).suffix.lower().lstrip("."),
                     )
                     stop_searching_archive = True
                     return facts
                 elif this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
-                    facts = inspect_pkg(
-                        os.path.join(unpacked_dir, this_file), args, facts
-                    )
+                    facts = inspect_pkg(str(unpacked_dir / this_file), args, facts)
                     stop_searching_archive = True
                     return facts
 
             # Didn't find an app, prefpane, or pkg on the root level? Look deeper.
             if stop_searching_archive is False:
-                for dirpath, dirnames, filenames in os.walk(unpacked_dir):
+                for dirpath, dirnames, filenames in os.walk(str(unpacked_dir)):
                     for dirname in dirnames:
                         if dirname.startswith("."):
                             dirnames.remove(dirname)
                         elif dirname.endswith(".app"):
                             facts = inspect_app(
-                                os.path.join(dirpath, dirname), args, facts
+                                str(Path(dirpath) / dirname), args, facts
                             )
                             facts["relative_path"] = (
-                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
-                                + "/"
+                                str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
                             return facts
                         elif dirname.endswith(
                             tuple([x for x in SUPPORTED_BUNDLE_TYPES])
                         ):
                             facts = inspect_app(
-                                os.path.join(dirpath, dirname),
+                                str(Path(dirpath) / dirname),
                                 args,
                                 facts,
-                                bundle_type=os.path.splitext(dirname)[1]
-                                .lower()
-                                .lstrip("."),
+                                bundle_type=Path(dirname).suffix.lower().lstrip("."),
                             )
                             facts["relative_path"] = (
-                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
-                                + "/"
+                                str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
                             return facts
                         elif dirname.endswith(".pkg"):  # bundle packages
                             facts = inspect_pkg(
-                                os.path.join(dirpath, dirname), args, facts
+                                str(Path(dirpath) / dirname), args, facts
                             )
                             facts["relative_path"] = (
-                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
-                                + "/"
+                                str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
                             return facts
                     for filename in filenames:
                         if filename.endswith(".pkg"):  # flat packages
                             facts = inspect_pkg(
-                                os.path.join(dirpath, filename), args, facts
+                                str(Path(dirpath) / filename), args, facts
                             )
                             facts["relative_path"] = (
-                                os.path.relpath(os.path.join(dirpath), unpacked_dir)
-                                + "/"
+                                str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
                             return facts
 
@@ -933,10 +929,10 @@ def inspect_disk_image(input_path, args, facts):
     cmd = '/usr/bin/hdiutil imageinfo -plist "%s"' % input_path
     exitcode, out, err = get_exitcode_stdout_stderr(cmd)
     if exitcode == 0:
-        with open(os.path.join(CACHE_DIR, "dmg_info.plist"), "w") as dmg_plist:
+        with open(str(Path(CACHE_DIR) / "dmg_info.plist"), "w") as dmg_plist:
             dmg_plist.write(out)
         try:
-            with open(os.path.join(CACHE_DIR, "dmg_info.plist"), "rb") as openfile:
+            with open(str(Path(CACHE_DIR) / "dmg_info.plist"), "rb") as openfile:
                 dmg_info = plistlib.load(openfile)
             dmg_has_sla = dmg_info.get("Properties").get("Software License Agreement")
         except (AttributeError, TypeError, ValueError):
@@ -972,10 +968,10 @@ def inspect_disk_image(input_path, args, facts):
         out_clean = out[out.find(xml_tag) :]
 
         # Locate and inspect the app.
-        with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), write_mode) as dmg_plist:
+        with open(str(Path(CACHE_DIR) / "dmg_attach.plist"), write_mode) as dmg_plist:
             dmg_plist.write(out_clean)
         try:
-            with open(os.path.join(CACHE_DIR, "dmg_attach.plist"), "rb") as openfile:
+            with open(str(Path(CACHE_DIR) / "dmg_attach.plist"), "rb") as openfile:
                 dmg_dict = plistlib.load(openfile)
         except (AttributeError, TypeError, ValueError):
             raise RoboError(
@@ -991,10 +987,10 @@ def inspect_disk_image(input_path, args, facts):
             if this_file.lower().endswith(".app"):
                 # Copy app to cache folder.
                 # TODO: What if .app isn't on root of dmg mount? (#26)
-                attached_app_path = os.path.join(dmg_mount, this_file)
-                cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
+                attached_app_path = str(Path(dmg_mount) / this_file)
+                cached_app_path = str(Path(CACHE_DIR) / "unpacked" / this_file)
                 robo_print("Copying %s into cache..." % this_file, LogLevel.VERBOSE, 4)
-                if not os.path.exists(cached_app_path):
+                if not Path(cached_app_path).exists():
                     try:
                         shutil.copytree(attached_app_path, cached_app_path, True)
                     except shutil.Error:
@@ -1008,10 +1004,10 @@ def inspect_disk_image(input_path, args, facts):
                 break
             elif this_file.lower().endswith(tuple([x for x in SUPPORTED_BUNDLE_TYPES])):
                 # Copy bundle to cache folder.
-                attached_app_path = os.path.join(dmg_mount, this_file)
-                cached_app_path = os.path.join(CACHE_DIR, "unpacked", this_file)
+                attached_app_path = str(Path(dmg_mount) / this_file)
+                cached_app_path = str(Path(CACHE_DIR) / "unpacked" / this_file)
                 robo_print("Copying %s into cache..." % this_file, LogLevel.VERBOSE, 4)
-                if not os.path.exists(cached_app_path):
+                if not Path(cached_app_path).exists():
                     try:
                         shutil.copytree(attached_app_path, cached_app_path)
                     except shutil.Error:
@@ -1023,11 +1019,11 @@ def inspect_disk_image(input_path, args, facts):
                     cached_app_path,
                     args,
                     facts,
-                    bundle_type=os.path.splitext(this_file)[1].lower().lstrip("."),
+                    bundle_type=Path(this_file).suffix.lower().lstrip("."),
                 )
                 break
             if this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
-                facts = inspect_pkg(os.path.join(dmg_mount, this_file), args, facts)
+                facts = inspect_pkg(str(Path(dmg_mount) / this_file), args, facts)
                 facts["pkg_in_dmg"] = this_file
                 break
     else:
@@ -1201,16 +1197,16 @@ def inspect_download_url(input_path, args, facts):
     # Write the downloaded file to the cache folder.
     _ = curler.download_to_file(
         checked_url,
-        os.path.join(CACHE_DIR, filename),
+        str(Path(CACHE_DIR) / filename),
         headers=headers,
         app_mode=facts["args"].app_mode,
     )
     robo_print(
-        "Downloaded to %s" % os.path.join(CACHE_DIR, filename), LogLevel.VERBOSE, 4
+        "Downloaded to %s" % str(Path(CACHE_DIR) / filename), LogLevel.VERBOSE, 4
     )
 
     # Just in case the "download" was actually an XML response.
-    with open(os.path.join(CACHE_DIR, filename), "rb") as download_file:
+    with open(str(Path(CACHE_DIR) / filename), "rb") as download_file:
         file_head = download_file.read(256).lower()
     if b"xmlns:sparkle" in file_head:
         robo_print(
@@ -1218,7 +1214,11 @@ def inspect_download_url(input_path, args, facts):
             LogLevel.VERBOSE,
             4,
         )
-        os.remove(os.path.join(CACHE_DIR, filename))
+        cache_file = str(Path(CACHE_DIR) / filename)
+        try:
+            os.remove(cache_file)
+        except FileNotFoundError:
+            pass
         facts = inspect_sparkle_feed_url(checked_url, args, facts)
         return facts
     elif b"<error>" in file_head:
@@ -1245,7 +1245,7 @@ def inspect_download_url(input_path, args, facts):
         return facts
 
     # If the file is a webpage (e.g. 404 message), warn the user now.
-    with open(os.path.join(CACHE_DIR, filename), "rb") as download:
+    with open(str(Path(CACHE_DIR) / filename), "rb") as download:
         if b"html" in download.read(30).lower():
             facts["warnings"].append(
                 "There's a good chance that the file failed to download. "
@@ -1254,25 +1254,25 @@ def inspect_download_url(input_path, args, facts):
 
     # If we know what format the downloaded file is, inspect it.
     if download_format in SUPPORTED_IMAGE_FORMATS:
-        return inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+        return inspect_disk_image(str(Path(CACHE_DIR) / filename), args, facts)
     elif download_format in SUPPORTED_ARCHIVE_FORMATS:
-        return inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+        return inspect_archive(str(Path(CACHE_DIR) / filename), args, facts)
     elif download_format in SUPPORTED_INSTALL_FORMATS:
-        return inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
+        return inspect_pkg(str(Path(CACHE_DIR) / filename), args, facts)
 
     # If download format is unknown, use content-type as a hint.
     if head.get("content-type") in DOWNLOAD_MIME_TYPES["dmg"]:
         facts["download_format"] = "dmg"
         robo_print("Download format is probably a dmg", LogLevel.VERBOSE, 4)
-        return inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+        return inspect_disk_image(str(Path(CACHE_DIR) / filename), args, facts)
     elif head.get("content-type") in DOWNLOAD_MIME_TYPES["zip"]:
         facts["download_format"] = "zip"
         robo_print("Download format is probably an archive", LogLevel.VERBOSE, 4)
-        return inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+        return inspect_archive(str(Path(CACHE_DIR) / filename), args, facts)
     elif head.get("content-type") in DOWNLOAD_MIME_TYPES["pkg"]:
         facts["download_format"] = "pkg"
         robo_print("Download format is probably a pkg", LogLevel.VERBOSE, 4)
-        return inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
+        return inspect_pkg(str(Path(CACHE_DIR) / filename), args, facts)
 
     # If we still don't know the download format at this point, just guess.
     # The inspect_disk_image(), inspect_archive(), and inspect_pkg() functions
@@ -1286,19 +1286,19 @@ def inspect_download_url(input_path, args, facts):
         )
 
     robo_print("Trying file as a disk image...", LogLevel.VERBOSE)
-    facts = inspect_disk_image(os.path.join(CACHE_DIR, filename), args, facts)
+    facts = inspect_disk_image(str(Path(CACHE_DIR) / filename), args, facts)
     if "disk_image" in facts["inspections"]:
         facts["download_format"] = "dmg"
         return facts
 
     robo_print("Trying file as an archive...", LogLevel.VERBOSE)
-    facts = inspect_archive(os.path.join(CACHE_DIR, filename), args, facts)
+    facts = inspect_archive(str(Path(CACHE_DIR) / filename), args, facts)
     if "archive" in facts["inspections"]:
         facts["download_format"] = "zip"
         return facts
 
     robo_print("Trying file as an installer...", LogLevel.VERBOSE)
-    facts = inspect_pkg(os.path.join(CACHE_DIR, filename), args, facts)
+    facts = inspect_pkg(str(Path(CACHE_DIR) / filename), args, facts)
     if "pkg" in facts["inspections"]:
         facts["download_format"] = "pkg"
 
@@ -1493,9 +1493,9 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
         [str]: List of paths to apps found in the payload.
     """
     payload_apps = []
-    payload_dir = os.path.join(CACHE_DIR, "payload%s" % payload_id)
-    os.mkdir(payload_dir)
-    cmd = '/usr/bin/ditto -x "{}" "{}"'.format(payload_archive, payload_dir)
+    payload_dir = Path(CACHE_DIR) / ("payload%s" % payload_id)
+    payload_dir.mkdir()
+    cmd = '/usr/bin/ditto -x "{}" "{}"'.format(payload_archive, str(payload_dir))
     exitcode, _, err = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         facts["warnings"].append("Ditto failed to expand payload.")
@@ -1505,10 +1505,10 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
         facts["warnings"].append("Could not remove {}: {}".format(payload_archive, e))
 
     """Check if the Payload was an app and rename accordingly"""
-    appInfoPath = os.path.join(payload_dir, "Contents", "Info.plist")
-    if os.path.isfile(appInfoPath):
+    appInfoPath = payload_dir / "Contents" / "Info.plist"
+    if appInfoPath.is_file():
         try:
-            with open(appInfoPath, "rb") as openfile:
+            with open(str(appInfoPath), "rb") as openfile:
                 info_plist = plistlib.load(openfile)
         except (AttributeError, TypeError, ValueError):
             pass
@@ -1517,13 +1517,11 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
                 "Payload looks like an app. Creating enclosing .app bundle...",
                 LogLevel.VERBOSE,
             )
-            tempAppDir = os.path.join(
-                CACHE_DIR, info_plist["CFBundleDisplayName"] + ".app"
-            )
-            shutil.move(payload_dir, tempAppDir)
+            tempAppDir = Path(CACHE_DIR) / (info_plist["CFBundleDisplayName"] + ".app")
+            shutil.move(str(payload_dir), str(tempAppDir))
             shutil.move(
-                tempAppDir,
-                os.path.join(payload_dir, info_plist["CFBundleDisplayName"] + ".app"),
+                str(tempAppDir),
+                str(payload_dir / (info_plist["CFBundleDisplayName"] + ".app")),
             )
         else:
             robo_print(
@@ -1531,14 +1529,15 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
                 LogLevel.WARNING,
             )
 
-    for dirpath, dirnames, _ in os.walk(payload_dir):
+    for dirpath, dirnames, _ in os.walk(str(payload_dir)):
         for dirname in dirnames:
             if dirname.startswith("."):
                 dirnames.remove(dirname)
-            elif dirname.endswith(".app") and os.path.isfile(
-                os.path.join(dirpath, dirname, "Contents", "Info.plist")
+            elif (
+                dirname.endswith(".app")
+                and (Path(dirpath) / dirname / "Contents" / "Info.plist").is_file()
             ):
-                payload_apps.append(os.path.join(dirpath, dirname))
+                payload_apps.append(str(Path(dirpath) / dirname))
     return payload_apps
 
 
@@ -1583,7 +1582,7 @@ def get_most_likely_app(app_list):
     # Criteria 2: If only one app installs into the /Applications folder, choose that one.
     installs_to_apps = []
     for index, candidate in enumerate(app_list):
-        head, _ = os.path.split(candidate["path"])
+        head = str(Path(candidate["path"]).parent)
         install_location = candidate.get("install_location", "")
         if head.endswith("/Applications") or install_location.startswith(
             "/Applications/"
@@ -1683,7 +1682,7 @@ def inspect_pkg(input_path, args, facts):
                     4,
                 )
                 facts["codesign_authorities"] = codesign_authorities
-                facts["codesign_input_filename"] = os.path.basename(input_path)
+                facts["codesign_input_filename"] = Path(input_path)
             else:
                 robo_print(
                     "Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4
@@ -1699,10 +1698,10 @@ def inspect_pkg(input_path, args, facts):
 
     # Expand the flat package and look for more facts.
     robo_print("Expanding package to look for clues...", LogLevel.VERBOSE)
-    expand_path = os.path.join(CACHE_DIR, "expanded")
-    if os.path.exists(expand_path):
-        shutil.rmtree(expand_path)
-    cmd = '/usr/sbin/pkgutil --expand "{}" "{}"'.format(input_path, expand_path)
+    expand_path = Path(CACHE_DIR) / "expanded"
+    if expand_path.exists():
+        shutil.rmtree(str(expand_path))
+    cmd = '/usr/sbin/pkgutil --expand "{}" "{}"'.format(input_path, str(expand_path))
     exitcode, out, _ = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         # TODO: Support package bundles here. Examples:
@@ -1712,7 +1711,7 @@ def inspect_pkg(input_path, args, facts):
     else:
         # Locate and inspect the app.
         robo_print(
-            "Package expanded to: %s" % os.path.join(CACHE_DIR, "expanded"),
+            "Package expanded to: %s" % str(expand_path),
             LogLevel.VERBOSE,
             4,
         )
@@ -1720,17 +1719,18 @@ def inspect_pkg(input_path, args, facts):
         payload_id = 0
         payload_apps = []
         found_apps = []
-        for dirpath, dirnames, filenames in os.walk(expand_path):
+        for dirpath, dirnames, filenames in os.walk(str(expand_path)):
             for dirname in dirnames:
                 if dirname.startswith("."):
                     dirnames.remove(dirname)
-                elif dirname.endswith(".app") and os.path.isfile(
-                    os.path.join(dirpath, dirname, "Contents", "Info.plist")
+                elif (
+                    dirname.endswith(".app")
+                    and (Path(dirpath) / dirname / "Contents" / "Info.plist").is_file()
                 ):
                     found_apps.append(
                         {
-                            "path": os.path.join(dirpath, dirname),
-                            "pkg_filename": os.path.basename(input_path),
+                            "path": str(Path(dirpath) / dirname),
+                            "pkg_filename": Path(input_path).name,
                         }
                     )  # should be rare
             for filename in filenames:
@@ -1739,13 +1739,13 @@ def inspect_pkg(input_path, args, facts):
                         "Yo dawg, I found a flat package inside this flat package!"
                     )
                     # TODO: Recursion! Any chance for a loop here?
-                    facts = inspect_pkg(os.path.join(dirpath, filename), args, facts)
+                    facts = inspect_pkg(str(Path(dirpath) / filename), args, facts)
                 elif filename == "PackageInfo":
                     robo_print(
                         "Trying to get bundle identifier from PackageInfo file...",
                         LogLevel.VERBOSE,
                     )
-                    with open(os.path.join(dirpath, filename)) as pkginfo_file:
+                    with open(str(Path(dirpath) / filename)) as pkginfo_file:
                         pkginfo_parsed = ElementTree.parse(pkginfo_file)
                     bundle_id = ""
                     if "bundle_id" not in facts:
@@ -1770,27 +1770,26 @@ def inspect_pkg(input_path, args, facts):
                     )
                     if install_location.endswith(".app"):
                         # Create a virtual app entry for this payload
-                        app_name = os.path.basename(install_location)
+                        app_name = Path(install_location)
                         # Find the corresponding payload directory that contains Contents/
                         payload_path = None
                         for payload_dir in os.listdir(CACHE_DIR):
-                            if payload_dir.startswith("payload") and os.path.isdir(
-                                os.path.join(CACHE_DIR, payload_dir)
+                            if (
+                                payload_dir.startswith("payload")
+                                and (Path(CACHE_DIR) / payload_dir).is_dir()
                             ):
-                                candidate_path = os.path.join(CACHE_DIR, payload_dir)
-                                if os.path.exists(
-                                    os.path.join(
-                                        candidate_path, "Contents", "Info.plist"
-                                    )
-                                ):
-                                    payload_path = candidate_path
+                                candidate_path = Path(CACHE_DIR) / payload_dir
+                                if (
+                                    candidate_path / "Contents" / "Info.plist"
+                                ).exists():
+                                    payload_path = str(candidate_path)
                                     break
 
                         if payload_path:
                             found_apps.append(
                                 {
                                     "path": payload_path,
-                                    "pkg_filename": os.path.basename(input_path),
+                                    "pkg_filename": Path(input_path).name,
                                     "install_location": install_location,
                                     "app_name": app_name,
                                 }
@@ -1802,15 +1801,13 @@ def inspect_pkg(input_path, args, facts):
                             )
                 elif filename.lower() == "payload":
                     payload_apps = get_apps_from_payload(
-                        os.path.join(dirpath, filename), facts, payload_id
+                        str(Path(dirpath) / filename), facts, payload_id
                     )
                     for app in payload_apps:
                         found_apps.append(
                             {
                                 "path": app,
-                                "pkg_filename": os.path.join(dirpath, filename).split(
-                                    "/"
-                                )[-2],
+                                "pkg_filename": Path(dirpath).name,
                             }
                         )
                     payload_id += 1
@@ -1825,7 +1822,7 @@ def inspect_pkg(input_path, args, facts):
             "uninstaller.app",
             "python.app",
         )
-        for app in [os.path.basename(x["path"]) for x in found_apps]:
+        for app in [Path(x["path"]).name for x in found_apps]:
             if app not in facts["blocking_applications"]:
                 if app.lower() in non_blocking_apps:
                     robo_print("Found application: %s" % app, LogLevel.VERBOSE, 4)
@@ -1840,7 +1837,7 @@ def inspect_pkg(input_path, args, facts):
             facts["warnings"].append("No apps found in payload.")
         elif len(found_apps) == 1:
             app_display_name = found_apps[0].get(
-                "app_name", os.path.basename(found_apps[0]["path"])
+                "app_name", Path(found_apps[0]["path"])
             )
             robo_print(
                 "Using app: %s" % app_display_name,
@@ -1852,7 +1849,7 @@ def inspect_pkg(input_path, args, facts):
                 LogLevel.VERBOSE,
                 4,
             )
-            relpath = os.path.relpath(found_apps[0]["path"], CACHE_DIR).split("/")[1:]
+            relpath = Path(found_apps[0]["path"]).relative_to(CACHE_DIR).parts[1:]
             facts["app_relpath_from_payload"] = "/".join(relpath)
             facts["pkg_filename"] = found_apps[0]["pkg_filename"]
             facts = inspect_app(found_apps[0]["path"], args, facts)
@@ -1863,7 +1860,7 @@ def inspect_pkg(input_path, args, facts):
             )
             app_index = get_most_likely_app(found_apps)
             app_display_name = found_apps[app_index].get(
-                "app_name", os.path.basename(found_apps[app_index]["path"])
+                "app_name", Path(found_apps[app_index]["path"])
             )
             robo_print(
                 "Using app: %s" % app_display_name,
@@ -1875,9 +1872,9 @@ def inspect_pkg(input_path, args, facts):
                 LogLevel.VERBOSE,
                 4,
             )
-            relpath = os.path.relpath(found_apps[app_index]["path"], CACHE_DIR).split(
-                "/"
-            )[1:]
+            relpath = (
+                Path(found_apps[app_index]["path"]).relative_to(CACHE_DIR).parts[1:]
+            )
             facts["app_relpath_from_payload"] = "/".join(relpath)
             facts["pkg_filename"] = found_apps[app_index]["pkg_filename"]
             facts = inspect_app(found_apps[app_index]["path"], args, facts)

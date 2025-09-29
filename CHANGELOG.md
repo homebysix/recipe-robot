@@ -8,17 +8,27 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Added
 
+- Recipe Robot app now displays a warning on launch if AutoPkg isn't installed. (#184)
 - Automated macOS 14 and 15 Xcode tests on GitHub actions.
 - Some badges on readme, but only good ones.
+- Unit tests for SourceForge and BareBones feed processing.
+
+### Changed
+
+- If multiple GitHub assets are available, prefer installers, then disk images, then archives. (#205)
+- Prefer `SUFeedEntryDownloadURL` key from BareBones software update feeds, if available. (#194)
+- Generally better download error handling when retrieving xml or json.
+- Updated included version of Sparkle framework.
+- Switched from `os.path` to `Pathlib.path` in codebase.
 
 ## [2.4.0] - 2025-08-24
 
 ### Fixed
 
 - Fixed issue with app description parsing that was causing most descriptions to show "Popular multimedia player."
-- Fixed redundant versioning caused by Recipe Robot's treatment of Sparkle feeds being out of date with SparkleUpdateInfoProvider (#207).
-- Restored icon extraction when Jamf recipes (but not Munki) are selected in user preferences (#203).
-- Fixed an EOFError that could happen if the `RecipeCreateLocation` doesn't exist. (#185).
+- Fixed redundant versioning caused by Recipe Robot's treatment of Sparkle feeds being out of date with SparkleUpdateInfoProvider. (#207)
+- Restored icon extraction when Jamf recipes (but not Munki) are selected in user preferences. (#203)
+- Fixed an EOFError that could happen if the `RecipeCreateLocation` doesn't exist. (#185)
 
 ### Changed
 
@@ -39,7 +49,7 @@ All notable changes to this project will be documented in this file. This projec
 
 ### Fixed
 
-- Resolved an issue with Sparkle feed parsing that could cause Recipe Robot to insert a static download URL in URLDownloader if the feed provided a version at the item level instead of the enclosure level (#206).
+- Resolved an issue with Sparkle feed parsing that could cause Recipe Robot to insert a static download URL in URLDownloader if the feed provided a version at the item level instead of the enclosure level. (#206)
 
 ## [2.3.1] - 2023-10-19
 

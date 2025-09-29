@@ -31,6 +31,7 @@ import os
 import plistlib
 import shutil
 import subprocess
+from pathlib import Path
 from random import shuffle
 
 import yaml
@@ -63,7 +64,7 @@ class TestFunctional(unittest.TestCase):
 
         # Read preferences.
         prefs_path = "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
-        with open(os.path.expanduser(prefs_path), "rb") as openfile:
+        with open(str(Path(prefs_path).expanduser()), "rb") as openfile:
             self.prefs = plistlib.load(openfile)
 
     def robot_runner(self, input_path):
@@ -84,7 +85,7 @@ class TestFunctional(unittest.TestCase):
 
         # Change to recipe directory so we can find the parent recipes easily
         prevcwd = os.getcwd()
-        os.chdir(os.path.split(recipe_path)[0])
+        os.chdir(str(Path(recipe_path).parent))
 
         proc = subprocess.run(
             ["/usr/local/bin/autopkg", "run", recipe_path, "--quiet"], check=False
@@ -114,17 +115,17 @@ class TestFunctional(unittest.TestCase):
 
     def get_output_path(self, prefs, app_name, developer, recipe_type=None):
         """Build a path to the output dir or output recipe for app_name."""
-        path = os.path.join(prefs.get("RecipeCreateLocation"), developer)
+        path = Path(prefs.get("RecipeCreateLocation")) / developer
         extension = ".yaml" if prefs.get("RecipeFormat") == "yaml" else ""
         if recipe_type:
-            path = os.path.join(path, f"{app_name}.{recipe_type}.recipe{extension}")
-            if not os.path.exists(path):
+            path = path / f"{app_name}.{recipe_type}.recipe{extension}"
+            if not path.exists():
                 print(f"[ERROR] {path} does not exist.")
-        return os.path.expanduser(path)
+        return str(path.expanduser())
 
     def clean_folder(self, path):
         """Delete the RecipeCreateLocation subdir if it exists."""
-        if os.path.exists(path):
+        if Path(path).exists():
             shutil.rmtree(path)
 
     @unittest.skipIf(
@@ -136,7 +137,7 @@ class TestFunctional(unittest.TestCase):
 
         # Read preferences.
         prefs_path = "~/Library/Preferences/com.elliotjordan.recipe-robot.plist"
-        with open(os.path.expanduser(prefs_path), "rb") as openfile:
+        with open(str(Path(prefs_path).expanduser()), "rb") as openfile:
             prefs = plistlib.load(openfile)
 
         # Read and randomize sample data.
@@ -177,7 +178,7 @@ class TestFunctional(unittest.TestCase):
                     )
                     if recipe_type in ("download", "pkg"):
                         # TODO: Remove AutoPkg cache folder, if it exists.
-                        if os.path.isfile(recipe_path):
+                        if Path(recipe_path).is_file():
                             with self.subTest(
                                 app=app["app_name"],
                                 recipe_type=recipe_type,

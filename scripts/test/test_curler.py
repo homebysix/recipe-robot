@@ -24,8 +24,8 @@ Unit tests for curl-related functions.
 
 
 import json
-import os
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 from scripts.recipe_robot_lib import curler
 
@@ -37,7 +37,7 @@ class TestCurler(unittest.TestCase):
 
     def test_curl_exists(self):
         """Verify the curl binary exists at the expected location."""
-        self.assertTrue(os.path.isfile(self.curl_path))
+        self.assertTrue(Path(self.curl_path).is_file())
 
     def test_prepare_curl_cmd(self):
         """Verify we can assemble a basic curl command."""

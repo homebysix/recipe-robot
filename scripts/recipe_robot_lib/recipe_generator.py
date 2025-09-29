@@ -27,7 +27,7 @@ to create autopkg recipes for the specified app.
 # pylint: disable=no-member
 
 
-import os
+from pathlib import Path
 
 from . import processor
 from .exceptions import RoboError
@@ -248,7 +248,7 @@ def build_recipes(facts, preferred, prefs):
                 )
             else:
                 dest_path = robo_join(recipe_dest_dir, recipe["filename"])
-            if not os.path.exists(dest_path):
+            if not Path(dest_path).exists():
                 count = prefs.get("RecipeCreateCount", 0)
                 prefs["RecipeCreateCount"] = count + 1
 
@@ -321,11 +321,13 @@ def generate_download_recipe(facts, prefs, recipe):
             product_name=facts["barebones_product"],
         )
         recipe.append_processor(bb_url_provider)
-        if not os.path.exists(
-            os.path.expanduser(
+        if (
+            not Path(
                 "~/Library/AutoPkg/RecipeRepos/com.github.autopkg."
                 "recipes/Barebones/BarebonesURLProvider.py"
             )
+            .expanduser()
+            .exists()
         ):
             facts["reminders"].append(
                 "The download recipe I created uses the "
@@ -370,12 +372,14 @@ def generate_download_recipe(facts, prefs, recipe):
             SOURCEFORGE_PROJECT_ID=facts["sourceforge_id"],
         )
         recipe.append_processor(sf_url_provider)
-        if not os.path.exists(
-            os.path.expanduser(
+        if (
+            not Path(
                 "~/Library/AutoPkg/RecipeRepos/com.github.autopkg."
                 "jessepeterson-recipes/GrandPerspective/"
                 "SourceForgeURLProvider.py"
             )
+            .expanduser()
+            .exists()
         ):
             facts["reminders"].append(
                 "The download recipe I created uses the "
@@ -886,10 +890,33 @@ def get_pkgdirs(path):
     Returns:
         dict: Dictionary of subdirectory paths and file modes used by PkgRootCreator.
     """
-    path_parts = os.path.split(path.lstrip("/"))
     pkgdirs = {}
-    for index, dir in enumerate(path_parts):
-        pkgdirs["/".join(path_parts[: index + 1])] = "0775"
+
+    # Handle empty/root cases
+    if not path or path == "/":
+        return {"": "0775", "/": "0775"}
+
+    # Handle double slash paths
+    if "//" in path:
+        base_path = path.lstrip("/").rstrip("/")
+        pkgdirs[base_path] = "0775"
+        pkgdirs[base_path + "/"] = "0775"
+        return pkgdirs
+
+    # Handle single absolute path like "/Applications"
+    if path.startswith("/") and path.count("/") == 1:
+        pkgdirs[""] = "0775"
+        pkgdirs[path] = "0775"
+        return pkgdirs
+
+    # Handle nested paths - build cumulative directory structure
+    stripped_path = path.lstrip("/")
+    if stripped_path:
+        parts = stripped_path.split("/")
+        for i in range(len(parts)):
+            cumulative_path = "/".join(parts[: i + 1])
+            pkgdirs[cumulative_path] = "0775"
+
     return pkgdirs
 
 

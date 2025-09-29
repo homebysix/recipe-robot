@@ -33,6 +33,7 @@ import sys
 import timeit
 from datetime import datetime
 from functools import wraps
+from pathlib import Path
 from random import choice as random_choice
 
 # pylint: disable=no-name-in-module
@@ -53,8 +54,8 @@ from .exceptions import RoboError
 __version__ = "2.4.1"
 ENDC = "\033[0m"
 BUNDLE_ID = "com.elliotjordan.recipe-robot"
-PREFS_FILE = os.path.expanduser("~/Library/Preferences/%s.plist" % BUNDLE_ID)
-DEFAULT_RECIPE_OUTPUT_PATH = os.path.expanduser("~/Library/AutoPkg/Recipe Robot Output")
+PREFS_FILE = Path("~/Library/Preferences/%s.plist" % BUNDLE_ID).expanduser()
+DEFAULT_RECIPE_OUTPUT_PATH = Path("~/Library/AutoPkg/Recipe Robot Output").expanduser()
 
 # Build the list of download formats we know about.
 SUPPORTED_INSTALL_FORMATS = ("pkg",)
@@ -95,10 +96,9 @@ PREFERENCE_KEYS = (
 # Global variables.
 
 # Cache directory location.
-CACHE_DIR = os.path.join(
-    os.path.expanduser("~/Library/Caches/Recipe Robot"),
-    datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f"),
-)
+CACHE_DIR = Path(
+    "~/Library/Caches/Recipe Robot"
+).expanduser() / datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")
 
 # Whether to display Terminal colors or not.
 # Variable name required to be lowercase in order to be overridden by script.
@@ -223,13 +223,16 @@ def get_github_token():
         str or None: AutoPkg token contents, or None if no token file exists.
     """
     # TODO: Also check for GITHUB_TOKEN preference.
-    github_token_file = os.path.expanduser("~/.autopkg_gh_token")
-    if os.path.isfile(github_token_file):
+    github_token_file = Path("~/.autopkg_gh_token").expanduser()
+    if github_token_file.is_file():
         try:
-            with open(github_token_file) as tokenfile:
+            with open(str(github_token_file)) as tokenfile:
                 return tokenfile.read().strip()
         except OSError:
-            print("WARNING: Couldn't read GitHub token file at %s." % github_token_file)
+            print(
+                "WARNING: Couldn't read GitHub token file at %s."
+                % str(github_token_file)
+            )
     return None
 
 
@@ -353,16 +356,16 @@ def create_dest_dirs(path):
     Raises:
         RoboError: Standard exception raised when Recipe Robot cannot proceed.
     """
-    dest_dir = os.path.expanduser(path)
-    if not os.path.exists(dest_dir):
+    dest_dir = Path(path).expanduser()
+    if not dest_dir.exists():
         try:
-            os.makedirs(dest_dir)
-            robo_print("Created recipe output directory: %s" % dest_dir)
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            robo_print("Created recipe output directory: %s" % str(dest_dir))
         except OSError as error:
             raise RoboError(
                 "Unable to create recipe output directory at %s. "
                 "Please check that the parent directory exists and you have "
-                "write permissions." % dest_dir,
+                "write permissions." % str(dest_dir),
                 error,
             )
 
@@ -379,17 +382,17 @@ def extract_app_icon(facts, png_path):
         png_path (str): The path to the .png file we're creating.
     """
     icon_path = facts["icon_path"]
-    png_path_absolute = os.path.expanduser(png_path)
-    create_dest_dirs(os.path.dirname(png_path_absolute))
+    png_path_absolute = Path(png_path).expanduser()
+    create_dest_dirs(str(png_path_absolute.parent))
 
     # Add .icns if the icon path doesn't already end with .icns.
     if not icon_path.endswith(".icns"):
         icon_path = icon_path + ".icns"
 
-    if not os.path.exists(png_path_absolute):
+    if not png_path_absolute.exists():
         cmd = (
             '/usr/bin/sips -s format png "%s" --out "%s" '
-            "--resampleHeightWidthMax 300" % (icon_path, png_path_absolute)
+            "--resampleHeightWidthMax 300" % (icon_path, str(png_path_absolute))
         )
         exitcode, _, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
@@ -548,22 +551,23 @@ def check_search_cache(facts, search_index_path):
     cache_meta = json.loads(stdout)
 
     # If cache exists locally, check whether it's current
-    if os.path.isfile(search_index_path) and os.path.isfile(
-        search_index_path + ".etag"
+    if (
+        Path(search_index_path).is_file()
+        and Path(search_index_path + ".etag").is_file()
     ):
-        with open(search_index_path + ".etag", encoding="utf-8") as openfile:
+        with open(str(search_index_path) + ".etag", encoding="utf-8") as openfile:
             local_etag = openfile.read().strip('"')
         if local_etag == cache_meta["sha"]:
             robo_print("Local search index cache is up to date.", LogLevel.VERBOSE, 4)
             return
 
     # Write etag file
-    with open(search_index_path + ".etag", "w", encoding="utf-8") as openfile:
+    with open(str(search_index_path) + ".etag", "w", encoding="utf-8") as openfile:
         openfile.write(cache_meta["sha"])
 
     # Write cache file
     cmd = 'curl -sLo "{}" "{}" -H "Accept: application/vnd.github.v3.raw"'.format(
-        search_index_path,
+        str(search_index_path),
         cache_meta_url,
     )
     exitcode, _, _ = get_exitcode_stdout_stderr(cmd)
@@ -623,11 +627,11 @@ def create_existing_recipe_list(facts):
     # limiting. (#29)
 
     # Update search index JSON cache
-    search_index_path = os.path.expanduser(
+    search_index_path = Path(
         "~/Library/Caches/Recipe Robot/search_index.json"
-    )
+    ).expanduser()
     check_search_cache(facts, search_index_path)
-    with open(search_index_path, "rb") as openfile:
+    with open(str(search_index_path), "rb") as openfile:
         search_index = json.load(openfile)
 
     # Search for existing recipes in index
@@ -650,7 +654,7 @@ def create_existing_recipe_list(facts):
         if repo.startswith("autopkg/"):
             repo = repo.replace("autopkg/", "")
         result_item = {
-            "Name": os.path.split(search_index["identifiers"][result_id]["path"])[-1],
+            "Name": Path(search_index["identifiers"][result_id]["path"]).name,
             "Repo": repo,
             "Path": search_index["identifiers"][result_id]["path"],
         }
@@ -737,4 +741,4 @@ def robo_join(*args):
     Returns:
         str: Joined and user-relative file path.
     """
-    return os.path.expanduser(os.path.join(*args))
+    return str(Path(*args).expanduser())

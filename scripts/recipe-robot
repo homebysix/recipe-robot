@@ -32,6 +32,7 @@ import shutil
 import subprocess
 import sys
 import traceback
+from pathlib import Path
 
 # Test for platform here, before we try to import any PyObjC stuff.
 # pylint: disable=wrong-import-position
@@ -72,7 +73,7 @@ def main():
 
     facts = Facts()
 
-    if not os.path.isfile("/usr/local/bin/autopkg"):
+    if not Path("/usr/local/bin/autopkg").is_file():
         robo_print(
             "Recipe Robot requires AutoPkg. Please download and install the "
             "latest version: https://github.com/autopkg/autopkg/releases/latest",
@@ -128,7 +129,7 @@ def main():
         recipe_robot_lib.tools.reset_term_colors()
 
         # Clean up cache folder.
-        if os.path.exists(CACHE_DIR) and not facts["args"].keep_cache:
+        if Path(CACHE_DIR).exists() and not facts["args"].keep_cache:
             try:
                 shutil.rmtree(CACHE_DIR)
             except PermissionError:
