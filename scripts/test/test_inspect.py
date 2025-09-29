@@ -3677,10 +3677,20 @@ class TestGetMostLikelyApp(unittest.TestCase):
 
     def test_sparkle_feed_priority(self):
         """Test that apps with Sparkle feeds are prioritized."""
-        with patch("builtins.open"), patch("plistlib.load") as mock_plist, patch("os.path.exists"):
-            # Mock Info.plist with Sparkle feed
-            mock_plist.return_value = {"SUFeedURL": "https://example.com/feed.xml"}
-            
+        with patch("builtins.open") as mock_open, patch(
+            "plistlib.load"
+        ) as mock_plist, patch("os.path.exists"):
+            # Mock different plist contents based on which file is opened
+            def plist_side_effect(file_obj):
+                # Get the file path from the mock call
+                file_path = mock_open.call_args[0][0] if mock_open.call_args else ""
+                if "sparkle.app" in file_path:
+                    return {"SUFeedURL": "https://example.com/feed.xml"}
+                else:
+                    return {}  # Regular app with no Sparkle feed
+
+            mock_plist.side_effect = plist_side_effect
+
             app_list = [
                 {"path": "/path/to/regular.app"},
                 {"path": "/path/to/sparkle.app"},
