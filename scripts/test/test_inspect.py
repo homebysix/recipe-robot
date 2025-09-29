@@ -28,6 +28,7 @@ from unittest.mock import patch, MagicMock
 from scripts.recipe_robot_lib.inspect import (
     get_app_description,
     get_download_link_from_xattr,
+    get_most_likely_app,
     html_decode,
     inspect_barebones_feed_url,
     inspect_download_url,
@@ -3663,6 +3664,116 @@ class TestInspectDownloadUrl(unittest.TestCase):
             self.assertIn("Process a download URL", docstring)
             self.assertIn("gathering information required", docstring)
             self.assertIn("AutoPkg recipes", docstring)
+
+
+class TestGetMostLikelyApp(unittest.TestCase):
+    """Tests for the get_most_likely_app function."""
+
+    def test_single_app_returns_zero(self):
+        """Test that a single app returns index 0."""
+        app_list = [{"path": "/path/to/app.app"}]
+        result = get_most_likely_app(app_list)
+        self.assertEqual(result, 0)
+
+    def test_sparkle_feed_priority(self):
+        """Test that apps with Sparkle feeds are prioritized."""
+        with patch("builtins.open"), patch("plistlib.load") as mock_plist, patch("os.path.exists"):
+            # Mock Info.plist with Sparkle feed
+            mock_plist.return_value = {"SUFeedURL": "https://example.com/feed.xml"}
+            
+            app_list = [
+                {"path": "/path/to/regular.app"},
+                {"path": "/path/to/sparkle.app"},
+            ]
+            result = get_most_likely_app(app_list)
+            self.assertEqual(result, 1)  # Should choose the Sparkle app
+
+    def test_applications_folder_priority(self):
+        """Test that apps installing to /Applications are prioritized."""
+        app_list = [
+            {"path": "/some/other/path/app.app"},
+            {"path": "/Applications/app.app"},
+        ]
+        result = get_most_likely_app(app_list)
+        self.assertEqual(result, 1)  # Should choose the /Applications app
+
+    def test_install_location_applications_priority(self):
+        """Test that apps with install-location in /Applications are prioritized."""
+        app_list = [
+            {"path": "/path/to/payload", "install_location": "/usr/local/bin/app.app"},
+            {
+                "path": "/path/to/payload2",
+                "install_location": "/Applications/MainApp.app",
+            },
+        ]
+        result = get_most_likely_app(app_list)
+        self.assertEqual(
+            result, 1
+        )  # Should choose the /Applications install-location app
+
+    def test_virtual_app_with_install_location(self):
+        """Test that virtual apps with install-location are handled properly."""
+        with patch("builtins.open", side_effect=FileNotFoundError), patch(
+            "os.path.exists", return_value=False
+        ):
+            app_list = [
+                {"path": "/path/to/traditional.app"},
+                {
+                    "path": "/path/to/payload",
+                    "install_location": "/Applications/VirtualApp.app",
+                    "app_name": "VirtualApp.app",
+                },
+            ]
+            # Should not crash and should fall back to size comparison
+            result = get_most_likely_app(app_list)
+            self.assertIsNotNone(result)
+
+    def test_largest_app_fallback(self):
+        """Test that the largest app is chosen as fallback."""
+        with patch("os.walk") as mock_walk, patch("os.path.getsize") as mock_getsize:
+            # Mock file system traversal
+            mock_walk.side_effect = [
+                [("/small/app", [], ["file1.txt"])],  # Small app
+                [("/large/app", [], ["file1.txt", "file2.txt"])],  # Large app
+            ]
+            mock_getsize.side_effect = [100, 200, 300]  # Sizes for files
+
+            app_list = [
+                {"path": "/small/app"},
+                {"path": "/large/app"},
+            ]
+            result = get_most_likely_app(app_list)
+            self.assertEqual(result, 1)  # Should choose the larger app
+
+    def test_error_handling_for_virtual_apps(self):
+        """Test that virtual apps with missing directories don't crash the function."""
+        with patch("os.walk", side_effect=OSError("Directory not found")):
+            app_list = [
+                {
+                    "path": "/nonexistent/path",
+                    "install_location": "/Applications/App.app",
+                    "app_name": "App.app",
+                },
+            ]
+            # Should not crash
+            result = get_most_likely_app(app_list)
+            self.assertEqual(result, 0)  # Should still return the only option
+
+    def test_mixed_traditional_and_virtual_apps(self):
+        """Test selection between traditional .app and virtual install-location apps."""
+        with patch("builtins.open", side_effect=FileNotFoundError), patch(
+            "os.path.exists", return_value=False
+        ):
+            app_list = [
+                {"path": "/path/to/Autoupdate.app"},  # Traditional app
+                {
+                    "path": "/path/to/payload",
+                    "install_location": "/Applications/MainApp.app",
+                    "app_name": "MainApp.app",
+                },  # Virtual app
+            ]
+            result = get_most_likely_app(app_list)
+            self.assertEqual(result, 1)  # Should choose the /Applications virtual app
 
 
 if __name__ == "__main__":
