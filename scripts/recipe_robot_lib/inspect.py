@@ -1563,9 +1563,9 @@ def get_most_likely_app(app_list):
         try:
             with open(candidate["path"] + "/Contents/Info.plist", "rb") as openfile:
                 info_plist = plistlib.load(openfile)
-        except (AttributeError, TypeError, ValueError):
+        except (AttributeError, TypeError, ValueError, FileNotFoundError, OSError):
             pass
-        if (
+        if info_plist and (
             "SUFeedURL" in info_plist
             or "SUOriginalFeedURL" in info_plist
             or os.path.exists(
@@ -1580,7 +1580,10 @@ def get_most_likely_app(app_list):
     installs_to_apps = []
     for index, candidate in enumerate(app_list):
         head, _ = os.path.split(candidate["path"])
-        if head.endswith("/Applications"):
+        install_location = candidate.get("install_location", "")
+        if head.endswith("/Applications") or install_location.startswith(
+            "/Applications/"
+        ):
             installs_to_apps.append(index)
     if len(installs_to_apps) == 1:
         return installs_to_apps[0]
@@ -1590,12 +1593,16 @@ def get_most_likely_app(app_list):
     largest_index = None
     for index, candidate in enumerate(app_list):
         this_size = 0
-        for dirpath, _, filenames in os.walk(candidate["path"]):
-            for filename in filenames:
-                try:
-                    this_size += os.path.getsize(os.path.join(dirpath, filename))
-                except FileNotFoundError:
-                    pass
+        try:
+            for dirpath, _, filenames in os.walk(candidate["path"]):
+                for filename in filenames:
+                    try:
+                        this_size += os.path.getsize(os.path.join(dirpath, filename))
+                    except FileNotFoundError:
+                        pass
+        except (OSError, FileNotFoundError):
+            # Handle virtual apps that may not have a valid directory structure
+            pass
         if this_size > largest_size:
             largest_size = this_size
             largest_index = index
@@ -1747,6 +1754,28 @@ def inspect_pkg(input_path, args, facts):
                             LogLevel.VERBOSE,
                             4,
                         )
+
+                    # Check for install-location ending in .app
+                    install_location = pkginfo_parsed.getroot().attrib.get(
+                        "install-location", ""
+                    )
+                    if install_location.endswith(".app"):
+                        # Create a virtual app entry for this payload
+                        app_name = os.path.basename(install_location)
+                        payload_path = os.path.dirname(os.path.join(dirpath, filename))
+                        found_apps.append(
+                            {
+                                "path": payload_path,
+                                "pkg_filename": os.path.basename(input_path),
+                                "install_location": install_location,
+                                "app_name": app_name,
+                            }
+                        )
+                        robo_print(
+                            "Found app from install-location: %s" % app_name,
+                            LogLevel.VERBOSE,
+                            4,
+                        )
                 elif filename.lower() == "payload":
                     payload_apps = get_apps_from_payload(
                         os.path.join(dirpath, filename), facts, payload_id
@@ -1786,8 +1815,11 @@ def inspect_pkg(input_path, args, facts):
         if len(found_apps) == 0:
             facts["warnings"].append("No apps found in payload.")
         elif len(found_apps) == 1:
+            app_display_name = found_apps[0].get(
+                "app_name", os.path.basename(found_apps[0]["path"])
+            )
             robo_print(
-                "Using app: %s" % os.path.basename(found_apps[0]["path"]),
+                "Using app: %s" % app_display_name,
                 LogLevel.VERBOSE,
                 4,
             )
@@ -1806,8 +1838,11 @@ def inspect_pkg(input_path, args, facts):
                 "out which one to use."
             )
             app_index = get_most_likely_app(found_apps)
+            app_display_name = found_apps[app_index].get(
+                "app_name", os.path.basename(found_apps[app_index]["path"])
+            )
             robo_print(
-                "Using app: %s" % os.path.basename(found_apps[app_index]["path"]),
+                "Using app: %s" % app_display_name,
                 LogLevel.VERBOSE,
                 4,
             )
