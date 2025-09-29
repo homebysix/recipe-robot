@@ -1771,20 +1771,35 @@ def inspect_pkg(input_path, args, facts):
                     if install_location.endswith(".app"):
                         # Create a virtual app entry for this payload
                         app_name = os.path.basename(install_location)
-                        payload_path = os.path.dirname(os.path.join(dirpath, filename))
-                        found_apps.append(
-                            {
-                                "path": payload_path,
-                                "pkg_filename": os.path.basename(input_path),
-                                "install_location": install_location,
-                                "app_name": app_name,
-                            }
-                        )
-                        robo_print(
-                            "Found app from install-location: %s" % app_name,
-                            LogLevel.VERBOSE,
-                            4,
-                        )
+                        # Find the corresponding payload directory that contains Contents/
+                        payload_path = None
+                        for payload_dir in os.listdir(CACHE_DIR):
+                            if payload_dir.startswith("payload") and os.path.isdir(
+                                os.path.join(CACHE_DIR, payload_dir)
+                            ):
+                                candidate_path = os.path.join(CACHE_DIR, payload_dir)
+                                if os.path.exists(
+                                    os.path.join(
+                                        candidate_path, "Contents", "Info.plist"
+                                    )
+                                ):
+                                    payload_path = candidate_path
+                                    break
+
+                        if payload_path:
+                            found_apps.append(
+                                {
+                                    "path": payload_path,
+                                    "pkg_filename": os.path.basename(input_path),
+                                    "install_location": install_location,
+                                    "app_name": app_name,
+                                }
+                            )
+                            robo_print(
+                                "Found app from install-location: %s" % app_name,
+                                LogLevel.VERBOSE,
+                                4,
+                            )
                 elif filename.lower() == "payload":
                     payload_apps = get_apps_from_payload(
                         os.path.join(dirpath, filename), facts, payload_id
