@@ -1063,7 +1063,6 @@ def generate_pkg_recipe(facts, prefs, recipe):
                                 }
                             ],
                             "id": facts["bundle_id"],
-                            "options": "purge_ds_store",
                             "pkgname": "%NAME%-%version%",
                             "pkgroot": "%pkgroot%",
                             "version": "%version%",
@@ -1147,7 +1146,6 @@ def generate_pkg_recipe(facts, prefs, recipe):
                                 }
                             ],
                             "id": facts["bundle_id"],
-                            "options": "purge_ds_store",
                             "pkgname": "%NAME%-%version%",
                             "pkgroot": "%pkgroot%",
                             "version": "%version%",

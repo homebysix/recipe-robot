@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file. This projec
 - Generally better download error handling when retrieving xml or json.
 - Updated included version of Sparkle framework.
 - Switched from `os.path` to `Pathlib.path` in codebase.
+- Removed unused `purge_ds_store` option from generated recipe PkgCreator arguments.
 
 ## [2.4.0] - 2025-08-24
 
