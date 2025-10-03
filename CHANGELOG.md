@@ -6,12 +6,21 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+Nothing yet.
+
+## [2.4.1] - 2025-10-03
+
 ### Added
 
 - Recipe Robot app now displays a warning on launch if AutoPkg isn't installed. (#184)
 - Automated macOS 14 and 15 Xcode tests on GitHub actions.
 - Some badges on readme, but only good ones.
 - Unit tests for SourceForge and BareBones feed processing.
+
+### Fixed
+
+- Removed unused and unnecessary `purge_ds_store` option from generated recipe PkgCreator arguments.
+- Apps contained within packages that set the `install-location` to the app's path itself are now properly considered during inspection.
 
 ### Changed
 
@@ -20,7 +29,6 @@ All notable changes to this project will be documented in this file. This projec
 - Generally better download error handling when retrieving xml or json.
 - Updated included version of Sparkle framework.
 - Switched from `os.path` to `Pathlib.path` in codebase.
-- Removed unused `purge_ds_store` option from generated recipe PkgCreator arguments.
 
 ## [2.4.0] - 2025-08-24
 
@@ -454,7 +462,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.4.1...HEAD
+[2.4.1]: https://github.com/homebysix/recipe-robot/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/homebysix/recipe-robot/compare/v2.3.2...v2.4.0
 [2.3.2]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...v2.3.1
