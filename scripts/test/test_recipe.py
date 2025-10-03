@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 # Recipe Robot
-# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2025 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ test_recipe.py
 Unit tests for recipe-related classes and functions.
 """
 
-import os
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 import plistlib
 import yaml
@@ -295,11 +295,11 @@ class TestRecipeWriting(unittest.TestCase):
 
     def test_write_plist_format(self):
         """Test writing recipe in plist format."""
-        file_path = os.path.join(self.temp_dir, "test.recipe")
+        file_path = str(Path(self.temp_dir) / "test.recipe")
 
         self.recipe.write(file_path, fmt="plist")
 
-        self.assertTrue(os.path.exists(file_path))
+        self.assertTrue(Path(file_path).exists())
 
         # Verify content
         with open(file_path, "rb") as f:
@@ -311,11 +311,11 @@ class TestRecipeWriting(unittest.TestCase):
 
     def test_write_yaml_format(self):
         """Test writing recipe in YAML format."""
-        file_path = os.path.join(self.temp_dir, "test.recipe.yaml")
+        file_path = str(Path(self.temp_dir) / "test.recipe.yaml")
 
         self.recipe.write(file_path, fmt="yaml")
 
-        self.assertTrue(os.path.exists(file_path))
+        self.assertTrue(Path(file_path).exists())
 
         # Verify content
         with open(file_path, "rb") as f:
@@ -328,7 +328,7 @@ class TestRecipeWriting(unittest.TestCase):
     def test_write_minimum_version_update(self):
         """Test that MinimumVersion is updated to at least 2.3."""
         self.recipe["keys"]["MinimumVersion"] = "1.0.0"
-        file_path = os.path.join(self.temp_dir, "test.recipe")
+        file_path = str(Path(self.temp_dir) / "test.recipe")
 
         self.recipe.write(file_path)
 
@@ -340,7 +340,7 @@ class TestRecipeWriting(unittest.TestCase):
     def test_write_minimum_version_preserve_higher(self):
         """Test that higher MinimumVersion is preserved."""
         self.recipe["keys"]["MinimumVersion"] = "3.0"
-        file_path = os.path.join(self.temp_dir, "test.recipe")
+        file_path = str(Path(self.temp_dir) / "test.recipe")
 
         self.recipe.write(file_path)
 
@@ -357,7 +357,7 @@ class TestRecipeWriting(unittest.TestCase):
         self.recipe["keys"]["TestString"] = NotifyingString("test", "test value")
         self.recipe["keys"]["TestBool"] = NotifyingBool("test", True)
 
-        file_path = os.path.join(self.temp_dir, "test.recipe")
+        file_path = str(Path(self.temp_dir) / "test.recipe")
         self.recipe.write(file_path)
 
         # Verify the notifying types were converted to primitives

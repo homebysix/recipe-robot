@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 # Recipe Robot
-# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2025 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ content. Based on and borrowed from autopkg's URLGetter.
 """
 
 
-import os.path
 import subprocess
+from pathlib import Path
 
 from .exceptions import RoboError
 from .tools import KNOWN_403_ON_HEAD, LogLevel, robo_print
@@ -279,7 +279,7 @@ def download_to_file(url, filename, headers=None, app_mode=False):
         curl_cmd.append("--progress-bar")
     curl_cmd.extend(["--output", filename, "--url", quote_spaces(url)])
     download_with_curl(curl_cmd, text=False, capture_output=False)
-    if os.path.exists(filename):
+    if Path(filename).exists():
         return filename
     raise RoboError(f"{filename} was not written!")
 

@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 # Recipe Robot
-# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2025 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ used by the Recipe Robot functional tests to recreate actual AutoPkg recipes.
 
 import os
 import plistlib
+from pathlib import Path
 
 import yaml
 
@@ -55,14 +56,14 @@ def main():
 
     # Get list of local recipes.
     recipes = []
-    recipe_repos = os.path.expanduser("~/Developer/_personal/sheepdog/repos")
-    for dirpath, dirnames, filenames in os.walk(recipe_repos):
+    recipe_repos = Path("~/Developer/_personal/sheepdog/repos").expanduser()
+    for dirpath, dirnames, filenames in os.walk(str(recipe_repos)):
         for dirname in dirnames:
             if dirname.startswith("."):
                 dirnames.remove(dirname)
         filenames = [x for x in filenames if x.endswith(".recipe")]
         for filename in filenames:
-            recipes.append(os.path.join(dirpath, filename))
+            recipes.append(str(Path(dirpath) / filename))
 
     sample_data = {}
     for recipe in recipes:

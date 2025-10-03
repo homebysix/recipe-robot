@@ -1,5 +1,9 @@
 [![Recipe Robot](images/header.png)](#)
 
+[![Latest Release](https://img.shields.io/github/v/release/homebysix/recipe-robot)](https://github.com/homebysix/recipe-robot/releases/latest)
+[![macOS Support](https://img.shields.io/badge/macOS-14+-purple)](https://github.com/homebysix/recipe-robot/actions/workflows/test.yml)
+[![Tests](https://github.com/homebysix/recipe-robot/actions/workflows/test.yml/badge.svg)](https://github.com/homebysix/recipe-robot/actions/workflows/test.yml)
+
 Recipe Robot is the easiest way to create new [AutoPkg](https://github.com/autopkg/autopkg) recipes for simple Mac apps. It consists of two components:
 
 - A __[Python script](#python-script-usage)__ that takes various types of input and automatically outputs AutoPkg recipes.

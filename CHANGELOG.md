@@ -8,14 +8,36 @@ All notable changes to this project will be documented in this file. This projec
 
 Nothing yet.
 
+## [2.4.1] - 2025-10-03
+
+### Added
+
+- Recipe Robot app now displays a warning on launch if AutoPkg isn't installed. (#184)
+- Automated macOS 14 and 15 Xcode tests on GitHub actions.
+- Some badges on readme, but only good ones.
+- Unit tests for SourceForge and BareBones feed processing.
+
+### Fixed
+
+- Removed unused and unnecessary `purge_ds_store` option from generated recipe PkgCreator arguments.
+- Apps contained within packages that set the `install-location` to the app's path itself are now properly considered during inspection.
+
+### Changed
+
+- If multiple GitHub assets are available, prefer installers, then disk images, then archives. (#205)
+- Prefer `SUFeedEntryDownloadURL` key from BareBones software update feeds, if available. (#194)
+- Generally better download error handling when retrieving xml or json.
+- Updated included version of Sparkle framework.
+- Switched from `os.path` to `Pathlib.path` in codebase.
+
 ## [2.4.0] - 2025-08-24
 
 ### Fixed
 
 - Fixed issue with app description parsing that was causing most descriptions to show "Popular multimedia player."
-- Fixed redundant versioning caused by Recipe Robot's treatment of Sparkle feeds being out of date with SparkleUpdateInfoProvider (#207).
-- Restored icon extraction when Jamf recipes (but not Munki) are selected in user preferences (#203).
-- Fixed an EOFError that could happen if the `RecipeCreateLocation` doesn't exist. (#185).
+- Fixed redundant versioning caused by Recipe Robot's treatment of Sparkle feeds being out of date with SparkleUpdateInfoProvider. (#207)
+- Restored icon extraction when Jamf recipes (but not Munki) are selected in user preferences. (#203)
+- Fixed an EOFError that could happen if the `RecipeCreateLocation` doesn't exist. (#185)
 
 ### Changed
 
@@ -23,7 +45,7 @@ Nothing yet.
 - Converted Python tests from nose to unittest and configured for code coverage.
 - Made functional tests optional during unittest runs. Specify `RUN_FUNCTIONAL_TESTS=true` to include them.
 - Built out Swift unit testing for the Mac app.
-- Improved company suffix stripping (e.g. Inc, LLC, Ltd) and included s.r.o. suffix.
+- Improved company suffix stripping (e.g. Inc, LLC, Ltd).
 - Updated Python syntax to 3.10 using `pyupgrade`.
 - Added `s.r.o.` to corporate suffixes able to be removed.
 - Data structure adjustments to recipe generation functions.
@@ -36,7 +58,7 @@ Nothing yet.
 
 ### Fixed
 
-- Resolved an issue with Sparkle feed parsing that could cause Recipe Robot to insert a static download URL in URLDownloader if the feed provided a version at the item level instead of the enclosure level (#206).
+- Resolved an issue with Sparkle feed parsing that could cause Recipe Robot to insert a static download URL in URLDownloader if the feed provided a version at the item level instead of the enclosure level. (#206)
 
 ## [2.3.1] - 2023-10-19
 
@@ -440,7 +462,9 @@ Nothing yet.
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.3.2...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.4.1...HEAD
+[2.4.1]: https://github.com/homebysix/recipe-robot/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/homebysix/recipe-robot/compare/v2.3.2...v2.4.0
 [2.3.2]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/homebysix/recipe-robot/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/homebysix/recipe-robot/compare/v2.2.0...v2.3.0

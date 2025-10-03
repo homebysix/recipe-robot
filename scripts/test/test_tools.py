@@ -1,7 +1,7 @@
 #!/usr/local/autopkg/python
 
 # Recipe Robot
-# Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+# Copyright 2015-2025 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ Unit tests for tools-related functions.
 
 import unittest
 import tempfile
-import os
+from pathlib import Path
 from unittest.mock import patch
 
 from scripts.recipe_robot_lib import tools
@@ -357,7 +357,7 @@ class TestToolsSearchFunctions(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.cache_file = os.path.join(self.temp_dir, "test_cache.json")
+        self.cache_file = str(Path(self.temp_dir) / "test_cache.json")
 
     def tearDown(self):
         """Clean up test fixtures."""

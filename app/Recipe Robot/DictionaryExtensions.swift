@@ -2,7 +2,7 @@
 //  DictionaryExtensions.swift
 //
 //  Recipe Robot
-//  Copyright 2015-2020 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
+//  Copyright 2015-2025 Elliot Jordan, Shea G. Craig, and Eldon Ahrold
 //
 
 import Foundation
