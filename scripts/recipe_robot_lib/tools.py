@@ -553,7 +553,7 @@ def check_search_cache(facts, search_index_path):
     # If cache exists locally, check whether it's current
     if (
         Path(search_index_path).is_file()
-        and Path(search_index_path + ".etag").is_file()
+        and Path(str(search_index_path) + ".etag").is_file()
     ):
         with open(str(search_index_path) + ".etag", encoding="utf-8") as openfile:
             local_etag = openfile.read().strip('"')
