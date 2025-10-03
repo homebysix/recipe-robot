@@ -5,6 +5,35 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>2.4.1</title>
+      <pubDate>Fri, 03 Oct 2025 13:28:48 -0700</pubDate>
+      <sparkle:version>1511</sparkle:version>
+      <sparkle:shortVersionString>2.4.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>Added</h3>
+<ul>
+<li>Recipe Robot app now displays a warning on launch if AutoPkg isn't installed. (#184)</li>
+<li>Automated macOS 14 and 15 Xcode tests on GitHub actions.</li>
+<li>Some badges on readme, but only good ones.</li>
+<li>Unit tests for SourceForge and BareBones feed processing.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Removed unused and unnecessary <code>purge_ds_store</code> option from generated recipe PkgCreator arguments.</li>
+<li>Apps contained within packages that set the <code>install-location</code> to the app's path itself are now properly considered during inspection.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Minimum supported macOS version is now 11 (Big Sur).</li>
+<li>If multiple GitHub assets are available, prefer installers, then disk images, then archives. (#205)</li>
+<li>Prefer <code>SUFeedEntryDownloadURL</code> key from BareBones software update feeds, if available. (#194)</li>
+<li>Generally better download error handling when retrieving xml or json.</li>
+<li>Updated included version of Sparkle framework.</li>
+<li>Switched from <code>os.path</code> to <code>Pathlib.path</code> in codebase.</li>
+</ul>]]></description>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v2.4.1/RecipeRobot-2.4.1.dmg" length="3582398" type="application/octet-stream" sparkle:edSignature="Clfx+/w9PxR6q+hhcJcOdsOrIoK34ZCK5SRObkusLGsamDquKysT6/QeoUYU4IHmSFvsoy6pp2yzLfWtBY/yDw=="/>
+    </item>
+    <item>
       <title>2.4.0</title>
       <pubDate>Sun, 24 Aug 2025 19:10:49 -0700</pubDate>
       <sparkle:version>1471</sparkle:version>
