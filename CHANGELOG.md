@@ -24,6 +24,7 @@ Nothing yet.
 
 ### Changed
 
+- Minimum supported macOS version is now 11 (Big Sur).
 - If multiple GitHub assets are available, prefer installers, then disk images, then archives. (#205)
 - Prefer `SUFeedEntryDownloadURL` key from BareBones software update feeds, if available. (#194)
 - Generally better download error handling when retrieving xml or json.
