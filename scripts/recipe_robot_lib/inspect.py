@@ -52,6 +52,7 @@ from recipe_robot_lib.tools import (
     any_item_in_string,
     get_exitcode_stdout_stderr,
     get_github_token,
+    has_ext,
     robo_print,
 )
 
@@ -155,18 +156,18 @@ def process_input_path(facts):
         robo_print("Input path looks like a local file URL.", LogLevel.VERBOSE)
         inspect_func = inspect_download_url
     elif os.path.exists(input_path):
-        if input_path.endswith(".app"):
+        if has_ext(input_path, "app"):
             robo_print("Input path looks like an app.", LogLevel.VERBOSE)
             inspect_func = inspect_app
-        elif input_path.endswith(".recipe"):
+        elif has_ext(input_path, "recipe"):
             raise RoboError("Sorry, I can't use existing AutoPkg recipes as input.")
-        elif input_path.endswith(SUPPORTED_INSTALL_FORMATS):
+        elif any(has_ext(input_path, fmt) for fmt in SUPPORTED_INSTALL_FORMATS):
             robo_print("Input path looks like an installer.", LogLevel.VERBOSE)
             inspect_func = inspect_pkg
-        elif input_path.endswith(SUPPORTED_IMAGE_FORMATS):
+        elif any(has_ext(input_path, fmt) for fmt in SUPPORTED_IMAGE_FORMATS):
             robo_print("Input path looks like a disk image.", LogLevel.VERBOSE)
             inspect_func = inspect_disk_image
-        elif input_path.endswith(SUPPORTED_ARCHIVE_FORMATS):
+        elif any(has_ext(input_path, fmt) for fmt in SUPPORTED_ARCHIVE_FORMATS):
             robo_print("Input path looks like an archive.", LogLevel.VERBOSE)
             inspect_func = inspect_archive
         else:
@@ -650,8 +651,9 @@ def inspect_archive(input_path, args, facts):
             facts["download_format"] = fmt[0]
 
             # If the download filename was ambiguous, change it.
-            if not facts.get("download_filename", input_path).endswith(
-                SUPPORTED_ARCHIVE_FORMATS
+            download_filename = facts.get("download_filename", input_path)
+            if not any(
+                has_ext(download_filename, fmt) for fmt in SUPPORTED_ARCHIVE_FORMATS
             ):
                 facts["download_filename"] = "{}.{}".format(
                     facts.get("download_filename", Path(input_path).name), fmt[0]
@@ -661,22 +663,30 @@ def inspect_archive(input_path, args, facts):
             stop_searching_archive = False
             for this_file in unpacked_dir.iterdir():
                 this_file = this_file.name
-                if this_file.lower().endswith(".app"):
+                if has_ext(this_file, ".app"):
                     facts = inspect_app(str(unpacked_dir / this_file), args, facts)
                     stop_searching_archive = True
                     return facts
-                elif this_file.lower().endswith(
-                    tuple([x for x in SUPPORTED_BUNDLE_TYPES])
+                elif any(
+                    has_ext(this_file, bundle_type)
+                    for bundle_type in SUPPORTED_BUNDLE_TYPES
                 ):
-                    facts = inspect_app(
-                        str(unpacked_dir / this_file),
-                        args,
-                        facts,
-                        bundle_type=Path(this_file).suffix.lower().lstrip("."),
-                    )
+                    # Determine which bundle type matched
+                    for bundle_type in SUPPORTED_BUNDLE_TYPES:
+                        if has_ext(this_file, bundle_type):
+                            facts = inspect_app(
+                                str(unpacked_dir / this_file),
+                                args,
+                                facts,
+                                bundle_type=bundle_type,
+                            )
+                            break
                     stop_searching_archive = True
                     return facts
-                elif this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
+                elif any(
+                    this_file.lower().endswith(f".{fmt}")
+                    for fmt in SUPPORTED_INSTALL_FORMATS
+                ):
                     facts = inspect_pkg(str(unpacked_dir / this_file), args, facts)
                     stop_searching_archive = True
                     return facts
@@ -687,7 +697,7 @@ def inspect_archive(input_path, args, facts):
                     for dirname in dirnames:
                         if dirname.startswith("."):
                             dirnames.remove(dirname)
-                        elif dirname.endswith(".app"):
+                        elif has_ext(dirname, ".app"):
                             facts = inspect_app(
                                 str(Path(dirpath) / dirname), args, facts
                             )
@@ -695,20 +705,25 @@ def inspect_archive(input_path, args, facts):
                                 str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
                             return facts
-                        elif dirname.endswith(
-                            tuple([x for x in SUPPORTED_BUNDLE_TYPES])
+                        elif any(
+                            has_ext(dirname, bundle_type)
+                            for bundle_type in SUPPORTED_BUNDLE_TYPES
                         ):
-                            facts = inspect_app(
-                                str(Path(dirpath) / dirname),
-                                args,
-                                facts,
-                                bundle_type=Path(dirname).suffix.lower().lstrip("."),
-                            )
+                            # Determine which bundle type matched
+                            for bundle_type in SUPPORTED_BUNDLE_TYPES:
+                                if has_ext(dirname, bundle_type):
+                                    facts = inspect_app(
+                                        str(Path(dirpath) / dirname),
+                                        args,
+                                        facts,
+                                        bundle_type=bundle_type,
+                                    )
+                                    break
                             facts["relative_path"] = (
                                 str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
                             return facts
-                        elif dirname.endswith(".pkg"):  # bundle packages
+                        elif has_ext(dirname, ".pkg"):  # bundle packages
                             facts = inspect_pkg(
                                 str(Path(dirpath) / dirname), args, facts
                             )
@@ -717,7 +732,7 @@ def inspect_archive(input_path, args, facts):
                             )
                             return facts
                     for filename in filenames:
-                        if filename.endswith(".pkg"):  # flat packages
+                        if has_ext(filename, ".pkg"):  # flat packages
                             facts = inspect_pkg(
                                 str(Path(dirpath) / filename), args, facts
                             )
@@ -756,7 +771,7 @@ def find_supported_release(release_array, download_url_key):
 
     for this_format in ALL_SUPPORTED_FORMATS:
         for asset in release_array:
-            if asset[download_url_key].endswith(this_format):
+            if has_ext(asset[download_url_key], this_format):
                 if download_url is None:
                     download_format = this_format
                     download_url = asset[download_url_key]
@@ -863,7 +878,7 @@ def inspect_bitbucket_url(input_path, args, facts):
                 for asset in parsed_release["values"]:
                     if download_format not in ("", None):
                         break
-                    if asset["links"]["self"]["href"].endswith(this_format):
+                    if has_ext(asset["links"]["self"]["href"], this_format):
                         download_format = this_format
                         download_url = asset["links"]["self"]["href"]
                         break
@@ -950,9 +965,8 @@ def inspect_disk_image(input_path, args, facts):
         facts["download_format"] = "dmg"  # most common disk image format
 
         # If the download filename was ambiguous, change it.
-        if not facts.get("download_filename", input_path).endswith(
-            SUPPORTED_IMAGE_FORMATS
-        ):
+        download_filename = facts.get("download_filename", input_path)
+        if not any(has_ext(download_filename, fmt) for fmt in SUPPORTED_IMAGE_FORMATS):
             facts["download_filename"] = (
                 facts.get("download_filename", input_path) + ".dmg"
             )
@@ -984,7 +998,7 @@ def inspect_disk_image(input_path, args, facts):
                 dmg_mount = entity["mount-point"]
                 break
         for this_file in os.listdir(dmg_mount):
-            if this_file.lower().endswith(".app"):
+            if has_ext(this_file, ".app"):
                 # Copy app to cache folder.
                 # TODO: What if .app isn't on root of dmg mount? (#26)
                 attached_app_path = str(Path(dmg_mount) / this_file)
@@ -1002,7 +1016,10 @@ def inspect_disk_image(input_path, args, facts):
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 facts = inspect_app(cached_app_path, args, facts)
                 break
-            elif this_file.lower().endswith(tuple([x for x in SUPPORTED_BUNDLE_TYPES])):
+            elif any(
+                has_ext(this_file, bundle_type)
+                for bundle_type in SUPPORTED_BUNDLE_TYPES
+            ):
                 # Copy bundle to cache folder.
                 attached_app_path = str(Path(dmg_mount) / this_file)
                 cached_app_path = str(Path(CACHE_DIR) / "unpacked" / this_file)
@@ -1015,14 +1032,21 @@ def inspect_disk_image(input_path, args, facts):
                 # Unmount attached volume when done.
                 cmd = '/usr/bin/hdiutil detach "%s"' % dmg_mount
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
-                facts = inspect_app(
-                    cached_app_path,
-                    args,
-                    facts,
-                    bundle_type=Path(this_file).suffix.lower().lstrip("."),
-                )
+                # Determine which bundle type matched
+                for bundle_type in SUPPORTED_BUNDLE_TYPES:
+                    if has_ext(this_file, bundle_type):
+                        facts = inspect_app(
+                            cached_app_path,
+                            args,
+                            facts,
+                            bundle_type=bundle_type,
+                        )
+                        break
                 break
-            if this_file.lower().endswith(SUPPORTED_INSTALL_FORMATS):
+            if any(
+                this_file.lower().endswith(f".{fmt}")
+                for fmt in SUPPORTED_INSTALL_FORMATS
+            ):
                 facts = inspect_pkg(str(Path(dmg_mount) / this_file), args, facts)
                 facts["pkg_in_dmg"] = this_file
                 break
@@ -1233,7 +1257,7 @@ def inspect_download_url(input_path, args, facts):
     download_format = ""
     robo_print("Determining download format...", LogLevel.VERBOSE)
     for this_format in ALL_SUPPORTED_FORMATS:
-        if filename.lower().endswith(this_format) or this_format in parsed_url.query:
+        if has_ext(filename, f".{this_format}") or this_format in parsed_url.query:
             download_format = this_format
             facts["download_format"] = this_format
             robo_print("File extension is %s" % this_format, LogLevel.VERBOSE, 4)
@@ -1534,7 +1558,7 @@ def get_apps_from_payload(payload_archive, facts, payload_id=0):
             if dirname.startswith("."):
                 dirnames.remove(dirname)
             elif (
-                dirname.endswith(".app")
+                has_ext(dirname, ".app")
                 and (Path(dirpath) / dirname / "Contents" / "Info.plist").is_file()
             ):
                 payload_apps.append(str(Path(dirpath) / dirname))
@@ -1682,7 +1706,7 @@ def inspect_pkg(input_path, args, facts):
                     4,
                 )
                 facts["codesign_authorities"] = codesign_authorities
-                facts["codesign_input_filename"] = Path(input_path)
+                facts["codesign_input_filename"] = Path(input_path).name
             else:
                 robo_print(
                     "Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4
@@ -1724,7 +1748,7 @@ def inspect_pkg(input_path, args, facts):
                 if dirname.startswith("."):
                     dirnames.remove(dirname)
                 elif (
-                    dirname.endswith(".app")
+                    has_ext(dirname, ".app")
                     and (Path(dirpath) / dirname / "Contents" / "Info.plist").is_file()
                 ):
                     found_apps.append(
@@ -1734,7 +1758,7 @@ def inspect_pkg(input_path, args, facts):
                         }
                     )  # should be rare
             for filename in filenames:
-                if filename.endswith(".pkg"):  # flat packages
+                if has_ext(filename, ".pkg"):  # flat packages
                     facts["warnings"].append(
                         "Yo dawg, I found a flat package inside this flat package!"
                     )
@@ -1768,7 +1792,7 @@ def inspect_pkg(input_path, args, facts):
                     install_location = pkginfo_parsed.getroot().attrib.get(
                         "install-location", ""
                     )
-                    if install_location.endswith(".app"):
+                    if has_ext(install_location, ".app"):
                         # Create a virtual app entry for this payload
                         app_name = Path(install_location)
                         # Find the corresponding payload directory that contains Contents/

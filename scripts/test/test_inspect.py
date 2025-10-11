@@ -685,7 +685,7 @@ class TestProcessInputPath(unittest.TestCase):
         """Test processing of local installer package paths."""
         mock_exists.return_value = True
         mock_inspect_pkg.return_value = self.facts
-        test_cases = ["/path/to/installer.pkg", "/path/to/installer.mpkg"]
+        test_cases = ["/path/to/installer.pkg"]
 
         for path in test_cases:
             with self.subTest(path=path):

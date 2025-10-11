@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This projec
 
 - If it exists at `~/.autopkg_gh_token`, the GitHub personal access token is now used for AutoPkg recipe search index requests.
 - Better handling of files in the cache that can't be deleted by the user running Recipe Robot.
+- Centralization and standardization of how Recipe Robot checks file extensions.
 
 ## [2.4.1] - 2025-10-03
 

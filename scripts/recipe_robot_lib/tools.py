@@ -285,6 +285,42 @@ def strip_dev_suffix(dev):
     return result.rstrip(" .,")
 
 
+def has_ext(filepath, extension):
+    """Check if a file path has a specific extension.
+
+    This function provides a robust way to check file extensions using pathlib,
+    handling various input types (strings, Path objects, None) gracefully.
+    Supports both simple extensions (e.g., "pkg") and compound extensions (e.g., "tar.gz").
+
+    Args:
+        filepath: The file path to check (str, Path, or None)
+        extension: The extension to check for (str), with or without leading dot (e.g., "pkg" or ".pkg")
+
+    Returns:
+        bool: True if the file has the specified extension (case-insensitive), False otherwise
+
+    Examples:
+        has_ext("file.pkg", "pkg")  # True
+        has_ext("file.PKG", "pkg")  # True
+        has_ext("file.dmg", "pkg")  # False
+        has_ext("file.tar.gz", "tar.gz")  # True
+        has_ext("file.TAR.GZ", "tar.gz")  # True
+        has_ext(None, "pkg")        # False
+        has_ext("", "pkg")          # False
+    """
+    if not filepath:
+        return False
+
+    # Normalize extension by removing leading dot if present
+    ext = extension.lstrip(".").lower()
+
+    # Get the filename from the path
+    filename = Path(filepath).name.lower()
+
+    # Check if the filename ends with the extension (with a dot before it)
+    return filename.endswith(f".{ext}")
+
+
 def get_bundle_name_info(facts):
     """Returns the key used to store the bundle name. This is usually "app_name"
     but could be "prefpane_name". If both exist in facts, "app_name" wins.
@@ -386,7 +422,7 @@ def extract_app_icon(facts, png_path):
     create_dest_dirs(str(png_path_absolute.parent))
 
     # Add .icns if the icon path doesn't already end with .icns.
-    if not icon_path.endswith(".icns"):
+    if not has_ext(icon_path, ".icns"):
         icon_path = icon_path + ".icns"
 
     if not png_path_absolute.exists():
