@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
-Nothing yet.
+### Fixed
+
+- If it exists at `~/.autopkg_gh_token`, the GitHub personal access token is now used for AutoPkg recipe search index requests.
 
 ## [2.4.1] - 2025-10-03
 

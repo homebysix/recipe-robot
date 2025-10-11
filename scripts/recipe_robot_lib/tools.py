@@ -535,20 +535,43 @@ def any_item_in_string(items, test_string):
 
 def check_search_cache(facts, search_index_path):
     """Update local search index, if it's missing or out of date."""
+    # Import curler here to avoid circular import
+    from . import curler
+
     robo_print("Checking local search index cache...", LogLevel.VERBOSE)
 
     # Retrieve metadata about search index file from GitHub API
     cache_meta_url = (
         "https://api.github.com/repos/autopkg/index/contents/index.json?ref=main"
     )
-    cmd = 'curl -sL "%s" -H "Accept: application/vnd.github.v3+json"' % cache_meta_url
-    exitcode, stdout, _ = get_exitcode_stdout_stderr(cmd)
-    if exitcode != 0:
+
+    # Build headers with GitHub token if available
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    github_token = get_github_token()
+    if github_token:
+        headers["Authorization"] = f"token {github_token}"
+
+    try:
+        stdout = curler.download(cache_meta_url, headers=headers, text=True)
+    except (OSError, RuntimeError):
         facts["warnings"].append(
             "Unable to retrieve search index metadata from GitHub API."
         )
         return
-    cache_meta = json.loads(stdout)
+
+    try:
+        cache_meta = json.loads(stdout)
+        sha = cache_meta.get("sha")
+        if not sha:
+            facts["warnings"].append(
+                "Unable to retrieve search index metadata from GitHub API."
+            )
+            return
+    except json.JSONDecodeError:
+        facts["warnings"].append(
+            "Unable to retrieve search index metadata from GitHub API."
+        )
+        return
 
     # If cache exists locally, check whether it's current
     if (
@@ -557,26 +580,24 @@ def check_search_cache(facts, search_index_path):
     ):
         with open(str(search_index_path) + ".etag", encoding="utf-8") as openfile:
             local_etag = openfile.read().strip('"')
-        if local_etag == cache_meta["sha"]:
+        if local_etag == sha:
             robo_print("Local search index cache is up to date.", LogLevel.VERBOSE, 4)
             return
 
     # Write etag file
     with open(str(search_index_path) + ".etag", "w", encoding="utf-8") as openfile:
-        openfile.write(cache_meta["sha"])
+        openfile.write(sha)
 
     # Write cache file
-    cmd = 'curl -sLo "{}" "{}" -H "Accept: application/vnd.github.v3.raw"'.format(
-        str(search_index_path),
-        cache_meta_url,
-    )
-    exitcode, _, _ = get_exitcode_stdout_stderr(cmd)
-    if exitcode != 0:
+    headers["Accept"] = "application/vnd.github.v3.raw"
+    try:
+        curler.download_to_file(cache_meta_url, str(search_index_path), headers=headers)
+        robo_print("Updated local search index cache.", LogLevel.VERBOSE, 4)
+    except (OSError, RuntimeError, RoboError):
         facts["warnings"].append(
             "Unable to retrieve search index contents from GitHub API."
         )
         return
-    robo_print("Updated local search index cache.", LogLevel.VERBOSE, 4)
 
 
 def get_table_row(row_items, col_widths, header=False):
