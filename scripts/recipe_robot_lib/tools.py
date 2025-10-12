@@ -578,7 +578,7 @@ def check_search_cache(facts, search_index_path):
 
     # Retrieve metadata about search index file from GitHub API
     cache_meta_url = (
-        "https://api.github.com/repos/autopkg/index/contents/index.json?ref=main"
+        "https://api.github.com/repos/autopkg/index/contents/v1/index.json?ref=main"
     )
 
     # Build headers with GitHub token if available
