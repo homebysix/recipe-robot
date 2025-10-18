@@ -360,6 +360,8 @@ def check_url(url, headers=None):
             return url, head, None
 
         # Try again with alternate user-agents.
+        if headers is None:
+            headers = {}
         for ua in (ua_safari, ua_chrome):
             headers["user-agent"] = ua
             head, retcode = get_headers(url, headers=headers)
