@@ -21,6 +21,7 @@ Nothing yet.
 - Better error handling around search index caching.
 - Simplified GitHub repo detection and improved resilience.
 - Better error handling when discoveries cause us to remove inspection types from facts dictionary.
+- Catch OSError during cache cleanup.
 
 ### Changed
 

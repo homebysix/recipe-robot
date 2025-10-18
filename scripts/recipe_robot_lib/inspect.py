@@ -1739,7 +1739,12 @@ def inspect_pkg(input_path, args, facts):
     robo_print("Expanding package to look for clues...", LogLevel.VERBOSE)
     expand_path = Path(CACHE_DIR) / "expanded"
     if expand_path.exists():
-        shutil.rmtree(str(expand_path))
+        try:
+            shutil.rmtree(str(expand_path))
+        except OSError as e:
+            robo_print(
+                f"Warning: Could not remove {expand_path}: {e}", LogLevel.WARNING
+            )
     cmd = '/usr/sbin/pkgutil --expand "{}" "{}"'.format(input_path, str(expand_path))
     exitcode, out, _ = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
