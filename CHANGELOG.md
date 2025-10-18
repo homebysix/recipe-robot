@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+Nothing yet.
+
+## [2.4.2] - 2025-10-18
+
 ### Fixed
 
 - If it exists at `~/.autopkg_gh_token`, the GitHub personal access token is now used for AutoPkg recipe search index requests.
@@ -471,7 +475,8 @@ All notable changes to this project will be documented in this file. This projec
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.4.1...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.4.2...HEAD
+[2.4.2]: https://github.com/homebysix/recipe-robot/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/homebysix/recipe-robot/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/homebysix/recipe-robot/compare/v2.3.2...v2.4.0
 [2.3.2]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...v2.3.2
