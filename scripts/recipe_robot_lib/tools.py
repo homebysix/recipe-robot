@@ -614,11 +614,21 @@ def check_search_cache(facts, search_index_path):
         Path(search_index_path).is_file()
         and Path(str(search_index_path) + ".etag").is_file()
     ):
-        with open(str(search_index_path) + ".etag", encoding="utf-8") as openfile:
-            local_etag = openfile.read().strip('"')
-        if local_etag == sha:
-            robo_print("Local search index cache is up to date.", LogLevel.VERBOSE, 4)
-            return
+        try:
+            with open(str(search_index_path) + ".etag", encoding="utf-8") as openfile:
+                local_etag = openfile.read().strip('"')
+            if local_etag == sha:
+                robo_print(
+                    "Local search index cache is up to date.", LogLevel.VERBOSE, 4
+                )
+                return
+        except (OSError, IOError) as e:
+            robo_print(
+                f"Warning: Unable to read etag file: {e}. Re-downloading cache.",
+                LogLevel.WARNING,
+                4,
+            )
+            # Continue to re-download the cache
 
     # Write etag file
     with open(str(search_index_path) + ".etag", "w", encoding="utf-8") as openfile:
@@ -688,8 +698,13 @@ def create_existing_recipe_list(facts):
         "~/Library/Caches/Recipe Robot/search_index.json"
     ).expanduser()
     check_search_cache(facts, search_index_path)
-    with open(str(search_index_path), "rb") as openfile:
-        search_index = json.load(openfile)
+
+    try:
+        with open(str(search_index_path), "rb") as openfile:
+            search_index = json.load(openfile)
+    except (OSError, IOError, json.JSONDecodeError) as e:
+        facts["warnings"].append(f"Unable to read or parse search index cache: {e}")
+        return
 
     # Search for existing recipes in index
     robo_print(
