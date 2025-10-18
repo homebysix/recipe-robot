@@ -5,6 +5,32 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>2.4.2</title>
+      <pubDate>Sat, 18 Oct 2025 13:50:02 -0700</pubDate>
+      <sparkle:version>1532</sparkle:version>
+      <sparkle:shortVersionString>2.4.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>Fixed</h3>
+<ul>
+<li>If it exists at <code>~/.autopkg_gh_token</code>, the GitHub personal access token is now used for AutoPkg recipe search index requests.</li>
+<li>Better handling of files in the cache that can't be deleted by the user running Recipe Robot.</li>
+<li>Centralization and standardization of how Recipe Robot checks file extensions.</li>
+<li>Better error handling when attempting downloads using alternative user-agents.</li>
+<li>Better error handling when web requests don't return any HTTP result code as expected.</li>
+<li>Better handling of unexpected or incorrect AutoPkg search index structure.</li>
+<li>Better error handling around search index caching.</li>
+<li>Simplified GitHub repo detection and improved resilience.</li>
+<li>Better error handling when discoveries cause us to remove inspection types from facts dictionary.</li>
+<li>Catch OSError during cache cleanup.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Updated use of AutoPkg search index to align with new <a href="https://github.com/autopkg/index/commit/9eabc9f1bb6ee85d6abaa9d5992b94a76c95a77a#diff-bd7a2111af2e000513b56728b34e8d267e82ba3ec9c013e409b7c8d37ab55715">versioned index structure</a>.</li>
+<li>Use default filename of <code>download</code> if a download filename or extension cannot be parsed using the URL or HTTP headers.</li>
+</ul>]]></description>
+      <enclosure url="https://github.com/homebysix/recipe-robot/releases/download/v2.4.2/RecipeRobot-2.4.2.dmg" length="3556262" type="application/octet-stream" sparkle:edSignature="WYn6bhFaV5pSWQYARixJoe9wVo48mIy70GU+6Ki8firkYmUBfzWBKMyoU7q6AzoqdZ/3lKHffxld332+ouKHDA=="/>
+    </item>
+    <item>
       <title>2.4.1</title>
       <pubDate>Fri, 03 Oct 2025 13:28:48 -0700</pubDate>
       <sparkle:version>1511</sparkle:version>
