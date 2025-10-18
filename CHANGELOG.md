@@ -19,6 +19,7 @@ Nothing yet.
 - Better error handling when web requests don't return any HTTP result code as expected.
 - Better handling of unexpected or incorrect AutoPkg search index structure.
 - Better error handling around search index caching.
+- Simplified GitHub repo detection and improved resilience.
 
 ### Changed
 

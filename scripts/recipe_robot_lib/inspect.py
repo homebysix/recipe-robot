@@ -1351,7 +1351,6 @@ def inspect_github_url(input_path, args, facts):
     facts["inspections"].append("github_url")
 
     # Grab the GitHub repo path.
-    github_repo = ""
     robo_print("Getting GitHub repo...", LogLevel.VERBOSE)
     # Matches all these examples:
     # - https://github.com/jbtule/cdto/releases/download/2_6_0/cdto_2_6.zip
@@ -1360,21 +1359,25 @@ def inspect_github_url(input_path, args, facts):
     # - https://api.github.com/repos/macmule/AutoCasperNBI
     # - https://hjuutilainen.github.io/munkiadmin/
     parsed_url = urlparse(input_path)
-    path = parsed_url.path.split("/")
-    path.remove("")
+    # Filter out empty strings from path components
+    path = [p for p in parsed_url.path.split("/") if p]
+
+    # Determine repo based on URL type
     if "api.github.com" in parsed_url.netloc:
-        if "/repos/" not in input_path:
-            message = "GitHub API URL specified is not a repository."
-            facts["warnings"].append(message)
-        else:
-            github_repo = path[1] + "/" + path[2]
+        if "/repos/" not in input_path or len(path) < 3:
+            facts["warnings"].append("GitHub API URL is not a valid repository URL.")
+            return facts
+        github_repo = f"{path[1]}/{path[2]}"
     elif ".github.io" in parsed_url.netloc:
-        github_repo = parsed_url.netloc.split(".")[0] + "/" + path[0]
+        if not path:
+            facts["warnings"].append("GitHub Pages URL is not valid.")
+            return facts
+        github_repo = f"{parsed_url.netloc.split('.')[0]}/{path[0]}"
     else:
-        github_repo = path[0] + "/" + path[1]
-    if github_repo in ("", None):
-        facts["warnings"].append("Could not detect GitHub repo.")
-        return facts
+        if len(path) < 2:
+            facts["warnings"].append("GitHub URL is not a valid repository URL.")
+            return facts
+        github_repo = f"{path[0]}/{path[1]}"
 
     robo_print("GitHub repo is: %s" % github_repo, LogLevel.VERBOSE, 4)
     facts["github_repo"] = github_repo
