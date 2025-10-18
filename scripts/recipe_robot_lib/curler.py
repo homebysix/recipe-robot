@@ -30,6 +30,21 @@ from .exceptions import RoboError
 from .tools import KNOWN_403_ON_HEAD, LogLevel, robo_print
 
 
+def get_http_result_code(head):
+    """Safely extract HTTP result code from headers dictionary.
+
+    Args:
+        head (dict): Dictionary of HTTP headers.
+
+    Returns:
+        int: HTTP result code, or 0 if unable to parse.
+    """
+    try:
+        return int(head.get("http_result_code", "0"))
+    except (ValueError, TypeError):
+        return 0
+
+
 def prepare_curl_cmd():
     """Assemble basic curl command and return it."""
     return ["/usr/bin/curl", "--compressed", "--location", "--silent", "--show-error"]
@@ -325,7 +340,7 @@ def check_url(url, headers=None):
     if url.startswith("http:"):
         robo_print("Checking for HTTPS URL...", LogLevel.VERBOSE, 4)
         head, retcode = get_headers("https" + url[4:], headers=headers)
-        if retcode == 0 and int(head.get("http_result_code")) < 400:
+        if retcode == 0 and get_http_result_code(head) < 400:
             url = "https" + url[4:]
             robo_print("Found HTTPS URL: %s" % url, LogLevel.VERBOSE, 4)
             return url, head, None
@@ -334,7 +349,7 @@ def check_url(url, headers=None):
 
     # Get URL headers.
     head, retcode = get_headers(url, headers=headers)
-    http_result = int(head.get("http_result_code"))
+    http_result = get_http_result_code(head)
     if retcode == 0 and http_result < 400:
         return url, head, None
 
@@ -365,7 +380,7 @@ def check_url(url, headers=None):
         for ua in (ua_safari, ua_chrome):
             headers["user-agent"] = ua
             head, retcode = get_headers(url, headers=headers)
-            if int(head.get("http_result_code")) < 400:
+            if get_http_result_code(head) < 400:
                 robo_print(
                     "Using browser user-agent.",
                     LogLevel.VERBOSE,

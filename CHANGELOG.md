@@ -16,6 +16,7 @@ Nothing yet.
 - Better handling of files in the cache that can't be deleted by the user running Recipe Robot.
 - Centralization and standardization of how Recipe Robot checks file extensions.
 - Better error handling when attempting downloads using alternative user-agents.
+- Better error handling when web requests don't return any HTTP result code as expected.
 
 ### Changed
 

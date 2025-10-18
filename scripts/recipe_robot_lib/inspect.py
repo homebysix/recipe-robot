@@ -38,6 +38,7 @@ from xml.etree import ElementTree
 
 import xattr
 from recipe_robot_lib import curler
+from recipe_robot_lib.curler import get_http_result_code
 from recipe_robot_lib.exceptions import RoboError
 from recipe_robot_lib.tools import (
     ALL_SUPPORTED_FORMATS,
@@ -1162,12 +1163,12 @@ def inspect_download_url(input_path, args, facts):
     # Check to make sure URL is valid, and switch to HTTPS if possible.
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
-    http_result_code = int(head.get("http_result_code"))
+    http_result_code = get_http_result_code(head)
     if http_result_code >= 400:
         if not any(x in checked_url for x in KNOWN_403_ON_HEAD):
             facts["warnings"].append(
                 "Error encountered during file download HEAD check. (%s)"
-                % int(head.get("http_result_code"))
+                % get_http_result_code(head)
             )
         # Proceed anyway, because sometimes these errors are false positives.
         # Examples:
@@ -2121,7 +2122,7 @@ def inspect_barebones_feed_url(input_path, args, facts):
     checked_url, head, user_agent = curler.check_url(input_path)
 
     # Remove feed if it's not usable.
-    http_result_code = int(head.get("http_result_code"))
+    http_result_code = get_http_result_code(head)
     if http_result_code >= 400:
         facts.pop("sparkle_feed", None)
         return facts
@@ -2207,7 +2208,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     checked_url, head, user_agent = curler.check_url(input_path, headers=headers)
 
     # Remove Sparkle feed if it's not usable.
-    http_result_code = int(head.get("http_result_code"))
+    http_result_code = get_http_result_code(head)
     if http_result_code == 403:
         if not any(x in checked_url for x in KNOWN_403_ON_HEAD):
             # 403 errors are false positives for specific domains.
