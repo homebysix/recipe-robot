@@ -707,15 +707,34 @@ def create_existing_recipe_list(facts):
     # Collect result info into result list
     result_items = []
     for result_id in result_ids:
-        repo = search_index["identifiers"][result_id]["repo"]
-        if repo.startswith("autopkg/"):
-            repo = repo.replace("autopkg/", "")
-        result_item = {
-            "Name": Path(search_index["identifiers"][result_id]["path"]).name,
-            "Repo": repo,
-            "Path": search_index["identifiers"][result_id]["path"],
-        }
-        result_items.append(result_item)
+        try:
+            identifier_data = search_index["identifiers"].get(result_id)
+            if not identifier_data:
+                continue
+            repo = identifier_data.get("repo", "Unknown")
+            path = identifier_data.get("path", "")
+            if not path:
+                continue
+            if repo.startswith("autopkg/"):
+                repo = repo.replace("autopkg/", "")
+            result_item = {
+                "Name": Path(path).name,
+                "Repo": repo,
+                "Path": path,
+            }
+            result_items.append(result_item)
+        except (KeyError, TypeError) as e:
+            robo_print(
+                f"Warning: Skipping malformed search result {result_id}: {e}",
+                LogLevel.WARNING,
+                4,
+            )
+            continue
+
+    if not result_items:
+        robo_print("No valid results found", LogLevel.VERBOSE, 4)
+        return
+
     col_widths = [
         max([len(x[k]) for x in result_items] + [len(k)])
         for k in result_items[0].keys()
