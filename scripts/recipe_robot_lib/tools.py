@@ -51,7 +51,7 @@ from .exceptions import RoboError
 # pylint: enable=no-name-in-module
 
 
-__version__ = "2.4.1"
+__version__ = "2.4.2"
 ENDC = "\033[0m"
 BUNDLE_ID = "com.elliotjordan.recipe-robot"
 PREFS_FILE = Path("~/Library/Preferences/%s.plist" % BUNDLE_ID).expanduser()
@@ -285,6 +285,42 @@ def strip_dev_suffix(dev):
     return result.rstrip(" .,")
 
 
+def has_ext(filepath, extension):
+    """Check if a file path has a specific extension.
+
+    This function provides a robust way to check file extensions using pathlib,
+    handling various input types (strings, Path objects, None) gracefully.
+    Supports both simple extensions (e.g., "pkg") and compound extensions (e.g., "tar.gz").
+
+    Args:
+        filepath: The file path to check (str, Path, or None)
+        extension: The extension to check for (str), with or without leading dot (e.g., "pkg" or ".pkg")
+
+    Returns:
+        bool: True if the file has the specified extension (case-insensitive), False otherwise
+
+    Examples:
+        has_ext("file.pkg", "pkg")  # True
+        has_ext("file.PKG", "pkg")  # True
+        has_ext("file.dmg", "pkg")  # False
+        has_ext("file.tar.gz", "tar.gz")  # True
+        has_ext("file.TAR.GZ", "tar.gz")  # True
+        has_ext(None, "pkg")        # False
+        has_ext("", "pkg")          # False
+    """
+    if not filepath:
+        return False
+
+    # Normalize extension by removing leading dot if present
+    ext = extension.lstrip(".").lower()
+
+    # Get the filename from the path
+    filename = Path(filepath).name.lower()
+
+    # Check if the filename ends with the extension (with a dot before it)
+    return filename.endswith(f".{ext}")
+
+
 def get_bundle_name_info(facts):
     """Returns the key used to store the bundle name. This is usually "app_name"
     but could be "prefpane_name". If both exist in facts, "app_name" wins.
@@ -386,7 +422,7 @@ def extract_app_icon(facts, png_path):
     create_dest_dirs(str(png_path_absolute.parent))
 
     # Add .icns if the icon path doesn't already end with .icns.
-    if not icon_path.endswith(".icns"):
+    if not has_ext(icon_path, ".icns"):
         icon_path = icon_path + ".icns"
 
     if not png_path_absolute.exists():
@@ -535,48 +571,79 @@ def any_item_in_string(items, test_string):
 
 def check_search_cache(facts, search_index_path):
     """Update local search index, if it's missing or out of date."""
+    # Import curler here to avoid circular import
+    from . import curler
+
     robo_print("Checking local search index cache...", LogLevel.VERBOSE)
 
     # Retrieve metadata about search index file from GitHub API
     cache_meta_url = (
-        "https://api.github.com/repos/autopkg/index/contents/index.json?ref=main"
+        "https://api.github.com/repos/autopkg/index/contents/v1/index.json?ref=main"
     )
-    cmd = 'curl -sL "%s" -H "Accept: application/vnd.github.v3+json"' % cache_meta_url
-    exitcode, stdout, _ = get_exitcode_stdout_stderr(cmd)
-    if exitcode != 0:
+
+    # Build headers with GitHub token if available
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    github_token = get_github_token()
+    if github_token:
+        headers["Authorization"] = f"token {github_token}"
+
+    try:
+        stdout = curler.download(cache_meta_url, headers=headers, text=True)
+    except (OSError, RuntimeError):
         facts["warnings"].append(
             "Unable to retrieve search index metadata from GitHub API."
         )
         return
-    cache_meta = json.loads(stdout)
+
+    try:
+        cache_meta = json.loads(stdout)
+        sha = cache_meta.get("sha")
+        if not sha:
+            facts["warnings"].append(
+                "Unable to retrieve search index metadata from GitHub API."
+            )
+            return
+    except json.JSONDecodeError:
+        facts["warnings"].append(
+            "Unable to retrieve search index metadata from GitHub API."
+        )
+        return
 
     # If cache exists locally, check whether it's current
     if (
         Path(search_index_path).is_file()
         and Path(str(search_index_path) + ".etag").is_file()
     ):
-        with open(str(search_index_path) + ".etag", encoding="utf-8") as openfile:
-            local_etag = openfile.read().strip('"')
-        if local_etag == cache_meta["sha"]:
-            robo_print("Local search index cache is up to date.", LogLevel.VERBOSE, 4)
-            return
+        try:
+            with open(str(search_index_path) + ".etag", encoding="utf-8") as openfile:
+                local_etag = openfile.read().strip('"')
+            if local_etag == sha:
+                robo_print(
+                    "Local search index cache is up to date.", LogLevel.VERBOSE, 4
+                )
+                return
+        except (OSError, IOError) as e:
+            robo_print(
+                f"Warning: Unable to read etag file: {e}. Re-downloading cache.",
+                LogLevel.WARNING,
+                4,
+            )
+            # Continue to re-download the cache
 
     # Write etag file
     with open(str(search_index_path) + ".etag", "w", encoding="utf-8") as openfile:
-        openfile.write(cache_meta["sha"])
+        openfile.write(sha)
 
     # Write cache file
-    cmd = 'curl -sLo "{}" "{}" -H "Accept: application/vnd.github.v3.raw"'.format(
-        str(search_index_path),
-        cache_meta_url,
-    )
-    exitcode, _, _ = get_exitcode_stdout_stderr(cmd)
-    if exitcode != 0:
+    headers["Accept"] = "application/vnd.github.v3.raw"
+    try:
+        curler.download_to_file(cache_meta_url, str(search_index_path), headers=headers)
+        robo_print("Updated local search index cache.", LogLevel.VERBOSE, 4)
+    except (OSError, RuntimeError, RoboError):
         facts["warnings"].append(
             "Unable to retrieve search index contents from GitHub API."
         )
         return
-    robo_print("Updated local search index cache.", LogLevel.VERBOSE, 4)
 
 
 def get_table_row(row_items, col_widths, header=False):
@@ -631,8 +698,13 @@ def create_existing_recipe_list(facts):
         "~/Library/Caches/Recipe Robot/search_index.json"
     ).expanduser()
     check_search_cache(facts, search_index_path)
-    with open(str(search_index_path), "rb") as openfile:
-        search_index = json.load(openfile)
+
+    try:
+        with open(str(search_index_path), "rb") as openfile:
+            search_index = json.load(openfile)
+    except (OSError, IOError, json.JSONDecodeError) as e:
+        facts["warnings"].append(f"Unable to read or parse search index cache: {e}")
+        return
 
     # Search for existing recipes in index
     robo_print(
@@ -650,15 +722,34 @@ def create_existing_recipe_list(facts):
     # Collect result info into result list
     result_items = []
     for result_id in result_ids:
-        repo = search_index["identifiers"][result_id]["repo"]
-        if repo.startswith("autopkg/"):
-            repo = repo.replace("autopkg/", "")
-        result_item = {
-            "Name": Path(search_index["identifiers"][result_id]["path"]).name,
-            "Repo": repo,
-            "Path": search_index["identifiers"][result_id]["path"],
-        }
-        result_items.append(result_item)
+        try:
+            identifier_data = search_index["identifiers"].get(result_id)
+            if not identifier_data:
+                continue
+            repo = identifier_data.get("repo", "Unknown")
+            path = identifier_data.get("path", "")
+            if not path:
+                continue
+            if repo.startswith("autopkg/"):
+                repo = repo.replace("autopkg/", "")
+            result_item = {
+                "Name": Path(path).name,
+                "Repo": repo,
+                "Path": path,
+            }
+            result_items.append(result_item)
+        except (KeyError, TypeError) as e:
+            robo_print(
+                f"Warning: Skipping malformed search result {result_id}: {e}",
+                LogLevel.WARNING,
+                4,
+            )
+            continue
+
+    if not result_items:
+        robo_print("No valid results found", LogLevel.VERBOSE, 4)
+        return
+
     col_widths = [
         max([len(x[k]) for x in result_items] + [len(k)])
         for k in result_items[0].keys()

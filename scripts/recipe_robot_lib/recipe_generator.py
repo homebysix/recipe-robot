@@ -42,6 +42,7 @@ from .tools import (
     extract_app_icon,
     get_bundle_name_info,
     get_exitcode_stdout_stderr,
+    has_ext,
     recipe_dirpath,
     robo_join,
     robo_print,
@@ -469,10 +470,8 @@ def generate_download_recipe(facts, prefs, recipe):
         # TODO: Extract method -> get_versioner
         if needs_versioner(facts):
             versioner = processor.Versioner()
-            if (
-                facts.get("codesign_input_filename", "").endswith(".pkg")
-                or "pkg" in facts["inspections"]
-            ):
+            codesign_filename = facts.get("codesign_input_filename", "")
+            if has_ext(codesign_filename, "pkg") or "pkg" in facts["inspections"]:
                 facts["warnings"].append(
                     "To add a Versioner processor with a pkg as input requires quite "
                     "a bit of customization. I'm going to take my best shot, but I "

@@ -8,6 +8,26 @@ All notable changes to this project will be documented in this file. This projec
 
 Nothing yet.
 
+## [2.4.2] - 2025-10-18
+
+### Fixed
+
+- If it exists at `~/.autopkg_gh_token`, the GitHub personal access token is now used for AutoPkg recipe search index requests.
+- Better handling of files in the cache that can't be deleted by the user running Recipe Robot.
+- Centralization and standardization of how Recipe Robot checks file extensions.
+- Better error handling when attempting downloads using alternative user-agents.
+- Better error handling when web requests don't return any HTTP result code as expected.
+- Better handling of unexpected or incorrect AutoPkg search index structure.
+- Better error handling around search index caching.
+- Simplified GitHub repo detection and improved resilience.
+- Better error handling when discoveries cause us to remove inspection types from facts dictionary.
+- Catch OSError during cache cleanup.
+
+### Changed
+
+- Updated use of AutoPkg search index to align with new [versioned index structure](https://github.com/autopkg/index/commit/9eabc9f1bb6ee85d6abaa9d5992b94a76c95a77a#diff-bd7a2111af2e000513b56728b34e8d267e82ba3ec9c013e409b7c8d37ab55715).
+- Use default filename of `download` if a download filename or extension cannot be parsed using the URL or HTTP headers.
+
 ## [2.4.1] - 2025-10-03
 
 ### Added
@@ -24,6 +44,7 @@ Nothing yet.
 
 ### Changed
 
+- Minimum supported macOS version is now 11 (Big Sur).
 - If multiple GitHub assets are available, prefer installers, then disk images, then archives. (#205)
 - Prefer `SUFeedEntryDownloadURL` key from BareBones software update feeds, if available. (#194)
 - Generally better download error handling when retrieving xml or json.
@@ -462,7 +483,8 @@ Nothing yet.
 
 - Initial public release of Recipe Robot (beta).
 
-[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.4.1...HEAD
+[Unreleased]: https://github.com/homebysix/recipe-robot/compare/v2.4.2...HEAD
+[2.4.2]: https://github.com/homebysix/recipe-robot/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/homebysix/recipe-robot/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/homebysix/recipe-robot/compare/v2.3.2...v2.4.0
 [2.3.2]: https://github.com/homebysix/recipe-robot/compare/v2.3.1...v2.3.2

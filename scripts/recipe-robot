@@ -125,18 +125,25 @@ def main():
         print_death_text()
         sys.exit(1)
     finally:
-        # Make sure to reset the terminal color.
-        recipe_robot_lib.tools.reset_term_colors()
-
         # Clean up cache folder.
         if Path(CACHE_DIR).exists() and not facts["args"].keep_cache:
             try:
                 shutil.rmtree(CACHE_DIR)
             except PermissionError:
-                # Rarely, pkgs unpack files that are not user-writeable
-                cmd = ["/bin/chmod", "-R", "u+w", CACHE_DIR]
-                _ = subprocess.run(cmd, check=False)
-                shutil.rmtree(CACHE_DIR)
+                try:
+                    # Rarely, pkgs unpack files that are not user-writeable
+                    cmd = ["/bin/chmod", "-R", "u+w", CACHE_DIR]
+                    _ = subprocess.run(cmd, check=False)
+                    shutil.rmtree(CACHE_DIR)
+                except (PermissionError, OSError):
+                    # If we still can't remove the cache, just log and continue
+                    robo_print(
+                        f"Could not remove cache directory {CACHE_DIR}",
+                        LogLevel.WARNING,
+                    )
+
+        # Make sure to reset the terminal color.
+        recipe_robot_lib.tools.reset_term_colors()
 
         # If debug is on, print all the things.
         if OutputMode.debug_mode:

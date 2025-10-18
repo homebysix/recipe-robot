@@ -8,7 +8,7 @@ Recipe Robot is the easiest way to create new [AutoPkg](https://github.com/autop
 
 - A __[Python script](#python-script-usage)__ that takes various types of input and automatically outputs AutoPkg recipes.
 
-- A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping.
+- A __[native Mac app](#mac-app-usage)__ that puts a friendly face on the Python script and makes it as simple as dragging and dropping. (Requires macOS 11 or higher.)
 
 [Download the latest release](https://github.com/homebysix/recipe-robot/releases/latest), or see detailed [requirements and installation steps](https://github.com/homebysix/recipe-robot/wiki/Installation-and-Requirements) on the wiki.
 
