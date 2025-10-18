@@ -751,7 +751,8 @@ def inspect_archive(input_path, args, facts):
         LogLevel.DEBUG,
     )
     # Remove inspection from facts, since we weren't successful.
-    facts["inspections"].remove("archive")
+    if "archive" in facts["inspections"]:
+        facts["inspections"].remove("archive")
     return facts
 
 
@@ -1059,7 +1060,8 @@ def inspect_disk_image(input_path, args, facts):
             LogLevel.DEBUG,
         )
         # Remove inspection from facts, since we weren't successful.
-        facts["inspections"].remove("disk_image")
+        if "disk_image" in facts["inspections"]:
+            facts["inspections"].remove("disk_image")
 
     return facts
 
@@ -2250,7 +2252,8 @@ def inspect_sparkle_feed_url(input_path, args, facts):
             "Server responded with a file download (type: %s). "
             "Processing as download URL instead..." % head["content-type"]
         )
-        facts["inspections"].remove("sparkle_feed_url")
+        if "sparkle_feed_url" in facts["inspections"]:
+            facts["inspections"].remove("sparkle_feed_url")
         return inspect_download_url(checked_url, args, facts)
 
     if checked_url.startswith("http:"):

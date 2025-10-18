@@ -20,6 +20,7 @@ Nothing yet.
 - Better handling of unexpected or incorrect AutoPkg search index structure.
 - Better error handling around search index caching.
 - Simplified GitHub repo detection and improved resilience.
+- Better error handling when discoveries cause us to remove inspection types from facts dictionary.
 
 ### Changed
 
