@@ -24,6 +24,7 @@ Nothing yet.
 ### Changed
 
 - Updated use of AutoPkg search index to align with new [versioned index structure](https://github.com/autopkg/index/commit/9eabc9f1bb6ee85d6abaa9d5992b94a76c95a77a#diff-bd7a2111af2e000513b56728b34e8d267e82ba3ec9c013e409b7c8d37ab55715).
+- Use default filename of `download` if a download filename or extension cannot be parsed using the URL or HTTP headers.
 
 ## [2.4.1] - 2025-10-03
 

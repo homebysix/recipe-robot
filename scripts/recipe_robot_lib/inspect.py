@@ -1144,6 +1144,15 @@ def inspect_download_url(input_path, args, facts):
     parsed_url = urlparse(input_path)
     filename = parsed_url.path.split("/")[-1]
 
+    # Validate that we got a filename
+    if not filename:
+        facts["warnings"].append(
+            "Unable to determine filename from URL. The URL may be malformed or "
+            "end with a trailing slash."
+        )
+        # Use a safe default filename
+        filename = "download"
+
     # If the download URL doesn't already end with the parsed filename,
     # it's very likely that URLDownloader needs the filename argument
     # specified.
