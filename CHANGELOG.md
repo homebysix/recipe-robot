@@ -6,7 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
-Nothing yet.
+### Fixed
+
+- Improved detection of packages downloaded without .pkg file extension.
+- Streamlined handling of HTTP content-types and file mime-types that determine which subsequent inspections to perform.
 
 ## [2.4.2] - 2025-10-18
 
