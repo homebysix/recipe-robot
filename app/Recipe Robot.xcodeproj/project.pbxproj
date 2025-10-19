@@ -280,7 +280,6 @@
 				TargetAttributes = {
 					8B42AC7D1B5C5BEC0058A814 = {
 						CreatedOnToolsVersion = 6.3.2;
-						DevelopmentTeam = 32SVX952DB;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
@@ -550,6 +549,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1381;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 32SVX952DB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -577,6 +577,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1381;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 32SVX952DB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
