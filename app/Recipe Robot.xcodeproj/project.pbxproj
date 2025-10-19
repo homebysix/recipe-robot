@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -50,14 +50,12 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		9F578138254F797800B9F2D8 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolder = Frameworks;
 			files = (
 				9F831C532560E23E003FF5D1 /* Sparkle.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -106,18 +104,14 @@
 /* Begin PBXFrameworksBuildPhase section */
 		8B42AC7B1B5C5BEC0058A814 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				9F831C522560E23E003FF5D1 /* Sparkle.framework in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		8B42AC8B1B5C5BEC0058A814 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -241,8 +235,6 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			name = "Recipe Robot";
 			productName = "Recipe Robot";
 			productReference = 8B42AC7E1B5C5BEC0058A814 /* Recipe Robot.app */;
@@ -293,7 +285,6 @@
 				};
 			};
 			buildConfigurationList = 8B42AC791B5C5BEC0058A814 /* Build configuration list for PBXProject "Recipe Robot" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -301,6 +292,7 @@
 				Base,
 			);
 			mainGroup = 8B42AC751B5C5BEC0058A814;
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 8B42AC7F1B5C5BEC0058A814 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -314,7 +306,6 @@
 /* Begin PBXResourcesBuildPhase section */
 		8B42AC7C1B5C5BEC0058A814 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				BE6F6BA31B800E270082011D /* scripts in Resources */,
 				8B8F78D31BF3D5DB008F2440 /* Feed Me Drop Zone.png in Resources */,
@@ -323,92 +314,74 @@
 				BE34C8371B7EC5DF00E0822E /* Main.storyboard in Resources */,
 				8B42AC861B5C5BEC0058A814 /* Images.xcassets in Resources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		8B42AC8C1B5C5BEC0058A814 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		8B153E052586F22C006D6C41 /* Run Script: Sign Sparkle framework */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
 			name = "Run Script: Sign Sparkle framework";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Skip signing for GitHub Actions test runs\n[[ $CI_SKIP_SIGNING ]] && exit 0\n\n# Sign Sparkle again to ensure compatibility with hardened runtime\ncodesign --verbose --force --deep -o runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/Sparkle.framework/Versions/Current/Autoupdate\"\n";
+			shellScript = (
+				"# Skip signing for GitHub Actions test runs",
+				"[[ $CI_SKIP_SIGNING ]] && exit 0",
+				"",
+				"# Sign Sparkle again to ensure compatibility with hardened runtime",
+				"codesign --verbose --force --deep -o runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/Sparkle.framework/Versions/Current/Autoupdate\"",
+				"",
+			);
 		};
 		8BFDC44C1BF420D1003CD257 /* Run Script: Set build number to commit count */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
 			name = "Run Script: Set build number to commit count";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Update build number with number of git commits if in release mode\n\n[[ ${CONFIGURATION} != \"Release\" ]] && exit 0\n\nbuildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n";
+			shellScript = (
+				"# Update build number with number of git commits if in release mode",
+				"",
+				"[[ ${CONFIGURATION} != \"Release\" ]] && exit 0",
+				"",
+				"buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')",
+				"/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"",
+				"",
+			);
 		};
 		9F603905254F7CFC009BBF58 /* Run Script: Warn about outdated Carthage frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
 			name = "Run Script: Warn about outdated Carthage frameworks";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/opt/homebrew/bin/carthage outdated --xcode-warnings 2>/dev/null\n";
+			shellScript = (
+				"/opt/homebrew/bin/carthage outdated --xcode-warnings 2>/dev/null",
+				"",
+			);
 		};
 		9F831C5B2560E2F1003FF5D1 /* Run Script: Remove test directory from bundle */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
 			name = "Run Script: Remove test directory from bundle";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Remove test subdirectory from bundled scripts\nSCRIPTS_DEST=\"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Resources/scripts\"\n\n# Remove test subdirectory if it exists\nif [ -d \"$SCRIPTS_DEST/test\" ]; then\n    rm -rf \"$SCRIPTS_DEST/test\"\n    echo \"Removed test directory from bundle\"\nelse\n    echo \"Test directory not found in bundle (already excluded)\"\nfi\n";
+			shellScript = (
+				"# Remove test subdirectory from bundled scripts",
+				"SCRIPTS_DEST=\"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Resources/scripts\"",
+				"",
+				"# Remove test subdirectory if it exists",
+				"if [ -d \"$SCRIPTS_DEST/test\" ]; then",
+				"    rm -rf \"$SCRIPTS_DEST/test\"",
+				"    echo \"Removed test directory from bundle\"",
+				"else",
+				"    echo \"Test directory not found in bundle (already excluded)\"",
+				"fi",
+				"",
+			);
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8B42AC7A1B5C5BEC0058A814 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				BEB280081BF0D40B0084DA0F /* Taskable.swift in Sources */,
 				BE328F181BDC0DFD00EAF2E5 /* NotificationListener.swift in Sources */,
@@ -429,16 +402,13 @@
 				BE49EB911BDFD451001AA9CF /* Defaults.swift in Sources */,
 				BEDA880E1BE536E500DBC59B /* AHHelpPopover.m in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		8B42AC8A1B5C5BEC0058A814 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				BEB280091BF0E7600084DA0F /* Taskable.swift in Sources */,
 				8B42AC951B5C5BEC0058A814 /* Recipe_RobotTests.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
@@ -462,7 +432,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		8B42AC961B5C5BEC0058A814 /* Debug */ = {
+		8B42AC961B5C5BEC0058A814 /* Debug configuration for PBXProject "Recipe Robot" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -501,7 +471,7 @@
 			};
 			name = Debug;
 		};
-		8B42AC971B5C5BEC0058A814 /* Release */ = {
+		8B42AC971B5C5BEC0058A814 /* Release configuration for PBXProject "Recipe Robot" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -539,13 +509,14 @@
 			};
 			name = Release;
 		};
-		8B42AC991B5C5BEC0058A814 /* Debug */ = {
+		8B42AC991B5C5BEC0058A814 /* Debug configuration for PBXNativeTarget "Recipe Robot" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641C220E96EC00A886AF /* Recipe Robot-Debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = "Recipe Robot/Recipe Robot.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1381;
 				DEAD_CODE_STRIPPING = YES;
@@ -567,13 +538,14 @@
 			};
 			name = Debug;
 		};
-		8B42AC9A1B5C5BEC0058A814 /* Release */ = {
+		8B42AC9A1B5C5BEC0058A814 /* Release configuration for PBXNativeTarget "Recipe Robot" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641D220E96EC00A886AF /* Recipe Robot-Release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = "Recipe Robot/Recipe Robot.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1381;
 				DEAD_CODE_STRIPPING = YES;
@@ -595,13 +567,14 @@
 			};
 			name = Release;
 		};
-		8B42AC9C1B5C5BEC0058A814 /* Debug */ = {
+		8B42AC9C1B5C5BEC0058A814 /* Debug configuration for PBXNativeTarget "Recipe RobotTests" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D5416418220E96EC00A886AF /* Recipe RobotTests-Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -609,13 +582,14 @@
 			};
 			name = Debug;
 		};
-		8B42AC9D1B5C5BEC0058A814 /* Release */ = {
+		8B42AC9D1B5C5BEC0058A814 /* Release configuration for PBXNativeTarget "Recipe RobotTests" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D541641E220E96EC00A886AF /* Recipe RobotTests-Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -629,28 +603,25 @@
 		8B42AC791B5C5BEC0058A814 /* Build configuration list for PBXProject "Recipe Robot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				8B42AC961B5C5BEC0058A814 /* Debug */,
-				8B42AC971B5C5BEC0058A814 /* Release */,
+				8B42AC961B5C5BEC0058A814 /* Debug configuration for PBXProject "Recipe Robot" */,
+				8B42AC971B5C5BEC0058A814 /* Release configuration for PBXProject "Recipe Robot" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		8B42AC981B5C5BEC0058A814 /* Build configuration list for PBXNativeTarget "Recipe Robot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				8B42AC991B5C5BEC0058A814 /* Debug */,
-				8B42AC9A1B5C5BEC0058A814 /* Release */,
+				8B42AC991B5C5BEC0058A814 /* Debug configuration for PBXNativeTarget "Recipe Robot" */,
+				8B42AC9A1B5C5BEC0058A814 /* Release configuration for PBXNativeTarget "Recipe Robot" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		8B42AC9B1B5C5BEC0058A814 /* Build configuration list for PBXNativeTarget "Recipe RobotTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				8B42AC9C1B5C5BEC0058A814 /* Debug */,
-				8B42AC9D1B5C5BEC0058A814 /* Release */,
+				8B42AC9C1B5C5BEC0058A814 /* Debug configuration for PBXNativeTarget "Recipe RobotTests" */,
+				8B42AC9D1B5C5BEC0058A814 /* Release configuration for PBXNativeTarget "Recipe RobotTests" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
