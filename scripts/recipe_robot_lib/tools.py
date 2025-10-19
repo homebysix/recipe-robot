@@ -51,7 +51,7 @@ from .exceptions import RoboError
 # pylint: enable=no-name-in-module
 
 
-__version__ = "2.4.2"
+__version__ = "2.4.3"
 ENDC = "\033[0m"
 BUNDLE_ID = "com.elliotjordan.recipe-robot"
 PREFS_FILE = Path("~/Library/Preferences/%s.plist" % BUNDLE_ID).expanduser()
