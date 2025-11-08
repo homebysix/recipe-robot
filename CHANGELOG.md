@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+Nothing yet.
+
+## [2.5.0] - 2025-11-08
+
 ### Added
 
 - Recipe Robot can now generate Fleet recipes similar to the ones in the [fleet-recipes](https://github.com/autopkg/fleet-recipes) repo.
