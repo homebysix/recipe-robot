@@ -52,16 +52,17 @@ class TestRecipeTypes(unittest.TestCase):
     def test_recipe_types_contains_expected_types(self):
         """Test that RECIPE_TYPES contains expected recipe types."""
         expected_types = {
+            "bigfix",
             "download",
-            "pkg",
-            "munki",
-            "jamf",
             "ds",
             "filewave",
-            "lanrev",
-            "sccm",
-            "bigfix",
+            "fleet",
             "install",
+            "jamf",
+            "lanrev",
+            "munki",
+            "pkg",
+            "sccm",
         }
 
         actual_types = {rt["type"] for rt in RECIPE_TYPES}

@@ -56,6 +56,9 @@ RECIPE_TYPES = (
         "type": "filewave",
         "desc": "Imports a fileset into your FileWave server."
     }, {
+        "type": "fleet",
+        "desc": "Imports a pkg into your Fleet server, either direct or GitOps."
+    }, {
         "type": "lanrev",
         "desc": "Imports into your LANrev server."
     }, {

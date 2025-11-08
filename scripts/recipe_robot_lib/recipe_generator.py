@@ -1683,6 +1683,109 @@ def generate_ds_recipe(facts, prefs, recipe):
     return recipe
 
 
+def generate_fleet_recipe(facts, prefs, recipe):
+    """Generate a Fleet type recipe that uploads a package to a Fleet server
+    based on passed recipe dict.
+
+    Args:
+        facts (RoboDict): A continually-updated dictionary containing all the
+            information we know so far about the app associated with the
+            input path.
+        prefs (dict): The dictionary containing a key/value pair for Recipe Robot
+            preferences.
+        recipe (Recipe): The recipe to operate on. This recipe will be mutated
+            by this function.
+
+    Returns:
+        Recipe: Newly updated Recipe object suitable for converting to plist.
+    """
+    keys = recipe["keys"]
+    _, bundle_name_key = get_bundle_name_info(facts)
+
+    robo_print("Generating %s recipe..." % recipe["type"])
+
+    recipe.set_description(
+        "Downloads the latest version of %s and uploads to Fleet "
+        "(direct mode) or S3+GitOps (GitOps mode)." % facts[bundle_name_key]
+    )
+
+    recipe.set_parent_from(prefs, facts, "pkg")
+
+    # Set Input variables
+    keys["Input"]["self_service"] = True
+    keys["Input"]["automatic_install"] = False
+    keys["Input"]["categories"] = ["Productivity"]
+    facts["reminders"].append(
+        "Remember to manually set the categories in the fleet recipe. I've added "
+        '"Productivity" by default.'
+    )
+
+    # Optional: Icon file (leave empty for automatic extraction)
+    keys["Input"]["ICON"] = "%NAME%.png"
+
+    # Optional: Custom scripts and queries (leave empty if not needed)
+    keys["Input"]["INSTALL_SCRIPT"] = ""
+    keys["Input"]["UNINSTALL_SCRIPT"] = ""
+    keys["Input"]["PRE_INSTALL_QUERY"] = ""
+    keys["Input"]["POST_INSTALL_SCRIPT"] = ""
+
+    # Optional: Label targeting (leave empty to target all hosts)
+    # NOTE: Only one of these can be used at a time
+    keys["Input"]["labels_include_any"] = []
+    keys["Input"]["labels_exclude_any"] = []
+
+    # Mode selector
+    keys["Input"]["gitops_mode"] = False
+
+    # GitOps-specific options
+    keys["Input"]["FLEET_GITOPS_SOFTWARE_DIR"] = "lib/macos/software"
+    keys["Input"]["FLEET_GITOPS_TEAM_YAML_PATH"] = "teams/workstations.yml"
+    keys["Input"]["s3_retention_versions"] = 0
+
+    # Arguments for FleetImporter
+    fleetimporter_args = {
+        # Core package info
+        "pkg_path": "%pkg_path%",
+        "software_title": "%NAME%",
+        "version": "%version%",
+        # Optional: Icon settings
+        "icon": "%ICON%",
+        # Optional: Custom scripts and queries
+        "install_script": "%INSTALL_SCRIPT%",
+        "uninstall_script": "%UNINSTALL_SCRIPT%",
+        "pre_install_query": "%PRE_INSTALL_QUERY%",
+        "post_install_script": "%POST_INSTALL_SCRIPT%",
+        # GitOps-specific options
+        "gitops_software_dir": "%FLEET_GITOPS_SOFTWARE_DIR%",
+        "gitops_team_yaml_path": "%FLEET_GITOPS_TEAM_YAML_PATH%",
+        # Direct mode arguments (read from AutoPkg preferences/env vars)
+        "fleet_api_base": "%FLEET_API_BASE%",
+        "fleet_api_token": "%FLEET_API_TOKEN%",
+        "team_id": "%FLEET_TEAM_ID%",
+        # GitOps mode arguments (read from AutoPkg preferences/env vars)
+        "aws_s3_bucket": "%AWS_S3_BUCKET%",
+        "aws_cloudfront_domain": "%AWS_CLOUDFRONT_DOMAIN%",
+        "aws_access_key_id": "%AWS_ACCESS_KEY_ID%",
+        "aws_secret_access_key": "%AWS_SECRET_ACCESS_KEY%",
+        "aws_default_region": "%AWS_DEFAULT_REGION%",
+        "gitops_repo_url": "%FLEET_GITOPS_REPO_URL%",
+        "github_token": "%FLEET_GITOPS_GITHUB_TOKEN%",
+    }
+
+    # Put fully constructed FleetImporter arguments into the process list.
+    recipe.append_processor(
+        {
+            "Processor": "com.github.fleet.FleetImporter/FleetImporter",
+            "Arguments": fleetimporter_args,
+        }
+    )
+
+    # Extract the app's icon and save it to disk.
+    extract_icon_for_recipe(facts, prefs)
+
+    return recipe
+
+
 # TODO: Not completed, does not function yet
 def generate_bigfix_recipe(facts, prefs, recipe):
     """Generate a bigfix (IBM BigFix) recipe based on passed recipe dict.
@@ -1843,6 +1946,7 @@ RECIPE_GENERATORS.update(
         "sccm": generate_sccm_recipe,
         "filewave": generate_filewave_recipe,
         "ds": generate_ds_recipe,
+        "fleet": generate_fleet_recipe,
         "bigfix": generate_bigfix_recipe,
     }
 )

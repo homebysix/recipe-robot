@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+### Added
+
+- Recipe Robot can now generate Fleet recipes similar to the ones in the [fleet-recipes](https://github.com/autopkg/fleet-recipes) repo.
+
 ### Fixed
 
 - Improved detection of packages downloaded without .pkg file extension.
