@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file. This projec
 - Improved detection of packages downloaded without .pkg file extension.
 - Streamlined handling of HTTP content-types and file mime-types that determine which subsequent inspections to perform.
 
+### Changed
+
+- Updated app signing certificate.
+
 ## [2.4.2] - 2025-10-18
 
 ### Fixed
