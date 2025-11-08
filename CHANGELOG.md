@@ -18,10 +18,12 @@ Nothing yet.
 
 - Improved detection of packages downloaded without .pkg file extension.
 - Streamlined handling of HTTP content-types and file mime-types that determine which subsequent inspections to perform.
+- Added missing framework search path that was causing build errors in Xcode 26.1.
 
 ### Changed
 
 - Updated app signing certificate.
+- Trigger both Xcode and Python unit tests when running `make test`.
 
 ## [2.4.2] - 2025-10-18
 
