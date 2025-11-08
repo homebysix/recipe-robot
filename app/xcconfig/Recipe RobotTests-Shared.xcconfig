@@ -27,7 +27,7 @@ COMBINE_HIDPI_IMAGES = YES
 // C++, or Objective-C++, and by the linker for frameworks used by the product. Paths are
 // delimited by whitespace, so any paths with spaces in them must be properly quoted.
 
-FRAMEWORK_SEARCH_PATHS = $(DEVELOPER_FRAMEWORKS_DIR) $(inherited)
+FRAMEWORK_SEARCH_PATHS = $(DEVELOPER_FRAMEWORKS_DIR) $(PROJECT_DIR)/Carthage/Build/Mac $(inherited)
 
 
 
