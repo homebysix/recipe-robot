@@ -8,6 +8,23 @@ All notable changes to this project will be documented in this file. This projec
 
 Nothing yet.
 
+## [2.5.0] - 2025-11-08
+
+### Added
+
+- Recipe Robot can now generate Fleet recipes similar to the ones in the [fleet-recipes](https://github.com/autopkg/fleet-recipes) repo.
+
+### Fixed
+
+- Improved detection of packages downloaded without .pkg file extension.
+- Streamlined handling of HTTP content-types and file mime-types that determine which subsequent inspections to perform.
+- Added missing framework search path that was causing build errors in Xcode 26.1.
+
+### Changed
+
+- Updated app signing certificate.
+- Trigger both Xcode and Python unit tests when running `make test`.
+
 ## [2.4.2] - 2025-10-18
 
 ### Fixed

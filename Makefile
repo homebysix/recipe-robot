@@ -20,8 +20,17 @@ deps: ## Update Carthage dependencies
 
 # Testing
 .PHONY: test
-test: ## Run Python unit tests
+test: test-python test-xcode ## Run all tests (Python and Xcode)
+
+.PHONY: test-python
+test-python: ## Run Python unit tests
 	$(PYTHON) -m coverage run -m unittest discover -vs scripts
+
+.PHONY: test-xcode
+test-xcode: deps ## Run Xcode app tests
+	xcodebuild test -workspace "$(XCODE_WORKSPACE)" \
+		-scheme "$(SCHEME)" \
+		-destination 'platform=macOS'
 
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage

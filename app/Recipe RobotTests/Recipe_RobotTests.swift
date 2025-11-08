@@ -41,6 +41,7 @@ class Recipe_RobotTests: XCTestCase {
         XCTAssertEqual(RecipeType.Pkg.value, "pkg")
         XCTAssertEqual(RecipeType.Install.value, "install")
         XCTAssertEqual(RecipeType.Jamf.value, "jamf")
+        XCTAssertEqual(RecipeType.Fleet.value, "fleet")
         XCTAssertEqual(RecipeType.LANrev.value, "lanrev")
         XCTAssertEqual(RecipeType.SCCM.value, "sccm")
         XCTAssertEqual(RecipeType.DS.value, "ds")
@@ -96,7 +97,7 @@ class Recipe_RobotTests: XCTestCase {
     func testRecipeTypeStaticValues() {
         let values = RecipeType.values
         let expectedValues = [
-            "download", "munki", "pkg", "install", "jamf", "lanrev", "sccm", "ds", "filewave",
+            "download", "munki", "pkg", "install", "jamf", "fleet", "lanrev", "sccm", "ds", "filewave",
             "bigfix",
         ]
 
@@ -109,12 +110,13 @@ class Recipe_RobotTests: XCTestCase {
     func testRecipeTypeStaticCases() {
         let cases = RecipeType.cases
 
-        XCTAssertEqual(cases.count, 10)
+        XCTAssertEqual(cases.count, 11)
         XCTAssertTrue(cases.contains(.Download))
         XCTAssertTrue(cases.contains(.Munki))
         XCTAssertTrue(cases.contains(.Pkg))
         XCTAssertTrue(cases.contains(.Install))
         XCTAssertTrue(cases.contains(.Jamf))
+        XCTAssertTrue(cases.contains(.Fleet))
         XCTAssertTrue(cases.contains(.LANrev))
         XCTAssertTrue(cases.contains(.SCCM))
         XCTAssertTrue(cases.contains(.DS))

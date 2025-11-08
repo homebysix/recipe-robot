@@ -70,14 +70,23 @@ GITHUB_TOKEN = get_github_token()
 # List of MIME types associated with file formats Recipe Robot can process.
 # Note: This list is not comprehensive, and may need to expand over time.
 DOWNLOAD_MIME_TYPES = {
-    "dmg": ("application/x-apple-diskimage",),
+    "dmg": (
+        "application/x-apple-diskimage",
+        "application/x-iso9660-image",
+    ),
     "zip": (
         "application/gzip",
+        "application/x-gzip",
         "application/x-bzip",
         "application/x-bzip2",
         "application/zip",
+        "application/x-tar",
+        "application/x-compressed-tar",
     ),
-    "pkg": ("application/vnd.apple.installer+xml",),
+    "pkg": (
+        "application/vnd.apple.installer+xml",
+        "application/x-xar",
+    ),
 }
 
 
@@ -1297,18 +1306,24 @@ def inspect_download_url(input_path, args, facts):
         return inspect_pkg(str(Path(CACHE_DIR) / filename), args, facts)
 
     # If download format is unknown, use content-type as a hint.
-    if head.get("content-type") in DOWNLOAD_MIME_TYPES["dmg"]:
-        facts["download_format"] = "dmg"
-        robo_print("Download format is probably a dmg", LogLevel.VERBOSE, 4)
-        return inspect_disk_image(str(Path(CACHE_DIR) / filename), args, facts)
-    elif head.get("content-type") in DOWNLOAD_MIME_TYPES["zip"]:
-        facts["download_format"] = "zip"
-        robo_print("Download format is probably an archive", LogLevel.VERBOSE, 4)
-        return inspect_archive(str(Path(CACHE_DIR) / filename), args, facts)
-    elif head.get("content-type") in DOWNLOAD_MIME_TYPES["pkg"]:
-        facts["download_format"] = "pkg"
-        robo_print("Download format is probably a pkg", LogLevel.VERBOSE, 4)
-        return inspect_pkg(str(Path(CACHE_DIR) / filename), args, facts)
+    content_type = head.get("content-type")
+    for format_type, mime_types in DOWNLOAD_MIME_TYPES.items():
+        if content_type in mime_types:
+            facts["download_format"] = format_type
+            file_path = str(Path(CACHE_DIR) / filename)
+
+            if format_type in SUPPORTED_IMAGE_FORMATS:
+                robo_print("Download format is probably a dmg", LogLevel.VERBOSE, 4)
+                return inspect_disk_image(file_path, args, facts)
+            elif format_type in SUPPORTED_ARCHIVE_FORMATS:
+                robo_print(
+                    "Download format is probably an archive", LogLevel.VERBOSE, 4
+                )
+                return inspect_archive(file_path, args, facts)
+            elif format_type in SUPPORTED_INSTALL_FORMATS:
+                robo_print("Download format is probably a pkg", LogLevel.VERBOSE, 4)
+                return inspect_pkg(file_path, args, facts)
+            break
 
     # If we still don't know the download format at this point, just guess.
     # The inspect_disk_image(), inspect_archive(), and inspect_pkg() functions
@@ -1321,20 +1336,55 @@ def inspect_download_url(input_path, args, facts):
             "is. I'll try guessing, but this could cause problems later."
         )
 
+    # Before trying to extract with various tools, check the file's MIME type.
+    # This helps avoid misidentifying pkg files (which are XAR archives) as tgz.
+    file_path = str(Path(CACHE_DIR) / filename)
+    cmd = f'/usr/bin/file -b --mime-type "{file_path}"'
+    exitcode, mime_type, _ = get_exitcode_stdout_stderr(cmd)
+    if exitcode == 0:
+        mime_type = mime_type.strip()
+        robo_print(f"File MIME type is: {mime_type}", LogLevel.VERBOSE, 4)
+
+        # Check if the MIME type matches any known format
+        for format_type, mime_types in DOWNLOAD_MIME_TYPES.items():
+            if mime_type in mime_types:
+                # Special handling for XAR archives - verify they're valid pkgs
+                if mime_type == "application/x-xar":
+                    cmd_pkg = f'/usr/sbin/pkgutil --check-signature "{file_path}"'
+                    exitcode_pkg, _, _ = get_exitcode_stdout_stderr(cmd_pkg)
+                    if exitcode_pkg != 0:
+                        # Not a valid pkg, continue guessing
+                        break
+
+                robo_print(
+                    f"File appears to be a {format_type} based on MIME type",
+                    LogLevel.VERBOSE,
+                    4,
+                )
+                facts["download_format"] = format_type
+
+                # Route to appropriate inspector
+                if format_type in SUPPORTED_IMAGE_FORMATS:
+                    return inspect_disk_image(file_path, args, facts)
+                elif format_type in SUPPORTED_ARCHIVE_FORMATS:
+                    return inspect_archive(file_path, args, facts)
+                elif format_type in SUPPORTED_INSTALL_FORMATS:
+                    return inspect_pkg(file_path, args, facts)
+
     robo_print("Trying file as a disk image...", LogLevel.VERBOSE)
-    facts = inspect_disk_image(str(Path(CACHE_DIR) / filename), args, facts)
+    facts = inspect_disk_image(file_path, args, facts)
     if "disk_image" in facts["inspections"]:
         facts["download_format"] = "dmg"
         return facts
 
     robo_print("Trying file as an archive...", LogLevel.VERBOSE)
-    facts = inspect_archive(str(Path(CACHE_DIR) / filename), args, facts)
+    facts = inspect_archive(file_path, args, facts)
     if "archive" in facts["inspections"]:
         facts["download_format"] = "zip"
         return facts
 
     robo_print("Trying file as an installer...", LogLevel.VERBOSE)
-    facts = inspect_pkg(str(Path(CACHE_DIR) / filename), args, facts)
+    facts = inspect_pkg(file_path, args, facts)
     if "pkg" in facts["inspections"]:
         facts["download_format"] = "pkg"
 
@@ -2249,10 +2299,12 @@ def inspect_sparkle_feed_url(input_path, args, facts):
         )
 
     # If checked URL looks like a file download, inspect that instead.
-    download_types = []
-    for fmt_types in DOWNLOAD_MIME_TYPES.values():
-        download_types.extend(fmt_types)
-    if head.get("content-type") in download_types:
+    all_download_mime_types = [
+        mime_type
+        for mime_types in DOWNLOAD_MIME_TYPES.values()
+        for mime_type in mime_types
+    ]
+    if head.get("content-type") in all_download_mime_types:
         robo_print(
             "Server responded with a file download (type: %s). "
             "Processing as download URL instead..." % head["content-type"]
