@@ -13,7 +13,7 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 25.9.0
+    rev: 25.11.0
     hooks:
       - id: black
   - repo: https://github.com/adamchainz/blacken-docs
@@ -22,7 +22,7 @@ repos:
       - id: blacken-docs
         additional_dependencies: [black>=23.9.1]
   - repo: https://github.com/homebysix/pre-commit-macadmin
-    rev: v1.21.1
+    rev: v1.22.0
     hooks:
       - id: check-plists
   - repo: https://github.com/pycqa/isort
