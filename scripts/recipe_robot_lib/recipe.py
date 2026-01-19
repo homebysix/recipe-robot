@@ -23,7 +23,6 @@ Recipe: Class for describing AutoPkg recipes along with metadata.
 Recipes: Container class for Recipe objects.
 """
 
-
 import plistlib
 
 import yaml

@@ -20,7 +20,6 @@
 recipe_robot_lib
 """
 
-
 # TODO: We can import stuff better here to cut down on length of calls.
 from . import tools  # noqa: F401
 from .recipe_generator import generate_recipes  # noqa: F401

@@ -21,7 +21,6 @@ test_inspect.py
 Unit tests for inspect-related functions.
 """
 
-
 import unittest
 from unittest.mock import patch, MagicMock
 
@@ -1168,43 +1167,31 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         items = []
 
         if include_text_file:
-            items.append(
-                """
+            items.append("""
                 <item>
                     <title>README.txt</title>
                     <link>https://sourceforge.net/projects/{}/files/README.txt/download</link>
                     <sf:extra-info xmlns:sf="https://sourceforge.net/api/files.rdf#">text</sf:extra-info>
                 </item>
-            """.format(
-                    project_name
-                )
-            )
+            """.format(project_name))
 
         if include_beta:
-            items.append(
-                """
+            items.append("""
                 <item>
                     <title>TestApp-1.0-beta.dmg</title>
                     <link>https://sourceforge.net/projects/{}/files/TestApp-1.0-beta.dmg/download</link>
                     <sf:extra-info xmlns:sf="https://sourceforge.net/api/files.rdf#">binary</sf:extra-info>
                 </item>
-            """.format(
-                    project_name
-                )
-            )
+            """.format(project_name))
 
         if include_download:
-            items.append(
-                """
+            items.append("""
                 <item>
                     <title>TestApp-2.0.dmg</title>
                     <link>https://sourceforge.net/projects/{}/files/TestApp-2.0.dmg/download</link>
                     <sf:extra-info xmlns:sf="https://sourceforge.net/api/files.rdf#">binary</sf:extra-info>
                 </item>
-            """.format(
-                    project_name
-                )
-            )
+            """.format(project_name))
 
         return """<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:sf="https://sourceforge.net/api/files.rdf#">
@@ -1214,9 +1201,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         <description>Files for {}</description>
         {}
     </channel>
-</rss>""".format(
-            project_name, project_name, project_name, "".join(items)
-        )
+</rss>""".format(project_name, project_name, project_name, "".join(items))
 
     @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
     @patch("scripts.recipe_robot_lib.inspect.ElementTree.fromstring")

@@ -22,7 +22,6 @@ This module of Recipe Robot uses the facts collected by the main script
 to create autopkg recipes for the specified app.
 """
 
-
 # TODO: refactor code issuing warnings about missing processors/repos.
 # pylint: disable=no-member
 

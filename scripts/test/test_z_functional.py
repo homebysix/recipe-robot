@@ -26,7 +26,6 @@ Since it's apparently a thing, test scenarios are run by a fictional
 character. We will use "Robby the Robot" for ours.
 """
 
-
 import os
 import plistlib
 import shutil
@@ -37,7 +36,6 @@ from random import shuffle
 import yaml
 import unittest
 from scripts.recipe_robot_lib.tools import strip_dev_suffix
-
 
 # Skip functional tests unless explicitly enabled
 SKIP_FUNCTIONAL = not os.environ.get("RUN_FUNCTIONAL_TESTS", "").lower() in (

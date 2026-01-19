@@ -22,7 +22,6 @@ test_processor.py
 Unit tests for processor class.
 """
 
-
 import unittest
 from scripts.recipe_robot_lib import processor
 

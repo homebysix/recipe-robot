@@ -22,7 +22,6 @@ inspect.py
 Look at a path or URL for an app and generate facts about it.
 """
 
-
 import html
 import json
 import os
