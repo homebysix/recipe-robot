@@ -22,7 +22,6 @@ exceptions.py
 Custom Exceptions for use in Recipe Robot.
 """
 
-
 import traceback
 
 

@@ -21,7 +21,6 @@ test_facts.py
 Unit tests for facts-related functions.
 """
 
-
 import unittest
 from scripts.recipe_robot_lib.facts import *
 

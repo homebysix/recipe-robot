@@ -26,7 +26,6 @@ RoboList:
     Abstract Base Class list for defining special methods and inits.
 """
 
-
 from collections.abc import MutableMapping, MutableSequence
 
 

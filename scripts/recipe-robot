@@ -23,7 +23,6 @@ recipe-robot
 Easily and automatically create AutoPkg recipes.
 """
 
-
 import argparse
 import os
 import pprint

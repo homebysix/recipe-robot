@@ -22,7 +22,6 @@ Various functions that use /usr/bin/curl for retrieving HTTP/HTTPS
 content. Based on and borrowed from autopkg's URLGetter.
 """
 
-
 import subprocess
 from pathlib import Path
 
