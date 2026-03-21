@@ -150,7 +150,7 @@ class Recipe(RoboDict):
                     "Unable to write yaml recipe due to unexpected data type.\n"
                     "yaml error: %s\n"
                     "Recipe contents: %s\n" % (err, recipe)
-                )
+                ) from err
         # In case AutoPkg ever supports json recipes.
         # elif fmt == "json":
         #     try:
@@ -171,7 +171,7 @@ class Recipe(RoboDict):
                     "Unable to write plist recipe due to unexpected data type.\n"
                     "plistlib error: %s\n"
                     "Recipe contents: %s\n" % (err, recipe)
-                )
+                ) from err
 
     def set_description(self, description):
         """Save a description that explains what this recipe does.
@@ -223,8 +223,5 @@ class Recipes(RoboList):
         """Store information related to each supported recipe type."""
         super().__init__()
         self.extend(
-            [
-                Recipe(recipe_type["type"], recipe_type["desc"])
-                for recipe_type in RECIPE_TYPES
-            ]
+            [Recipe(recipe_type["type"], recipe_type["desc"]) for recipe_type in RECIPE_TYPES]
         )

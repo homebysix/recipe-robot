@@ -32,9 +32,7 @@ def is_url(path):
 async def check_url(session, url, timeout=10):
     """Check if a URL is accessible asynchronously."""
     try:
-        async with session.get(
-            url, timeout=aiohttp.ClientTimeout(total=timeout)
-        ) as response:
+        async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
             return True, response.status, None
     except aiohttp.ClientError as e:
         return False, None, f"Client Error: {str(e)}"
@@ -47,9 +45,7 @@ async def check_url(session, url, timeout=10):
 async def check_urls_concurrently(urls_data):
     """Check multiple URLs concurrently using asyncio.gather()."""
     connector = aiohttp.TCPConnector(limit=20)  # Limit concurrent connections
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-    }
+    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
 
     async with aiohttp.ClientSession(connector=connector, headers=headers) as session:
         # Create tasks for all URL checks

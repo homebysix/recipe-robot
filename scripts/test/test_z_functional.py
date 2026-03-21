@@ -38,7 +38,7 @@ import unittest
 from scripts.recipe_robot_lib.tools import strip_dev_suffix
 
 # Skip functional tests unless explicitly enabled
-SKIP_FUNCTIONAL = not os.environ.get("RUN_FUNCTIONAL_TESTS", "").lower() in (
+SKIP_FUNCTIONAL = os.environ.get("RUN_FUNCTIONAL_TESTS", "").lower() not in (
     "1",
     "true",
     "yes",
@@ -99,9 +99,7 @@ class TestFunctional(unittest.TestCase):
 
     def verify_processor_args(self, processor_name, recipe, expected_args):
         """Verify processor arguments against known dict."""
-        self.assertIn(
-            processor_name, [processor["Processor"] for processor in recipe["Process"]]
-        )
+        self.assertIn(processor_name, [processor["Processor"] for processor in recipe["Process"]])
         actual_args = dict(
             [
                 processor
@@ -144,13 +142,9 @@ class TestFunctional(unittest.TestCase):
         shuffle(sample_data)
 
         # Get the number of recipes to test from environment variable, default to 25
-        num_recipes = int(
-            os.environ.get("RECIPE_TEST_COUNT", str(DEFAULT_RECIPE_COUNT))
-        )
+        num_recipes = int(os.environ.get("RECIPE_TEST_COUNT", str(DEFAULT_RECIPE_COUNT)))
         sample_data = sample_data[:num_recipes]
-        print(
-            f"Testing {len(sample_data)} recipes (set RECIPE_TEST_COUNT to customize)"
-        )
+        print(f"Testing {len(sample_data)} recipes (set RECIPE_TEST_COUNT to customize)")
 
         # Iterate through sample data, generating a recipe for each input.
         try:
@@ -159,9 +153,7 @@ class TestFunctional(unittest.TestCase):
                     app["developer"] = strip_dev_suffix(app["developer"])
 
                 # Remove output folder, if it exists.
-                destination = self.get_output_path(
-                    prefs, app["app_name"], app["developer"]
-                )
+                destination = self.get_output_path(prefs, app["app_name"], app["developer"])
                 self.clean_folder(destination)
 
                 with self.subTest(app=app["app_name"], input=app["input_path"]):

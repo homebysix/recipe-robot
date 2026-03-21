@@ -52,9 +52,7 @@ class TestRecipeGenerator(unittest.TestCase):
         req = "TEST"
         test_facts["codesign_reqs"] = req
         input_path = "/path"
-        codesigverifier = recipe_generator.get_code_signature_verifier(
-            input_path, test_facts
-        )
+        codesigverifier = recipe_generator.get_code_signature_verifier(input_path, test_facts)
         self.assertEqual(codesigverifier.input_path, input_path)
         self.assertEqual(codesigverifier.requirement, req)
         self.assertIsNone(codesigverifier.expected_authority_names)
@@ -66,9 +64,7 @@ class TestRecipeGenerator(unittest.TestCase):
         req = ["TEST1", "TEST2"]
         test_facts["codesign_authorities"] = req
         input_path = "/path"
-        codesigverifier = recipe_generator.get_code_signature_verifier(
-            input_path, test_facts
-        )
+        codesigverifier = recipe_generator.get_code_signature_verifier(input_path, test_facts)
         self.assertEqual(codesigverifier.input_path, input_path)
         self.assertIsNone(codesigverifier.requirement)
         self.assertSequenceEqual(codesigverifier.expected_authority_names, req)
@@ -122,9 +118,7 @@ class TestRecipeGenerator(unittest.TestCase):
         test_facts = facts.Facts()
         test_facts["codesign_authorities"] = []
         input_path = "/path/to/app"
-        codesigverifier = recipe_generator.get_code_signature_verifier(
-            input_path, test_facts
-        )
+        codesigverifier = recipe_generator.get_code_signature_verifier(input_path, test_facts)
         self.assertEqual(codesigverifier.input_path, input_path)
         self.assertIsNone(codesigverifier.requirement)
         self.assertIsNone(codesigverifier.expected_authority_names)
@@ -135,9 +129,7 @@ class TestRecipeGenerator(unittest.TestCase):
         test_facts["codesign_reqs"] = "TEST_REQ"
         test_facts["codesign_authorities"] = ["AUTH1", "AUTH2"]
         input_path = "/path/to/app"
-        codesigverifier = recipe_generator.get_code_signature_verifier(
-            input_path, test_facts
-        )
+        codesigverifier = recipe_generator.get_code_signature_verifier(input_path, test_facts)
         self.assertEqual(codesigverifier.input_path, input_path)
         # Requirements should take precedence over authorities
         self.assertEqual(codesigverifier.requirement, "TEST_REQ")
@@ -229,9 +221,7 @@ class TestRecipeGeneratorIntegration(unittest.TestCase):
         for recipe_type in recipe_types:
             with self.subTest(recipe_type=recipe_type):
                 initial_count = len(test_facts["warnings"])
-                recipe_generator.warn_about_app_store_generation(
-                    test_facts, recipe_type
-                )
+                recipe_generator.warn_about_app_store_generation(test_facts, recipe_type)
 
                 self.assertEqual(len(test_facts["warnings"]), initial_count + 1)
                 warning = test_facts["warnings"][-1]
@@ -275,9 +265,7 @@ class TestRecipeGeneratorIntegration(unittest.TestCase):
 
         self.assertEqual(verifier.input_path, input_path)
         self.assertIsNone(verifier.requirement)
-        self.assertEqual(
-            verifier.expected_authority_names, ["Authority1", "Authority2"]
-        )
+        self.assertEqual(verifier.expected_authority_names, ["Authority1", "Authority2"])
 
         # Test with both (requirements should take precedence)
         test_facts = facts.Facts()
@@ -329,9 +317,7 @@ class TestRecipeGeneratorIntegration(unittest.TestCase):
             mock_get_func.return_value = mock_func
 
             try:
-                recipe_generator.build_recipes(
-                    self.test_facts, preferred, self.test_prefs
-                )
+                recipe_generator.build_recipes(self.test_facts, preferred, self.test_prefs)
                 # Verify generation function was called for each preferred recipe
                 self.assertEqual(mock_get_func.call_count, len(preferred))
             except Exception:
@@ -355,9 +341,7 @@ class TestRecipeGeneratorIntegration(unittest.TestCase):
         for recipe_type, expected_func_name in recipe_mappings:
             with self.subTest(recipe_type=recipe_type):
                 recipe = Recipe(recipe_type, f"Test {recipe_type} recipe")
-                func = recipe_generator.get_generation_func(
-                    test_facts, test_prefs, recipe
-                )
+                func = recipe_generator.get_generation_func(test_facts, test_prefs, recipe)
 
                 # Verify we get a callable function
                 self.assertTrue(callable(func))
@@ -378,12 +362,15 @@ class TestRecipeGeneratorIntegration(unittest.TestCase):
         self.test_facts["inspections"] = ["app"]
 
         # Mock external dependencies
-        with patch(
-            "scripts.recipe_robot_lib.recipe_generator.needs_versioner",
-            return_value=False,
-        ), patch(
-            "scripts.recipe_robot_lib.tools.get_bundle_name_info",
-            return_value=("app", "app_name"),
+        with (
+            patch(
+                "scripts.recipe_robot_lib.recipe_generator.needs_versioner",
+                return_value=False,
+            ),
+            patch(
+                "scripts.recipe_robot_lib.tools.get_bundle_name_info",
+                return_value=("app", "app_name"),
+            ),
         ):
             result = recipe_generator.generate_download_recipe(
                 self.test_facts, self.test_prefs, recipe

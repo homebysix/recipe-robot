@@ -162,9 +162,7 @@ class NoisyNotifyingList(NotifyingList):
             message (str): Message to send to our notification center.
         """
         super().send_notification(message)
-        log_level = LogLevel.__getattribute__(
-            LogLevel, self.message_type.rstrip("s").upper()
-        )
+        log_level = LogLevel.__getattribute__(LogLevel, self.message_type.rstrip("s").upper())
         robo_print(message, log_level)
 
 

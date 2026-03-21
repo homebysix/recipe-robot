@@ -25,7 +25,6 @@ to create autopkg recipes for the specified app.
 # TODO: refactor code issuing warnings about missing processors/repos.
 # pylint: disable=no-member
 
-
 from pathlib import Path
 
 from . import processor
@@ -111,9 +110,7 @@ def generate_recipes(facts, prefs):
     # FileWaveImporter repo must be present to run created filewave recipes.)
 
     # Prepare the destination directory.
-    recipe_dest_dir = recipe_dirpath(
-        facts[bundle_name_key], facts.get("developer", None), prefs
-    )
+    recipe_dest_dir = recipe_dirpath(facts[bundle_name_key], facts.get("developer", None), prefs)
     facts["recipe_dest_dir"] = recipe_dest_dir
     create_dest_dirs(recipe_dest_dir)
 
@@ -144,10 +141,7 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
 
     # We don't have enough information to create a recipe set.
     if not facts.is_from_app_store() and not any(
-        [
-            key in facts
-            for key in ("sparkle_feed", "github_repo", "sourceforge_id", "download_url")
-        ]
+        [key in facts for key in ("sparkle_feed", "github_repo", "sourceforge_id", "download_url")]
     ):
         raise RoboError(
             "Sorry, I don't know how to download this app. Maybe "
@@ -307,9 +301,7 @@ def generate_download_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    recipe.set_description(
-        "Downloads the latest version of %s." % facts[bundle_name_key]
-    )
+    recipe.set_description("Downloads the latest version of %s." % facts[bundle_name_key])
 
     # TODO: Extract method(s) to get_source_processor()
     if "barebones_product" in facts:
@@ -337,14 +329,10 @@ def generate_download_recipe(facts, prefs, recipe):
                 "        autopkg repo-add recipes"
             )
     elif "sparkle_feed" in facts:
-        sparkle_processor = processor.SparkleUpdateInfoProvider(
-            appcast_url=facts["sparkle_feed"]
-        )
+        sparkle_processor = processor.SparkleUpdateInfoProvider(appcast_url=facts["sparkle_feed"])
 
         if "user-agent" in facts:
-            sparkle_processor.appcast_request_headers = {
-                "user-agent": facts["user-agent"]
-            }
+            sparkle_processor.appcast_request_headers = {"user-agent": facts["user-agent"]}
 
         recipe.append_processor(sparkle_processor)
 
@@ -394,9 +382,7 @@ def generate_download_recipe(facts, prefs, recipe):
     if "download_url" in facts:
         if facts.get("sparkle_provides_version") or "github_repo" in facts:
             # Sparkle and GitHub provide version information.
-            url_downloader.filename = "%NAME%-%version%.{}".format(
-                facts["download_format"]
-            )
+            url_downloader.filename = "%NAME%-%version%.{}".format(facts["download_format"])
         elif "sourceforge_id" in facts:
             # SourceForge does not provide reliable version information, but signed apps
             # are generally handled with a Versioner or AppDmgVersioner processor.
@@ -457,8 +443,7 @@ def generate_download_recipe(facts, prefs, recipe):
             input_path = "%pathname%"
         else:
             facts["warnings"].append(
-                "CodeSignatureVerifier cannot be created. "
-                "The download format is not recognized."
+                "CodeSignatureVerifier cannot be created. The download format is not recognized."
             )
             input_path = None
 
@@ -497,9 +482,7 @@ def generate_download_recipe(facts, prefs, recipe):
                 else:
                     # Skip FileFinder and specify the filename of the package.
                     pkgpayloadunpacker.pkg_payload_path = (
-                        "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(
-                            facts["pkg_filename"]
-                        )
+                        "%RECIPE_CACHE_DIR%/unpack/{}/Payload".format(facts["pkg_filename"])
                     )
 
                 recipe.append_processor(pkgpayloadunpacker)
@@ -511,17 +494,14 @@ def generate_download_recipe(facts, prefs, recipe):
                 )
             else:
                 if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
-                    versioner.input_plist_path = (
-                        "%pathname%/{}{}.{}/Contents/Info.plist".format(
-                            facts.get("relative_path", ""),
-                            facts.get("app_file", facts[bundle_name_key]),
-                            bundle_type,
-                        )
+                    versioner.input_plist_path = "%pathname%/{}{}.{}/Contents/Info.plist".format(
+                        facts.get("relative_path", ""),
+                        facts.get("app_file", facts[bundle_name_key]),
+                        bundle_type,
                     )
                 else:
                     versioner.input_plist_path = (
-                        "%RECIPE_CACHE_DIR%/%NAME%/"
-                        "{}{}.{}/Contents/Info.plist".format(
+                        "%RECIPE_CACHE_DIR%/%NAME%/{}{}.{}/Contents/Info.plist".format(
                             facts.get("relative_path", ""),
                             facts.get("app_file", facts[bundle_name_key]),
                             bundle_type,
@@ -544,8 +524,7 @@ def warn_about_app_store_generation(facts, recipe_type):
         recipe_type (str): String representing the type of this recipe.
     """
     facts["warnings"].append(
-        "Skipping %s recipe, because this app was downloaded from the "
-        "App Store." % recipe_type
+        "Skipping %s recipe, because this app was downloaded from the App Store." % recipe_type
     )
 
 
@@ -671,8 +650,7 @@ def generate_munki_recipe(facts, prefs, recipe):
     robo_print("Generating %s recipe..." % recipe["type"])
 
     recipe.set_description(
-        "Downloads the latest version of %s and imports it "
-        "into Munki." % facts[bundle_name_key]
+        "Downloads the latest version of %s and imports it into Munki." % facts[bundle_name_key]
     )
     recipe.set_parent_from(prefs, facts, "download")
 
@@ -694,9 +672,7 @@ def generate_munki_recipe(facts, prefs, recipe):
         keys["Input"]["pkginfo"]["description"] = " "
 
     if prefs.get("StripDeveloperSuffixes", False) is True:
-        keys["Input"]["pkginfo"]["developer"] = strip_dev_suffix(
-            facts.get("developer", "")
-        )
+        keys["Input"]["pkginfo"]["developer"] = strip_dev_suffix(facts.get("developer", ""))
     else:
         keys["Input"]["pkginfo"]["developer"] = facts.get("developer", "")
 
@@ -708,14 +684,8 @@ def generate_munki_recipe(facts, prefs, recipe):
 
     if facts["download_format"] in SUPPORTED_IMAGE_FORMATS:
         # If the app is not signed, we need a versioner processor here.
-        if (
-            facts.get("codesign_reqs", "") == ""
-            and len(facts["codesign_authorities"]) == 0
-        ):
-            if (
-                facts["version_key"] == "CFBundleShortVersionString"
-                and bundle_type == "app"
-            ):
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
+            if facts["version_key"] == "CFBundleShortVersionString" and bundle_type == "app":
                 recipe.append_processor(
                     {
                         "Processor": "AppDmgVersioner",
@@ -754,10 +724,7 @@ def generate_munki_recipe(facts, prefs, recipe):
             addl_makepkginfo_opts.append(destinationpath)
 
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-        if (
-            facts.get("codesign_reqs", "") == ""
-            and len(facts["codesign_authorities"]) == 0
-        ):
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
             recipe.append_processor(
@@ -842,9 +809,7 @@ def generate_munki_recipe(facts, prefs, recipe):
         }
 
     if addl_makepkginfo_opts:
-        munki_importer["Arguments"][
-            "additional_makepkginfo_options"
-        ] = addl_makepkginfo_opts
+        munki_importer["Arguments"]["additional_makepkginfo_options"] = addl_makepkginfo_opts
 
     recipe.append_processor(munki_importer)
 
@@ -974,16 +939,14 @@ def generate_pkg_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "Skipping %s recipe, because I wasn't able to determine the "
             "bundle identifier of this app. You may want to actually download "
-            "the app and try again, using the .app file itself as input."
-            % recipe["type"]
+            "the app and try again, using the .app file itself as input." % recipe["type"]
         )
         return
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
     recipe.set_description(
-        "Downloads the latest version of %s and creates a package."
-        % facts[bundle_name_key]
+        "Downloads the latest version of %s and creates a package." % facts[bundle_name_key]
     )
 
     recipe.set_parent_from(prefs, facts, "download")
@@ -1054,9 +1017,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                             "chown": [
                                 {
                                     "group": "admin",
-                                    "path": SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip(
-                                        "/"
-                                    ),
+                                    "path": SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip("/"),
                                     "user": "root",
                                 }
                             ],
@@ -1070,10 +1031,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
             )
 
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-        if (
-            facts.get("codesign_reqs", "") == ""
-            and len(facts["codesign_authorities"]) == 0
-        ):
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet. Need to do that and version.
             recipe.append_processor(
@@ -1137,9 +1095,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                             "chown": [
                                 {
                                     "group": "admin",
-                                    "path": SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip(
-                                        "/"
-                                    ),
+                                    "path": SUPPORTED_BUNDLE_TYPES[bundle_type].lstrip("/"),
                                     "user": "root",
                                 }
                             ],
@@ -1191,9 +1147,7 @@ def generate_pkg_recipe(facts, prefs, recipe):
                     "Arguments": {
                         "input_plist_path": f"%RECIPE_CACHE_DIR%/payload/{facts['app_relpath_from_payload']}"
                         "/Contents/Info.plist",
-                        "plist_version_key": facts.get(
-                            "version_key", "CFBundleShortVersionString"
-                        ),
+                        "plist_version_key": facts.get("version_key", "CFBundleShortVersionString"),
                     },
                 }
             )
@@ -1255,9 +1209,7 @@ def generate_install_recipe(facts, prefs, recipe):
 
     robo_print("Generating %s recipe..." % recipe["type"])
 
-    recipe.set_description(
-        "Installs the latest version of %s." % facts[bundle_name_key]
-    )
+    recipe.set_description("Installs the latest version of %s." % facts[bundle_name_key])
 
     recipe.set_parent_from(prefs, facts, "download")
 
@@ -1282,10 +1234,7 @@ def generate_install_recipe(facts, prefs, recipe):
         )
 
     elif facts["download_format"] in SUPPORTED_ARCHIVE_FORMATS:
-        if (
-            facts.get("codesign_reqs", "") == ""
-            and len(facts["codesign_authorities"]) == 0
-        ):
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             recipe.append_processor(
                 {
                     "Processor": "Unarchiver",
@@ -1325,9 +1274,7 @@ def generate_install_recipe(facts, prefs, recipe):
         )
 
     elif facts["download_format"] in SUPPORTED_INSTALL_FORMATS:
-        recipe.append_processor(
-            {"Processor": "Installer", "Arguments": {"pkg_path": "%pathname%"}}
-        )
+        recipe.append_processor({"Processor": "Installer", "Arguments": {"pkg_path": "%pathname%"}})
 
     return recipe
 
@@ -1415,8 +1362,7 @@ def generate_lanrev_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "Skipping %s recipe, because I wasn't able to determine the "
             "bundle identifier of this app. You may want to actually download "
-            "the app and try again, using the .app file itself as input."
-            % recipe["type"]
+            "the app and try again, using the .app file itself as input." % recipe["type"]
         )
         return
 
@@ -1430,9 +1376,7 @@ def generate_lanrev_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "pkg")
 
     # Print a reminder if the required repo isn't present on disk.
-    required_repo_reminder(
-        "LANrevImporter", "https://github.com/jbaker10/LANrevImporter", facts
-    )
+    required_repo_reminder("LANrevImporter", "https://github.com/jbaker10/LANrevImporter", facts)
 
     recipe.append_processor(
         {
@@ -1476,8 +1420,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "Skipping %s recipe, because I wasn't able to determine the "
             "bundle identifier of this app. You may want to actually download "
-            "the app and try again, using the .app file itself as input."
-            % recipe["type"]
+            "the app and try again, using the .app file itself as input." % recipe["type"]
         )
         return
 
@@ -1490,9 +1433,7 @@ def generate_sccm_recipe(facts, prefs, recipe):
     recipe.set_parent_from(prefs, facts, "pkg")
 
     # Print a reminder if the required repo isn't present on disk.
-    required_repo_reminder(
-        "cgerke-recipes", "https://github.com/autopkg/cgerke-recipes", facts
-    )
+    required_repo_reminder("cgerke-recipes", "https://github.com/autopkg/cgerke-recipes", facts)
 
     recipe.append_processor(
         {
@@ -1533,8 +1474,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "Skipping %s recipe, because I wasn't able to determine the "
             "bundle identifier of this app. You may want to actually download "
-            "the app and try again, using the .app file itself as input."
-            % recipe["type"]
+            "the app and try again, using the .app file itself as input." % recipe["type"]
         )
         return
 
@@ -1548,10 +1488,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
 
     recipe.set_parent_from(prefs, facts, "download")
 
-    if (
-        facts.get("download_format") in SUPPORTED_IMAGE_FORMATS
-        and "sparkle_feed" not in facts
-    ):
+    if facts.get("download_format") in SUPPORTED_IMAGE_FORMATS and "sparkle_feed" not in facts:
         # It's a dmg download, but not from Sparkle, so we need to version it.
         recipe.append_processor(
             {
@@ -1569,10 +1506,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
             }
         )
     elif facts.get("download_format") in SUPPORTED_ARCHIVE_FORMATS:
-        if (
-            facts.get("codesign_reqs", "") == ""
-            and len(facts["codesign_authorities"]) == 0
-        ):
+        if facts.get("codesign_reqs", "") == "" and len(facts["codesign_authorities"]) == 0:
             # If unsigned, that means the download recipe hasn't
             # unarchived the zip yet.
             recipe.append_processor(
@@ -1588,8 +1522,7 @@ def generate_filewave_recipe(facts, prefs, recipe):
     elif facts.get("download_format") in SUPPORTED_INSTALL_FORMATS:
         # TODO: Fix this. (#41)
         facts["warnings"].append(
-            "Sorry, I don't yet know how to create filewave recipes from pkg "
-            "downloads."
+            "Sorry, I don't yet know how to create filewave recipes from pkg downloads."
         )
 
     # Print a reminder if the required repo isn't present on disk.
@@ -1646,8 +1579,7 @@ def generate_ds_recipe(facts, prefs, recipe):
         facts["warnings"].append(
             "Skipping %s recipe, because I wasn't able to determine the "
             "bundle identifier of this app. You may want to actually download "
-            "the app and try again, using the .app file itself as input."
-            % recipe["type"]
+            "the app and try again, using the .app file itself as input." % recipe["type"]
         )
         return
 
@@ -1839,9 +1771,7 @@ def generate_bigfix_recipe(facts, prefs, recipe):
             "Arguments": {
                 "bes_filename": "%NAME%." + facts["download_format"],
                 "bes_version": "%version%",
-                "bes_title": "Install/Upgrade: "
-                + facts["developer"]
-                + " %NAME% %version% - macOS",
+                "bes_title": "Install/Upgrade: " + facts["developer"] + " %NAME% %version% - macOS",
                 "bes_description": "<p>This task will install/upgrade: %NAME% %version%</p>",
                 "bes_category": "Software Installers",
                 "bes_relevance": [

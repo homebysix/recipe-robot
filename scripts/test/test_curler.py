@@ -118,9 +118,7 @@ class TestCurler(unittest.TestCase):
 
     def test_parse_curl_error_txt(self):
         """Verify we can report a curl failure from text."""
-        actual = curler.parse_curl_error(
-            "curl: (6) Could not resolve host: example.none"
-        )
+        actual = curler.parse_curl_error("curl: (6) Could not resolve host: example.none")
         expected = "Could not resolve host: example.none"
         self.assertEqual(expected, actual)
 
@@ -130,9 +128,7 @@ class TestCurler(unittest.TestCase):
 
     def test_parse_curl_error_bytes(self):
         """Verify we can report a curl failure from bytes."""
-        actual = curler.parse_curl_error(
-            b"curl: (6) Could not resolve host: example.none"
-        )
+        actual = curler.parse_curl_error(b"curl: (6) Could not resolve host: example.none")
         expected = "Could not resolve host: example.none"
         self.assertEqual(expected, actual)
 
@@ -229,9 +225,7 @@ class TestCurler(unittest.TestCase):
 
     def test_parse_ftp_headers_full(self):
         """Verify we can parse FTP headers from curl."""
-        raw_headers = (
-            """125 Data connection already open; transfer starting.\n213 123456\n"""
-        )
+        raw_headers = """125 Data connection already open; transfer starting.\n213 123456\n"""
         header = curler.parse_headers(raw_headers, url="ftp://example.com/file.txt")
         expected = {
             "content-length": "123456",

@@ -100,9 +100,7 @@ class TestInspect(unittest.TestCase):
 
         # Verify that the MacUpdate.com URL was called with the correct app name
         called_urls = [call[0][0] for call in mock_download.call_args_list]
-        macupdate_url = next(
-            (url for url in called_urls if "macupdate.com" in url), None
-        )
+        macupdate_url = next((url for url in called_urls if "macupdate.com" in url), None)
         self.assertIsNotNone(macupdate_url)
         if macupdate_url:
             self.assertIn("Xmplify", macupdate_url)
@@ -171,17 +169,13 @@ class TestInspectSparkleFeed(unittest.TestCase):
         include_enclosure_version=True,
     ):
         """Create a sample Sparkle XML feed for testing."""
-        version_elem = (
-            "<sparkle:version>2000</sparkle:version>" if include_version else ""
-        )
+        version_elem = "<sparkle:version>2000</sparkle:version>" if include_version else ""
         short_version_elem = (
             "<sparkle:shortVersionString>2.0.0</sparkle:shortVersionString>"
             if include_short_version
             else ""
         )
-        enclosure_version = (
-            'sparkle:version="2000"' if include_enclosure_version else ""
-        )
+        enclosure_version = 'sparkle:version="2000"' if include_enclosure_version else ""
 
         xml_content = f"""<?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
@@ -231,9 +225,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         mock_inspect_download.return_value = self.facts
 
         # Call the function
-        result = inspect_sparkle_feed_url(
-            "https://example.com/appcast.xml", self.args, self.facts
-        )
+        result = inspect_sparkle_feed_url("https://example.com/appcast.xml", self.args, self.facts)
 
         # Verify results
         self.assertEqual(result["sparkle_feed"], "https://example.com/appcast.xml")
@@ -276,9 +268,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         mock_inspect_download.return_value = self.facts
 
         # Call the function
-        result = inspect_sparkle_feed_url(
-            "https://example.com/appcast.xml", self.args, self.facts
-        )
+        result = inspect_sparkle_feed_url("https://example.com/appcast.xml", self.args, self.facts)
 
         # Verify that sparkle_provides_version is still True
         # This tests our fix - AutoPkg's SparkleUpdateInfoProvider can extract version from URL
@@ -295,9 +285,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         )
 
         # Call the function
-        result = inspect_sparkle_feed_url(
-            "https://example.com/appcast.xml", self.args, self.facts
-        )
+        result = inspect_sparkle_feed_url("https://example.com/appcast.xml", self.args, self.facts)
 
         # Verify that sparkle_feed is removed due to error
         self.assertNotIn("sparkle_feed", result)
@@ -315,9 +303,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         mock_download.return_value = "<invalid>xml</not_closed>"
 
         # Call the function
-        result = inspect_sparkle_feed_url(
-            "https://example.com/appcast.xml", self.args, self.facts
-        )
+        result = inspect_sparkle_feed_url("https://example.com/appcast.xml", self.args, self.facts)
 
         # Verify error handling
         self.assertNotIn("sparkle_feed", result)
@@ -356,9 +342,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         mock_download.return_value = xml_no_enclosures
 
         # Call the function
-        result = inspect_sparkle_feed_url(
-            "https://example.com/appcast.xml", self.args, self.facts
-        )
+        result = inspect_sparkle_feed_url("https://example.com/appcast.xml", self.args, self.facts)
 
         # Verify that function returns early when no usable items found
         self.assertEqual(result["sparkle_feed"], "https://example.com/appcast.xml")
@@ -381,9 +365,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         mock_inspect_download.return_value = self.facts
 
         # Call the function
-        result = inspect_sparkle_feed_url(
-            "https://example.com/appcast.xml", self.args, self.facts
-        )
+        result = inspect_sparkle_feed_url("https://example.com/appcast.xml", self.args, self.facts)
 
         # Verify user-agent was recorded
         self.assertEqual(result["user-agent"], "Mozilla/5.0")
@@ -392,9 +374,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
     @patch("scripts.recipe_robot_lib.inspect.curler.download")
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
-    def test_sparkle_feed_https_warning(
-        self, mock_check_url, mock_download, mock_inspect_download
-    ):
+    def test_sparkle_feed_https_warning(self, mock_check_url, mock_download, mock_inspect_download):
         """Test warning for non-HTTPS Sparkle feeds."""
         # Setup mocks with HTTP URL
         mock_check_url.return_value = (
@@ -406,9 +386,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         mock_inspect_download.return_value = self.facts
 
         # Call the function
-        result = inspect_sparkle_feed_url(
-            "http://example.com/appcast.xml", self.args, self.facts
-        )
+        result = inspect_sparkle_feed_url("http://example.com/appcast.xml", self.args, self.facts)
 
         # Verify HTTPS warning was added
         https_warnings = [w for w in result["warnings"] if "not using HTTPS" in w]
@@ -425,9 +403,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         self.facts["inspections"] = ["sparkle_feed_url"]
 
         # Call the function
-        inspect_sparkle_feed_url(
-            "https://example.com/appcast.xml", self.args, self.facts
-        )
+        inspect_sparkle_feed_url("https://example.com/appcast.xml", self.args, self.facts)
 
         # Verify that no processing occurred
         mock_check_url.assert_not_called()
@@ -469,9 +445,7 @@ class TestInspectSparkleFeed(unittest.TestCase):
         mock_inspect_download.return_value = self.facts
 
         # Call the function
-        inspect_sparkle_feed_url(
-            "https://example.com/appcast.xml", self.args, self.facts
-        )
+        inspect_sparkle_feed_url("https://example.com/appcast.xml", self.args, self.facts)
 
         # Verify that the highest version (3000) was selected
         mock_inspect_download.assert_called_once()
@@ -562,9 +536,7 @@ class TestProcessInputPath(unittest.TestCase):
         """Test warning for GitHub download URLs that might be misinterpreted."""
         mock_inspect_github.return_value = self.facts
 
-        self.args.input_path = (
-            "https://github.com/user/repo/releases/download/v1.0/app.zip"
-        )
+        self.args.input_path = "https://github.com/user/repo/releases/download/v1.0/app.zip"
 
         process_input_path(self.facts)
 
@@ -593,9 +565,7 @@ class TestProcessInputPath(unittest.TestCase):
 
                 process_input_path(self.facts)
 
-                mock_inspect_sourceforge.assert_called_once_with(
-                    url, self.args, self.facts
-                )
+                mock_inspect_sourceforge.assert_called_once_with(url, self.args, self.facts)
 
     @patch("scripts.recipe_robot_lib.inspect.inspect_bitbucket_url")
     def test_bitbucket_url_detection(self, mock_inspect_bitbucket):
@@ -637,9 +607,7 @@ class TestProcessInputPath(unittest.TestCase):
 
         # Check that dl=0 was changed to dl=1
         expected_url = "https://dropbox.com/s/abc123/file.zip?dl=1"
-        mock_inspect_download.assert_called_once_with(
-            expected_url, self.args, self.facts
-        )
+        mock_inspect_download.assert_called_once_with(expected_url, self.args, self.facts)
 
     @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
     def test_http_download_url(self, mock_inspect_download):
@@ -659,9 +627,7 @@ class TestProcessInputPath(unittest.TestCase):
 
                 process_input_path(self.facts)
 
-                mock_inspect_download.assert_called_once_with(
-                    url, self.args, self.facts
-                )
+                mock_inspect_download.assert_called_once_with(url, self.args, self.facts)
 
     @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
     @patch("scripts.recipe_robot_lib.inspect.inspect_app")
@@ -674,9 +640,7 @@ class TestProcessInputPath(unittest.TestCase):
 
         process_input_path(self.facts)
 
-        mock_inspect_app.assert_called_once_with(
-            "/Applications/TestApp.app", self.args, self.facts
-        )
+        mock_inspect_app.assert_called_once_with("/Applications/TestApp.app", self.args, self.facts)
 
     @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
     @patch("scripts.recipe_robot_lib.inspect.inspect_pkg")
@@ -710,9 +674,7 @@ class TestProcessInputPath(unittest.TestCase):
 
                 process_input_path(self.facts)
 
-                mock_inspect_disk_image.assert_called_once_with(
-                    path, self.args, self.facts
-                )
+                mock_inspect_disk_image.assert_called_once_with(path, self.args, self.facts)
 
     @patch("scripts.recipe_robot_lib.inspect.os.path.exists")
     @patch("scripts.recipe_robot_lib.inspect.inspect_archive")
@@ -729,9 +691,7 @@ class TestProcessInputPath(unittest.TestCase):
 
                 process_input_path(self.facts)
 
-                mock_inspect_archive.assert_called_once_with(
-                    path, self.args, self.facts
-                )
+                mock_inspect_archive.assert_called_once_with(path, self.args, self.facts)
 
     def test_url_path_preserves_trailing_slash(self):
         """Test that URLs preserve trailing slashes (not stripped)."""
@@ -818,9 +778,7 @@ class TestInspectBarebonesFeed(unittest.TestCase):
         )
 
         # Verify results
-        self.assertEqual(
-            result["sparkle_feed"], "https://versioncheck.barebones.com/TextSoap.xml"
-        )
+        self.assertEqual(result["sparkle_feed"], "https://versioncheck.barebones.com/TextSoap.xml")
         self.assertIn("sparkle_feed_url", result["inspections"])
         self.assertTrue(result["sparkle_provides_version"])
         self.assertEqual(result["barebones_product"], "textsoap")
@@ -877,9 +835,7 @@ class TestInspectBarebonesFeed(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.curler.download")
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
     @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
-    def test_invalid_plist_parsing(
-        self, mock_plistlib_loads, mock_check_url, mock_download
-    ):
+    def test_invalid_plist_parsing(self, mock_plistlib_loads, mock_check_url, mock_download):
         """Test handling of invalid plist parsing."""
         # Setup mocks
         mock_check_url.return_value = (
@@ -890,9 +846,7 @@ class TestInspectBarebonesFeed(unittest.TestCase):
         mock_download.return_value = b"invalid plist data"
         import plistlib
 
-        mock_plistlib_loads.side_effect = plistlib.InvalidFileException(
-            "Invalid plist format"
-        )
+        mock_plistlib_loads.side_effect = plistlib.InvalidFileException("Invalid plist format")
 
         # Call the function
         result = inspect_barebones_feed_url(
@@ -900,17 +854,13 @@ class TestInspectBarebonesFeed(unittest.TestCase):
         )
 
         # Verify warning is added and sparkle_feed is removed
-        self.assertIn(
-            "Error occurred while parsing Bare Bones feed", result["warnings"][0]
-        )
+        self.assertIn("Error occurred while parsing Bare Bones feed", result["warnings"][0])
         self.assertNotIn("sparkle_feed", result)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.download")
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
     @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
-    def test_no_usable_entries(
-        self, mock_plistlib_loads, mock_check_url, mock_download
-    ):
+    def test_no_usable_entries(self, mock_plistlib_loads, mock_check_url, mock_download):
         """Test handling of feed with no usable entries."""
         # Setup mocks with entries that have no download or update URLs
         mock_check_url.return_value = (
@@ -931,9 +881,7 @@ class TestInspectBarebonesFeed(unittest.TestCase):
         )
 
         # Verify function returns early with sparkle_feed still set
-        self.assertEqual(
-            result["sparkle_feed"], "https://versioncheck.barebones.com/TextSoap.xml"
-        )
+        self.assertEqual(result["sparkle_feed"], "https://versioncheck.barebones.com/TextSoap.xml")
         self.assertNotIn("sparkle_provides_version", result)
 
     @patch("scripts.recipe_robot_lib.inspect.inspect_download_url")
@@ -1167,31 +1115,37 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         items = []
 
         if include_text_file:
-            items.append("""
+            items.append(
+                """
                 <item>
                     <title>README.txt</title>
                     <link>https://sourceforge.net/projects/{}/files/README.txt/download</link>
                     <sf:extra-info xmlns:sf="https://sourceforge.net/api/files.rdf#">text</sf:extra-info>
                 </item>
-            """.format(project_name))
+            """.format(project_name)
+            )
 
         if include_beta:
-            items.append("""
+            items.append(
+                """
                 <item>
                     <title>TestApp-1.0-beta.dmg</title>
                     <link>https://sourceforge.net/projects/{}/files/TestApp-1.0-beta.dmg/download</link>
                     <sf:extra-info xmlns:sf="https://sourceforge.net/api/files.rdf#">binary</sf:extra-info>
                 </item>
-            """.format(project_name))
+            """.format(project_name)
+            )
 
         if include_download:
-            items.append("""
+            items.append(
+                """
                 <item>
                     <title>TestApp-2.0.dmg</title>
                     <link>https://sourceforge.net/projects/{}/files/TestApp-2.0.dmg/download</link>
                     <sf:extra-info xmlns:sf="https://sourceforge.net/api/files.rdf#">binary</sf:extra-info>
                 </item>
-            """.format(project_name))
+            """.format(project_name)
+            )
 
         return """<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:sf="https://sourceforge.net/api/files.rdf#">
@@ -1228,9 +1182,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_extra_info = MagicMock()
         mock_extra_info.text = "binary"
         mock_link = MagicMock()
-        mock_link.text = (
-            "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
-        )
+        mock_link.text = "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
         mock_item.find.side_effect = lambda tag: (
             mock_extra_info if "extra-info" in tag else mock_link
         )
@@ -1253,9 +1205,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         # Verify that download URL inspection was called
         mock_inspect_download.assert_called_once()
         call_args = mock_inspect_download.call_args[0]
-        expected_url = (
-            "https://master.dl.sourceforge.net/project/testapp/TestApp-2.0.dmg?viasf=1"
-        )
+        expected_url = "https://master.dl.sourceforge.net/project/testapp/TestApp-2.0.dmg?viasf=1"
         self.assertEqual(call_args[0], expected_url)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.download")
@@ -1307,21 +1257,15 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
 
         for url, expected_project_name in test_cases:
             with self.subTest(url=url, expected_project_name=expected_project_name):
-                with patch(
-                    "scripts.recipe_robot_lib.inspect.curler.download"
-                ) as mock_download, patch(
-                    "scripts.recipe_robot_lib.inspect.json.loads"
-                ) as mock_json_loads:
-
+                with (
+                    patch("scripts.recipe_robot_lib.inspect.curler.download") as mock_download,
+                    patch("scripts.recipe_robot_lib.inspect.json.loads") as mock_json_loads,
+                ):
                     # Setup mocks to avoid actual API calls
-                    mock_json_loads.return_value = (
-                        self.create_sample_sourceforge_api_response()
-                    )
+                    mock_json_loads.return_value = self.create_sample_sourceforge_api_response()
                     mock_download.side_effect = [
                         '{"shortname": "TestApp"}',  # API response
-                        self.create_sample_sourceforge_rss(
-                            expected_project_name
-                        ),  # RSS feed
+                        self.create_sample_sourceforge_rss(expected_project_name),  # RSS feed
                     ]
 
                     # Reset facts for each test
@@ -1331,11 +1275,12 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
                     facts["args"] = MagicMock()  # Add args to facts
 
                     # Mock inspect_download_url to avoid actual download processing
-                    with patch(
-                        "scripts.recipe_robot_lib.inspect.inspect_download_url"
-                    ) as mock_inspect_dl, patch(
-                        "scripts.recipe_robot_lib.inspect.ElementTree.fromstring"
-                    ) as mock_et:
+                    with (
+                        patch(
+                            "scripts.recipe_robot_lib.inspect.inspect_download_url"
+                        ) as mock_inspect_dl,
+                        patch("scripts.recipe_robot_lib.inspect.ElementTree.fromstring") as mock_et,
+                    ):
                         mock_inspect_dl.return_value = facts
 
                         # Mock XML parsing
@@ -1355,9 +1300,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
                         _ = inspect_sourceforge_url(url, self.args, facts)
 
                     # Verify the correct API URL was called
-                    expected_api_url = (
-                        f"https://sourceforge.net/rest/p/{expected_project_name}"
-                    )
+                    expected_api_url = f"https://sourceforge.net/rest/p/{expected_project_name}"
                     mock_download.assert_any_call(expected_api_url, text=True)
 
     def test_unparseable_url_warning(self):
@@ -1375,9 +1318,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
     def test_empty_project_name_warning(self, mock_json_loads, mock_curler_download):
         """Test warning when project name cannot be detected."""
         # Call the function with a URL that results in empty project name
-        result = inspect_sourceforge_url(
-            "https://sourceforge.net/projects/", self.args, self.facts
-        )
+        result = inspect_sourceforge_url("https://sourceforge.net/projects/", self.args, self.facts)
 
         # Verify warning was added and function returned early
         self.assertIn("Could not detect SourceForge project name.", result["warnings"])
@@ -1412,9 +1353,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_extra_info = MagicMock()
         mock_extra_info.text = "binary"
         mock_link = MagicMock()
-        mock_link.text = (
-            "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
-        )
+        mock_link.text = "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
         mock_item.find.side_effect = lambda tag: (
             mock_extra_info if "extra-info" in tag else mock_link
         )
@@ -1443,9 +1382,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_inspect_download,
     ):
         """Test fallback to shortname when name is empty."""
-        api_response = self.create_sample_sourceforge_api_response(
-            shortname="TestApp", name=""
-        )
+        api_response = self.create_sample_sourceforge_api_response(shortname="TestApp", name="")
         mock_json_loads.return_value = api_response
         mock_curler_download.side_effect = [
             '{"shortname": "TestApp", "name": ""}',
@@ -1458,9 +1395,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_extra_info = MagicMock()
         mock_extra_info.text = "binary"
         mock_link = MagicMock()
-        mock_link.text = (
-            "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
-        )
+        mock_link.text = "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
         mock_item.find.side_effect = lambda tag: (
             mock_extra_info if "extra-info" in tag else mock_link
         )
@@ -1489,9 +1424,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_inspect_download,
     ):
         """Test warning when project ID cannot be detected."""
-        api_response = self.create_sample_sourceforge_api_response(
-            include_project_id=False
-        )
+        api_response = self.create_sample_sourceforge_api_response(include_project_id=False)
         mock_json_loads.return_value = api_response
         mock_curler_download.side_effect = [
             '{"shortname": "TestApp"}',
@@ -1504,9 +1437,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_extra_info = MagicMock()
         mock_extra_info.text = "binary"
         mock_link = MagicMock()
-        mock_link.text = (
-            "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
-        )
+        mock_link.text = "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
         mock_item.find.side_effect = lambda tag: (
             mock_extra_info if "extra-info" in tag else mock_link
         )
@@ -1550,9 +1481,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_extra_info = MagicMock()
         mock_extra_info.text = "binary"
         mock_link = MagicMock()
-        mock_link.text = (
-            "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
-        )
+        mock_link.text = "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
         mock_item.find.side_effect = lambda tag: (
             mock_extra_info if "extra-info" in tag else mock_link
         )
@@ -1572,16 +1501,12 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.ElementTree.fromstring")
     @patch("scripts.recipe_robot_lib.inspect.curler.download")
     @patch("scripts.recipe_robot_lib.inspect.json.loads")
-    def test_rss_feed_filtering(
-        self, mock_json_loads, mock_curler_download, mock_elementtree
-    ):
+    def test_rss_feed_filtering(self, mock_json_loads, mock_curler_download, mock_elementtree):
         """Test that RSS feed filtering skips text files and beta versions."""
         mock_json_loads.return_value = self.create_sample_sourceforge_api_response()
         mock_curler_download.side_effect = [
             '{"shortname": "TestApp"}',
-            self.create_sample_sourceforge_rss(
-                include_text_file=True, include_beta=True
-            ),
+            self.create_sample_sourceforge_rss(include_text_file=True, include_beta=True),
         ]
 
         # Mock XML parsing to return multiple items
@@ -1597,7 +1522,9 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_beta_extra_info = MagicMock()
         mock_beta_extra_info.text = "binary"
         mock_beta_link = MagicMock()
-        mock_beta_link.text = "https://sourceforge.net/projects/testapp/files/TestApp-1.0-beta.dmg/download"
+        mock_beta_link.text = (
+            "https://sourceforge.net/projects/testapp/files/TestApp-1.0-beta.dmg/download"
+        )
         mock_beta_item.find.side_effect = lambda tag: (
             mock_beta_extra_info if "extra-info" in tag else mock_beta_link
         )
@@ -1633,14 +1560,14 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
             # Verify that only the regular release was processed (not text file or beta)
             mock_inspect_download.assert_called_once()
             call_args = mock_inspect_download.call_args[0]
-            expected_url = "https://master.dl.sourceforge.net/project/testapp/TestApp-2.0.dmg?viasf=1"
+            expected_url = (
+                "https://master.dl.sourceforge.net/project/testapp/TestApp-2.0.dmg?viasf=1"
+            )
             self.assertEqual(call_args[0], expected_url)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.download")
     @patch("scripts.recipe_robot_lib.inspect.json.loads")
-    def test_rss_feed_download_error_handling(
-        self, mock_json_loads, mock_curler_download
-    ):
+    def test_rss_feed_download_error_handling(self, mock_json_loads, mock_curler_download):
         """Test that RSS feed download errors are caught and logged gracefully."""
         mock_json_loads.return_value = self.create_sample_sourceforge_api_response()
 
@@ -1725,9 +1652,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_extra_info = MagicMock()
         mock_extra_info.text = "binary"
         mock_link = MagicMock()
-        mock_link.text = (
-            "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
-        )
+        mock_link.text = "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
         mock_item.find.side_effect = lambda tag: (
             mock_extra_info if "extra-info" in tag else mock_link
         )
@@ -1778,9 +1703,7 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
         mock_extra_info = MagicMock()
         mock_extra_info.text = "binary"
         mock_link = MagicMock()
-        mock_link.text = (
-            "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
-        )
+        mock_link.text = "https://sourceforge.net/projects/testapp/files/TestApp-2.0.dmg/download"
         mock_item.find.side_effect = lambda tag: (
             mock_extra_info if "extra-info" in tag else mock_link
         )
@@ -1979,9 +1902,7 @@ class TestInspectApp(unittest.TestCase):
         mock_get_description,
     ):
         """Test handling when app filename differs from bundle name."""
-        mock_plist_load.return_value = self.create_mock_info_plist(
-            CFBundleName="Different Name"
-        )
+        mock_plist_load.return_value = self.create_mock_info_plist(CFBundleName="Different Name")
         mock_basename.return_value = "test.app"
         mock_exists.side_effect = lambda path: "_MASReceipt" not in path
         mock_get_exitcode.return_value = (1, "", "")
@@ -2023,8 +1944,7 @@ class TestInspectApp(unittest.TestCase):
         result = inspect_app(self.test_app_path, self.args, self.facts)
 
         warning_found = any(
-            "doesn't seem to have a bundle identifier" in warning
-            for warning in result["warnings"]
+            "doesn't seem to have a bundle identifier" in warning for warning in result["warnings"]
         )
         self.assertTrue(warning_found)
 
@@ -2056,9 +1976,7 @@ class TestInspectApp(unittest.TestCase):
 
         result = inspect_app(self.test_app_path, self.args, self.facts)
 
-        warning_found = any(
-            "I see what you did there" in warning for warning in result["warnings"]
-        )
+        warning_found = any("I see what you did there" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.get_app_description")
@@ -2089,9 +2007,7 @@ class TestInspectApp(unittest.TestCase):
 
         result = inspect_app(self.test_app_path, self.args, self.facts)
 
-        warning_found = any(
-            "recipe for disaster" in warning for warning in result["warnings"]
-        )
+        warning_found = any("recipe for disaster" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.get_app_description")
@@ -2130,9 +2046,7 @@ class TestInspectApp(unittest.TestCase):
                 test_facts["blocking_applications"] = []
                 test_facts["codesign_authorities"] = []
 
-                mock_plist_load.return_value = self.create_mock_info_plist(
-                    CFBundleName=app_name
-                )
+                mock_plist_load.return_value = self.create_mock_info_plist(CFBundleName=app_name)
 
                 result = inspect_app(self.test_app_path, self.args, test_facts)
 
@@ -2256,9 +2170,7 @@ class TestInspectApp(unittest.TestCase):
         mock_get_description,
     ):
         """Test icon path detection."""
-        mock_plist_load.return_value = self.create_mock_info_plist(
-            CFBundleIconFile="MyIcon.icns"
-        )
+        mock_plist_load.return_value = self.create_mock_info_plist(CFBundleIconFile="MyIcon.icns")
         mock_basename.return_value = "test.app"
         mock_exists.side_effect = lambda path: "_MASReceipt" not in path
         mock_get_exitcode.return_value = (1, "", "")
@@ -2328,9 +2240,7 @@ class TestInspectApp(unittest.TestCase):
 
         result = inspect_app(self.test_app_path, self.args, self.facts)
 
-        warning_found = any(
-            "Can't determine icon" in warning for warning in result["warnings"]
-        )
+        warning_found = any("Can't determine icon" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.get_app_description")
@@ -2442,9 +2352,7 @@ Sealed Resources version=2 rules=13 files=245"""
         self.assertEqual(result.get("codesign_reqs", ""), "")
         self.assertEqual(len(result["codesign_authorities"]), 0)
 
-        warning_found = any(
-            "obsolete code signature" in warning for warning in result["warnings"]
-        )
+        warning_found = any("obsolete code signature" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.get_app_description")
@@ -2492,8 +2400,7 @@ Sealed Resources version=2 rules=13 files=245"""
                 result = inspect_app(self.test_app_path, self.args, test_facts)
 
                 warning_found = any(
-                    "code signing designated requirements are set very broadly"
-                    in warning
+                    "code signing designated requirements are set very broadly" in warning
                     for warning in result["warnings"]
                 )
                 self.assertTrue(warning_found)
@@ -2522,9 +2429,7 @@ Sealed Resources version=2 rules=13 files=245"""
 
         from scripts.recipe_robot_lib.inspect import inspect_app
 
-        result = inspect_app(
-            "/tmp/test.saver", self.args, self.facts, bundle_type="saver"
-        )
+        result = inspect_app("/tmp/test.saver", self.args, self.facts, bundle_type="saver")
 
         self.assertEqual(result["saver_name"], "Test App")
         self.assertIn("saver", result["inspections"])
@@ -2639,9 +2544,7 @@ Sealed Resources version=2 rules=13 files=245"""
         inspect_app(self.test_app_path, self.args, self.facts)
 
         expected_devmate_url = "https://updates.devmate.com/com.example.testapp.xml"
-        mock_inspect_sparkle.assert_called_once_with(
-            expected_devmate_url, self.args, self.facts
-        )
+        mock_inspect_sparkle.assert_called_once_with(expected_devmate_url, self.args, self.facts)
 
 
 class TestGetDownloadLinkFromXattr(unittest.TestCase):
@@ -2657,9 +2560,7 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
     @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
     @patch("scripts.recipe_robot_lib.inspect.robo_print")
-    def test_successful_xattr_extraction(
-        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
-    ):
+    def test_successful_xattr_extraction(self, mock_robo_print, mock_getxattr, mock_plistlib_loads):
         """Test successful extraction of download URL from xattr metadata."""
         # Mock the extended attributes data
         mock_getxattr.return_value = b"test_plist_data"
@@ -2691,9 +2592,7 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
     @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
     @patch("scripts.recipe_robot_lib.inspect.robo_print")
-    def test_empty_where_froms_list(
-        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
-    ):
+    def test_empty_where_froms_list(self, mock_robo_print, mock_getxattr, mock_plistlib_loads):
         """Test when the where froms list is empty."""
         # Mock empty list from plistlib
         mock_getxattr.return_value = b"empty_plist_data"
@@ -2737,9 +2636,7 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
         # Verify error message was printed
         mock_robo_print.assert_called_once()
         call_args = mock_robo_print.call_args[0]
-        self.assertIn(
-            "Unable to derive a download URL from file metadata", call_args[0]
-        )
+        self.assertIn("Unable to derive a download URL from file metadata", call_args[0])
 
     @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
     @patch("scripts.recipe_robot_lib.inspect.robo_print")
@@ -2762,16 +2659,12 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
         # Verify error message was printed
         mock_robo_print.assert_called_once()
         call_args = mock_robo_print.call_args[0]
-        self.assertIn(
-            "Unable to derive a download URL from file metadata", call_args[0]
-        )
+        self.assertIn("Unable to derive a download URL from file metadata", call_args[0])
 
     @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
     @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
     @patch("scripts.recipe_robot_lib.inspect.robo_print")
-    def test_plistlib_exception_handling(
-        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
-    ):
+    def test_plistlib_exception_handling(self, mock_robo_print, mock_getxattr, mock_plistlib_loads):
         """Test handling when plistlib fails to parse the xattr data."""
         # Mock successful xattr retrieval but failed plist parsing
         mock_getxattr.return_value = b"invalid_plist_data"
@@ -2795,9 +2688,7 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
     @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
     @patch("scripts.recipe_robot_lib.inspect.robo_print")
-    def test_multiple_urls_takes_first(
-        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
-    ):
+    def test_multiple_urls_takes_first(self, mock_robo_print, mock_getxattr, mock_plistlib_loads):
         """Test that when multiple URLs exist, the first one is used."""
         # Mock multiple URLs in the where froms
         mock_getxattr.return_value = b"multi_url_plist_data"
@@ -2811,9 +2702,7 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
         get_download_link_from_xattr(self.test_path, self.args, self.facts)
 
         # Verify the first URL was set as download_url
-        self.assertEqual(
-            self.facts["download_url"], "https://first.example.com/download.dmg"
-        )
+        self.assertEqual(self.facts["download_url"], "https://first.example.com/download.dmg")
 
         # Verify the success message mentions the first URL
         mock_robo_print.assert_called_once()
@@ -2844,9 +2733,7 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.plistlib.loads")
     @patch("scripts.recipe_robot_lib.inspect.xattr.getxattr")
     @patch("scripts.recipe_robot_lib.inspect.robo_print")
-    def test_preserves_existing_facts(
-        self, mock_robo_print, mock_getxattr, mock_plistlib_loads
-    ):
+    def test_preserves_existing_facts(self, mock_robo_print, mock_getxattr, mock_plistlib_loads):
         """Test that function preserves existing facts when adding download_url."""
         # Pre-populate facts with some data
         self.facts["app_name"] = "Test App"
@@ -2970,9 +2857,11 @@ class TestInspectDownloadUrl(unittest.TestCase):
         url_with_spaces = "  https://example.com/test.dmg  "
 
         # Mock the rest of the function to avoid full execution
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
@@ -2984,9 +2873,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
     @patch("scripts.recipe_robot_lib.inspect.inspect_github_url")
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
     @patch("scripts.recipe_robot_lib.inspect.robo_print")
-    def test_github_url_detection(
-        self, mock_robo_print, mock_check_url, mock_inspect_github
-    ):
+    def test_github_url_detection(self, mock_robo_print, mock_check_url, mock_inspect_github):
         """Test detection and inspection of GitHub URLs."""
         test_urls = [
             "https://github.com/user/repo/releases/download/v1.0/app.dmg",
@@ -3010,20 +2897,18 @@ class TestInspectDownloadUrl(unittest.TestCase):
                 test_facts["args"] = self.args
 
                 # Mock the rest of the function
-                with patch(
-                    "scripts.recipe_robot_lib.inspect.curler.download_to_file"
-                ), patch("builtins.open"), patch(
-                    "scripts.recipe_robot_lib.inspect.inspect_disk_image"
-                ) as mock_inspect:
+                with (
+                    patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+                    patch("builtins.open"),
+                    patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+                ):
                     mock_inspect.return_value = test_facts
 
                     # Call the function
                     inspect_download_url(test_url, self.args, test_facts)
 
                 # Verify GitHub inspection was called
-                mock_inspect_github.assert_called_once_with(
-                    test_url, self.args, test_facts
-                )
+                mock_inspect_github.assert_called_once_with(test_url, self.args, test_facts)
 
     @patch("scripts.recipe_robot_lib.inspect.inspect_sourceforge_url")
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
@@ -3038,18 +2923,18 @@ class TestInspectDownloadUrl(unittest.TestCase):
         mock_inspect_sourceforge.return_value = self.facts
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
             inspect_download_url(test_url, self.args, self.facts)
 
         # Verify SourceForge inspection was called
-        mock_inspect_sourceforge.assert_called_once_with(
-            test_url, self.args, self.facts
-        )
+        mock_inspect_sourceforge.assert_called_once_with(test_url, self.args, self.facts)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
     @patch("scripts.recipe_robot_lib.inspect.robo_print")
@@ -3064,18 +2949,18 @@ class TestInspectDownloadUrl(unittest.TestCase):
         )
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
             result = inspect_download_url(version_specific_url, self.args, self.facts)
 
         # Verify warning was added
-        warning_found = any(
-            "version-specific URL" in warning for warning in result["warnings"]
-        )
+        warning_found = any("version-specific URL" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
@@ -3087,18 +2972,18 @@ class TestInspectDownloadUrl(unittest.TestCase):
         mock_check_url.return_value = (cdn_url, {"http_result_code": "200"}, None)
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
             result = inspect_download_url(cdn_url, self.args, self.facts)
 
         # Verify warning was added
-        warning_found = any(
-            "CDN-cached URL" in warning for warning in result["warnings"]
-        )
+        warning_found = any("CDN-cached URL" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
@@ -3110,18 +2995,18 @@ class TestInspectDownloadUrl(unittest.TestCase):
         mock_check_url.return_value = (aws_url, {"http_result_code": "200"}, None)
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
             result = inspect_download_url(aws_url, self.args, self.facts)
 
         # Verify warning was added
-        warning_found = any(
-            "AWSAccessKeyId parameter" in warning for warning in result["warnings"]
-        )
+        warning_found = any("AWSAccessKeyId parameter" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
@@ -3143,16 +3028,17 @@ class TestInspectDownloadUrl(unittest.TestCase):
                 test_facts["args"] = self.args
 
                 # Mock the rest of the function
-                with patch(
-                    "scripts.recipe_robot_lib.inspect.curler.download_to_file"
-                ), patch("builtins.open"), patch(
-                    "scripts.recipe_robot_lib.inspect.inspect_disk_image"
-                ) as mock_inspect_disk, patch(
-                    "scripts.recipe_robot_lib.inspect.inspect_archive"
-                ) as mock_inspect_archive, patch(
-                    "scripts.recipe_robot_lib.inspect.inspect_pkg"
-                ) as mock_inspect_pkg:
-
+                with (
+                    patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+                    patch("builtins.open"),
+                    patch(
+                        "scripts.recipe_robot_lib.inspect.inspect_disk_image"
+                    ) as mock_inspect_disk,
+                    patch(
+                        "scripts.recipe_robot_lib.inspect.inspect_archive"
+                    ) as mock_inspect_archive,
+                    patch("scripts.recipe_robot_lib.inspect.inspect_pkg") as mock_inspect_pkg,
+                ):
                     # Make sure all inspection functions return without doing anything
                     mock_inspect_disk.return_value = test_facts
                     mock_inspect_archive.return_value = test_facts
@@ -3171,12 +3057,10 @@ class TestInspectDownloadUrl(unittest.TestCase):
         github_url = "https://github.com/user/repo/releases/download/v1.0/app.dmg"
 
         # Mock GITHUB_TOKEN
-        with patch(
-            "scripts.recipe_robot_lib.inspect.GITHUB_TOKEN", "test_token"
-        ), patch(
-            "scripts.recipe_robot_lib.inspect.any_item_in_string", return_value=True
+        with (
+            patch("scripts.recipe_robot_lib.inspect.GITHUB_TOKEN", "test_token"),
+            patch("scripts.recipe_robot_lib.inspect.any_item_in_string", return_value=True),
         ):
-
             mock_check_url.return_value = (
                 github_url,
                 {"http_result_code": "200"},
@@ -3184,11 +3068,11 @@ class TestInspectDownloadUrl(unittest.TestCase):
             )
 
             # Mock the rest of the function
-            with patch(
-                "scripts.recipe_robot_lib.inspect.curler.download_to_file"
-            ) as mock_download, patch("builtins.open"), patch(
-                "scripts.recipe_robot_lib.inspect.inspect_disk_image"
-            ) as mock_inspect:
+            with (
+                patch("scripts.recipe_robot_lib.inspect.curler.download_to_file") as mock_download,
+                patch("builtins.open"),
+                patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+            ):
                 mock_inspect.return_value = self.facts
 
                 # Call the function
@@ -3212,9 +3096,11 @@ class TestInspectDownloadUrl(unittest.TestCase):
         )
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
@@ -3238,9 +3124,11 @@ class TestInspectDownloadUrl(unittest.TestCase):
         )
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
@@ -3250,9 +3138,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
         self.assertEqual(result["user-agent"], "Mozilla/5.0 Custom Agent")
 
         # Verify warning was added
-        warning_found = any(
-            "different user-agent" in warning for warning in result["warnings"]
-        )
+        warning_found = any("different user-agent" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
@@ -3263,18 +3149,18 @@ class TestInspectDownloadUrl(unittest.TestCase):
         mock_check_url.return_value = (http_url, {"http_result_code": "200"}, None)
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
             result = inspect_download_url(http_url, self.args, self.facts)
 
         # Verify warning was added
-        warning_found = any(
-            "not using HTTPS" in warning for warning in result["warnings"]
-        )
+        warning_found = any("not using HTTPS" in warning for warning in result["warnings"])
         self.assertTrue(warning_found)
 
     @patch("scripts.recipe_robot_lib.inspect.curler.check_url")
@@ -3291,9 +3177,11 @@ class TestInspectDownloadUrl(unittest.TestCase):
         )
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
@@ -3301,8 +3189,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
 
         # Verify warning was added
         warning_found = any(
-            "content-type (text/html) is unusual" in warning
-            for warning in result["warnings"]
+            "content-type (text/html) is unusual" in warning for warning in result["warnings"]
         )
         self.assertTrue(warning_found)
 
@@ -3320,9 +3207,11 @@ class TestInspectDownloadUrl(unittest.TestCase):
         )
 
         # Mock the rest of the function
-        with patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"), patch(
-            "builtins.open"
-        ), patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
+        with (
+            patch("scripts.recipe_robot_lib.inspect.curler.download_to_file"),
+            patch("builtins.open"),
+            patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect,
+        ):
             mock_inspect.return_value = self.facts
 
             # Call the function
@@ -3364,9 +3253,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
 
         # Verify file was removed and Sparkle inspection was called
         mock_remove.assert_called_once()
-        mock_inspect_sparkle.assert_called_once_with(
-            self.test_url, self.args, self.facts
-        )
+        mock_inspect_sparkle.assert_called_once_with(self.test_url, self.args, self.facts)
 
     @patch("builtins.open")
     @patch("scripts.recipe_robot_lib.inspect.curler.download_to_file")
@@ -3385,9 +3272,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
         mock_open.return_value.__enter__.return_value = mock_file
 
         # Mock the rest of the function to avoid format detection
-        with patch(
-            "scripts.recipe_robot_lib.inspect.inspect_disk_image"
-        ) as mock_inspect:
+        with patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
             mock_inspect.return_value = self.facts
 
             # Call the function
@@ -3395,8 +3280,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
 
         # Verify warning was added
         warning_found = any(
-            "XML file was downloaded instead" in warning
-            for warning in result["warnings"]
+            "XML file was downloaded instead" in warning for warning in result["warnings"]
         )
         self.assertTrue(warning_found)
 
@@ -3420,9 +3304,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
         mock_open.return_value.__enter__.return_value = mock_file
 
         # Mock the rest of the function
-        with patch(
-            "scripts.recipe_robot_lib.inspect.inspect_disk_image"
-        ) as mock_inspect:
+        with patch("scripts.recipe_robot_lib.inspect.inspect_disk_image") as mock_inspect:
             mock_inspect.return_value = self.facts
 
             # Call the function
@@ -3430,8 +3312,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
 
         # Verify warning was added
         warning_found = any(
-            "webpage was downloaded instead" in warning
-            for warning in result["warnings"]
+            "webpage was downloaded instead" in warning for warning in result["warnings"]
         )
         self.assertTrue(warning_found)
 
@@ -3584,8 +3465,7 @@ class TestInspectDownloadUrl(unittest.TestCase):
 
         # Verify warning about unknown format was added
         warning_found = any(
-            "not sure what the download format is" in warning
-            for warning in result["warnings"]
+            "not sure what the download format is" in warning for warning in result["warnings"]
         )
         self.assertTrue(warning_found)
 
@@ -3662,9 +3542,11 @@ class TestGetMostLikelyApp(unittest.TestCase):
 
     def test_sparkle_feed_priority(self):
         """Test that apps with Sparkle feeds are prioritized."""
-        with patch("builtins.open") as mock_open, patch(
-            "plistlib.load"
-        ) as mock_plist, patch("os.path.exists"):
+        with (
+            patch("builtins.open") as mock_open,
+            patch("plistlib.load") as mock_plist,
+            patch("os.path.exists"),
+        ):
             # Mock different plist contents based on which file is opened
             def plist_side_effect(file_obj):
                 # Get the file path from the mock call
@@ -3702,14 +3584,13 @@ class TestGetMostLikelyApp(unittest.TestCase):
             },
         ]
         result = get_most_likely_app(app_list)
-        self.assertEqual(
-            result, 1
-        )  # Should choose the /Applications install-location app
+        self.assertEqual(result, 1)  # Should choose the /Applications install-location app
 
     def test_virtual_app_with_install_location(self):
         """Test that virtual apps with install-location are handled properly."""
-        with patch("builtins.open", side_effect=FileNotFoundError), patch(
-            "os.path.exists", return_value=False
+        with (
+            patch("builtins.open", side_effect=FileNotFoundError),
+            patch("os.path.exists", return_value=False),
         ):
             app_list = [
                 {"path": "/path/to/traditional.app"},
@@ -3756,8 +3637,9 @@ class TestGetMostLikelyApp(unittest.TestCase):
 
     def test_mixed_traditional_and_virtual_apps(self):
         """Test selection between traditional .app and virtual install-location apps."""
-        with patch("builtins.open", side_effect=FileNotFoundError), patch(
-            "os.path.exists", return_value=False
+        with (
+            patch("builtins.open", side_effect=FileNotFoundError),
+            patch("os.path.exists", return_value=False),
         ):
             app_list = [
                 {"path": "/path/to/Autoupdate.app"},  # Traditional app

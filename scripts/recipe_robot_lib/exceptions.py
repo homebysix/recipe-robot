@@ -59,10 +59,7 @@ class RoboException(Exception):
             self._error = None
         else:
             # Convert exception to string representation with traceback if available
-            if (
-                hasattr(exception_object, "__traceback__")
-                and exception_object.__traceback__
-            ):
+            if hasattr(exception_object, "__traceback__") and exception_object.__traceback__:
                 self._error = "".join(
                     traceback.format_exception(
                         type(exception_object),

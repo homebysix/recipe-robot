@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file. This projec
 
 - Bug fix for error that occurred when expanded zip files contained a `__MACOSX` resource fork folder. (#231)
 
+### Changed
+
+- Switched from black, flake8, isort, and pyupgrade to ruff for linting.
+
 ## [2.5.0] - 2025-11-08
 
 ### Added

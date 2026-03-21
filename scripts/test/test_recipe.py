@@ -154,9 +154,7 @@ class TestRecipe(unittest.TestCase):
         facts = {"app_name": "TestApp"}
 
         # Mock get_bundle_name_info to return app_name
-        with patch(
-            "scripts.recipe_robot_lib.recipe.get_bundle_name_info"
-        ) as mock_get_bundle:
+        with patch("scripts.recipe_robot_lib.recipe.get_bundle_name_info") as mock_get_bundle:
             mock_get_bundle.return_value = (None, "app_name")
 
             self.recipe.set_parent_from(prefs, facts, "download")
@@ -169,9 +167,7 @@ class TestRecipe(unittest.TestCase):
         prefs = {"RecipeIdentifierPrefix": "com.github.homebysix"}
         facts = {"app_name": "Test App With Spaces"}
 
-        with patch(
-            "scripts.recipe_robot_lib.recipe.get_bundle_name_info"
-        ) as mock_get_bundle:
+        with patch("scripts.recipe_robot_lib.recipe.get_bundle_name_info") as mock_get_bundle:
             mock_get_bundle.return_value = (None, "app_name")
 
             self.recipe.set_parent_from(prefs, facts, "munki")
@@ -204,8 +200,9 @@ class TestRecipe(unittest.TestCase):
         # Make isinstance() return True for our mock
         with patch("scripts.recipe_robot_lib.recipe.isinstance") as mock_isinstance:
             mock_isinstance.side_effect = lambda obj, cls: (
-                obj is mock_processor and cls.__name__ == "AbstractProcessor"
-            ) or isinstance(obj, cls)
+                (obj is mock_processor and cls.__name__ == "AbstractProcessor")
+                or isinstance(obj, cls)
+            )
 
             self.recipe.append_processor(mock_processor)
 
@@ -440,9 +437,7 @@ class TestRecipes(unittest.TestCase):
         # Verify the modification persisted
         for recipe in self.recipes:
             if recipe["type"] == "download":
-                self.assertEqual(
-                    recipe["keys"]["Identifier"], "com.test.download.TestApp"
-                )
+                self.assertEqual(recipe["keys"]["Identifier"], "com.test.download.TestApp")
                 break
 
     def test_recipes_list_operations(self):
@@ -498,9 +493,7 @@ class TestRecipeIntegration(unittest.TestCase):
             "Downloads TestApp from developer site",
         )
         self.assertEqual(len(download_recipe["keys"]["Process"]), 1)
-        self.assertEqual(
-            download_recipe["keys"]["Process"][0]["Processor"], "URLDownloader"
-        )
+        self.assertEqual(download_recipe["keys"]["Process"][0]["Processor"], "URLDownloader")
 
     def test_recipe_parent_child_relationship(self):
         """Test setting up parent-child relationships between recipes."""
@@ -522,9 +515,7 @@ class TestRecipeIntegration(unittest.TestCase):
         # Set pkg recipe to use download as parent
         pkg_recipe.set_parent("com.test.download.TestApp")
 
-        self.assertEqual(
-            pkg_recipe["keys"]["ParentRecipe"], "com.test.download.TestApp"
-        )
+        self.assertEqual(pkg_recipe["keys"]["ParentRecipe"], "com.test.download.TestApp")
 
 
 if __name__ == "__main__":

@@ -95,9 +95,9 @@ PREFERENCE_KEYS = (
 # Global variables.
 
 # Cache directory location.
-CACHE_DIR = Path(
-    "~/Library/Caches/Recipe Robot"
-).expanduser() / datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")
+CACHE_DIR = Path("~/Library/Caches/Recipe Robot").expanduser() / datetime.now().strftime(
+    "%Y-%m-%d_%H-%M-%S_%f"
+)
 
 # Whether to display Terminal colors or not.
 # Variable name required to be lowercase in order to be overridden by script.
@@ -201,10 +201,7 @@ def robo_print(message, log_level=LogLevel.LOG, indent=0):
     if (
         log_level in (LogLevel.ERROR, LogLevel.REMINDER, LogLevel.WARNING, LogLevel.LOG)
         or (log_level is LogLevel.DEBUG and OutputMode.debug_mode)
-        or (
-            log_level is LogLevel.VERBOSE
-            and (OutputMode.verbose_mode or OutputMode.debug_mode)
-        )
+        or (log_level is LogLevel.VERBOSE and (OutputMode.verbose_mode or OutputMode.debug_mode))
     ):
         if os.environ.get("NSUnbufferedIO") == "YES":
             # Shell out to enable realtime output in Recipe Robot app.
@@ -228,10 +225,7 @@ def get_github_token():
             with open(str(github_token_file)) as tokenfile:
                 return tokenfile.read().strip()
         except OSError:
-            print(
-                "WARNING: Couldn't read GitHub token file at %s."
-                % str(github_token_file)
-            )
+            print("WARNING: Couldn't read GitHub token file at %s." % str(github_token_file))
     return None
 
 
@@ -425,18 +419,16 @@ def extract_app_icon(facts, png_path):
         icon_path = icon_path + ".icns"
 
     if not png_path_absolute.exists():
-        cmd = (
-            '/usr/bin/sips -s format png "%s" --out "%s" '
-            "--resampleHeightWidthMax 300" % (icon_path, str(png_path_absolute))
+        cmd = '/usr/bin/sips -s format png "%s" --out "%s" --resampleHeightWidthMax 300' % (
+            icon_path,
+            str(png_path_absolute),
         )
         exitcode, _, err = get_exitcode_stdout_stderr(cmd)
         if exitcode == 0:
             robo_print("%s" % png_path, LogLevel.VERBOSE, 4)
             facts["icons"].append(png_path)
         else:
-            facts["warnings"].append(
-                "An error occurred during icon extraction: %s" % err
-            )
+            facts["warnings"].append("An error occurred during icon extraction: %s" % err)
 
 
 def get_exitcode_stdout_stderr(cmd, stdin="", text=True):
@@ -481,7 +473,8 @@ def get_exitcode_stdout_stderr(cmd, stdin="", text=True):
 
 def print_welcome_text():
     """Print the text that appears when you run Recipe Robot."""
-    welcome_text = """
+    welcome_text = (
+        """
                       -----------------------------------
                      |  Welcome to Recipe Robot v%s.  |
                       -----------------------------------
@@ -490,7 +483,9 @@ def print_welcome_text():
                                    d-||-b
                                      ||
                                    _/  \\_
-    """ % __version__
+    """
+        % __version__
+    )
 
     robo_print(welcome_text)
 
@@ -520,9 +515,7 @@ def get_user_defaults():
         dict: The dictionary containing a key/value pair for Recipe Robot
             preferences.
     """
-    prefs_dict = {
-        key: CFPreferencesCopyAppValue(key, BUNDLE_ID) for key in PREFERENCE_KEYS
-    }
+    prefs_dict = {key: CFPreferencesCopyAppValue(key, BUNDLE_ID) for key in PREFERENCE_KEYS}
     # Filter out None values so missing preferences are properly detected
     prefs_dict = {k: v for k, v in prefs_dict.items() if v is not None}
     return prefs_dict
@@ -573,9 +566,7 @@ def check_search_cache(facts, search_index_path):
     robo_print("Checking local search index cache...", LogLevel.VERBOSE)
 
     # Retrieve metadata about search index file from GitHub API
-    cache_meta_url = (
-        "https://api.github.com/repos/autopkg/index/contents/v1/index.json?ref=main"
-    )
+    cache_meta_url = "https://api.github.com/repos/autopkg/index/contents/v1/index.json?ref=main"
 
     # Build headers with GitHub token if available
     headers = {"Accept": "application/vnd.github.v3+json"}
@@ -586,37 +577,26 @@ def check_search_cache(facts, search_index_path):
     try:
         stdout = curler.download(cache_meta_url, headers=headers, text=True)
     except (OSError, RuntimeError):
-        facts["warnings"].append(
-            "Unable to retrieve search index metadata from GitHub API."
-        )
+        facts["warnings"].append("Unable to retrieve search index metadata from GitHub API.")
         return
 
     try:
         cache_meta = json.loads(stdout)
         sha = cache_meta.get("sha")
         if not sha:
-            facts["warnings"].append(
-                "Unable to retrieve search index metadata from GitHub API."
-            )
+            facts["warnings"].append("Unable to retrieve search index metadata from GitHub API.")
             return
     except json.JSONDecodeError:
-        facts["warnings"].append(
-            "Unable to retrieve search index metadata from GitHub API."
-        )
+        facts["warnings"].append("Unable to retrieve search index metadata from GitHub API.")
         return
 
     # If cache exists locally, check whether it's current
-    if (
-        Path(search_index_path).is_file()
-        and Path(str(search_index_path) + ".etag").is_file()
-    ):
+    if Path(search_index_path).is_file() and Path(str(search_index_path) + ".etag").is_file():
         try:
             with open(str(search_index_path) + ".etag", encoding="utf-8") as openfile:
                 local_etag = openfile.read().strip('"')
             if local_etag == sha:
-                robo_print(
-                    "Local search index cache is up to date.", LogLevel.VERBOSE, 4
-                )
+                robo_print("Local search index cache is up to date.", LogLevel.VERBOSE, 4)
                 return
         except (OSError, IOError) as e:
             robo_print(
@@ -636,9 +616,7 @@ def check_search_cache(facts, search_index_path):
         curler.download_to_file(cache_meta_url, str(search_index_path), headers=headers)
         robo_print("Updated local search index cache.", LogLevel.VERBOSE, 4)
     except (OSError, RuntimeError, RoboError):
-        facts["warnings"].append(
-            "Unable to retrieve search index contents from GitHub API."
-        )
+        facts["warnings"].append("Unable to retrieve search index contents from GitHub API.")
         return
 
 
@@ -690,9 +668,7 @@ def create_existing_recipe_list(facts):
     # limiting. (#29)
 
     # Update search index JSON cache
-    search_index_path = Path(
-        "~/Library/Caches/Recipe Robot/search_index.json"
-    ).expanduser()
+    search_index_path = Path("~/Library/Caches/Recipe Robot/search_index.json").expanduser()
     check_search_cache(facts, search_index_path)
 
     try:
@@ -703,9 +679,7 @@ def create_existing_recipe_list(facts):
         return
 
     # Search for existing recipes in index
-    robo_print(
-        "Searching for existing AutoPkg recipes for %s..." % app_name, LogLevel.VERBOSE
-    )
+    robo_print("Searching for existing AutoPkg recipes for %s..." % app_name, LogLevel.VERBOSE)
     result_ids = []
     for candidate, identifiers in search_index["shortnames"].items():
         if normalize_keyword(app_name) in normalize_keyword(candidate):
@@ -746,10 +720,7 @@ def create_existing_recipe_list(facts):
         robo_print("No valid results found", LogLevel.VERBOSE, 4)
         return
 
-    col_widths = [
-        max([len(x[k]) for x in result_items] + [len(k)])
-        for k in result_items[0].keys()
-    ]
+    col_widths = [max([len(x[k]) for x in result_items] + [len(k)]) for k in result_items[0].keys()]
 
     # Print result table, sorted by repo
     robo_print("Found existing recipe(s):", LogLevel.LOG, 4)
@@ -808,9 +779,7 @@ def congratulate(prefs, first_timer):
             if prefs["RecipeCreateCount"] == 1:
                 recipe_count = "your first recipe"
             else:
-                recipe_count = "your first {} recipes".format(
-                    prefs["RecipeCreateCount"]
-                )
+                recipe_count = "your first {} recipes".format(prefs["RecipeCreateCount"])
             congrats = "Congratulations!"
         else:
             if prefs["RecipeCreateCount"] == 1:

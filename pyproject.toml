@@ -1,0 +1,13 @@
+[tool.ruff]
+# Linting and formatting settings migrated from flake8 and isort
+# Linting and formatting settings migrated from flake8 and isort
+# Linting and formatting settings migrated from flake8 and isort
+# Linting and formatting settings migrated from flake8 and isort
+line-length = 100
+extend-select = ["B", "C", "E", "F", "W", "B9"]
+ignore = [
+    "E203", "E265", "E266", "E402", "E501", "E722", "F405", "F403"
+]
+exclude = [".git", ".hg"]
+# isort-like import sorting
+# [tool.ruff.isort] section removed: unsupported options for ruff. Configure import sorting with supported ruff options if needed.

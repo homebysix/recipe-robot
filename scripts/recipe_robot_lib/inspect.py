@@ -121,10 +121,7 @@ def process_input_path(facts):
     # inspect it.
     inspect_func = None
     if input_path.lower().startswith("http"):
-        if (
-            input_path.lower().endswith((".xml", ".rss", ".php"))
-            or "appcast" in input_path.lower()
-        ):
+        if input_path.lower().endswith((".xml", ".rss", ".php")) or "appcast" in input_path.lower():
             if "versioncheck.barebones.com" in input_path:
                 robo_print("Input path looks like a Bare Bones feed.", LogLevel.VERBOSE)
                 inspect_func = inspect_barebones_feed_url
@@ -181,13 +178,10 @@ def process_input_path(facts):
             inspect_func = inspect_archive
         else:
             raise RoboError(
-                "I haven't been trained on how to handle this input path:\n"
-                "\t%s" % input_path
+                "I haven't been trained on how to handle this input path:\n\t%s" % input_path
             )
     else:
-        raise RoboError(
-            "Input path does not exist. Please try again with a valid input path."
-        )
+        raise RoboError("Input path does not exist. Please try again with a valid input path.")
 
     if inspect_func:
         facts = inspect_func(input_path, args, facts)
@@ -236,7 +230,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         raise RoboError(
             f"{input_path} doesn't look like a valid {bundle_type} to me.",
             error,
-        )
+        ) from error
 
     # Get the filename of the app (which is usually the same as the app
     # name.)
@@ -244,9 +238,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
 
     # Determine the name of the app. (Overwrites any previous app_name,
     # because the app Info.plist itself is the most reliable source.)
-    if bundle_type == "app" or (
-        bundle_type != "app" and "app" not in facts["inspections"]
-    ):
+    if bundle_type == "app" or (bundle_type != "app" and "app" not in facts["inspections"]):
         app_name = ""
         robo_print("Getting bundle name...", LogLevel.VERBOSE)
         if "CFBundleName" in info_plist:
@@ -276,9 +268,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
     # Determine the bundle identifier of the app. (Overwrites any
     # previous bundle_id, because the app itself is the most reliable
     # source.)
-    if bundle_type == "app" or (
-        bundle_type != "app" and "app" not in facts["inspections"]
-    ):
+    if bundle_type == "app" or (bundle_type != "app" and "app" not in facts["inspections"]):
         bundle_id = ""
         robo_print("Getting bundle identifier...", LogLevel.VERBOSE)
         if "CFBundleIdentifier" in info_plist:
@@ -286,9 +276,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             robo_print("Bundle identifier is: %s" % bundle_id, LogLevel.VERBOSE, 4)
             facts["bundle_id"] = bundle_id
         else:
-            facts["warnings"].append(
-                f"{app_name} doesn't seem to have a bundle identifier."
-            )
+            facts["warnings"].append(f"{app_name} doesn't seem to have a bundle identifier.")
 
     # Leave a hint for people testing Recipe Robot on itself.
     if (
@@ -304,9 +292,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
 
     # Just keeping things lighthearted...
     if bundle_type == "app" and "disaster" in app_name.lower():
-        facts["warnings"].append(
-            "Uh-oh. Looks like you're creating a recipe for disaster!"
-        )
+        facts["warnings"].append("Uh-oh. Looks like you're creating a recipe for disaster!")
 
     # Warn if this looks like an installer app.
     if (
@@ -393,9 +379,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
             facts["version_key"] = version_key
         else:
             raise RoboError(
-                "Sorry, I can't determine which version key to use for this {}.".format(
-                    bundle_type
-                )
+                "Sorry, I can't determine which version key to use for this {}.".format(bundle_type)
             )
 
     # Determine path to the app's icon.
@@ -404,10 +388,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         robo_print("Looking for icon...", LogLevel.VERBOSE)
         if "CFBundleIconFile" in info_plist:
             icon_path = str(
-                Path(input_path)
-                / "Contents"
-                / "Resources"
-                / info_plist["CFBundleIconFile"]
+                Path(input_path) / "Contents" / "Resources" / info_plist["CFBundleIconFile"]
             )
         else:
             facts["warnings"].append("Can't determine icon.")
@@ -479,9 +460,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
 
             # Check for obsolete code signature version.
             if "Sealed Resources version=1" in err:
-                facts["warnings"].append(
-                    f"This {bundle_type} uses an obsolete code signature."
-                )
+                facts["warnings"].append(f"This {bundle_type} uses an obsolete code signature.")
                 # Clear code signature markers, treat app as unsigned.
                 codesign_reqs = ""
                 codesign_authorities = []
@@ -489,9 +468,7 @@ def inspect_app(input_path, args, facts, bundle_type="app"):
         if codesign_reqs == "" and len(codesign_authorities) == 0:
             robo_print(f"This {bundle_type} is not signed", LogLevel.VERBOSE, 4)
         else:
-            robo_print(
-                "Code signature verification requirements recorded", LogLevel.VERBOSE, 4
-            )
+            robo_print("Code signature verification requirements recorded", LogLevel.VERBOSE, 4)
             facts["codesign_reqs"] = codesign_reqs
             robo_print(
                 f"{len(codesign_authorities)} authority names recorded",
@@ -567,8 +544,7 @@ def get_app_description(app_name):
         {
             "name": "Download.com",
             "pattern": r'<div class="c-productCard_summary g-text-small g-color-\S+">(?P<desc>.*?)</div>',
-            "url": "https://download.cnet.com/s/%s/?platform=mac"
-            % quote_plus(app_name),
+            "url": "https://download.cnet.com/s/%s/?platform=mac" % quote_plus(app_name),
         },
         {
             "name": "Softonic.com",
@@ -603,9 +579,7 @@ def get_download_link_from_xattr(input_path, args, facts):
             input path.
     """
     try:
-        where_froms_string = xattr.getxattr(
-            input_path, "com.apple.metadata:kMDItemWhereFroms"
-        )
+        where_froms_string = xattr.getxattr(input_path, "com.apple.metadata:kMDItemWhereFroms")
         where_froms = plistlib.loads(where_froms_string)
         if len(where_froms) > 0:
             facts["download_url"] = where_froms[0]
@@ -615,9 +589,7 @@ def get_download_link_from_xattr(input_path, args, facts):
                 4,
             )
     except (KeyError, OSError):
-        robo_print(
-            "Unable to derive a download URL from file metadata.", LogLevel.WARNING
-        )
+        robo_print("Unable to derive a download URL from file metadata.", LogLevel.WARNING)
 
 
 def inspect_archive(input_path, args, facts):
@@ -661,9 +633,7 @@ def inspect_archive(input_path, args, facts):
 
             # If the download filename was ambiguous, change it.
             download_filename = facts.get("download_filename", input_path)
-            if not any(
-                has_ext(download_filename, fmt) for fmt in SUPPORTED_ARCHIVE_FORMATS
-            ):
+            if not any(has_ext(download_filename, fmt) for fmt in SUPPORTED_ARCHIVE_FORMATS):
                 facts["download_filename"] = "{}.{}".format(
                     facts.get("download_filename", Path(input_path).name), fmt[0]
                 )
@@ -676,10 +646,7 @@ def inspect_archive(input_path, args, facts):
                     facts = inspect_app(str(unpacked_dir / this_file), args, facts)
                     stop_searching_archive = True
                     return facts
-                elif any(
-                    has_ext(this_file, bundle_type)
-                    for bundle_type in SUPPORTED_BUNDLE_TYPES
-                ):
+                elif any(has_ext(this_file, bundle_type) for bundle_type in SUPPORTED_BUNDLE_TYPES):
                     # Determine which bundle type matched
                     for bundle_type in SUPPORTED_BUNDLE_TYPES:
                         if has_ext(this_file, bundle_type):
@@ -693,8 +660,7 @@ def inspect_archive(input_path, args, facts):
                     stop_searching_archive = True
                     return facts
                 elif any(
-                    this_file.lower().endswith(f".{fmt}")
-                    for fmt in SUPPORTED_INSTALL_FORMATS
+                    this_file.lower().endswith(f".{fmt}") for fmt in SUPPORTED_INSTALL_FORMATS
                 ):
                     facts = inspect_pkg(str(unpacked_dir / this_file), args, facts)
                     stop_searching_archive = True
@@ -705,22 +671,17 @@ def inspect_archive(input_path, args, facts):
                 for dirpath, dirnames, filenames in os.walk(str(unpacked_dir)):
                     # Remove __MACOSX and hidden directories from traversal
                     dirnames[:] = [
-                        d
-                        for d in dirnames
-                        if not (d == "__MACOSX" or d.startswith("."))
+                        d for d in dirnames if not (d == "__MACOSX" or d.startswith("."))
                     ]
                     for dirname in dirnames:
                         if has_ext(dirname, ".app"):
-                            facts = inspect_app(
-                                str(Path(dirpath) / dirname), args, facts
-                            )
+                            facts = inspect_app(str(Path(dirpath) / dirname), args, facts)
                             facts["relative_path"] = (
                                 str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
                             return facts
                         elif any(
-                            has_ext(dirname, bundle_type)
-                            for bundle_type in SUPPORTED_BUNDLE_TYPES
+                            has_ext(dirname, bundle_type) for bundle_type in SUPPORTED_BUNDLE_TYPES
                         ):
                             # Determine which bundle type matched
                             for bundle_type in SUPPORTED_BUNDLE_TYPES:
@@ -737,18 +698,14 @@ def inspect_archive(input_path, args, facts):
                             )
                             return facts
                         elif has_ext(dirname, ".pkg"):  # bundle packages
-                            facts = inspect_pkg(
-                                str(Path(dirpath) / dirname), args, facts
-                            )
+                            facts = inspect_pkg(str(Path(dirpath) / dirname), args, facts)
                             facts["relative_path"] = (
                                 str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
                             return facts
                     for filename in filenames:
                         if has_ext(filename, ".pkg"):  # flat packages
-                            facts = inspect_pkg(
-                                str(Path(dirpath) / filename), args, facts
-                            )
+                            facts = inspect_pkg(str(Path(dirpath) / filename), args, facts)
                             facts["relative_path"] = (
                                 str(Path(dirpath).relative_to(unpacked_dir)) + "/"
                             )
@@ -829,9 +786,7 @@ def inspect_bitbucket_url(input_path, args, facts):
     # Use GitHub API to obtain information about the repo and
     # releases.
     repo_api_url = "https://api.bitbucket.org/2.0/repositories/%s" % bitbucket_repo
-    releases_api_url = (
-        "https://api.bitbucket.org/2.0/repositories/%s/downloads" % bitbucket_repo
-    )
+    releases_api_url = "https://api.bitbucket.org/2.0/repositories/%s/downloads" % bitbucket_repo
 
     # TODO: Check for 403 rate-limiting errors without making 2
     # separate curl requests.
@@ -841,9 +796,7 @@ def inspect_bitbucket_url(input_path, args, facts):
         raw_json_release = curler.download(releases_api_url, text=True)
         parsed_release = json.loads(raw_json_release)
     except Exception as err:  # pylint: disable=W0703
-        facts["warnings"].append(
-            "Error occurred while accessing BitBucket API: %s" % err
-        )
+        facts["warnings"].append("Error occurred while accessing BitBucket API: %s" % err)
         return facts
 
     # Get app name.
@@ -871,9 +824,7 @@ def inspect_bitbucket_url(input_path, args, facts):
         if parsed_repo.get("description", "") not in ("", None):
             description = parsed_repo["description"]
         if description not in ("", None):
-            robo_print(
-                "BitBucket description is: %s" % description, LogLevel.VERBOSE, 4
-            )
+            robo_print("BitBucket description is: %s" % description, LogLevel.VERBOSE, 4)
             facts["description"] = description
         else:
             facts["warnings"].append("Could not detect BitBucket description.")
@@ -882,9 +833,7 @@ def inspect_bitbucket_url(input_path, args, facts):
     if "download_format" not in facts or "download_url" not in facts:
         download_format = ""
         download_url = ""
-        robo_print(
-            "Getting information from latest BitBucket release...", LogLevel.VERBOSE
-        )
+        robo_print("Getting information from latest BitBucket release...", LogLevel.VERBOSE)
         if "values" in parsed_release:
             # TODO: Use find_supported_release() instead of these
             # nested loops. May need to flatten the 'asset' dict first.
@@ -904,9 +853,7 @@ def inspect_bitbucket_url(input_path, args, facts):
             )
             facts["download_format"] = download_format
         else:
-            facts["warnings"].append(
-                "Could not detect BitBucket release download format."
-            )
+            facts["warnings"].append("Could not detect BitBucket release download format.")
         if download_url not in ("", None):
             robo_print(
                 "BitBucket release download URL is: %s" % download_url,
@@ -981,9 +928,7 @@ def inspect_disk_image(input_path, args, facts):
         # If the download filename was ambiguous, change it.
         download_filename = facts.get("download_filename", input_path)
         if not any(has_ext(download_filename, fmt) for fmt in SUPPORTED_IMAGE_FORMATS):
-            facts["download_filename"] = (
-                facts.get("download_filename", input_path) + ".dmg"
-            )
+            facts["download_filename"] = facts.get("download_filename", input_path) + ".dmg"
 
         # Clean the output for cases where the dmg has a license
         # agreement.
@@ -1001,12 +946,12 @@ def inspect_disk_image(input_path, args, facts):
         try:
             with open(str(Path(CACHE_DIR) / "dmg_attach.plist"), "rb") as openfile:
                 dmg_dict = plistlib.load(openfile)
-        except (AttributeError, TypeError, ValueError):
+        except (AttributeError, TypeError, ValueError) as err:
             raise RoboError(
                 "Shoot, I had trouble parsing the output of hdiutil while mounting the "
                 "downloaded dmg. Sorry about that.",
                 err,
-            )
+            ) from err
         for entity in dmg_dict["system-entities"]:
             if "mount-point" in entity:
                 dmg_mount = entity["mount-point"]
@@ -1030,10 +975,7 @@ def inspect_disk_image(input_path, args, facts):
                 exitcode, out, err = get_exitcode_stdout_stderr(cmd)
                 facts = inspect_app(cached_app_path, args, facts)
                 break
-            elif any(
-                has_ext(this_file, bundle_type)
-                for bundle_type in SUPPORTED_BUNDLE_TYPES
-            ):
+            elif any(has_ext(this_file, bundle_type) for bundle_type in SUPPORTED_BUNDLE_TYPES):
                 # Copy bundle to cache folder.
                 attached_app_path = str(Path(dmg_mount) / this_file)
                 cached_app_path = str(Path(CACHE_DIR) / "unpacked" / this_file)
@@ -1057,10 +999,7 @@ def inspect_disk_image(input_path, args, facts):
                         )
                         break
                 break
-            if any(
-                this_file.lower().endswith(f".{fmt}")
-                for fmt in SUPPORTED_INSTALL_FORMATS
-            ):
+            if any(this_file.lower().endswith(f".{fmt}") for fmt in SUPPORTED_INSTALL_FORMATS):
                 facts = inspect_pkg(str(Path(dmg_mount) / this_file), args, facts)
                 facts["pkg_in_dmg"] = this_file
                 break
@@ -1139,8 +1078,7 @@ def inspect_download_url(input_path, args, facts):
         and "bitbucket_url" not in facts["inspections"]
     ):
         facts["warnings"].append(
-            "This is a CDN-cached URL, and it may expire. Try feeding me a "
-            "permanent URL instead."
+            "This is a CDN-cached URL, and it may expire. Try feeding me a permanent URL instead."
         )
 
     # Warn if it looks like we're using an AWS URL with an access key.
@@ -1225,8 +1163,7 @@ def inspect_download_url(input_path, args, facts):
         robo_print("Download content-type is %s" % content_type, LogLevel.VERBOSE, 4)
         if not content_type.startswith(("binary/", "application/", "file/")):
             facts["warnings"].append(
-                "This download's content-type (%s) is unusual "
-                "for a download." % content_type
+                "This download's content-type (%s) is unusual for a download." % content_type
             )
 
     # Get the actual filename from the server, if it exists.
@@ -1249,9 +1186,7 @@ def inspect_download_url(input_path, args, facts):
         headers=headers,
         app_mode=facts["args"].app_mode,
     )
-    robo_print(
-        "Downloaded to %s" % str(Path(CACHE_DIR) / filename), LogLevel.VERBOSE, 4
-    )
+    robo_print("Downloaded to %s" % str(Path(CACHE_DIR) / filename), LogLevel.VERBOSE, 4)
 
     # Just in case the "download" was actually an XML response.
     with open(str(Path(CACHE_DIR) / filename), "rb") as download_file:
@@ -1319,9 +1254,7 @@ def inspect_download_url(input_path, args, facts):
                 robo_print("Download format is probably a dmg", LogLevel.VERBOSE, 4)
                 return inspect_disk_image(file_path, args, facts)
             elif format_type in SUPPORTED_ARCHIVE_FORMATS:
-                robo_print(
-                    "Download format is probably an archive", LogLevel.VERBOSE, 4
-                )
+                robo_print("Download format is probably an archive", LogLevel.VERBOSE, 4)
                 return inspect_archive(file_path, args, facts)
             elif format_type in SUPPORTED_INSTALL_FORMATS:
                 robo_print("Download format is probably a pkg", LogLevel.VERBOSE, 4)
@@ -1449,13 +1382,10 @@ def inspect_github_url(input_path, args, facts):
     # Leave a hint for people testing Recipe Robot on itself.
     if github_repo == "homebysix/recipe-robot":
         if args.ignore_existing is True:
-            facts["reminders"].append(
-                "Congratulations! You've achieved Recipe Robot recursion."
-            )
+            facts["reminders"].append("Congratulations! You've achieved Recipe Robot recursion.")
         else:
             facts["warnings"].append(
-                "Try using the --ignore-existing flag if you want me to "
-                "create recipes for myself."
+                "Try using the --ignore-existing flag if you want me to create recipes for myself."
             )
 
     # Prepare GitHub token, if we have one.
@@ -1510,9 +1440,7 @@ def inspect_github_url(input_path, args, facts):
     if "download_format" not in facts or "download_url" not in facts:
         download_format = ""
         download_url = ""
-        robo_print(
-            "Getting information from latest GitHub release...", LogLevel.VERBOSE
-        )
+        robo_print("Getting information from latest GitHub release...", LogLevel.VERBOSE)
         if "assets" in parsed_release:
             download_format, download_url = find_supported_release(
                 parsed_release["assets"], "browser_download_url"
@@ -1663,9 +1591,7 @@ def get_most_likely_app(app_list):
         if info_plist and (
             "SUFeedURL" in info_plist
             or "SUOriginalFeedURL" in info_plist
-            or os.path.exists(
-                candidate["path"] + "/Contents/Frameworks/DevMateKit.framework"
-            )
+            or os.path.exists(candidate["path"] + "/Contents/Frameworks/DevMateKit.framework")
         ):
             has_sparkle.append(index)
     if len(has_sparkle) == 1:
@@ -1676,9 +1602,7 @@ def get_most_likely_app(app_list):
     for index, candidate in enumerate(app_list):
         head = str(Path(candidate["path"]).parent)
         install_location = candidate.get("install_location", "")
-        if head.endswith("/Applications") or install_location.startswith(
-            "/Applications/"
-        ):
+        if head.endswith("/Applications") or install_location.startswith("/Applications/"):
             installs_to_apps.append(index)
     if len(installs_to_apps) == 1:
         return installs_to_apps[0]
@@ -1776,9 +1700,7 @@ def inspect_pkg(input_path, args, facts):
                 facts["codesign_authorities"] = codesign_authorities
                 facts["codesign_input_filename"] = Path(input_path).name
             else:
-                robo_print(
-                    "Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4
-                )
+                robo_print("Authority names unknown, treating as unsigned", LogLevel.VERBOSE, 4)
 
     else:
         robo_print(
@@ -1795,9 +1717,7 @@ def inspect_pkg(input_path, args, facts):
         try:
             shutil.rmtree(str(expand_path))
         except OSError as e:
-            robo_print(
-                f"Warning: Could not remove {expand_path}: {e}", LogLevel.WARNING
-            )
+            robo_print(f"Warning: Could not remove {expand_path}: {e}", LogLevel.WARNING)
     cmd = '/usr/sbin/pkgutil --expand "{}" "{}"'.format(input_path, str(expand_path))
     exitcode, out, _ = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
@@ -1862,9 +1782,7 @@ def inspect_pkg(input_path, args, facts):
                         )
 
                     # Check for install-location ending in .app
-                    install_location = pkginfo_parsed.getroot().attrib.get(
-                        "install-location", ""
-                    )
+                    install_location = pkginfo_parsed.getroot().attrib.get("install-location", "")
                     if has_ext(install_location, ".app"):
                         # Create a virtual app entry for this payload
                         app_name = Path(install_location)
@@ -1876,9 +1794,7 @@ def inspect_pkg(input_path, args, facts):
                                 and (Path(CACHE_DIR) / payload_dir).is_dir()
                             ):
                                 candidate_path = Path(CACHE_DIR) / payload_dir
-                                if (
-                                    candidate_path / "Contents" / "Info.plist"
-                                ).exists():
+                                if (candidate_path / "Contents" / "Info.plist").exists():
                                     payload_path = str(candidate_path)
                                     break
 
@@ -1924,18 +1840,14 @@ def inspect_pkg(input_path, args, facts):
                 if app.lower() in non_blocking_apps:
                     robo_print("Found application: %s" % app, LogLevel.VERBOSE, 4)
                 else:
-                    robo_print(
-                        "Added blocking application: %s" % app, LogLevel.VERBOSE, 4
-                    )
+                    robo_print("Added blocking application: %s" % app, LogLevel.VERBOSE, 4)
                     facts["blocking_applications"].append(app)
 
         # Determine which app, if any, to process further.
         if len(found_apps) == 0:
             facts["warnings"].append("No apps found in payload.")
         elif len(found_apps) == 1:
-            app_display_name = found_apps[0].get(
-                "app_name", Path(found_apps[0]["path"])
-            )
+            app_display_name = found_apps[0].get("app_name", Path(found_apps[0]["path"]))
             robo_print(
                 "Using app: %s" % app_display_name,
                 LogLevel.VERBOSE,
@@ -1952,8 +1864,7 @@ def inspect_pkg(input_path, args, facts):
             facts = inspect_app(found_apps[0]["path"], args, facts)
         elif len(found_apps) > 1:
             facts["warnings"].append(
-                "Multiple apps found in payload. I'll do my best to figure "
-                "out which one to use."
+                "Multiple apps found in payload. I'll do my best to figure out which one to use."
             )
             app_index = get_most_likely_app(found_apps)
             app_display_name = found_apps[app_index].get(
@@ -1969,9 +1880,7 @@ def inspect_pkg(input_path, args, facts):
                 LogLevel.VERBOSE,
                 4,
             )
-            relpath = (
-                Path(found_apps[app_index]["path"]).relative_to(CACHE_DIR).parts[1:]
-            )
+            relpath = Path(found_apps[app_index]["path"]).relative_to(CACHE_DIR).parts[1:]
             facts["app_relpath_from_payload"] = "/".join(relpath)
             facts["pkg_filename"] = found_apps[app_index]["pkg_filename"]
             facts = inspect_app(found_apps[app_index]["path"], args, facts)
@@ -2052,9 +1961,7 @@ def inspect_sourceforge_url(input_path, args, facts):
         raw_json = curler.download(project_api_url, text=True)
         parsed_json = json.loads(raw_json)
     except Exception as err:  # pylint: disable=W0703
-        facts["warnings"].append(
-            "Error occurred while accessing SourceForge API: %s" % err
-        )
+        facts["warnings"].append("Error occurred while accessing SourceForge API: %s" % err)
         return facts
 
     # Get app name.
@@ -2092,9 +1999,7 @@ def inspect_sourceforge_url(input_path, args, facts):
             elif parsed_json["short_description"] not in ("", None):
                 description = parsed_json["short_description"]
         if description not in ("", None):
-            robo_print(
-                "SourceForge description is: %s" % description, LogLevel.VERBOSE, 4
-            )
+            robo_print("SourceForge description is: %s" % description, LogLevel.VERBOSE, 4)
             facts["description"] = description
         else:
             facts["warnings"].append("Could not detect SourceForge description.")
@@ -2139,19 +2044,15 @@ def inspect_sourceforge_url(input_path, args, facts):
             # After:
             #   https://master.dl.sourceforge.net/project/grandperspectiv/grandperspective/Bug-112/Bug-112.zip?viasf=1
             dl_path = link.text.split("/files/")[-1].removesuffix("/download")
-            download_url = (
-                "https://master.dl.sourceforge.net/project/{}/{}?viasf=1".format(
-                    proj_name,
-                    dl_path,
-                )
+            download_url = "https://master.dl.sourceforge.net/project/{}/{}?viasf=1".format(
+                proj_name,
+                dl_path,
             )
             break
         if download_url not in ("", None):
             facts = inspect_download_url(download_url, args, facts)
         else:
-            facts["warnings"].append(
-                "Could not detect SourceForge latest release download_url."
-            )
+            facts["warnings"].append("Could not detect SourceForge latest release download_url.")
 
     # Warn user if the SourceForge project is private.
     if "private" in parsed_json:
@@ -2204,17 +2105,13 @@ def inspect_barebones_feed_url(input_path, args, facts):
         feed_info = plistlib.loads(curler.download(checked_url))
         feed_entries = feed_info.get("SUFeedEntries")
     except plistlib.InvalidFileException as err:
-        facts["warnings"].append(
-            "Error occurred while parsing Bare Bones feed (%s)" % err
-        )
+        facts["warnings"].append("Error occurred while parsing Bare Bones feed (%s)" % err)
         facts.pop("sparkle_feed", None)
         return facts
 
     # Remove items with unusable URLs.
     feed_entries = [
-        x
-        for x in feed_entries
-        if x.get("SUFeedEntryUpdateURL") or x.get("SUFeedEntryDownloadURL")
+        x for x in feed_entries if x.get("SUFeedEntryUpdateURL") or x.get("SUFeedEntryDownloadURL")
     ]
     if not feed_entries:
         robo_print("No usable items found in feed", LogLevel.VERBOSE, 4)
@@ -2230,9 +2127,7 @@ def inspect_barebones_feed_url(input_path, args, facts):
             continue
 
     for key in ("SUFeedEntryShortVersionString", "SUFeedEntryVersion"):
-        robo_print(
-            "The latest {} is {}".format(key, latest_info[key]), LogLevel.VERBOSE, 4
-        )
+        robo_print("The latest {} is {}".format(key, latest_info[key]), LogLevel.VERBOSE, 4)
 
     # Pass latest URL to download URL inspection function.
     facts["sparkle_provides_version"] = True
@@ -2303,9 +2198,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
 
     # If checked URL looks like a file download, inspect that instead.
     all_download_mime_types = [
-        mime_type
-        for mime_types in DOWNLOAD_MIME_TYPES.values()
-        for mime_type in mime_types
+        mime_type for mime_types in DOWNLOAD_MIME_TYPES.values() for mime_type in mime_types
     ]
     if head.get("content-type") in all_download_mime_types:
         robo_print(
@@ -2328,9 +2221,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     try:
         raw_xml = curler.download(checked_url, headers=headers, text=True)
     except Exception as err:  # pylint: disable=W0703
-        facts["warnings"].append(
-            "Error occurred while downloading Sparkle feed: %s" % err
-        )
+        facts["warnings"].append("Error occurred while downloading Sparkle feed: %s" % err)
         facts.pop("sparkle_feed", None)
         return facts
 
@@ -2390,9 +2281,7 @@ def inspect_sparkle_feed_url(input_path, args, facts):
     robo_print("The Sparkle feed provides a version number", LogLevel.VERBOSE, 4)
     for key in ("version", "shortVersionString"):
         if latest_info.get(key):
-            robo_print(
-                "The latest {} is {}".format(key, latest_info[key]), LogLevel.VERBOSE, 4
-            )
+            robo_print("The latest {} is {}".format(key, latest_info[key]), LogLevel.VERBOSE, 4)
     facts["sparkle_provides_version"] = sparkle_provides_version
 
     # Pass latest URL to download URL inspection function.

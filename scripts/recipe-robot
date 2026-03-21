@@ -314,9 +314,7 @@ def init_prefs(facts):
         # This seems to be necessary in order to avoid an error when reading
         # the plist back during subsequent runs.
         recipe_create_count = prefs.get("RecipeCreateCount")
-        prefs["RecipeCreateCount"] = (
-            int(recipe_create_count) if recipe_create_count else 0
-        )
+        prefs["RecipeCreateCount"] = int(recipe_create_count) if recipe_create_count else 0
 
     elif not args.app_mode:
         # The prefs file doesn't exist or is missing required keys.
@@ -327,8 +325,7 @@ def init_prefs(facts):
 
     else:
         robo_print(
-            "Some required prefs not set.\n\nPlease open "
-            "Preferences and check your settings.",
+            "Some required prefs not set.\n\nPlease open Preferences and check your settings.",
             LogLevel.ERROR,
         )
         sys.exit(1)
@@ -394,8 +391,7 @@ def set_recipe_preferences(prefs, recipes):
                     prefs["DSPackagesPath"] = "/Shared/DeployStudio/Packages"
                 robo_print("\nLocation of your DeployStudio packages:")
                 robo_print(
-                    "This where packages will be copied in order to "
-                    "appear in DeployStudio.\n"
+                    "This where packages will be copied in order to appear in DeployStudio.\n"
                 )
                 choice = input("[%s]: " % prefs["DSPackagesPath"])
                 if choice != "":
@@ -468,8 +464,7 @@ def get_preferred_recipe_types(prefs, recipes):
         for recipe in recipes:
             indicator = "*" if recipe["preferred"] else " "
             robo_print(
-                "[%s] %s. %s - %s"
-                % (indicator, i, recipe["type"], recipe["description"]),
+                "[%s] %s. %s - %s" % (indicator, i, recipe["type"], recipe["description"]),
                 indent=2,
             )
             i += 1
@@ -501,9 +496,7 @@ def get_preferred_recipe_types(prefs, recipes):
                 else:
                     recipes[choice]["preferred"] = False
             except (ValueError, IndexError):
-                invalid_option_msg = (
-                    "%s is not a valid option. Please try again.\n" % choice
-                )
+                invalid_option_msg = "%s is not a valid option. Please try again.\n" % choice
                 robo_print(invalid_option_msg, LogLevel.WARNING)
                 continue
 
@@ -562,9 +555,7 @@ def debug_dump(items):
             we will be reporting in the debug output.
     """
     for key in items.keys():
-        robo_print(
-            "%s:\n%s\n" % (key.upper(), pprint.pformat(items[key])), LogLevel.DEBUG
-        )
+        robo_print("%s:\n%s\n" % (key.upper(), pprint.pformat(items[key])), LogLevel.DEBUG)
 
 
 if __name__ == "__main__":

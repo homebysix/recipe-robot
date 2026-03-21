@@ -87,9 +87,7 @@ def main():
             elif recipe_dict["Input"].get("GITHUB_REPO"):
                 input_path = "https://github.com/" + recipe_dict["Input"]["GITHUB_REPO"]
             elif recipe_dict.get("Process"):
-                input_path = get_proc_attr(
-                    recipe_dict["Process"], "URLDownloader", "url"
-                )
+                input_path = get_proc_attr(recipe_dict["Process"], "URLDownloader", "url")
                 if not input_path:
                     input_path = get_proc_attr(
                         recipe_dict["Process"],
@@ -146,9 +144,7 @@ def main():
 
     output = []
     for app_name, datum in sample_data.items():
-        if all(
-            (datum.get("bundle_id"), datum.get("developer"), datum.get("input_path"))
-        ):
+        if all((datum.get("bundle_id"), datum.get("developer"), datum.get("input_path"))):
             output.append(
                 {
                     "app_name": app_name,
