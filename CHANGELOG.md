@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
-Nothing yet.
+### Fixed
+
+- Bug fix for error that occurred when expanded zip files contained a `__MACOSX` resource fork folder. (#231)
 
 ## [2.5.0] - 2025-11-08
 

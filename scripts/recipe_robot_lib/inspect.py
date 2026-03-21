@@ -703,10 +703,14 @@ def inspect_archive(input_path, args, facts):
             # Didn't find an app, prefpane, or pkg on the root level? Look deeper.
             if stop_searching_archive is False:
                 for dirpath, dirnames, filenames in os.walk(str(unpacked_dir)):
+                    # Remove __MACOSX and hidden directories from traversal
+                    dirnames[:] = [
+                        d
+                        for d in dirnames
+                        if not (d == "__MACOSX" or d.startswith("."))
+                    ]
                     for dirname in dirnames:
-                        if dirname.startswith("."):
-                            dirnames.remove(dirname)
-                        elif has_ext(dirname, ".app"):
+                        if has_ext(dirname, ".app"):
                             facts = inspect_app(
                                 str(Path(dirpath) / dirname), args, facts
                             )
