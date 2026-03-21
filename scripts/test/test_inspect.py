@@ -1290,8 +1290,10 @@ class TestInspectSourceForgeUrl(unittest.TestCase):
                         mock_extra_info.text = "binary"
                         mock_link = MagicMock()
                         mock_link.text = f"https://sourceforge.net/projects/{expected_project_name}/files/TestApp-2.0.dmg/download"
-                        mock_item.find.side_effect = lambda tag: (
-                            mock_extra_info if "extra-info" in tag else mock_link
+                        mock_item.find.side_effect = (
+                            lambda tag, mock_extra_info=mock_extra_info, mock_link=mock_link: (
+                                mock_extra_info if "extra-info" in tag else mock_link
+                            )
                         )
                         mock_doc.iterfind.return_value = [mock_item]
                         mock_et.return_value = mock_doc
@@ -2668,10 +2670,12 @@ class TestGetDownloadLinkFromXattr(unittest.TestCase):
         """Test handling when plistlib fails to parse the xattr data."""
         # Mock successful xattr retrieval but failed plist parsing
         mock_getxattr.return_value = b"invalid_plist_data"
-        mock_plistlib_loads.side_effect = Exception("Invalid plist format")
+        import plistlib
+
+        mock_plistlib_loads.side_effect = plistlib.InvalidFileException("Invalid plist format")
 
         # Call the function - this should raise the exception since it's not caught
-        with self.assertRaises(Exception):
+        with self.assertRaises(plistlib.InvalidFileException):
             get_download_link_from_xattr(self.test_path, self.args, self.facts)
 
         # Verify xattr was queried

@@ -141,7 +141,7 @@ def raise_if_recipes_cannot_be_generated(facts, preferred):
 
     # We don't have enough information to create a recipe set.
     if not facts.is_from_app_store() and not any(
-        [key in facts for key in ("sparkle_feed", "github_repo", "sourceforge_id", "download_url")]
+        key in facts for key in ("sparkle_feed", "github_repo", "sourceforge_id", "download_url")
     ):
         raise RoboError(
             "Sorry, I don't know how to download this app. Maybe "

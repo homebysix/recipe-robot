@@ -396,7 +396,7 @@ def create_dest_dirs(path):
                 "Please check that the parent directory exists and you have "
                 "write permissions." % str(dest_dir),
                 error,
-            )
+            ) from error
 
 
 def extract_app_icon(facts, png_path):
@@ -555,7 +555,7 @@ def any_item_in_string(items, test_string):
     Returns:
         bool: True if any item exists in test_string, False otherwise.
     """
-    return any([True for item in items if item in test_string])
+    return any(item in test_string for item in items)
 
 
 def check_search_cache(facts, search_index_path):
@@ -720,7 +720,8 @@ def create_existing_recipe_list(facts):
         robo_print("No valid results found", LogLevel.VERBOSE, 4)
         return
 
-    col_widths = [max([len(x[k]) for x in result_items] + [len(k)]) for k in result_items[0].keys()]
+    keys = list(result_items[0].keys())
+    col_widths = [max([len(x[key]) for x in result_items] + [len(key)]) for key in keys]
 
     # Print result table, sorted by repo
     robo_print("Found existing recipe(s):", LogLevel.LOG, 4)

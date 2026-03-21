@@ -453,7 +453,7 @@ class TestRecipes(unittest.TestCase):
 
         # Test iteration
         count = 0
-        for recipe in self.recipes:
+        for _recipe in self.recipes:
             count += 1
         self.assertEqual(count, initial_count)
 
