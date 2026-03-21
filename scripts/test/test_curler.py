@@ -22,7 +22,6 @@ test_curler.py
 Unit tests for curl-related functions.
 """
 
-
 import json
 import unittest
 from pathlib import Path

@@ -29,7 +29,6 @@ The NoisyNotifyingList posts NSNotifications under the same conditions,
 but also robo_prints the message as well.
 """
 
-
 # pylint: disable=no-name-in-module
 
 from Foundation import NSDistributedNotificationCenter, NSNotificationDeliverImmediately

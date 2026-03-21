@@ -26,7 +26,6 @@ Makes Processor subclasses from importing and introspection on the
 AutoPkg autopkglib.
 """
 
-
 import sys
 
 from .tools import LogLevel, robo_print

@@ -23,7 +23,6 @@ This module of Recipe Robot contains various helper and tool functions that
 support the main `recipe-robot` script and the `recipe_generator.py` module.
 """
 
-
 import json
 import os
 import re
@@ -482,8 +481,7 @@ def get_exitcode_stdout_stderr(cmd, stdin="", text=True):
 
 def print_welcome_text():
     """Print the text that appears when you run Recipe Robot."""
-    welcome_text = (
-        """
+    welcome_text = """
                       -----------------------------------
                      |  Welcome to Recipe Robot v%s.  |
                       -----------------------------------
@@ -492,9 +490,7 @@ def print_welcome_text():
                                    d-||-b
                                      ||
                                    _/  \\_
-    """
-        % __version__
-    )
+    """ % __version__
 
     robo_print(welcome_text)
 
