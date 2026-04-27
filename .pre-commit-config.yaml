@@ -22,11 +22,11 @@ repos:
       - id: blacken-docs
         additional_dependencies: [black>=23.9.1]
   - repo: https://github.com/homebysix/pre-commit-macadmin
-    rev: v1.22.1
+    rev: v1.24.1
     hooks:
       - id: check-plists
   - repo: https://github.com/pycqa/isort
-    rev: 8.0.1
+    rev: 9.0.0a3
     hooks:
       - id: isort
   - repo: https://github.com/pycqa/flake8
