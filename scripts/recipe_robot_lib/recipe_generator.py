@@ -616,6 +616,7 @@ def generate_app_store_munki_recipe(facts, prefs, recipe):
         "display_name": facts["app_name"],
         "name": "%NAME%",
         "unattended_install": True,
+        "unattended_uninstall": True,
     }
 
     if "description" in facts:
@@ -660,6 +661,7 @@ def generate_munki_recipe(facts, prefs, recipe):
         "display_name": facts[bundle_name_key],
         "name": "%NAME%",
         "unattended_install": True,
+        "unattended_uninstall": True,
     }
 
     if "description" in facts:

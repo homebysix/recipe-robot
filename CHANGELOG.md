@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 ## Unreleased
 
+### Added
+
+- Munki recipes now set `unattended_uninstall` in addition to the existing `unattended_install`.
+
 ### Fixed
 
 - Bug fix for error that occurred when expanded zip files contained a `__MACOSX` resource fork folder. (#231)
